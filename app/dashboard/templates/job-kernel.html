@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <h4>{{ body_title|safe }}</h4>
+</div>
+<div class="row">
+    <div class="col-lg-7">
+    <dl class="dl-horizontal">
+        <dt>Git branch</dt>
+        <dd>{{ job_doc.result.metadata.git_branch }}</dd>
+        <dt>Git describe</dt>
+        <dd>{{ job_doc.result.metadata.git_describe }}</dd>
+        <dt>Git URL</dt>
+        <dd>{{ job_doc.result.metadata.git_url }}</dd>
+        <dt>Git commit</dt>
+        <dd>{{ job_doc.result.metadata.git_commit }}</dd>
+    </dl>
+    </div>
+    <div class="col-lg-5">
+        <div id="builds-chart" align="center">
+            <div id="builds-chart-heading"></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+<h4>Defconfigs Built</h4>
+</div>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#li-job').addClass("active");
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto top',
+    });
+
+    $.ajax({
+        'url': '/_ajax/defconf',
+        'type': 'GET',
+        'traditional': true,
+        'data': {
+            'job_id': '{{ job_doc.result._id }}',
+            'field': 'status',
+            'nfield': '_id',
+        },
+    }).done(function(data) {
+        console.log(data);
+
+        data = data['result']
+
+        var success = 0,
+            fail = 0,
+            unknown = 0;
+
+        for (var i = 0; i < data.length; i++) {
+            switch (data[i]['status']) {
+                case 'FAILED':
+                    fail++;
+                    break;
+                case 'SUCCESS':
+                    success++;
+                    break;
+                default:
+                    unknown++;
+                    break
+            };
+        };
+
+        var dataset = [success, fail, unknown],
+            width = 200,
+            height = 200,
+            radius = Math.min(width, height) / 2;
+
+        var color = ['#148514', '#A61919', '#A66619']
+        var pie = d3.layout.pie().sort(null);
+        var arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
+
+        var svg = d3.select("#builds-chart").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+        var path = svg.selectAll("path")
+            .data(pie(dataset))
+            .enter().append("path")
+            .attr("fill", function(d, i) {
+                return color[i];
+            })
+            .attr("d", arc);
+
+        $('#builds-chart-heading').append(success + '&nbsp;/&nbsp;' + fail + '&nbsp;/&nbsp;' + unknown)
+    });
+});
+</script>
+{%- endblock %}

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+<table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="jobstable">
+</table>
+</div>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/js/kernelci.js"></script>
+<script type="text/javascript" src="/static/js/datatables.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#li-job').addClass("active");
+    $('#jobstable').dataTable({
+        'oLanguage': {
+            'sLengthMenu': '_MENU_ jobs per page'
+        },
+        'bProcessing': true,
+        'bSort': true,
+        'sAjaxSource': '/_ajax/job',
+        'aLengthMenu': [[25, 50, 75, 100], [25, 50, 75, 100]],
+        'iDisplayLength': 25,
+        'aaSorting': [[3,'desc']],
+        'sAjaxDataProp': 'result',
+        'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                'type': 'GET',
+                'url': sSource,
+                'success': fnCallback,
+                'data': {
+                    'aggregate': 'job',
+                    'sort': 'created',
+                    'sort_order': 1,
+                },
+            });
+        },
+        'aoColumns': [
+            {
+                'mData': '_id',
+                'bVisible': false,
+            },
+            {
+                'mData': 'job',
+                'sTitle': 'Job',
+                'mRender': function(data, type, object) {
+                    var displ = '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="Details for&nbsp;' + data + '">' +
+                        '<a href="/job/' + data + '">' + data + '</a>' +
+                        '</span>';
+                    return displ;
+                }
+            },
+            {
+                'mData': 'kernel',
+                'sTitle': 'Kernel',
+                'mRender': function(data, type, object) {
+                    var job = object['job'];
+                    var displ = '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + data + '"><a href="/job/' + job + '/kernel/' + data + '">' + data + '</a></span>'
+
+                    return displ;
+                },
+            },
+            {
+                'mData': 'created',
+                'sTitle': 'Created',
+                'sType': 'date',
+                'mRender': function(data, type, object) {
+                    var created = new Date(object['created']);
+                    return created.getCustomISOFormat();
+                },
+            },
+            {
+                'mData': 'updated',
+                'sTitle': 'Updated',
+                'sType': 'date',
+                'mRender': function(data, type, object) {
+                    var updated = new Date(object['updated']);
+                    return updated.getCustomISOFormat();
+                },
+            },
+            {
+                'mData': 'status',
+                'sTitle': 'Status',
+                'bSortable': false,
+                'mRender': function(data, type, object) {
+                    var displ;
+                    switch (data) {
+                        case 'BUILDING':
+                            displ = '<span rel="tooltip" ' +
+                                    'data-toggle="tooltip" ' +
+                                    'title="Building">' +
+                                    '<li class="fa fa-cogs"></li></span>';
+                            break;
+                        case 'DONE':
+                            displ = '<span rel="tooltip" ' + 
+                                    'data-toggle="tooltip" ' +
+                                    'title="Build completed">' +
+                                    '<li class="fa fa-check"></li></span>';
+                            break;
+                        case 'FAILED':
+                            displ = '<span rel="tooltip" ' +
+                                    'data-toggle="tooltip" title="Fail">' + 
+                                    '<li class="fa fa-exclamation-triangle">' +
+                                    '</li></span>';
+                            break;
+                        default:
+                            displ = '<span rel="tooltip" ' + 
+                                    'data-toggle="tooltip"' +
+                                    'title="Unknown status">' +
+                                    '<li class="fa fa-question"></li></span>';
+                            break;
+                    }
+                    return displ;
+                },
+            },
+        ]
+    });
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto left',
+    });
+});
+</script>
+{%- endblock %}

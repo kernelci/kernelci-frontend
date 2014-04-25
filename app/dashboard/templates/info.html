@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Information on Kernel CI Dashboard{% endblock %}
+{% block content %}
+<p>
+    What this is all about.
+</p>
+{% endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#li-info').addClass("active");
+});
+</script>
+{%- endblock %}
