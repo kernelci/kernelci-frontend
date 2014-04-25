@@ -38,7 +38,7 @@ class JobView(View):
         title = 'Details for&nbsp;' + kwargs['job']
 
         kwargs['sort'] = 'created'
-        kwargs['sort_order'] = 1
+        kwargs['sort_order'] = -1
 
         response = get_job(**kwargs)
 
