@@ -2,3 +2,30 @@ Kernel CI Frontend
 ==================
 
 Data visualization tool for the kernel-ci-backend.
+
+Installation & Run
+==================
+
+Requirements are defined in the requirements.txt file.
+
+Once installed, to run the Flask application:
+
+  cd app/
+  python server.py
+
+It will bind to localhost:5000
+
+Configuration
+=============
+
+There is a default file with configuration parameters located at:
+
+  app/dashboard/default_settings.py
+
+To override those values, create a file similar to that one, and define
+the following env variable that points to it:
+
+  FLASK_SETTINGS
+
+The important parameter to define, at this moment, is the BACKEND_URL, that
+should point to the server:port running the backend REST API.
