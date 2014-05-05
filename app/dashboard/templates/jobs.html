@@ -69,26 +69,17 @@ $(document).ready(function() {
             },
             {
                 'mData': 'created',
-                'sTitle': 'Created',
+                'sTitle': 'Date',
                 'sType': 'date',
                 'mRender': function(data, type, object) {
                     var created = new Date(object['created']);
-                    return created.getCustomISOFormat();
-                },
-            },
-            {
-                'mData': 'updated',
-                'sTitle': 'Updated',
-                'sType': 'date',
-                'mRender': function(data, type, object) {
-                    var updated = new Date(object['updated']);
-                    return updated.getCustomISOFormat();
+                    return created.getCustomISODate();
                 },
             },
             {
                 'mData': 'status',
                 'sTitle': 'Status',
-                'bSortable': false,
+                'sType': 'string',
                 'mRender': function(data, type, object) {
                     var displ;
                     switch (data) {

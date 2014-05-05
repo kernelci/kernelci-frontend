@@ -94,10 +94,14 @@ $(document).ready(function() {
 
                 var created = new Date(defconfs[i]['created']),
                     col1 = '<td>' +
-                        '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '">' +
+                        '<span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp;' + job + '">' +
                         '<a href="/job/' + job + '">' + job + '&nbsp;&dash;&nbsp;<small>' + defconfs[i]['metadata']['git_branch'] + '</small>' +'</a></span></td>',
-                    col2 = '<td>' + defconfs[i]['kernel'] + '</td>',
+                    col2 = '<td>' +
+                        '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + defconfs[i]['kernel'] + '"><a href="/job/' + job + '/kernel/' + defconfs[i]['kernel'] + '">' +
+                        defconfs[i]['kernel'] + '</a></td>',
                     col3 = '<td>' + created.getCustomISODate() + '</td>',
+                    col4 = '<td>' +
+                        '<span rel="tooltip"',
                     row = '<tr>' + col1 + col2 + col3 + '</tr>';
 
                 $(this).append(row);
