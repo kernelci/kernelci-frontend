@@ -3,6 +3,17 @@
 {%- block head %}
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+    <style type="text/css">
+        #builds-chart-legend td {
+            text-align: center;
+            width: 25px;
+            border-bottom: 3px solid;
+        }
+
+        #builds-chart-legend td:nth-child(even) {
+            border: none;
+        }
+    </style>
 {%- endblock %}
 {%- block content %}
 <div class="row">
@@ -23,7 +34,19 @@
     </div>
     <div class="col-lg-5">
         <div id="builds-chart" align="center">
-            <div id="builds-chart-heading"></div>
+            <div id="builds-chart-heading">
+            <table id="builds-chart-legend">
+                <tbody>
+                <tr>
+                    <td id="success-cell">0</td>
+                    <td>&nbsp;/&nbsp;</td>
+                    <td id="fail-cell">0</td>
+                    <td>&nbsp;/&nbsp;</td>
+                    <td id="unknown-cell">0</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
         </div>
     </div>
 </div>
@@ -52,9 +75,7 @@ $(document).ready(function() {
             'nfield': '_id',
         },
     }).done(function(data) {
-        console.log(data);
-
-        data = data['result']
+        data = data['result'];
 
         var success = 0,
             fail = 0,
@@ -79,9 +100,10 @@ $(document).ready(function() {
             height = 200,
             radius = Math.min(width, height) / 2;
 
-        var color = ['#148514', '#A61919', '#A66619']
-        var pie = d3.layout.pie().sort(null);
-        var arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
+        // success, fail and unknown status colors.
+        var color = ['#148514', '#A61919', '#A66619'],
+            pie = d3.layout.pie().sort(null),
+            arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
 
         var svg = d3.select("#builds-chart").append("svg")
             .attr("width", width)
@@ -97,7 +119,27 @@ $(document).ready(function() {
             })
             .attr("d", arc);
 
-        $('#builds-chart-heading').append(success + '&nbsp;/&nbsp;' + fail + '&nbsp;/&nbsp;' + unknown)
+        $('#success-cell')
+            .empty()
+            .append(
+                '<span rel="tooltip" data-toggle="tooltip" title="Successful">' +
+                success +
+                '</span>')
+            .css('border-bottom-color', color[0]);
+        $('#fail-cell')
+            .empty()
+            .append(
+                '<span rel="tooltip" data-toggle="tooltip" title="Failed">' +
+                fail +
+                '</span>')
+            .css('border-bottom-color', color[1]);
+        $('#unknown-cell')
+            .empty()
+            .append(
+                '<span rel="tooltip" data-toggle="tooltip" title="Unknown">' +
+                unknown +
+                '</span>')
+            .css('border-bottom-color', color[2]);
     });
 });
 </script>
