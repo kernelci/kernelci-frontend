@@ -75,7 +75,6 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript">
-
 function showHideDefconfs(element) {
     switch (element.id) {
         case 'success-btn':
@@ -102,11 +101,15 @@ function showHideDefconfs(element) {
 };
 
 $(document).ready(function() {
-    $('#li-job').addClass("active");
-
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top',
+    });
+
+    $('#li-job').addClass("active");
+
+    $('.btn-group > .btn').click(function() {
+        $(this).addClass('active').siblings().removeClass('active');
     });
 
     $.ajax({
@@ -204,6 +207,7 @@ $(document).ready(function() {
             label;
 
         $('#all-btn').removeAttr('disabled');
+        $('#all-btn').addClass('active');
 
         for (var i = 0; i < data.length; i++) {
             switch (data[i]['status']) {
