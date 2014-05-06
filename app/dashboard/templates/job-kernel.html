@@ -4,6 +4,10 @@
 {{ super() }}
     <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
     <style type="text/css">
+        .panel-heading {
+            cursor: pointer;
+        }
+
         #builds-chart-legend td {
             text-align: center;
             width: 25px;
@@ -52,14 +56,54 @@
 </div>
 <div class="row">
 <h4>Defconfigs Built</h4>
+<div class="col-lg-12">
+<p>
+    <div class="btn-group">
+        <button id="all-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled="disable">All</button>
+        <button id="success-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled="disable">Success</button>
+        <button id="fail-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled="disable">Failed</button>
+        <button id="unknown-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled="disable">Unknown</button>
+    </div>
+</p>
+</div>
+<div class="col-lg-12">
+    <div class="panel-group" id="accordion"></div>
+</div>
 </div>
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript">
+
+function showHideDefconfs(element) {
+    switch (element.id) {
+        case 'success-btn':
+            $('.df-failed').hide();
+            $('.df-success').show();
+            $('.df-unknonw').hide();
+            break;
+        case 'failed-btn':
+            $('.df-failed').show();
+            $('.df-success').hide();
+            $('.df-unknonw').hide();
+            break;
+        case 'unknown-btn':
+            $('.df-failed').hide();
+            $('.df-success').hide();
+            $('.df-unknonw').show();
+            break;
+        default:
+            $('.df-failed').show();
+            $('.df-success').show();
+            $('.df-unknonw').show();
+            break;
+    };
+};
+
 $(document).ready(function() {
     $('#li-job').addClass("active");
+
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top',
@@ -141,6 +185,75 @@ $(document).ready(function() {
                 '</span>')
             .css('border-bottom-color', color[2]);
     });
+
+    $.ajax({
+        'url': '/_ajax/defconf',
+        'type': 'GET',
+        'traditional': true,
+        'context': $('#accordion'),
+        'data': {
+            'job_id': '{{ job_doc.result._id }}',
+            'sort': '_id',
+            'sort_order': 1,
+        },
+    }).done(function(data) {
+        data = data['result'];
+
+        var panel,
+            cls,
+            label;
+
+        $('#all-btn').removeAttr('disabled');
+
+        for (var i = 0; i < data.length; i++) {
+            switch (data[i]['status']) {
+                case 'FAILED':
+                    label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
+                    cls = 'df-failed';
+                    $('#fail-btn').removeAttr('disabled');
+                    break;
+                case 'SUCCESS':
+                    label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
+                    cls = 'df-success';
+                    $('#success-btn').removeAttr('disabled');
+                    break;
+                default:
+                    label = '<span class="pull-right label label-warning"><li class="fa fa-question"></li></span>';
+                    cls = 'df-unknown';
+                    $('#unknown-btn').removeAttr('disabled');
+                    break;
+            };
+
+            panel = '<div class="panel panel-default ' + cls + '">' +
+                '<div class="panel-heading" data-toggle="collapse" data-parent="accordion" data-target="#defconf' + i + '">' +
+                '<h4 class="panel-title">' +
+                '<a data-toggle="collapse" data-parent="#accordion" href="#defconf' + i + '">' +
+                data[i]['metadata']['defconfig'] +
+                '</a>' + label + '</h4></div>' +
+                '<div id="defconf' + i + '" class="panel-collapse collapse">' +
+                '<div class="panel-body">';
+
+            panel += '<dl class="dl-horizontal">' +
+                '<dt>DTB directory</dt>' +
+                '<dd>' + data[i]['metadata']['dtb_dir'] + '</dd>' +
+                '<dt>Modules directory</dt>' +
+                '<dd>' + data[i]['metadata']['modules_dir'] + '</dd>' +
+                '<dt>Text offset</dt>' +
+                '<dd>' + data[i]['metadata']['text_offset'] + '</dd>' +
+                '<dt>Kernel zImage</dt>' +
+                '<dd><a href="' + data[i]['zimage'] + '">' + data[i]['metadata']['kernel_image'] +
+                '</a></dd>' +
+                '<dt>Kernel config</dt>' +
+                '<dd><a href="' + data[i]['kernel_conf'] + '">' + data[i]['metadata']['kernel_config'] + '</a></dd>' +
+                '<dt>Build log</dt>' +
+                '<dd><a href="' + data[i]['build_log'] + '">' + data[i]['metadata']['build_log'] + '</a></dd>' +
+                '</dl>';
+
+            panel += '</div></div></div>';
+            $(this).append(panel);
+        };
+    });
+
 });
 </script>
 {%- endblock %}

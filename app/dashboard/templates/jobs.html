@@ -48,11 +48,14 @@ $(document).ready(function() {
             },
             {
                 'mData': 'job',
-                'sTitle': 'Job',
+                'sTitle': 'Tree &dash; Branch',
                 'mRender': function(data, type, object) {
                     var displ = '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data + '">' +
-                        '<a href="/job/' + data + '">' + data + '</a>' +
+                        '<a href="/job/' + data + '">' + data +
+                        '&nbsp;&dash;&nbsp;<small>' +
+                        object['metadata']['git_branch'] +
+                        '</small></a>' +
                         '</span>';
                     return displ;
                 }
