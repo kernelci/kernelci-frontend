@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from bson import json_util
+from datetime import date
 from flask import render_template
 from flask.views import View
 
@@ -24,10 +25,16 @@ class JobsView(View):
 
     def dispatch_request(self):
 
-        title = 'Kernel CI Dashboard &mdash; Jobs'
+        page_title = 'Kernel CI Dashboard &mdash; Jobs'
+        results_title = 'Available Jobs'
+
+        server_date = date.today()
 
         return render_template(
-            'jobs.html', page_title=title
+            'jobs.html',
+            page_title=page_title,
+            server_date=server_date,
+            results_title=results_title
         )
 
 
