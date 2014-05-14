@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+{%- endblock %}
+{%- block content %}
+{% include "date_range.html" %}
+<div class="row">
+    <div class="col-lg-12">
+        <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="boots-table">
+        </table>
+    </div>
+</div>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/js/kernelci.js"></script>
+<script type="text/javascript" src="/static/js/datatables.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#li-boot').addClass("active");
+    $('#boots-table').dataTable({
+        'oLanguage': {
+            'sLengthMenu': '_MENU_ boot reports per page'
+        },
+        'bProcessing': true,
+        'bSort': true,
+        'sAjaxSource': '/_ajax/boot',
+        'aLengthMenu': [[25, 50, 75, 100], [25, 50, 75, 100]],
+        'iDisplayLength': 25,
+        'aaSorting': [[4,'desc']],
+        'sAjaxDataProp': 'result',
+        'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
+            oSettings.jqXHR = $.ajax({
+                'type': 'GET',
+                'url': sSource,
+                'success': fnCallback,
+                'data': {
+                    'sort': 'created',
+                    'sort_order': -1,
+                    'date_range': 15,
+                    'field': [
+                        'job', 'kernel', 'defconfig', 'board', 'created',
+                        'status',
+                    ],
+                },
+            });
+        },
+        'aoColumns': [
+            {
+                'mData': 'job',
+                'sTitle': 'Tree',
+            },
+            {
+                'mData': 'kernel',
+                'sTitle': 'Kernel',
+            },
+            {
+                'mData': 'defconfig',
+                'sTitle': 'Defconfig',
+            },
+            {
+                'mData': 'board',
+                'sTitle': 'Board Model',
+            },
+            {
+                'mData': 'created',
+                'sTitle': 'Date',
+                'sType': 'date',
+                'mRender': function(data, type, object) {
+                    var created = new Date(object['created']);
+                    return created.getCustomISODate();
+                },
+            },
+            {
+                'mData': 'status',
+                'sTitle': 'Status',
+                'sType': 'string',
+                'mRender': function(data, type, object) {
+                    var displ;
+                    switch (data) {
+                        case 'PASS':
+                            displ = '<span rel="tooltip" ' + 
+                                    'data-toggle="tooltip" ' +
+                                    'title="Build completed">' +
+                                    '<li class="fa fa-check"></li></span>';
+                            break;
+                        case 'FAIL':
+                            displ = '<span rel="tooltip" ' +
+                                    'data-toggle="tooltip" title="Fail">' + 
+                                    '<li class="fa fa-exclamation-triangle">' +
+                                    '</li></span>';
+                            break;
+                        default:
+                            displ = '<span rel="tooltip" ' + 
+                                    'data-toggle="tooltip"' +
+                                    'title="Unknown status">' +
+                                    '<li class="fa fa-question"></li></span>';
+                            break;
+                    }
+                    return displ;
+                },
+            },
+        ]
+    });
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto left',
+    });
+});
+</script>
+{%- endblock %}

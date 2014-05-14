@@ -22,6 +22,7 @@ from flask import (
 
 from dashboard.views.about import AboutView
 from dashboard.views.build import BuildsView
+from dashboard.views.boot import BootsView
 from dashboard.views.index import IndexView
 from dashboard.views.job import (
     JobsView,
@@ -60,6 +61,10 @@ app.add_url_rule(
     '/job/<string:job>/kernel/<string:kernel>/',
     view_func=JobIdView.as_view('job-id'),
     methods=['GET'],
+)
+
+app.add_url_rule(
+    '/boot/', view_func=BootsView.as_view('boots'), methods=['GET'],
 )
 
 
