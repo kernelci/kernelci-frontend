@@ -31,6 +31,7 @@ from dashboard.views.job import (
 from utils.backend import (
     ajax_get_defconfigs,
     ajax_get_jobs,
+    ajax_get_boots,
 )
 
 APP_ENVVAR = 'FLASK_SETTINGS'
@@ -75,3 +76,8 @@ def ajax_jobs():
 @app.route('/_ajax/defconf')
 def ajax_defconfs():
     return ajax_get_defconfigs(request)
+
+
+@app.route('/_ajax/boot')
+def ajax_boot():
+    return ajax_get_boots(request)
