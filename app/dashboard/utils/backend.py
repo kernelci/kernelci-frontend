@@ -24,6 +24,7 @@ from urlparse import urljoin
 
 JOB_API = '/api/job'
 DEFCONF_API = '/api/defconfig'
+BOOT_API = '/api/boot'
 
 
 def _create_url_headers(api_path):
@@ -103,5 +104,20 @@ def ajax_get_jobs(request):
         jobs = json_util.loads(data['result'])
 
         response['result'] = jobs
+
+    return jsonify(response)
+
+
+def ajax_get_boots(request):
+    url, headers = _create_url_headers(BOOT_API)
+    r = requests.get(url, headers=headers, params=request.args.lists())
+
+    response = {}
+
+    if r.status_code == 200:
+        data = json_util.loads(r.content)
+        boots = json_util.loads(data['result'])
+
+        response['result'] = boots
 
     return jsonify(response)
