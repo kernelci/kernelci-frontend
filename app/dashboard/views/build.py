@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import date
+
 from flask import render_template
 from flask.views import View
 
@@ -21,4 +23,12 @@ class BuildsView(View):
 
     def dispatch_request(self, *args, **kwargs):
         page_title = 'Kernel CI Dashboard &mdash; Builds'
-        return render_template('builds.html', page_title=page_title)
+        results_title = 'Available Builds'
+        server_date = date.today()
+
+        return render_template(
+            'builds.html',
+            page_title=page_title,
+            server_date=server_date,
+            results_title=results_title,
+        )
