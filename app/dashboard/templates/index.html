@@ -53,7 +53,19 @@
 </div>
 <div class="row">
     <div class="col-lg-12">
-        <h3>Latest Boot Reports</h3>
+        <h3>Latest Failed Boot Reports <small>(last 15 days)</small></h3>
+        <table id="failed-boots" class="table table-striped tabled-condensed">
+            <thead>
+                <tr>
+                    <th>Tree</th>
+                    <th>Kernel</th>
+                    <th>Board</th>
+                    <th>Defconfig</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="failed-boots-body"></tbody>
+        </table>
     </div>
 </div>
 {%- endblock %}
@@ -136,6 +148,41 @@ $(document).ready(function() {
                     col2 = '<td>' + jobs[i]['kernel'] + '</td>',
                     col3 = '<td>' + created.getCustomISODate() + '</td>',
                     row = '<tr>' + col1 + col2 + col3 + '</tr>';
+
+                $(this).append(row);
+            };
+        };
+    });
+
+    $.ajax({
+        'url': '/_ajax/boot',
+        'type': 'GET',
+        'traditional': true,
+        'context': $('#failed-boots-body'),
+        'data': {
+            'limit': 15,
+            'status': 'FAIL',
+            'sort': 'created',
+            'field': ['board', 'job', 'kernel', 'defconfig', 'created'],
+        }
+    }).done(function(data) {
+        var boots = data['result'];
+
+        $(this).empty();
+
+        if (boots.length == 0) {
+            var row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
+                    'No failed boot reports.</h4></td></tr>';
+            $(this).append(row);
+        } else {
+            for (var i = 0; i < boots.length; i++) {
+                var created = new Date(boots[i]['created']),
+                    col1 = '<td>' + boots[i]['job'] + '</td>',
+                    col2 = '<td>' + boots[i]['kernel'] + '</td>',
+                    col3 = '<td>' + boots[i]['board'] + '</td>',
+                    col4 = '<td>' + boots[i]['defconfig'] + '</td>',
+                    col5 = '<td>' + created.getCustomISODate() + '</td>';
+                var row = '<tr>' + col1 + col2 + col3 + col4 + col5 + '</tr>';
 
                 $(this).append(row);
             };
