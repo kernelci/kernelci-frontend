@@ -5,9 +5,10 @@
     <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
 {%- endblock %}
 {%- block content %}
+{% include 'date_range.html' %}
 <div class="row">
-    <div class="col-lg-6">
-        <h3>Latest Failed Builds <small>(last 15 days)</small></h3>
+    <div class="col-lg-12">
+        <h3>Failed Builds</h3>
         <table id="failed-builds" class="table table-striped table-condensed">
             <thead>
                 <tr>
@@ -28,8 +29,10 @@
             </tfoot>
         </table>
     </div>
-    <div class="col-lg-6">
-        <h3>Latest Failed Jobs <small>(last 15 days)</small></h3>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <h3>Failed Jobs</h3>
         <table id="failed-jobs" class="table table-striped table-condensed">
             <thead>
                 <tr>
@@ -53,7 +56,7 @@
 </div>
 <div class="row">
     <div class="col-lg-12">
-        <h3>Latest Failed Boot Reports <small>(last 15 days)</small></h3>
+        <h3>Failed Boot Reports</h3>
         <table id="failed-boots" class="table table-striped tabled-condensed">
             <thead>
                 <tr>
@@ -89,32 +92,33 @@ $(document).ready(function() {
             'limit': 5,
             'status': 'FAILED',
             'sort': 'created',
+            'date_range': 15,
             'field': ['job', 'kernel', 'metadata', 'created'],
         },
     }).done(function(data) {
         var defconfs = data['result'];
+        var row, job, created, col1, col2, col3, col4;
 
         $(this).empty();
 
         if (defconfs.length == 0) {
-            var row = '<tr><td colspan="3" align="center" valign="middle"><h4>' +
-                    'No failed builds.</h4></td></tr>';
+            row = '<tr><td colspan="3" align="center" valign="middle"><h4>' +
+                'No failed builds.</h4></td></tr>';
             $(this).append(row);
         } else {
             for (var i = 0; i < defconfs.length; i++) {
-                var job = defconfs[i]['job'];
-
-                var created = new Date(defconfs[i]['created']),
-                    col1 = '<td>' +
-                        '<span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp;' + job + '">' +
-                        '<a href="/job/' + job + '">' + job + '&nbsp;&dash;&nbsp;<small>' + defconfs[i]['metadata']['git_branch'] + '</small>' +'</a></span></td>',
-                    col2 = '<td>' +
-                        '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + defconfs[i]['kernel'] + '"><a href="/job/' + job + '/kernel/' + defconfs[i]['kernel'] + '">' +
-                        defconfs[i]['kernel'] + '</a></td>',
-                    col3 = '<td>' + created.getCustomISODate() + '</td>',
-                    col4 = '<td>' +
-                        '<span rel="tooltip"',
-                    row = '<tr>' + col1 + col2 + col3 + '</tr>';
+                job = defconfs[i]['job'];
+                created = new Date(defconfs[i]['created']);
+                col1 = '<td>' +
+                    '<span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp;' + job + '">' +
+                    '<a href="/job/' + job + '">' + job + '&nbsp;&dash;&nbsp;<small>' + defconfs[i]['metadata']['git_branch'] + '</small>' +'</a></span></td>';
+                col2 = '<td>' +
+                    '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + defconfs[i]['kernel'] + '"><a href="/job/' + job + '/kernel/' + defconfs[i]['kernel'] + '">' +
+                    defconfs[i]['kernel'] + '</a></td>';
+                col3 = '<td>' + created.getCustomISODate() + '</td>';
+                col4 = '<td>' +
+                    '<span rel="tooltip"',
+                row = '<tr>' + col1 + col2 + col3 + '</tr>';
 
                 $(this).append(row);
             };
@@ -130,24 +134,26 @@ $(document).ready(function() {
             'limit': 5,
             'status': 'FAILED',
             'sort': 'created',
+            'date_range': 15,
             'field': ['job', 'kernel', 'created', 'metadata'],
         },
     }).done(function(data) {
         var jobs = data['result'];
+        var row, created, col1, col2, col3;
 
         $(this).empty();
 
         if (jobs.length == 0) {
-            var row = '<tr><td colspan="3" align="center" valign="middle"><h4>' +
-                    'No failed jobs.</h4></td></tr>';
+            row = '<tr><td colspan="3" align="center" valign="middle"><h4>' +
+                'No failed jobs.</h4></td></tr>';
             $(this).append(row);
         } else {
             for (var i = 0; i < jobs.length; i++) {
-                var created = new Date(jobs[i]['created']),
-                    col1 = '<td>' + jobs[i]['job'] + '&nbsp;&dash;&nbsp;<small>' + jobs[i]['metadata']['git_branch'] + '</small>' +'</td>',
-                    col2 = '<td>' + jobs[i]['kernel'] + '</td>',
-                    col3 = '<td>' + created.getCustomISODate() + '</td>',
-                    row = '<tr>' + col1 + col2 + col3 + '</tr>';
+                created = new Date(jobs[i]['created']);
+                col1 = '<td>' + jobs[i]['job'] + '&nbsp;&dash;&nbsp;<small>' + jobs[i]['metadata']['git_branch'] + '</small>' +'</td>';
+                col2 = '<td>' + jobs[i]['kernel'] + '</td>';
+                col3 = '<td>' + created.getCustomISODate() + '</td>';
+                row = '<tr>' + col1 + col2 + col3 + '</tr>';
 
                 $(this).append(row);
             };
@@ -167,22 +173,23 @@ $(document).ready(function() {
         }
     }).done(function(data) {
         var boots = data['result'];
+        var row, created, col1, col2, col3, col4, col5;
 
         $(this).empty();
 
         if (boots.length == 0) {
-            var row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
-                    'No failed boot reports.</h4></td></tr>';
+            row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
+                'No failed boot reports.</h4></td></tr>';
             $(this).append(row);
         } else {
             for (var i = 0; i < boots.length; i++) {
-                var created = new Date(boots[i]['created']),
-                    col1 = '<td>' + boots[i]['job'] + '</td>',
-                    col2 = '<td>' + boots[i]['kernel'] + '</td>',
-                    col3 = '<td>' + boots[i]['board'] + '</td>',
-                    col4 = '<td>' + boots[i]['defconfig'] + '</td>',
-                    col5 = '<td>' + created.getCustomISODate() + '</td>';
-                var row = '<tr>' + col1 + col2 + col3 + col4 + col5 + '</tr>';
+                created = new Date(boots[i]['created']);
+                col1 = '<td>' + boots[i]['job'] + '</td>';
+                col2 = '<td>' + boots[i]['kernel'] + '</td>';
+                col3 = '<td>' + boots[i]['board'] + '</td>';
+                col4 = '<td>' + boots[i]['defconfig'] + '</td>';
+                col5 = '<td>' + created.getCustomISODate() + '</td>';
+                row = '<tr>' + col1 + col2 + col3 + col4 + col5 + '</tr>';
 
                 $(this).append(row);
             };

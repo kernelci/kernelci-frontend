@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from datetime import date
+
 from flask import render_template
 from flask import current_app as app
 from flask.views import View
@@ -24,5 +26,11 @@ class IndexView(View):
         base_url = app.config.get('BASE_URL') + "/job"
         page_title = 'Kernel CI Dashboad &mdash; Home'
 
+        server_date = date.today()
+
         return render_template(
-            'index.html', page_tile=page_title, base_url=base_url)
+            'index.html',
+            page_tile=page_title,
+            base_url=base_url,
+            server_date=server_date
+        )
