@@ -37,12 +37,13 @@ $(document).ready(function() {
                 'type': 'GET',
                 'url': sSource,
                 'success': fnCallback,
+                'traditional': true,
                 'data': {
-                    'sort': 'created',
+                    'sort': 'created_on',
                     'sort_order': -1,
                     'date_range': 15,
                     'field': [
-                        'job', 'kernel', 'defconfig', 'board', 'created',
+                        'job', 'kernel', 'defconfig', 'board', 'created_on',
                         'status',
                     ],
                 },
@@ -66,11 +67,11 @@ $(document).ready(function() {
                 'sTitle': 'Board Model',
             },
             {
-                'mData': 'created',
+                'mData': 'created_on',
                 'sTitle': 'Date',
                 'sType': 'date',
                 'mRender': function(data, type, object) {
-                    var created = new Date(object['created']);
+                    var created = new Date(data);
                     return created.getCustomISODate();
                 },
             },

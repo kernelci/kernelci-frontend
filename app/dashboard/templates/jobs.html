@@ -17,7 +17,7 @@
 {{ super() }}
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="/static/js/kernelci.js"></script>
-<script type="text/javascript" src="/static/js/datatables.js"></script>
+<script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $('#li-job').addClass("active");
@@ -37,9 +37,10 @@ $(document).ready(function() {
                 'type': 'GET',
                 'url': sSource,
                 'success': fnCallback,
+                'traditional': true,
                 'data': {
                     'aggregate': 'job',
-                    'sort': 'created',
+                    'sort': 'created_on',
                     'sort_order': -1,
                     'date_range': 15,
                 },
@@ -75,11 +76,11 @@ $(document).ready(function() {
                 },
             },
             {
-                'mData': 'created',
+                'mData': 'created_on',
                 'sTitle': 'Date',
                 'sType': 'date',
                 'mRender': function(data, type, object) {
-                    var created = new Date(object['created']);
+                    var created = new Date(data);
                     return created.getCustomISODate();
                 },
             },
@@ -90,19 +91,19 @@ $(document).ready(function() {
                 'mRender': function(data, type, object) {
                     var displ;
                     switch (data) {
-                        case 'BUILDING':
+                        case 'BUILD':
                             displ = '<span rel="tooltip" ' +
                                     'data-toggle="tooltip" ' +
                                     'title="Building">' +
                                     '<li class="fa fa-cogs"></li></span>';
                             break;
-                        case 'DONE':
+                        case 'PASS':
                             displ = '<span rel="tooltip" ' + 
                                     'data-toggle="tooltip" ' +
                                     'title="Build completed">' +
                                     '<li class="fa fa-check"></li></span>';
                             break;
-                        case 'FAILED':
+                        case 'FAIL':
                             displ = '<span rel="tooltip" ' +
                                     'data-toggle="tooltip" title="Fail">' + 
                                     '<li class="fa fa-exclamation-triangle">' +

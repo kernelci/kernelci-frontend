@@ -13,9 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import date
 from flask import render_template
 from flask.views import View
+
+from dashboard.utils.backend import today_date
 
 
 class BootsView(View):
@@ -25,11 +26,9 @@ class BootsView(View):
         page_title = 'Kernel CI Dashboard &mdash; Boot Reports'
         results_title = 'Available Boot Reports'
 
-        server_date = date.today()
-
         return render_template(
             'boots.html',
             page_title=page_title,
-            server_date=server_date,
+            server_date=today_date(),
             results_title=results_title
         )

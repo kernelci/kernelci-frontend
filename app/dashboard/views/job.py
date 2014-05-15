@@ -14,11 +14,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from bson import json_util
-from datetime import date
 from flask import render_template
 from flask.views import View
 
-from dashboard.utils.backend import get_job, get_defconfigs
+from dashboard.utils.backend import (
+    get_job,
+    get_defconfigs,
+    today_date,
+)
 
 
 class JobsView(View):
@@ -28,12 +31,10 @@ class JobsView(View):
         page_title = 'Kernel CI Dashboard &mdash; Jobs'
         results_title = 'Available Jobs'
 
-        server_date = date.today()
-
         return render_template(
             'jobs.html',
             page_title=page_title,
-            server_date=server_date,
+            server_date=today_date(),
             results_title=results_title
         )
 
@@ -44,7 +45,7 @@ class JobView(View):
 
         title = 'Details for&nbsp;' + kwargs['job']
 
-        kwargs['sort'] = 'created'
+        kwargs['sort'] = 'created_on'
         kwargs['sort_order'] = -1
 
         response = get_job(**kwargs)

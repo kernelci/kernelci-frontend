@@ -16,6 +16,7 @@
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10-dev/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/js/kernelci.js"></script>
 <script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script type="text/javascript">  
 $(document).ready(function () {
@@ -36,10 +37,15 @@ $(document).ready(function () {
                 'type': 'GET',
                 'url': sSource,
                 'success': fnCallback,
+                'traditional': true,
                 'data': {
-                    'sort': 'created',
+                    'sort': 'created_on',
                     'sort_order': -1,
                     'date_range': 15,
+                    'field': [
+                        '_id', 'job', 'kernel', 'defconfig', 'status',
+                        'metadata', 'arch', 'created_on',
+                    ],
                 },
             });
         },
@@ -72,27 +78,28 @@ $(document).ready(function () {
                 },
             },
             {
-                'mData': 'metadata',
+                'mData': 'defconfig',
                 'sTitle': 'Defconfig',
-                'mRender': function(data, type, object) {
-                    return data['defconfig'];
-                },
             },
             {
-                'mData': 'metadata',
+                'mData': 'arch',
                 'sTitle': 'Architecture',
+            },
+            {
+                'mData': 'created_on',
+                'sTitle': 'Date',
                 'mRender': function(data, type, object) {
-                    return data['arch'];
+                    var created = new Date(data);
+                    return created.getCustomISODate();
                 },
             },
             {
-                'mData': 'metadata',
+                'mData': 'status',
                 'sTitle': 'Status',
                 'sType': 'string',
                 'mRender': function(data, type, object) {
-                    var displ,
-                        status = data['build_result'];
-                    switch (status) {
+                    var displ;
+                    switch (data) {
                         case 'PASS':
                             displ = '<span rel="tooltip" ' + 
                                     'data-toggle="tooltip" title="Build OK">' +

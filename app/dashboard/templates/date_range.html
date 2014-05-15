@@ -2,10 +2,9 @@
     <div class="col-lg-12">
     <h2>{{ results_title|default('Latest Results')|safe }}</h2>
         <p>
-            The results shown here cover the last <strong>15 days</strong> of available data. The starting date is calculated from today,
-            {{ server_date }}, at midnight UTC.
+            The results shown here cover the last <strong>15 days</strong> of available data. The starting date is calculated from {{ server_date }}.
             <br/>
-            The time and date are based on the server clock, not your local
+            The time and date are based on the server clock (UTC), not your local
             timezone.
         </p>
     </div>

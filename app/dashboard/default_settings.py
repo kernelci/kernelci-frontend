@@ -23,5 +23,8 @@ BACKEND_URL = 'http://192.168.0.127:8888/'
 BASE_URL = 'http://127.0.0.1:5000'
 BACKEND_TOKEN = 'foo'
 SECRET_KEY = 'bar'
+# Add the trailing slash!
+FILE_SERVER_URL = 'http://armcloud.us/kernel-ci/'
+
 DEBUG = True
 TESTING = DEBUG

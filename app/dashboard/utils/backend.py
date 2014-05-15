@@ -16,6 +16,7 @@
 import requests
 
 from bson import json_util
+from datetime import date
 from flask import (
     current_app,
     jsonify,
@@ -25,6 +26,10 @@ from urlparse import urljoin
 JOB_API = '/api/job'
 DEFCONF_API = '/api/defconfig'
 BOOT_API = '/api/boot'
+
+
+def today_date():
+    return date.today().strftime('%a, %d %b %Y')
 
 
 def _create_url_headers(api_path):

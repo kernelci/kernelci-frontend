@@ -26,6 +26,8 @@
 <div class="row">
     <div class="col-lg-7">
     <dl class="dl-horizontal">
+        <dt>Tree</dt>
+        <dd>{{ job_doc.result.job }}</dd>
         <dt>Git branch</dt>
         <dd>{{ job_doc.result.metadata.git_branch }}</dd>
         <dt>Git describe</dt>
@@ -34,6 +36,18 @@
         <dd>{{ job_doc.result.metadata.git_url }}</dd>
         <dt>Git commit</dt>
         <dd>{{ job_doc.result.metadata.git_commit }}</dd>
+        <dt>Cross-compile</dt>
+        {%- if job_doc.result.metadata.cross_compile %}
+        <dd>{{ job_doc.result.metadata.cross_compile }}</dd>
+        {%- else %}
+        <dd>N/A</dd>
+        {%- endif %}
+        <dt>Compiler</dt>
+        {%- if job_doc.result.metadata.compiler_version %}
+        <dd>{{ job_doc.result.metadata.compiler_version }}</dd>
+        {%- else %}
+        <dd>N/A</dd>
+        {%- endif %}
     </dl>
     </div>
     <div class="col-lg-5">
@@ -82,7 +96,7 @@ function showHideDefconfs(element) {
             $('.df-success').show();
             $('.df-unknonw').hide();
             break;
-        case 'failed-btn':
+        case 'fail-btn':
             $('.df-failed').show();
             $('.df-success').hide();
             $('.df-unknonw').hide();
@@ -130,10 +144,10 @@ $(document).ready(function() {
 
         for (var i = 0; i < data.length; i++) {
             switch (data[i]['status']) {
-                case 'FAILED':
+                case 'FAIL':
                     fail++;
                     break;
-                case 'SUCCESS':
+                case 'PASS':
                     success++;
                     break;
                 default:
@@ -202,21 +216,29 @@ $(document).ready(function() {
     }).done(function(data) {
         data = data['result'];
 
+        var file_server = '{{ config['FILE_SERVER_URL'] }}';
         var panel,
             cls,
+            data_url,
+            defconfig,
+            metadata,
             label;
 
         $('#all-btn').removeAttr('disabled');
         $('#all-btn').addClass('active');
 
         for (var i = 0; i < data.length; i++) {
+            metadata = data[i]['metadata'];
+            data_url = file_server + data[i]['job'] + '/' + data[i]['kernel'] +
+                '/' + data[i]['dirname'] + '/';
+
             switch (data[i]['status']) {
-                case 'FAILED':
+                case 'FAIL':
                     label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
                     cls = 'df-failed';
                     $('#fail-btn').removeAttr('disabled');
                     break;
-                case 'SUCCESS':
+                case 'PASS':
                     label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
                     cls = 'df-success';
                     $('#success-btn').removeAttr('disabled');
@@ -228,32 +250,70 @@ $(document).ready(function() {
                     break;
             };
 
+            defconfig = data[i]['defconfig'];
+            if (metadata['kconfig_fragments'] != null) {
+                defconfig = data[i]['defconfig'] + '&nbsp;<small>' +
+                    metadata['kconfig_fragments'] + '</small>'
+            };
+
             panel = '<div class="panel panel-default ' + cls + '">' +
                 '<div class="panel-heading" data-toggle="collapse" data-parent="accordion" data-target="#defconf' + i + '">' +
                 '<h4 class="panel-title">' +
                 '<a data-toggle="collapse" data-parent="#accordion" href="#defconf' + i + '">' +
-                data[i]['metadata']['defconfig'] +
+                defconfig +
                 '</a>' + label + '</h4></div>' +
                 '<div id="defconf' + i + '" class="panel-collapse collapse">' +
                 '<div class="panel-body">';
 
-            panel += '<dl class="dl-horizontal">' +
-                '<dt>DTB directory</dt>' +
-                '<dd>' + data[i]['metadata']['dtb_dir'] + '</dd>' +
-                '<dt>Modules directory</dt>' +
-                '<dd>' + data[i]['metadata']['modules_dir'] + '</dd>' +
-                '<dt>Text offset</dt>' +
-                '<dd>' + data[i]['metadata']['text_offset'] + '</dd>' +
-                '<dt>Kernel zImage</dt>' +
-                '<dd><a href="' + data[i]['zimage'] + '">' + data[i]['metadata']['kernel_image'] +
-                '</a></dd>' +
-                '<dt>Kernel config</dt>' +
-                '<dd><a href="' + data[i]['kernel_conf'] + '">' + data[i]['metadata']['kernel_config'] + '</a></dd>' +
-                '<dt>Build log</dt>' +
-                '<dd><a href="' + data[i]['build_log'] + '">' + data[i]['metadata']['build_log'] + '</a></dd>' +
-                '</dl>';
+            panel += '<dl class="dl-horizontal">';
 
+            if ($.isEmptyObject(metadata)) {
+                panel += "<strong>No data to show.</strong>"
+            } else {
+                if (metadata['dtb_dir'] != null) {
+                    panel += '<dt>DTB directory</dt>' +
+                        '<dd><a href="' +
+                        data_url + metadata['dtb_dir'] + '/' + '">' +
+                        metadata['dtb_dir'] +
+                        '</a></dd>';
+                };
+                if (metadata['modules_dir'] != null) {
+                    panel += '<dt>Modules directory</dt>' +
+                        '<dd><a href="' +
+                        data_url + metadata['modules_dir'] + '/' + '">' +
+                        metadata['modules_dir'] +
+                        '</a></dd>';
+                };
+                if (metadata['text_offset'] != null) {
+                    panel += '<dt>Text offset</dt>' +
+                        '<dd>' + metadata['text_offset'] + '</dd>';
+                };
+                if (metadata['kernel_image'] != null) {
+                    panel += '<dt>Kernel image</dt>' +
+                        '<dd><a href="' +
+                        data_url + metadata['kernel_image'] + '">' +
+                        metadata['kernel_image'] +
+                        '</a></dd>';
+                };
+                if (metadata['kernel_config'] != null ) {
+                    panel += '<dt>Kernel config</dt>' +
+                        '<dd><a href="' +
+                        data_url + metadata['kernel_config'] + '">' +
+                        metadata['kernel_config'] +
+                        '</a></dd>';
+                };
+                if (metadata['build_log'] != null) {
+                    console.log(metadata['build_log']);
+                    panel += '<dt>Build log</dt>' +
+                        '<dd><a href="' +
+                        data_url + metadata['build_log'] + '">' +
+                        metadata['build_log'] +
+                        '</a></dd>';
+                };
+            };
+            panel += '</dl>';
             panel += '</div></div></div>';
+
             $(this).append(panel);
         };
     });

@@ -99,10 +99,11 @@ $(document).ready(function() {
         'context': $('#failed-builds-body'),
         'data': {
             'limit': 5,
-            'status': 'FAILED',
-            'sort': 'created',
+            'status': 'FAIL',
+            'sort': 'created_on',
+            'sort_order': -1,
             'date_range': 15,
-            'field': ['job', 'kernel', 'metadata', 'created'],
+            'field': ['job', 'kernel', 'metadata', 'created_on'],
         },
     }).done(function(data) {
         var defconfs = data['result'];
@@ -117,7 +118,8 @@ $(document).ready(function() {
         } else {
             for (var i = 0; i < defconfs.length; i++) {
                 job = defconfs[i]['job'];
-                created = new Date(defconfs[i]['created']);
+                created = new Date(defconfs[i]['created_on']);
+
                 col1 = '<td>' +
                     '<span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp;' + job + '">' +
                     '<a href="/job/' + job + '">' + job + '&nbsp;&dash;&nbsp;<small>' + defconfs[i]['metadata']['git_branch'] + '</small>' +'</a></span></td>';
@@ -141,10 +143,11 @@ $(document).ready(function() {
         'context': $('#failed-jobs-body'),
         'data': {
             'limit': 5,
-            'status': 'FAILED',
-            'sort': 'created',
+            'status': 'FAIL',
+            'sort': 'created_on',
+            'sort_order': -1,
             'date_range': 15,
-            'field': ['job', 'kernel', 'created', 'metadata'],
+            'field': ['job', 'kernel', 'created_on', 'metadata'],
         },
     }).done(function(data) {
         var jobs = data['result'];
@@ -158,7 +161,7 @@ $(document).ready(function() {
             $(this).append(row);
         } else {
             for (var i = 0; i < jobs.length; i++) {
-                created = new Date(jobs[i]['created']);
+                created = new Date(jobs[i]['created_on']);
                 col1 = '<td>' + jobs[i]['job'] + '&nbsp;&dash;&nbsp;<small>' + jobs[i]['metadata']['git_branch'] + '</small>' +'</td>';
                 col2 = '<td>' + jobs[i]['kernel'] + '</td>';
                 col3 = '<td>' + created.getCustomISODate() + '</td>';
@@ -177,8 +180,9 @@ $(document).ready(function() {
         'data': {
             'limit': 15,
             'status': 'FAIL',
-            'sort': 'created',
-            'field': ['board', 'job', 'kernel', 'defconfig', 'created'],
+            'sort_order': -1,
+            'sort': 'created_on',
+            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on'],
         }
     }).done(function(data) {
         var boots = data['result'];
@@ -192,7 +196,7 @@ $(document).ready(function() {
             $(this).append(row);
         } else {
             for (var i = 0; i < boots.length; i++) {
-                created = new Date(boots[i]['created']);
+                created = new Date(boots[i]['created_on']);
                 col1 = '<td>' + boots[i]['job'] + '</td>';
                 col2 = '<td>' + boots[i]['kernel'] + '</td>';
                 col3 = '<td>' + boots[i]['board'] + '</td>';
