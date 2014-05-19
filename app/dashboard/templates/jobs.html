@@ -31,31 +31,26 @@ $(document).ready(function() {
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'sAjaxSource': '/_ajax/job',
-        'iDisplayLength': 25,
-        'order': [2, 'desc'],
-        'sAjaxDataProp': 'result',
         'columDefs': [
             {'orderable': false, 'targets': 4},
         ],
-        'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
-            oSettings.jqXHR = $.ajax({
-                'type': 'GET',
-                'url': sSource,
-                'success': fnCallback,
-                'traditional': true,
-                'data': {
-                    'aggregate': 'job',
-                    'sort': 'created_on',
-                    'sort_order': -1,
-                    'date_range': 15,
-                    'field': [
-                        'job', 'kernel', 'created_on', 'status', 'metadata',
-                    ],
-                },
-            });
+        'order': [2, 'desc'],
+        'ajax' : {
+            'type': 'GET',
+            'url': '/_ajax/job',
+            'traditional': true,
+            'dataSrc': 'result',
+            'data': {
+                'aggregate': 'job',
+                'sort': 'created_on',
+                'sort_order': -1,
+                'date_range': 15,
+                'field': [
+                    'job', 'kernel', 'created_on', 'status', 'metadata',
+                ],
+            },
         },
-        'aoColumns': [
+        'columns': [
             {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',

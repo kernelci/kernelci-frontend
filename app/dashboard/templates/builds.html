@@ -31,27 +31,23 @@ $(document).ready(function () {
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'sAjaxSource': '/_ajax/defconf',
         'order': [4, 'desc'],
-        'sAjaxDataProp': 'result',
-        'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
-            oSettings.jqXHR = $.ajax({
-                'type': 'GET',
-                'url': sSource,
-                'success': fnCallback,
-                'traditional': true,
-                'data': {
-                    'sort': 'created_on',
-                    'sort_order': -1,
-                    'date_range': 15,
-                    'field': [
-                        '_id', 'job', 'kernel', 'defconfig', 'status',
-                        'metadata', 'arch', 'created_on',
-                    ],
-                },
-            });
+        'ajax': {
+            'type': 'GET',
+            'url': '/_ajax/defconf',
+            'traditional': true,
+            'dataSrc': 'result',
+            'data': {
+                'sort': 'created_on',
+                'sort_order': -1,
+                'date_range': 15,
+                'field': [
+                    '_id', 'job', 'kernel', 'defconfig', 'status',
+                    'metadata', 'arch', 'created_on',
+                ],
+            },
         },
-        'aoColumns': [
+        'columns': [
             {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
@@ -86,6 +82,7 @@ $(document).ready(function () {
             {
                 'data': 'created_on',
                 'title': 'Date',
+                'type': 'date',
                 'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
