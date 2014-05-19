@@ -58,7 +58,7 @@ def _create_api_path(api_path, doc_id):
 def get_job(**kwargs):
     api_path = JOB_API
     if kwargs.get('id', None):
-        api_path = _create_api_path(api_path, kwargs['id'])
+        api_path = _create_api_path(JOB_API, kwargs['id'])
         kwargs.pop('id')
 
     url, headers = _create_url_headers(api_path)
