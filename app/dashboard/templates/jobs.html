@@ -22,16 +22,22 @@
 $(document).ready(function() {
     $('#li-job').addClass("active");
     $('#jobstable').dataTable({
-        'oLanguage': {
-            'sLengthMenu': '_MENU_ jobs per page'
+        'language': {
+            'lengthMenu': '_MENU_ jobs per page',
+            'zeroRecords': 'No jobs to display.',
         },
-        'bProcessing': true,
-        'bSort': true,
+        'lengthMenu': [25, 50, 75, 100],
+        'ordering': true,
+        'processing': true,
+        'stateDuration': -1,
+        'stateSave': true,
         'sAjaxSource': '/_ajax/job',
-        'aLengthMenu': [[25, 50, 75, 100], [25, 50, 75, 100]],
         'iDisplayLength': 25,
-        'aaSorting': [[3,'desc']],
+        'order': [2, 'desc'],
         'sAjaxDataProp': 'result',
+        'columDefs': [
+            {'orderable': false, 'targets': 4},
+        ],
         'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
             oSettings.jqXHR = $.ajax({
                 'type': 'GET',
@@ -43,80 +49,86 @@ $(document).ready(function() {
                     'sort': 'created_on',
                     'sort_order': -1,
                     'date_range': 15,
+                    'field': [
+                        'job', 'kernel', 'created_on', 'status', 'metadata',
+                    ],
                 },
             });
         },
         'aoColumns': [
             {
-                'mData': '_id',
-                'bVisible': false,
-            },
-            {
-                'mData': 'job',
-                'sTitle': 'Tree &dash; Branch',
-                'mRender': function(data, type, object) {
-                    var displ = '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Details for&nbsp;' + data + '">' +
-                        '<a href="/job/' + data + '">' + data +
-                        '&nbsp;&dash;&nbsp;<small>' +
-                        object['metadata']['git_branch'] +
-                        '</small></a>' +
-                        '</span>';
-                    return displ;
-                }
-            },
-            {
-                'mData': 'kernel',
-                'sTitle': 'Kernel',
-                'mRender': function(data, type, object) {
-                    var job = object['job'];
-                    var displ = '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + data + '"><a href="/job/' + job + '/kernel/' + data + '">' + data + '</a></span>'
-
-                    return displ;
+                'data': 'job',
+                'title': 'Tree &dash; Branch',
+                'render': function(data, type, object) {
+                    return data + '&nbsp;&dash;&nbsp;<small>' +
+                        object['metadata']['git_branch'] + '</small>';
                 },
             },
             {
-                'mData': 'created_on',
-                'sTitle': 'Date',
-                'sType': 'date',
-                'mRender': function(data, type, object) {
+                'data': 'kernel',
+                'title': 'Kernel',
+            },
+            {
+                'data': 'created_on',
+                'title': 'Date',
+                'type': 'date',
+                'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
                 },
             },
             {
-                'mData': 'status',
-                'sTitle': 'Status',
-                'sType': 'string',
-                'mRender': function(data, type, object) {
+                'data': 'status',
+                'title': 'Status',
+                'type': 'string',
+                'render': function(data, type, object) {
                     var displ;
                     switch (data) {
                         case 'BUILD':
                             displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'title="Building">' +
-                                    '<li class="fa fa-cogs"></li></span>';
+                                'data-toggle="tooltip"' +
+                                'title="Building">' +
+                                '<span class="label label-info">' +
+                                '<li class="fa fa-cogs"></li></span></span>';
                             break;
                         case 'PASS':
-                            displ = '<span rel="tooltip" ' + 
-                                    'data-toggle="tooltip" ' +
-                                    'title="Build completed">' +
-                                    '<li class="fa fa-check"></li></span>';
+                            displ = '<span rel="tooltip" ' +
+                                'data-toggle="tooltip"' +
+                                'title="Build completed">' +
+                                '<span class="label label-success">' +
+                                '<li class="fa fa-check"></li></span></span>';
                             break;
                         case 'FAIL':
                             displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip" title="Fail">' + 
-                                    '<li class="fa fa-exclamation-triangle">' +
-                                    '</li></span>';
+                                'data-toggle="tooltip"' +
+                                'title="Build failed">' +
+                                '<span class="label label-danger">' +
+                                '<li class="fa fa-exclamation-triangle">' +
+                                '</li></span></span>';
                             break;
                         default:
-                            displ = '<span rel="tooltip" ' + 
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<li class="fa fa-question"></li></span>';
+                            displ = '<span rel="tooltip" ' +
+                                'data-toggle="tooltip"' +
+                                'title="Unknown status">' +
+                                '<span class="label label-warning">' +
+                                '<li class="fa fa-question">' +
+                                '</li></span></span>';
                             break;
                     }
                     return displ;
+                },
+            },
+            {
+                'data': 'job',
+                'title': '',
+                'orderable': false,
+                'render': function(data, type, object) {
+                    return '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="Details for&nbsp;' + data +
+                        '&nbsp;&dash;&nbsp;' + object['kernel'] + '">' +
+                        '<a href="/job/' + data +
+                        '/kernel/' + object['kernel'] + '">' +
+                        '<i class="fa fa-search"></i></a></span>';
                 },
             },
         ]

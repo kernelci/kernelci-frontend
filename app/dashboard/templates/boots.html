@@ -22,15 +22,18 @@
 $(document).ready(function() {
     $('#li-boot').addClass("active");
     $('#boots-table').dataTable({
-        'oLanguage': {
-            'sLengthMenu': '_MENU_ boot reports per page'
+        'language': {
+            'lengthMenu': '_MENU_ boot reports per page',
+            'zeroRecords': 'No boot reports to display.',
         },
-        'bProcessing': true,
-        'bSort': true,
+        'lengthMenu': [25, 50, 75, 100],
+        'ordering': true,
+        'processing': true,
+        'stateDuration': -1,
+        'stateSave': true,
         'sAjaxSource': '/_ajax/boot',
-        'aLengthMenu': [[25, 50, 75, 100], [25, 50, 75, 100]],
         'iDisplayLength': 25,
-        'aaSorting': [[4,'desc']],
+        'order': [4, 'desc'],
         'sAjaxDataProp': 'result',
         'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
             oSettings.jqXHR = $.ajax({
@@ -51,35 +54,35 @@ $(document).ready(function() {
         },
         'aoColumns': [
             {
-                'mData': 'job',
-                'sTitle': 'Tree',
+                'data': 'job',
+                'title': 'Tree',
             },
             {
-                'mData': 'kernel',
-                'sTitle': 'Kernel',
+                'data': 'kernel',
+                'title': 'Kernel',
             },
             {
-                'mData': 'defconfig',
-                'sTitle': 'Defconfig',
+                'data': 'defconfig',
+                'title': 'Defconfig',
             },
             {
-                'mData': 'board',
-                'sTitle': 'Board Model',
+                'data': 'board',
+                'title': 'Board Model',
             },
             {
-                'mData': 'created_on',
-                'sTitle': 'Date',
-                'sType': 'date',
-                'mRender': function(data, type, object) {
+                'data': 'created_on',
+                'title': 'Date',
+                'type': 'date',
+                'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
                 },
             },
             {
-                'mData': 'status',
-                'sTitle': 'Status',
-                'sType': 'string',
-                'mRender': function(data, type, object) {
+                'data': 'status',
+                'title': 'Status',
+                'type': 'string',
+                'render': function(data, type, object) {
                     var displ;
                     switch (data) {
                         case 'PASS':

@@ -22,15 +22,17 @@
 $(document).ready(function () {
     $('#li-build').addClass("active");
     $('#defconfigs').dataTable({
-        'oLanguage': {
-            'sLengthMenu': '_MENU_ builds per page'
+        'language': {
+            'lengthMenu': '_MENU_ builds per page',
+            'zeroRecords': 'No builds to display.',
         },
-        'bProcessing': true,
-        'bSort': true,
+        'lengthMenu': [25, 50, 75, 100],
+        'ordering': true,
+        'processing': true,
+        'stateDuration': -1,
+        'stateSave': true,
         'sAjaxSource': '/_ajax/defconf',
-        'aLengthMenu': [[25, 50, 75, 100], [25, 50, 75, 100]],
-        'iDisplayLength': 25,
-        'aaSorting': [[1, 'asc']],
+        'order': [4, 'desc'],
         'sAjaxDataProp': 'result',
         'fnServerData': function(sSource, aoData, fnCallback, oSettings) {
             oSettings.jqXHR = $.ajax({
@@ -51,13 +53,9 @@ $(document).ready(function () {
         },
         'aoColumns': [
             {
-                'mData': '_id',
-                'bVisible': false,
-            },
-            {
-                'mData': 'job',
-                'sTitle': 'Tree &dash; Branch',
-                'mRender': function(data, type, object) {
+                'data': 'job',
+                'title': 'Tree &dash; Branch',
+                'render': function(data, type, object) {
                     var displ = '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data + '">' +
                         '<a href="/job/' + data + '">' + data + '&nbsp;&dash;&nbsp;<small>' +
@@ -68,9 +66,9 @@ $(document).ready(function () {
                 },
             },
             {
-                'mData': 'kernel',
-                'sTitle': 'Kernel',
-                'mRender': function(data, type, object) {
+                'data': 'kernel',
+                'title': 'Kernel',
+                'render': function(data, type, object) {
                     var job = object['job'];
                     var displ = '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + data + '"><a href="/job/' + job + '/kernel/' + data + '">' + data + '</a></span>'
 
@@ -78,45 +76,50 @@ $(document).ready(function () {
                 },
             },
             {
-                'mData': 'defconfig',
-                'sTitle': 'Defconfig',
+                'data': 'defconfig',
+                'title': 'Defconfig',
             },
             {
-                'mData': 'arch',
-                'sTitle': 'Architecture',
+                'data': 'arch',
+                'title': 'Arch.',
             },
             {
-                'mData': 'created_on',
-                'sTitle': 'Date',
-                'mRender': function(data, type, object) {
+                'data': 'created_on',
+                'title': 'Date',
+                'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
                 },
             },
             {
-                'mData': 'status',
-                'sTitle': 'Status',
-                'sType': 'string',
-                'mRender': function(data, type, object) {
+                'data': 'status',
+                'title': 'Status',
+                'type': 'string',
+                'render': function(data, type, object) {
                     var displ;
                     switch (data) {
                         case 'PASS':
-                            displ = '<span rel="tooltip" ' + 
-                                    'data-toggle="tooltip" title="Build OK">' +
-                                    '<li class="fa fa-check"></li></span>';
+                            displ = '<span rel="tooltip" ' +
+                                'data-toggle="tooltip"' +
+                                'title="Build completed">' +
+                                '<span class="label label-success">' +
+                                '<li class="fa fa-check"></li></span></span>';
                             break;
                         case 'FAIL':
                             displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip" ' +
-                                    'title="Build failed">' + 
-                                    '<li class="fa fa-exclamation-triangle">' +
-                                    '</li></span>';
+                                'data-toggle="tooltip"' +
+                                'title="Build failed">' +
+                                '<span class="label label-danger">' +
+                                '<li class="fa fa-exclamation-triangle">' +
+                                '</li></span></span>';
                             break;
                         default:
-                            displ = '<span rel="tooltip" ' + 
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<li class="fa fa-question"></li></span>';
+                            displ = '<span rel="tooltip" ' +
+                                'data-toggle="tooltip"' +
+                                'title="Unknown status">' +
+                                '<span class="label label-warning">' +
+                                '<li class="fa fa-question">' +
+                                '</li></span></span>';
                             break;
                     }
                     return displ;
