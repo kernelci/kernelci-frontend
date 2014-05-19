@@ -27,5 +27,32 @@ SECRET_KEY = 'bar'
 # Add the trailing slash!
 FILE_SERVER_URL = 'http://armcloud.us/kernel-ci/'
 
+# The following structure is used to give translation rules to know
+# git:// URLs.
+# Parameters are as follows:
+# 0. scheme
+# 1. base path for web interface view
+# 2. path to web interface commit view
+# 3. list of tuples for replace rules
+# Example:
+# IN: git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git
+# OUT: https://git.kernel.org/linux/kernel/git/khilman/linux.git
+# OUT: git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git/?id=
+KNOWN_GIT_URLS = {
+    'git.kernel.org': (
+        'https',
+        '/cgit/%s',
+        '/cgit/%s/commit/?id=',
+        [('/pub/scm/', '')]
+    ),
+    'git.linaro.org': (
+        'https',
+        '%s',
+        '%s/commitdiff/',
+        [],
+    ),
+}
+
+
 DEBUG = True
 TESTING = DEBUG
