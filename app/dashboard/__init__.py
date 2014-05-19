@@ -17,6 +17,7 @@ import os
 
 from flask import (
     Flask,
+    render_template,
     request,
 )
 
@@ -66,6 +67,16 @@ app.add_url_rule(
 app.add_url_rule(
     '/boot/', view_func=BootsView.as_view('boots'), methods=['GET'],
 )
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 
 @app.route('/static/js/<path:path>')
