@@ -13,13 +13,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+LOGGER_NAME = 'kernel-ci-frontend'
+SESSION_COOKIE_NAME = 'linarokernelci'
+
 # Following keys should be defined in an external file and passed as an
 # environment variable called FLASK_SETTINGS.
-LOGGER_NAME = 'kernel-ci-frontend'
 PREFERRED_URL_SCHEME = 'http'
-SESSION_COOKIE_NAME = 'linarokernelci'
 # Add the trailing slash!
-BACKEND_URL = 'http://192.168.0.127:8888/'
+BACKEND_URL = 'http://127.0.0.1:8888/'
 BASE_URL = 'http://127.0.0.1:5000'
 BACKEND_TOKEN = 'foo'
 SECRET_KEY = 'bar'
