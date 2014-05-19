@@ -40,9 +40,27 @@
         <dt>Git describe</dt>
         <dd>{{ job_doc.result.metadata.git_describe }}</dd>
         <dt>Git URL</dt>
+        {% if base_url %}
+        <dd>
+            <a href="{{ base_url }}">
+            {{ job_doc.result.metadata.git_url }}
+            <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {% else %}
         <dd>{{ job_doc.result.metadata.git_url }}</dd>
+        {% endif %}
         <dt>Git commit</dt>
+        {% if commit_url %}
+        <dd>
+            <a href="{{ commit_url }}">
+                {{ job_doc.result.metadata.git_commit }}
+                <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {% else %}
         <dd>{{ job_doc.result.metadata.git_commit }}</dd>
+        {% endif %}
         <dt>Cross-compile</dt>
         {%- if job_doc.result.metadata.cross_compile %}
         <dd>{{ job_doc.result.metadata.cross_compile }}</dd>
