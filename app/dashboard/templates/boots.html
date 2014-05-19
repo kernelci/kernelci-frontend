@@ -2,7 +2,7 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
 {% include "date_range.html" %}
@@ -15,16 +15,25 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 <script type="text/javascript" src="/static/js/kernelci.js"></script>
-<script type="text/javascript" src="/static/js/datatables.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $('#li-boot').addClass("active");
+
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto',
+    });
+
     $('#boots-table').dataTable({
+        'dom': "<'row'<'col-lg-6'l><'col-lg-4 col-lg-offset-2'f>r>t" +
+            "<'row'<'col-lg-6'i><'col-lg-6'p>>",
         'language': {
-            'lengthMenu': '_MENU_ boot reports per page',
-            'zeroRecords': 'No boot reports to display.',
+            'lengthMenu': '_MENU_&nbsp;<strong>boot reports per page</strong>',
+            'zeroRecords': '<strong>No boot reports to display.</strong>',
+            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>',
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
@@ -32,6 +41,9 @@ $(document).ready(function() {
         'stateDuration': -1,
         'stateSave': true,
         'order': [4, 'desc'],
+        'search': {
+            'regex': true,
+        },
         'ajax': {
             'type': 'GET',
             'url': '/_ajax/boot',
@@ -76,7 +88,8 @@ $(document).ready(function() {
             {
                 'data': 'status',
                 'title': 'Status',
-                'type': 'string',
+                'searchable': false,
+                'orderable': false,
                 'render': function(data, type, object) {
                     var displ;
                     switch (data) {
@@ -104,10 +117,8 @@ $(document).ready(function() {
             },
         ]
     });
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto left',
-    });
+
+    $('.input-sm').attr('placeholder', 'Filter the results');
 });
 </script>
 {%- endblock %}
