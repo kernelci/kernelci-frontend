@@ -2,7 +2,7 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
 {% include "date_range.html" %}
@@ -15,16 +15,25 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 <script type="text/javascript" src="/static/js/kernelci.js"></script>
-<script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script type="text/javascript">  
 $(document).ready(function () {
     $('#li-build').addClass("active");
+
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto',
+    });
+
     $('#defconfigs').dataTable({
+        'dom': "<'row'<'col-lg-6'l><'col-lg-4 col-lg-offset-2'f>r>t" +
+            "<'row'<'col-lg-6'i><'col-lg-6'p>>",
         'language': {
-            'lengthMenu': '_MENU_ builds per page',
-            'zeroRecords': 'No builds to display.',
+            'lengthMenu': '_MENU_&nbsp;<strong>builds per page</strong>',
+            'zeroRecords': '<strong>No builds to display.</strong>',
+            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>',
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
@@ -32,6 +41,9 @@ $(document).ready(function () {
         'stateDuration': -1,
         'stateSave': true,
         'order': [4, 'desc'],
+        'search': {
+            'regex': true,
+        },
         'ajax': {
             'type': 'GET',
             'url': '/_ajax/defconf',
@@ -52,24 +64,13 @@ $(document).ready(function () {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
                 'render': function(data, type, object) {
-                    var displ = '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Details for&nbsp;' + data + '">' +
-                        '<a href="/job/' + data + '">' + data + '&nbsp;&dash;&nbsp;<small>' +
-                        object['metadata']['git_branch'] +
-                        '</small></a>' +
-                        '</span>';
-                    return displ;
+                    return data + '&nbsp;&dash;&nbsp;<small>' +
+                        object['metadata']['git_branch'] + '</small>';
                 },
             },
             {
                 'data': 'kernel',
                 'title': 'Kernel',
-                'render': function(data, type, object) {
-                    var job = object['job'];
-                    var displ = '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + data + '"><a href="/job/' + job + '/kernel/' + data + '">' + data + '</a></span>'
-
-                    return displ;
-                },
             },
             {
                 'data': 'defconfig',
@@ -122,12 +123,24 @@ $(document).ready(function () {
                     return displ;
                 },
             },
+            {
+                'data': 'job',
+                'title': '',
+                'orderable': false,
+                'searchable': false,
+                'render': function(data, type, object) {
+                    return '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="Details for&nbsp;' + data +
+                        '&nbsp;&dash;&nbsp;' + object['kernel'] + '">' +
+                        '<a href="/job/' + data +
+                        '/kernel/' + object['kernel'] + '">' +
+                        '<i class="fa fa-search"></i></a></span>';
+                },
+            }
         ]
     });
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto left',
-    });
+
+    $('.input-sm').attr('placeholder', 'Filter the results');
 });
 </script>
 {%- endblock %}
