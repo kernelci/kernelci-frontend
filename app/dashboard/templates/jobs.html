@@ -2,7 +2,7 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
 {% include "date_range.html" %}
@@ -15,26 +15,35 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" charset="utf8" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 <script type="text/javascript" src="/static/js/kernelci.js"></script>
-<script type="text/javascript" src="/static/js/datatables.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $('#li-job').addClass("active");
+
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto',
+    });
+
     $('#jobstable').dataTable({
+        'dom': "<'row'<'col-lg-6'l><'col-lg-4 col-lg-offset-2'f>r>t" +
+            "<'row'<'col-lg-6'i><'col-lg-6'p>>",
         'language': {
-            'lengthMenu': '_MENU_ jobs per page',
-            'zeroRecords': 'No jobs to display.',
+            'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
+            'zeroRecords': '<strong>No jobs to display.<strong>',
+            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>',
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'columDefs': [
-            {'orderable': false, 'targets': 4},
-        ],
         'order': [2, 'desc'],
+        'search': {
+            'regex': true,
+        },
         'ajax' : {
             'type': 'GET',
             'url': '/_ajax/job',
@@ -116,6 +125,7 @@ $(document).ready(function() {
             {
                 'data': 'job',
                 'title': '',
+                'searchable': false,
                 'orderable': false,
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
@@ -128,10 +138,8 @@ $(document).ready(function() {
             },
         ]
     });
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto left',
-    });
+
+    $('.input-sm').attr('placeholder', 'Filter the results');
 });
 </script>
 {%- endblock %}
