@@ -2,7 +2,9 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
 <div class="row">
-    <h4>{{ page_title|safe }}</h4>
+    <div class="page-header">
+    <h3>{{ page_title|safe }}</h3>
+    </div>
     <div class="col-lg-3">
     <ul class="list-group">
         <li class="list-group-item">
@@ -57,10 +59,10 @@
 {{ super() }}
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#li-job').addClass("active");
+    $('#li-job').addClass('active');
     $('body').tooltip({
         'selector': '[rel=tooltip]',
-        'placement': 'auto top',
+        'placement': 'auto top'
     });
 });
 </script>
