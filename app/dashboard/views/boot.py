@@ -32,3 +32,24 @@ class BootsView(View):
             server_date=today_date(),
             results_title=results_title
         )
+
+
+class BootIdView(View):
+
+    def dispatch_request(self, **kwargs):
+
+        page_title = (
+            'Kernel CI Dashboard &mdash; Boot report '
+            'for&nbsp;%(board)s' % kwargs
+        )
+        boot_title = 'Details for board&nbsp;%(board)s' % kwargs
+
+        return render_template(
+            'boot.html',
+            page_title=page_title,
+            boot_title=boot_title,
+            board=kwargs['board'],
+            job=kwargs['job'],
+            kernel=kwargs['kernel'],
+            defconfig=kwargs['defconfig'],
+        )
