@@ -21,9 +21,9 @@
 {%- endblock %}
 {%- block content %}
 <div class="row">
-    <h4>{{ body_title|safe }}</h4>
-</div>
-<div class="row">
+    <div class="page-header">
+    <h3>{{ body_title|safe }}</h3>
+    </div>
     <div class="col-lg-7">
     <dl class="dl-horizontal">
         <dt>Tree</dt>
@@ -94,7 +94,9 @@
     </div>
 </div>
 <div class="row">
-<h4>Defconfigs Built</h4>
+<div class="page-header">
+<h3>Defconfigs Built</h3>
+</div>
 <div class="col-lg-12">
 <p>
     <div class="btn-group">
@@ -136,16 +138,16 @@ function showHideDefconfs(element) {
             $('.df-success').show();
             $('.df-unknonw').show();
             break;
-    };
-};
+    }
+}
 
 $(document).ready(function() {
     $('body').tooltip({
         'selector': '[rel=tooltip]',
-        'placement': 'auto top',
+        'placement': 'auto top'
     });
 
-    $('#li-job').addClass("active");
+    $('#li-job').addClass('active');
 
     $('.btn-group > .btn').click(function() {
         $(this).addClass('active').siblings().removeClass('active');
@@ -158,8 +160,8 @@ $(document).ready(function() {
         'data': {
             'job_id': '{{ job_doc.result._id }}',
             'field': 'status',
-            'nfield': '_id',
-        },
+            'nfield': '_id'
+        }
     }).done(function(data) {
         data = data['result'];
 
@@ -177,9 +179,9 @@ $(document).ready(function() {
                     break;
                 default:
                     unknown++;
-                    break
-            };
-        };
+                    break;
+            }
+        }
 
         var dataset = [success, fail, unknown],
             width = 200,
@@ -191,40 +193,48 @@ $(document).ready(function() {
             pie = d3.layout.pie().sort(null),
             arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
 
-        var svg = d3.select("#builds-chart").append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+        var svg = d3.select('#builds-chart').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', 'translate(' + width / 2 + ',' +
+                    height / 2 + ')'
+            );
 
-        var path = svg.selectAll("path")
+        var path = svg.selectAll('path')
             .data(pie(dataset))
-            .enter().append("path")
-            .attr("fill", function(d, i) {
+            .enter().append('path')
+            .attr('fill', function(d, i) {
                 return color[i];
             })
-            .attr("d", arc);
+            .attr('d', arc);
 
         $('#success-cell')
             .empty()
             .append(
-                '<span rel="tooltip" data-toggle="tooltip" title="Successful">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Successful defconfigs built">' +
                 success +
-                '</span>')
+                '</span>'
+            )
             .css('border-bottom-color', color[0]);
         $('#fail-cell')
             .empty()
             .append(
-                '<span rel="tooltip" data-toggle="tooltip" title="Failed">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Failed defconfigs built">' +
                 fail +
-                '</span>')
+                '</span>'
+            )
             .css('border-bottom-color', color[1]);
         $('#unknown-cell')
             .empty()
             .append(
-                '<span rel="tooltip" data-toggle="tooltip" title="Unknown">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Unknown status">' +
                 unknown +
-                '</span>')
+                '</span>'
+            )
             .css('border-bottom-color', color[2]);
     });
 
@@ -236,8 +246,8 @@ $(document).ready(function() {
         'data': {
             'job_id': '{{ job_doc.result._id }}',
             'sort': '_id',
-            'sort_order': 1,
-        },
+            'sort_order': 1
+        }
     }).done(function(data) {
         data = data['result'];
 
@@ -273,13 +283,13 @@ $(document).ready(function() {
                     cls = 'df-unknown';
                     $('#unknown-btn').removeAttr('disabled');
                     break;
-            };
+            }
 
             defconfig = data[i]['defconfig'];
             if (metadata['kconfig_fragments'] != null) {
                 defconfig = data[i]['defconfig'] + '&nbsp;<small>' +
-                    metadata['kconfig_fragments'] + '</small>'
-            };
+                    metadata['kconfig_fragments'] + '</small>';
+            }
 
             panel = '<div class="panel panel-default ' + cls + '">' +
                 '<div class="panel-heading" data-toggle="collapse" data-parent="accordion" data-target="#defconf' + i + '">' +
@@ -293,7 +303,7 @@ $(document).ready(function() {
             panel += '<dl class="dl-horizontal">';
 
             if ($.isEmptyObject(metadata)) {
-                panel += "<strong>No data to show.</strong>"
+                panel += '<strong>No data to show.</strong>';
             } else {
                 if (metadata['dtb_dir'] != null) {
                     panel += '<dt>DTB directory</dt>' +
@@ -301,48 +311,47 @@ $(document).ready(function() {
                         data_url + metadata['dtb_dir'] + '/' + '">' +
                         metadata['dtb_dir'] +
                         '</a></dd>';
-                };
+                }
                 if (metadata['modules_dir'] != null) {
                     panel += '<dt>Modules directory</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['modules_dir'] + '/' + '">' +
                         metadata['modules_dir'] +
                         '</a></dd>';
-                };
+                }
                 if (metadata['text_offset'] != null) {
                     panel += '<dt>Text offset</dt>' +
                         '<dd>' + metadata['text_offset'] + '</dd>';
-                };
+                }
                 if (metadata['kernel_image'] != null) {
                     panel += '<dt>Kernel image</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['kernel_image'] + '">' +
                         metadata['kernel_image'] +
                         '</a></dd>';
-                };
-                if (metadata['kernel_config'] != null ) {
+                }
+                if (metadata['kernel_config'] != null) {
                     panel += '<dt>Kernel config</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['kernel_config'] + '">' +
                         metadata['kernel_config'] +
                         '</a></dd>';
-                };
+                }
                 if (metadata['build_log'] != null) {
-                    console.log(metadata['build_log']);
                     panel += '<dt>Build log</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['build_log'] + '">' +
                         metadata['build_log'] +
                         '</a></dd>';
-                };
-            };
+                }
+            }
+
             panel += '</dl>';
             panel += '</div></div></div>';
 
             $(this).append(panel);
-        };
+        }
     });
-
 });
 </script>
 {%- endblock %}
