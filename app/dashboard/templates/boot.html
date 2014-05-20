@@ -1,0 +1,159 @@
+{%- extends 'base.html' %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+    <h3>{{ boot_title|safe }}</h3>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-right">
+        <dt>Board</dt>
+        <dd id="dd-board-board">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Job</dt>
+        <dd id="dd-board-job">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Kernel</dt>
+        <dd id="dd-board-kernel">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Defconfig</dt>
+        <dd id="dd-board-defconfig">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+    </dl>
+    </div>
+    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-left">
+        <dt>Status</dt>
+        <dd id="dd-board-status">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>            
+        <dt>Warnings</dt>
+        <dd id="dd-board-warnings">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Errors</dt>
+        <dd id="dd-board-errors">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Boot time</dt>
+        <dd id="dd-board-boot-time">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+    </dl>
+    </div>
+</div>
+<div id="dyn-content">
+</div>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="/static/js/kernelci.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto top'
+    });
+
+    $('#li-boot').addClass('active');
+
+    $.ajax({
+        'type': 'GET',
+        'traditional': true,
+        'url': '/_ajax/boot',
+        'data': {
+            'id': '{{ board }}-{{ job }}-{{ kernel }}-{{ defconfig }}'
+        }
+    }).done(function(data) {
+        data = data['result'];
+
+        var boot_time = new Date(data['time']),
+            status;
+
+        $('#dd-board-board').empty().append(data['board']);
+        $('#dd-board-defconfig').empty().append(data['defconfig']);
+        $('#dd-board-kernel').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Details for job&nbsp;' + data['job'] +
+            '&nbsp;&dash;&nbsp;' +
+            data['kernel'] + '"><a href="/job/' + data['job'] + '/kernel/' +
+            data['kernel'] + '">' + data['kernel'] +
+            '&nbsp;<i class="fa fa-search"></i></a></span>'
+        );
+        $('#dd-board-job').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Details for job&nbsp;' + data['job'] + '"><a href="/job/' +
+            data['job'] + '">' + data['job'] +
+            '&nbsp;<i class="fa fa-search"></i></a></span>'
+        );
+
+        switch (data['status']) {
+            case 'PASS':
+                displ = '<span rel="tooltip" data-toggle="tooltip"' +
+                    'title="Boot completed"><span class="label ' +
+                    'label-success"><i class="fa fa-check"></i></span></span>';
+                break;
+            case 'FAIL':
+                displ = '<span rel="tooltip" data-toggle="tooltip"' +
+                    'title="Boot failed"><span class="label label-danger">' +
+                    '<i class="fa fa-exclamation-triangle"></i></span></span>';
+                break;
+            default:
+                displ = '<span rel="tooltip" data-toggle="tooltip"' +
+                    'title="Unknown status"><span class="label ' +
+                    'label-warning"><i class="fa fa-question"></i>' +
+                    '</span></span>';
+                break;
+        }
+
+        $('#dd-board-status').empty().append(displ);
+        $('#dd-board-boot-time').empty().append(boot_time.getCustomTime());
+
+        if (data['warnings'] != null) {
+            $('#dd-board-warnings').empty().append(data['warnings']);
+        } else {
+            $('#dd-board-warnings').empty().append(0);
+        }
+
+        if (data['errors'] != null) {
+            $('#dd-board-errors').empty().append(data['errors']);
+        } else {
+            $('#dd-board-errors').empty().append(0);
+        }
+
+        if (data['fail_log'] != null && data['fail_log'].length > 0) {
+            var fail_log = '<dt>Log</dt><dd>' +
+                '<a href="#" data-toggle="modal" data-target="#boot-log">View log&nbsp;<i class="fa fa-search"></i></a>' +
+                '</dd>';
+
+            var modal = '<div id="boot-log" class="modal fade" tabindex="-1" role="dialog"' +
+                'aria-labelledby="boot-modal-label" aria-hidden="true">' +
+                '<div class="modal-dialog modal-lg">' +
+                '<div class="modal-content">' +
+                '<div class="modal-header">' +
+                '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>' +
+                '<h4 class="modal-title" id="boot-modal-label">Boot Log&nbsp;' +
+                '<small>(last 80 lines)</small></h4>' +
+                '</div>' +
+                '<div class="modal-body"><pre class="pre-scrollable">';
+
+                for (var i = 0; i < data['fail_log'].length; i++) {
+                    modal += data['fail_log'][i] + '\n';
+                }
+
+            modal += '</pre></div>' +
+                '<div class="modal-footer">' +
+                '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+                '</div></div></div></div></div>';
+
+            $('#dyn-content').append(modal);
+            $('#dl-left').append(fail_log);
+        }
+    });
+});
+</script>
+{%- endblock %}

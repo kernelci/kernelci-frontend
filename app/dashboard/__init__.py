@@ -23,7 +23,10 @@ from flask import (
 
 from dashboard.views.about import AboutView
 from dashboard.views.build import BuildsView
-from dashboard.views.boot import BootsView
+from dashboard.views.boot import (
+    BootIdView,
+    BootsView,
+)
 from dashboard.views.index import IndexView
 from dashboard.views.job import (
     JobsView,
@@ -36,6 +39,8 @@ from utils.backend import (
     ajax_get_boots,
 )
 
+# Name of the environment variable that will be lookep up for app configuration
+# parameters.
 APP_ENVVAR = 'FLASK_SETTINGS'
 
 app = Flask('kernel-ci-frontend')
@@ -57,15 +62,21 @@ app.add_url_rule(
 )
 app.add_url_rule('/job/', view_func=JobsView.as_view('jobs'), methods=['GET'])
 app.add_url_rule('/', view_func=IndexView.as_view('index'), methods=['GET'])
-
 app.add_url_rule(
     '/job/<string:job>/kernel/<string:kernel>/',
     view_func=JobIdView.as_view('job-id'),
     methods=['GET'],
 )
-
 app.add_url_rule(
     '/boot/', view_func=BootsView.as_view('boots'), methods=['GET'],
+)
+app.add_url_rule(
+    (
+        '/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/'
+        'defconfig/<string:defconfig>/'
+    ),
+    view_func=BootIdView.as_view('boot_id'),
+    methods=['GET'],
 )
 
 
