@@ -114,8 +114,20 @@ def ajax_get_jobs(request):
 
 
 def ajax_get_boots(request):
-    url, headers = _create_url_headers(BOOT_API)
-    r = requests.get(url, headers=headers, params=request.args.lists())
+
+    api_path = BOOT_API
+    params_list = request.args.lists()
+
+    print params_list
+
+    if 'id' in request.args:
+        boot_id = request.args['id']
+        api_path = _create_api_path(BOOT_API, boot_id)
+
+        params_list.remove(('id', [boot_id]))
+
+    url, headers = _create_url_headers(api_path)
+    r = requests.get(url, headers=headers, params=params_list)
 
     response = {}
 
