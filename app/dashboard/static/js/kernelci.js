@@ -13,6 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+/*
+    Return a custom date in ISO format, based on UTC time.
+    The format returned is: YYYY-MM-DD HH:MM:SS UTC
+*/
 Date.prototype.getCustomISOFormat = function() {
     var year = this.getUTCFullYear().toString();
     var month = (this.getUTCMonth() + 1).toString();
@@ -33,6 +37,10 @@ Date.prototype.getCustomISOFormat = function() {
         ':' + seconds + ' UTC';
 };
 
+/*
+    Return a custom date in ISO format.
+    The format returned is: YYYY-MM-DD
+*/
 Date.prototype.getCustomISODate = function() {
     var year = this.getUTCFullYear().toString();
     var month = (this.getUTCMonth() + 1).toString();
@@ -42,4 +50,38 @@ Date.prototype.getCustomISODate = function() {
     day = day[1] ? day : '0' + day[0];
 
     return year + '-' + month + '-' + day;
+};
+
+/*
+    Return a custom time representation. This is mostly useful to calulate
+    elapsed time.
+    The full format returned is: X hours Y min. Z sec. T mill.
+
+    If one of the values for hours, minutes, seconds or milliseconds is 0,
+    it will not be returned.
+*/
+Date.prototype.getCustomTime = function() {
+    var l_hours = this.getUTCHours(),
+        l_minutes = this.getUTCMinutes(),
+        l_seconds = this.getUTCSeconds(),
+        l_milliseconds = this.getMilliseconds(),
+        l_time = '';
+
+    if (l_hours != 0) {
+        l_time += l_hours.toString() + ' hours ';
+    }
+
+    if (l_minutes != 0) {
+        l_time += l_minutes.toString() + ' min. ';
+    }
+
+    if (l_seconds != 0) {
+        l_time += l_seconds.toString() + ' sec. ';
+    }
+
+    if (l_milliseconds != 0) {
+        l_time += l_milliseconds.toString() + ' mill.';
+    }
+
+    return l_time.trim();
 };
