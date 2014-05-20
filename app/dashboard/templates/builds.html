@@ -6,6 +6,7 @@
 {%- endblock %}
 {%- block content %}
 {% include "date_range.html" %}
+<br />
 <div class="row">
     <div class="col-lg-12">
         <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="defconfigs">
@@ -17,14 +18,14 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script type="text/javascript" src="/static/js/kernelci.js"></script>
+<script type="text/javascript" src="/static/js/kernelci.min.js"></script>
 <script type="text/javascript">  
 $(document).ready(function () {
-    $('#li-build').addClass("active");
+    $('#li-build').addClass('active');
 
     $('body').tooltip({
         'selector': '[rel=tooltip]',
-        'placement': 'auto',
+        'placement': 'auto'
     });
 
     $('#defconfigs').dataTable({
@@ -33,7 +34,7 @@ $(document).ready(function () {
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>builds per page</strong>',
             'zeroRecords': '<strong>No builds to display.</strong>',
-            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>',
+            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
@@ -42,7 +43,7 @@ $(document).ready(function () {
         'stateSave': true,
         'order': [4, 'desc'],
         'search': {
-            'regex': true,
+            'regex': true
         },
         'ajax': {
             'type': 'GET',
@@ -55,9 +56,9 @@ $(document).ready(function () {
                 'date_range': 15,
                 'field': [
                     '_id', 'job', 'kernel', 'defconfig', 'status',
-                    'metadata', 'arch', 'created_on',
-                ],
-            },
+                    'metadata', 'arch', 'created_on'
+                ]
+            }
         },
         'columns': [
             {
@@ -66,19 +67,19 @@ $(document).ready(function () {
                 'render': function(data, type, object) {
                     return data + '&nbsp;&dash;&nbsp;<small>' +
                         object['metadata']['git_branch'] + '</small>';
-                },
+                }
             },
             {
                 'data': 'kernel',
-                'title': 'Kernel',
+                'title': 'Kernel'
             },
             {
                 'data': 'defconfig',
-                'title': 'Defconfig',
+                'title': 'Defconfig'
             },
             {
                 'data': 'arch',
-                'title': 'Arch.',
+                'title': 'Arch.'
             },
             {
                 'data': 'created_on',
@@ -87,7 +88,7 @@ $(document).ready(function () {
                 'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
-                },
+                }
             },
             {
                 'data': 'status',
@@ -121,7 +122,7 @@ $(document).ready(function () {
                             break;
                     }
                     return displ;
-                },
+                }
             },
             {
                 'data': 'job',
@@ -135,7 +136,7 @@ $(document).ready(function () {
                         '<a href="/job/' + data +
                         '/kernel/' + object['kernel'] + '">' +
                         '<i class="fa fa-search"></i></a></span>';
-                },
+                }
             }
         ]
     });
