@@ -6,6 +6,7 @@
 {%- endblock %}
 {%- block content %}
 {% include "date_range.html" %}
+<br />
 <div class="row">
 <div class="col-lg-12">
 <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="jobstable">
@@ -17,14 +18,14 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.0/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script type="text/javascript" src="/static/js/kernelci.js"></script>
+<script type="text/javascript" src="/static/js/kernelci.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#li-job').addClass("active");
+    $('#li-job').addClass('active');
 
     $('body').tooltip({
         'selector': '[rel=tooltip]',
-        'placement': 'auto',
+        'placement': 'auto'
     });
 
     $('#jobstable').dataTable({
@@ -33,7 +34,7 @@ $(document).ready(function() {
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
             'zeroRecords': '<strong>No jobs to display.<strong>',
-            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>',
+            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
@@ -42,7 +43,7 @@ $(document).ready(function() {
         'stateSave': true,
         'order': [2, 'desc'],
         'search': {
-            'regex': true,
+            'regex': true
         },
         'ajax' : {
             'type': 'GET',
@@ -55,9 +56,9 @@ $(document).ready(function() {
                 'sort_order': -1,
                 'date_range': 15,
                 'field': [
-                    'job', 'kernel', 'created_on', 'status', 'metadata',
-                ],
-            },
+                    'job', 'kernel', 'created_on', 'status', 'metadata'
+                ]
+            }
         },
         'columns': [
             {
@@ -66,11 +67,11 @@ $(document).ready(function() {
                 'render': function(data, type, object) {
                     return data + '&nbsp;&dash;&nbsp;<small>' +
                         object['metadata']['git_branch'] + '</small>';
-                },
+                }
             },
             {
                 'data': 'kernel',
-                'title': 'Kernel',
+                'title': 'Kernel'
             },
             {
                 'data': 'created_on',
@@ -79,7 +80,7 @@ $(document).ready(function() {
                 'render': function(data, type, object) {
                     var created = new Date(data);
                     return created.getCustomISODate();
-                },
+                }
             },
             {
                 'data': 'status',
@@ -93,34 +94,34 @@ $(document).ready(function() {
                                 'data-toggle="tooltip"' +
                                 'title="Building">' +
                                 '<span class="label label-info">' +
-                                '<li class="fa fa-cogs"></li></span></span>';
+                                '<i class="fa fa-cogs"></i></span></span>';
                             break;
                         case 'PASS':
                             displ = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
                                 'title="Build completed">' +
                                 '<span class="label label-success">' +
-                                '<li class="fa fa-check"></li></span></span>';
+                                '<i class="fa fa-check"></i></span></span>';
                             break;
                         case 'FAIL':
                             displ = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
                                 'title="Build failed">' +
                                 '<span class="label label-danger">' +
-                                '<li class="fa fa-exclamation-triangle">' +
-                                '</li></span></span>';
+                                '<i class="fa fa-exclamation-triangle">' +
+                                '</i></span></span>';
                             break;
                         default:
                             displ = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
                                 'title="Unknown status">' +
                                 '<span class="label label-warning">' +
-                                '<li class="fa fa-question">' +
-                                '</li></span></span>';
+                                '<i class="fa fa-question">' +
+                                '</i></span></span>';
                             break;
                     }
                     return displ;
-                },
+                }
             },
             {
                 'data': 'job',
@@ -134,8 +135,8 @@ $(document).ready(function() {
                         '<a href="/job/' + data +
                         '/kernel/' + object['kernel'] + '">' +
                         '<i class="fa fa-search"></i></a></span>';
-                },
-            },
+                }
+            }
         ]
     });
 
