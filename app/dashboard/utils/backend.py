@@ -99,8 +99,17 @@ def ajax_get_defconfigs(request):
 
 
 def ajax_get_jobs(request):
-    url, headers = _create_url_headers(JOB_API)
-    r = requests.get(url, headers=headers, params=request.args.lists())
+    api_path = JOB_API
+    params_list = request.args.lists()
+
+    if 'id' in request.args:
+        job_id = request.args['id']
+        api_path = _create_api_path(JOB_API, job_id)
+
+        params_list.remove(('id', [job_id]))
+
+    url, headers = _create_url_headers(api_path)
+    r = requests.get(url, headers=headers, params=params_list)
 
     response = {}
 
@@ -117,8 +126,6 @@ def ajax_get_boots(request):
 
     api_path = BOOT_API
     params_list = request.args.lists()
-
-    print params_list
 
     if 'id' in request.args:
         boot_id = request.args['id']
