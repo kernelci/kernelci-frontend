@@ -84,19 +84,18 @@ class JobIdView(View):
 
     def dispatch_request(self, **kwargs):
 
-        job = kwargs['job']
-        kernel = kwargs['kernel']
-        job_id = '%s-%s' % (job, kernel)
+        job_id = '%s-%s' % (kwargs['job'], kwargs['kernel'])
 
-        body_title = 'Details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (job, kernel)
+        body_title = 'Details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
+            kwargs['job'], kwargs['kernel'])
         title = 'Kernel CI Dashboard &mdash;&nbsp;' + body_title
 
         params = {'id': job_id}
         response = get_job(**params)
 
-        job_doc = {}
-        base_url = None
-        commit_url = None
+        metadata = {}
+        base_url = ''
+        commit_url = ''
 
         if response.status_code == 200:
             job_doc = json_util.loads(response.content)
@@ -132,7 +131,8 @@ class JobIdView(View):
 
             return render_template(
                 'job-kernel.html', page_title=title, body_title=body_title,
-                job_doc=job_doc, base_url=base_url, commit_url=commit_url,
+                base_url=base_url, commit_url=commit_url,
+                job_id=job_id, job=kwargs['job'], metadata=metadata,
             )
         else:
             abort(response.status_code)
