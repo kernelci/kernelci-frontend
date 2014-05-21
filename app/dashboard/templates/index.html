@@ -1,9 +1,5 @@
 {% extends 'base.html' %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-    <link rel="stylesheet" type="text/css" href="/static/css/datatables.min.css">
-{%- endblock %}
 {%- block content %}
 {% include 'date_range.html' %}
 <div class="row">

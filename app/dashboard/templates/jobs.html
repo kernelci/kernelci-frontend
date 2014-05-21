@@ -29,12 +29,13 @@ $(document).ready(function() {
     });
 
     $('#jobstable').dataTable({
-        'dom': '<"row"<"col-lg-6"l><"col-lg-4 col-lg-offset-2"f>r>t' +
+        'dom': '<"row"<"col-lg-6"<"length-menu"l>>' +
+            '<"col-lg-4 col-lg-offset-2"f>r<"col-lg-12"t>>' +
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
             'zeroRecords': '<strong>No jobs to display.<strong>',
-            'search': '<div class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
+            'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
         'ordering': true,
@@ -140,8 +141,13 @@ $(document).ready(function() {
         ]
     });
 
-    $('.input-sm').attr('placeholder', 'Filter the results');
-    $('.input-sm').attr('accesskey', '/');
+    $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
+    $('.input-sm').keyup(function(key) {
+        // Remove focus from input when Esc is pressed.
+        if (key.keyCode == 27) {
+            $(this).blur();
+        }
+    });
 });
 </script>
 {%- endblock %}
