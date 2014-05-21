@@ -8,10 +8,10 @@
 {% include "date_range.html" %}
 <br />
 <div class="row">
-<div class="col-lg-12">
-<table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="jobstable">
-</table>
-</div>
+    <div class="col-lg-12">
+        <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped" id="jobstable">
+        </table>
+    </div>
 </div>
 {%- endblock %}
 {%- block scripts %}
@@ -29,8 +29,8 @@ $(document).ready(function() {
     });
 
     $('#jobstable').dataTable({
-        'dom': "<'row'<'col-lg-6'l><'col-lg-4 col-lg-offset-2'f>r>t" +
-            "<'row'<'col-lg-6'i><'col-lg-6'p>>",
+        'dom': '<"row"<"col-lg-6"l><"col-lg-4 col-lg-offset-2"f>r>t' +
+            '<"row"<"col-lg-6"i><"col-lg-6"p>>',
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
             'zeroRecords': '<strong>No jobs to display.<strong>',
@@ -45,7 +45,7 @@ $(document).ready(function() {
         'search': {
             'regex': true
         },
-        'ajax' : {
+        'ajax': {
             'type': 'GET',
             'url': '/_ajax/job',
             'traditional': true,
@@ -141,6 +141,7 @@ $(document).ready(function() {
     });
 
     $('.input-sm').attr('placeholder', 'Filter the results');
+    $('.input-sm').attr('accesskey', '/');
 });
 </script>
 {%- endblock %}

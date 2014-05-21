@@ -11,8 +11,8 @@
         <dd id="dd-board-board">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
-        <dt>Job</dt>
-        <dd id="dd-board-job">
+        <dt>Tree</dt>
+        <dd id="dd-board-tree">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Kernel</dt>
@@ -84,9 +84,9 @@ $(document).ready(function() {
             data['kernel'] + '">' + data['kernel'] +
             '&nbsp;<i class="fa fa-search"></i></a></span>'
         );
-        $('#dd-board-job').empty().append(
+        $('#dd-board-tree').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for job&nbsp;' + data['job'] + '"><a href="/job/' +
+            'title="Details for&nbsp;' + data['job'] + '"><a href="/job/' +
             data['job'] + '">' + data['job'] +
             '&nbsp;<i class="fa fa-search"></i></a></span>'
         );
