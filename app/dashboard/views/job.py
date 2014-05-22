@@ -25,7 +25,6 @@ from flask.views import View
 
 from dashboard.utils.backend import (
     get_job,
-    get_defconfigs,
     today_date,
 )
 
@@ -50,34 +49,7 @@ class JobView(View):
     def dispatch_request(self, **kwargs):
 
         title = 'Details for&nbsp;' + kwargs['job']
-
-        kwargs['sort'] = 'created_on'
-        kwargs['sort_order'] = -1
-
-        response = get_job(**kwargs)
-
-        kernel = {}
-        defconf = {}
-
-        if response.status_code == 200:
-            kernel = json_util.loads(response.content)
-
-            if kernel['count'] == 0:
-                abort(404)
-
-            kernel['result'] = json_util.loads(kernel['result'])
-
-            response = get_defconfigs(**kwargs)
-
-            if response.status_code == 200:
-                defconf = json_util.loads(response.content)
-                defconf['result'] = json_util.loads(defconf['result'])
-
-            return render_template(
-                'job.html', page_title=title, kernel=kernel, defconf=defconf
-            )
-        else:
-            abort(response.status_code)
+        return render_template('job.html', page_title=title, job=kwargs['job'])
 
 
 class JobIdView(View):
