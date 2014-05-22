@@ -257,9 +257,6 @@ $(document).ready(function() {
             metadata,
             label;
 
-        $('#all-btn').removeAttr('disabled');
-        $('#all-btn').addClass('active');
-
         for (var i = 0; i < data.length; i++) {
             metadata = data[i]['metadata'];
             data_url = file_server + data[i]['job'] + '/' + data[i]['kernel'] +
@@ -289,7 +286,7 @@ $(document).ready(function() {
                     metadata['kconfig_fragments'] + '</small>';
             }
 
-            panel = '<div class="panel panel-default ' + cls + '">' +
+            panel += '<div class="panel panel-default ' + cls + '">' +
                 '<div class="panel-heading" data-toggle="collapse" data-parent="accordion" data-target="#defconf' + i + '">' +
                 '<h4 class="panel-title">' +
                 '<a data-toggle="collapse" data-parent="#accordion" href="#defconf' + i + '">' +
@@ -345,10 +342,13 @@ $(document).ready(function() {
             }
 
             panel += '</dl>';
-            panel += '</div></div></div>';
+            panel += '</div></div></div>\n';
 
-            $(this).append(panel);
         }
+        $(this).append(panel);
+
+        $('#all-btn').removeAttr('disabled');
+        $('#all-btn').addClass('active');
     });
 });
 </script>
