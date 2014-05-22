@@ -62,16 +62,21 @@ $(document).ready(function() {
     $('#li-boot').addClass('active');
 
     $.ajax({
-        'type': 'GET',
-        'traditional': true,
         'url': '/_ajax/boot',
+        'traditional': true,
+        'dataType': 'json',
         'data': {
             'id': '{{ board }}-{{ job }}-{{ kernel }}-{{ defconfig }}'
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        data = data['result'];
-
-        var boot_time = new Date(data['time']),
+        var boot_time = new Date(data['time']['$date']),
             status;
 
         $('#dd-board-board').empty().append(data['board']);

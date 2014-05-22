@@ -162,16 +162,21 @@ $(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/defconf',
-        'type': 'GET',
         'traditional': true,
+        'dataType': 'json',
         'data': {
             'job_id': '{{ job_id }}',
             'field': 'status',
             'nfield': '_id'
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        data = data['result'];
-
         var success = 0,
             fail = 0,
             unknown = 0;
@@ -238,19 +243,24 @@ $(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/defconf',
-        'type': 'GET',
         'traditional': true,
+        'dataType': 'json',
         'context': $('#accordion'),
         'data': {
             'job_id': '{{ job_id }}',
             'sort': '_id',
             'sort_order': 1
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        data = data['result'];
-
         var file_server = '{{ config['FILE_SERVER_URL'] }}';
-        var panel,
+        var panel = '',
             cls,
             data_url,
             defconfig,
@@ -305,14 +315,14 @@ $(document).ready(function() {
                         '<dd><a href="' +
                         data_url + metadata['dtb_dir'] + '/' + '">' +
                         metadata['dtb_dir'] +
-                        '</a></dd>';
+                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
                 }
                 if (metadata['modules_dir'] != null) {
                     panel += '<dt>Modules directory</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['modules_dir'] + '/' + '">' +
                         metadata['modules_dir'] +
-                        '</a></dd>';
+                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
                 }
                 if (metadata['text_offset'] != null) {
                     panel += '<dt>Text offset</dt>' +
@@ -323,27 +333,26 @@ $(document).ready(function() {
                         '<dd><a href="' +
                         data_url + metadata['kernel_image'] + '">' +
                         metadata['kernel_image'] +
-                        '</a></dd>';
+                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
                 }
                 if (metadata['kernel_config'] != null) {
                     panel += '<dt>Kernel config</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['kernel_config'] + '">' +
                         metadata['kernel_config'] +
-                        '</a></dd>';
+                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
                 }
                 if (metadata['build_log'] != null) {
                     panel += '<dt>Build log</dt>' +
                         '<dd><a href="' +
                         data_url + metadata['build_log'] + '">' +
                         metadata['build_log'] +
-                        '</a></dd>';
+                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
                 }
             }
 
             panel += '</dl>';
             panel += '</div></div></div>\n';
-
         }
         $(this).append(panel);
 

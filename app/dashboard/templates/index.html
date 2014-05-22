@@ -117,8 +117,8 @@ $(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/defconf',
-        'type': 'GET',
         'traditional': true,
+        'dataType': 'json',
         'context': $('#failed-builds-body'),
         'data': {
             'limit': 5,
@@ -127,24 +127,30 @@ $(document).ready(function() {
             'sort_order': -1,
             'date_range': 15,
             'field': ['job', 'kernel', 'metadata', 'created_on']
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        var defconfs = data['result'];
         var row, job, created, col1, col2, col3, col4;
         var kernel, git_branch;
 
         $(this).empty();
 
-        if (defconfs.length == 0) {
+        if (data.length == 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed builds.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < defconfs.length; i++) {
-                job = defconfs[i]['job'];
-                kernel = defconfs[i]['kernel'];
-                git_branch = defconfs[i]['metadata']['git_branch'];
-                created = new Date(defconfs[i]['created_on']);
+            for (var i = 0; i < data.length; i++) {
+                job = data[i]['job'];
+                kernel = data[i]['kernel'];
+                git_branch = data[i]['metadata']['git_branch'];
+                created = new Date(data[i]['created_on']['$date']);
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small></td>';
@@ -166,7 +172,7 @@ $(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/job',
-        'type': 'GET',
+        'dataType': 'json',
         'traditional': true,
         'context': $('#failed-jobs-body'),
         'data': {
@@ -176,24 +182,30 @@ $(document).ready(function() {
             'sort_order': -1,
             'date_range': 15,
             'field': ['job', 'kernel', 'created_on', 'metadata']
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        var jobs = data['result'];
         var row, created, col1, col2, col3, col4;
         var job, kernel, git_branch;
 
         $(this).empty();
 
-        if (jobs.length == 0) {
+        if (data.length == 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed jobs.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < jobs.length; i++) {
-                created = new Date(jobs[i]['created_on']);
-                job = jobs[i]['job'];
-                kernel = jobs[i]['kernel'];
-                git_branch = jobs[i]['metadata']['git_branch'];
+            for (var i = 0; i < data.length; i++) {
+                created = new Date(data[i]['created_on']['$date']);
+                job = data[i]['job'];
+                kernel = data[i]['kernel'];
+                git_branch = data[i]['metadata']['git_branch'];
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small>' + '</td>';
@@ -215,8 +227,8 @@ $(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/boot',
-        'type': 'GET',
         'traditional': true,
+        'dataType': 'json',
         'context': $('#failed-boots-body'),
         'data': {
             'limit': 15,
@@ -224,25 +236,31 @@ $(document).ready(function() {
             'sort_order': -1,
             'sort': 'created_on',
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
+        },
+        'dataFilter': function(data, type) {
+            if (type == 'json') {
+                return $.parseJSON(data).result;
+            } else {
+                return data;
+            }
         }
     }).done(function(data) {
-        var boots = data['result'];
         var row, created, board, job, kernel, defconfig,
             col1, col2, col3, col4, col5, col6;
 
         $(this).empty();
 
-        if (boots.length == 0) {
+        if (data.length == 0) {
             row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
                 'No failed boot reports.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < boots.length; i++) {
-                created = new Date(boots[i]['created_on']);
-                job = boots[i]['job'];
-                kernel = boots[i]['kernel'];
-                board = boots[i]['board'];
-                defconfig = boots[i]['defconfig'];
+            for (var i = 0; i < data.length; i++) {
+                created = new Date(data[i]['created_on']['$date']);
+                job = data[i]['job'];
+                kernel = data[i]['kernel'];
+                board = data[i]['board'];
+                defconfig = data[i]['defconfig'];
 
                 col1 = '<td>' + job + '</td>';
                 col2 = '<td>' + kernel + '</td>';

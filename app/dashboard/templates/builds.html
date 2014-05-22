@@ -47,10 +47,19 @@ $(document).ready(function() {
             'regex': true
         },
         'ajax': {
-            'type': 'GET',
             'url': '/_ajax/defconf',
             'traditional': true,
+            'dataType': 'json',
             'dataSrc': 'result',
+            'dataFilter': function(data, type) {
+                if (type == 'json') {
+                    var parsed = $.parseJSON(data);
+                    parsed.result = $.parseJSON(parsed.result);
+                    return JSON.stringify(parsed);
+                } else {
+                    return data;
+                }
+            },
             'data': {
                 'sort': 'created_on',
                 'sort_order': -1,
@@ -87,7 +96,7 @@ $(document).ready(function() {
                 'title': 'Date',
                 'type': 'date',
                 'render': function(data, type, object) {
-                    var created = new Date(data);
+                    var created = new Date(data['$date']);
                     return created.getCustomISODate();
                 }
             },
