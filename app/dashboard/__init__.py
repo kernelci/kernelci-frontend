@@ -34,9 +34,8 @@ from dashboard.views.job import (
     JobIdView,
 )
 from utils.backend import (
-    ajax_get_defconfigs,
-    ajax_get_jobs,
-    ajax_get_boots,
+    ajax_get,
+    ajax_count_get,
 )
 
 # Name of the environment variable that will be lookep up for app configuration
@@ -96,15 +95,24 @@ def static_proxy(path):
 
 
 @app.route('/_ajax/job')
-def ajax_jobs():
-    return ajax_get_jobs(request)
+def ajax_job():
+    return ajax_get(request, app.config.get('JOB_API_ENDPOINT'))
 
 
 @app.route('/_ajax/defconf')
-def ajax_defconfs():
-    return ajax_get_defconfigs(request)
+def ajax_defconf():
+    return ajax_get(request, app.config.get('DEFCONFIG_API_ENDPOINT'))
 
 
 @app.route('/_ajax/boot')
 def ajax_boot():
-    return ajax_get_boots(request)
+    return ajax_get(request, app.config.get('BOOT_API_ENDPOINT'))
+
+
+@app.route('/_ajax/count')
+@app.route('/_ajax/count/<string:collection>')
+def ajax_count(collection=None):
+    return ajax_count_get(
+        request, app.config.get('COUNT_API_ENDPOINT'),
+        collection
+    )

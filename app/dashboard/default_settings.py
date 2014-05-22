@@ -53,6 +53,12 @@ KNOWN_GIT_URLS = {
     ),
 }
 
+# Backend API endpoints.
+JOB_API_ENDPOINT = '/api/job'
+DEFCONFIG_API_ENDPOINT = '/api/defconfig'
+BOOT_API_ENDPOINT = '/api/boot'
+COUNT_API_ENDPOINT = '/api/count'
+
 
 DEBUG = True
 TESTING = DEBUG
