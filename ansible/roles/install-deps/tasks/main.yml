@@ -1,0 +1,23 @@
+---
+- name: Install OS dependencies
+  apt:  pkg={{ item }}
+        state=latest
+        update_cache=yes
+  with_items:
+    - build-essential
+    - git
+    - python-pip
+    - python-apt
+    - python2.7-dev
+    - python-virtualenv
+    - uwsgi
+    - uwsgi-plugin-python
+  tags:
+    - install
+
+- name: Add nginx stable PPA repository
+  apt_repository: repo='ppa:nginx/stable'
+
+- name: Install nginx from stable PPA repository
+  apt: pkg=nginx
+       state=latest

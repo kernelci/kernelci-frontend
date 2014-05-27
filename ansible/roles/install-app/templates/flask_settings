@@ -1,0 +1,13 @@
+# Managed via ansible, do not edit!
+
+PREFERRED_URL_SCHEME = 'http'
+# Add the trailing slash!
+BACKEND_URL = '{{ backend_url }}'
+BASE_URL = '{{ base_url }}'
+BACKEND_TOKEN = '{{ backend_token }}'
+SECRET_KEY = '{{ secret_key }}'
+# Add the trailing slash!
+FILE_SERVER_URL = 'http://armcloud.us/kernel-ci/'
+
+DEBUG = False
+TESTING = DEBUG

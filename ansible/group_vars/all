@@ -1,0 +1,9 @@
+ansible_ssh_user: ubuntu
+checkout_dir: /home/ubuntu
+install_base: /srv
+nickname: kernel-ci-frontend
+hostname: frontend.kernel-ci.linaro.org
+web_user: www-data
+app_user: www-data
+web_root: /usr/share/nginx/html
+git_head: HEAD

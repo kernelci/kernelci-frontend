@@ -1,0 +1,66 @@
+---
+- name: Create www root directory
+  file: state=directory
+        dest={{ web_root }}/{{ hostname }}
+        owner={{ web_user }}
+        group={{ web_user }}
+        mode=0755
+
+- name: Link static content
+  file: state=link
+        src={{ install_base }}/{{ hostname }}/app/dashboard/static/
+        dest={{ web_root }}/{{ hostname }}/static
+        owner={{ web_user }}
+        group={{ web_user }}
+
+- name: Install frontend nginx configuration
+  template: src=kernelci-frontend.conf
+            dest=/etc/nginx/sites-available/kernelci-frontend
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - reload-nginx
+
+- name: Enable frontend website
+  file: state=link
+        src=/etc/nginx/sites-available/kernelci-frontend
+        dest=/etc/nginx/sites-enabled/kernelci-frontend
+        owner=root
+        group=root
+
+- name: Install local nginx configuration
+  copy: src=nginx-local.conf
+        dest=/etc/nginx/conf.d/nginx-local.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+
+- name: Install nginx upstream definitions
+  copy: src=frontend-upstreams.conf
+        dest=/etc/nginx/conf.d/frontend-upstreams.conf
+        mode=0644
+        owner=root
+        group=root
+  notify:
+    - reload-nginx
+
+- name: Install uwsgi configuration file
+  template: src=kernelci-frontend.ini
+            dest=/etc/uwsgi/apps-available/kernelci-frontend.ini
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - reload-uwsgi
+
+- name: Enable uwsgi frontend application
+  file: state=link
+        src=/etc/uwsgi/apps-available/kernelci-frontend.ini
+        dest=/etc/uwsgi/apps-enabled/kernelci-frontend.ini
+        owner=root
+        group=root
+  notify:
+    - reload-uwsgi

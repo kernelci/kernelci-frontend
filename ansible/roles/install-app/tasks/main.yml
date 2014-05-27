@@ -1,0 +1,37 @@
+---
+
+- name: Checkout kernel-ci-frontend code
+  git:  repo=http://git.linaro.org/git/infrastructure/kernel-ci-frontend.git
+        dest={{ install_base }}/{{ hostname }}
+        version={{ git_head }}
+        update=yes
+  tags:
+    - install
+    - app
+
+- name: Fix cloned repo permissions
+  file: path={{ install_base }}/{{ hostname }}
+        state=directory
+        recurse=yes
+        owner={{ app_user }}
+        group={{ app_user }}
+  tags:
+    - install
+    - app
+
+- name: Install pip requirements
+  pip:  requirements={{ install_base }}/{{ hostname }}/requirements.txt
+        virtualenv={{ install_base }}/.venv/{{ hostname }}
+  tags:
+    - install
+    - app
+
+- name: Copy Flask settings file
+  template: src=flask_settings
+            dest=/etc/flask_settings
+            owner=root
+            group=root
+            mode=0644
+  tags:
+    - install
+    - app
