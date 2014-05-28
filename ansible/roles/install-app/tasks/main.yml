@@ -1,5 +1,4 @@
 ---
-
 - name: Checkout kernel-ci-frontend code
   git:  repo=http://git.linaro.org/git/infrastructure/kernel-ci-frontend.git
         dest={{ install_base }}/{{ hostname }}
@@ -22,6 +21,16 @@
 - name: Install pip requirements
   pip:  requirements={{ install_base }}/{{ hostname }}/requirements.txt
         virtualenv={{ install_base }}/.venv/{{ hostname }}
+  tags:
+    - install
+    - app
+
+- name: Fix virtualenv permissions
+  file: path={{ install_base }}/.venv/{{ hostname }}
+        state=directory
+        recurse=yes
+        owner={{ app_user }}
+        group={{ app_user }}
   tags:
     - install
     - app

@@ -1,10 +1,20 @@
 ---
+- name: Disable default website
+  file: state=absent
+        dest=/etc/nginx/sites-enabled/default
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
 - name: Create www root directory
   file: state=directory
         dest={{ web_root }}/{{ hostname }}
         owner={{ web_user }}
         group={{ web_user }}
         mode=0755
+  tags:
+    - web-server
 
 - name: Link static content
   file: state=link
@@ -12,6 +22,8 @@
         dest={{ web_root }}/{{ hostname }}/static
         owner={{ web_user }}
         group={{ web_user }}
+  tags:
+    - web-server
 
 - name: Install frontend nginx configuration
   template: src=kernelci-frontend.conf
@@ -21,6 +33,8 @@
             mode=0644
   notify:
     - reload-nginx
+  tags:
+    - web-server
 
 - name: Enable frontend website
   file: state=link
@@ -28,6 +42,8 @@
         dest=/etc/nginx/sites-enabled/kernelci-frontend
         owner=root
         group=root
+  tags:
+    - web-server
 
 - name: Install local nginx configuration
   copy: src=nginx-local.conf
@@ -37,6 +53,8 @@
         mode=0644
   notify:
     - reload-nginx
+  tags:
+    - web-server
 
 - name: Install nginx upstream definitions
   copy: src=frontend-upstreams.conf
@@ -46,6 +64,8 @@
         group=root
   notify:
     - reload-nginx
+  tags:
+    - web-server
 
 - name: Install uwsgi configuration file
   template: src=kernelci-frontend.ini
@@ -55,6 +75,8 @@
             mode=0644
   notify:
     - reload-uwsgi
+  tags:
+    - web-server
 
 - name: Enable uwsgi frontend application
   file: state=link
@@ -64,3 +86,5 @@
         group=root
   notify:
     - reload-uwsgi
+  tags:
+    - web-server
