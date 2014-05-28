@@ -1,5 +1,3 @@
-ansible_ssh_user: ubuntu
-checkout_dir: /home/ubuntu
 install_base: /srv
 nickname: kernel-ci-frontend
 hostname: frontend.kernel-ci.linaro.org
