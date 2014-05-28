@@ -1,4 +1,15 @@
 ---
+- name: Install default nginx configuration
+  copy: src=nginx-default.conf
+        dest=/etc/nginx/nginx.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
 - name: Disable default website
   file: state=absent
         dest=/etc/nginx/sites-enabled/default
