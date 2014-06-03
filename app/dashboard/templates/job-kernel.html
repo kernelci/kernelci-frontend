@@ -7,6 +7,10 @@
             cursor: pointer;
         }
 
+        #success-cell, #fail-cell, #unknown-cell {
+            cursor: pointer;
+        }
+
         #builds-chart-legend td {
             text-align: center;
             width: 25px;
@@ -88,11 +92,11 @@
             <table id="builds-chart-legend">
                 <tbody>
                 <tr>
-                    <td id="success-cell">0</td>
+                    <td id="success-cell" onclick="showHideDefconfs(this)">0</td>
                     <td>&nbsp;/&nbsp;</td>
-                    <td id="fail-cell">0</td>
+                    <td id="fail-cell" onclick="showHideDefconfs(this)">0</td>
                     <td>&nbsp;/&nbsp;</td>
-                    <td id="unknown-cell">0</td>
+                    <td id="unknown-cell" onclick="showHideDefconfs(this)">0</td>
                 </tr>
                 </tbody>
             </table>
@@ -126,15 +130,39 @@
 <script type="text/javascript">
 function showHideDefconfs(element) {
     switch (element.id) {
+        case 'success-cell':
+            if ($('#success-btn').attr('disabled') !== 'disabled') {
+                $('.df-failed').hide();
+                $('.df-success').show();
+                $('.df-unknown').hide();
+                $('#success-btn').addClass('active').siblings().removeClass('active');
+            }
+            break;
         case 'success-btn':
             $('.df-failed').hide();
             $('.df-success').show();
             $('.df-unknown').hide();
             break;
+        case 'fail-cell':
+            if ($('#fail-btn').attr('disabled') !== 'disabled') {
+                $('.df-failed').show();
+                $('.df-success').hide();
+                $('.df-unknown').hide();
+                $('#fail-btn').addClass('active').siblings().removeClass('active');
+            }
+            break;
         case 'fail-btn':
             $('.df-failed').show();
             $('.df-success').hide();
             $('.df-unknown').hide();
+            break;
+        case 'unknown-cell':
+            if ($('#unknown-btn').attr('disabled') !== 'disabled') {
+                $('.df-failed').hide();
+                $('.df-success').hide();
+                $('.df-unknown').show();
+                $('#unknown-btn').addClass('active').siblings().removeClass('active');
+            }
             break;
         case 'unknown-btn':
             $('.df-failed').hide();
