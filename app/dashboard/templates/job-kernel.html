@@ -122,28 +122,29 @@
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
 <script type="text/javascript">
 function showHideDefconfs(element) {
     switch (element.id) {
         case 'success-btn':
             $('.df-failed').hide();
             $('.df-success').show();
-            $('.df-unknonw').hide();
+            $('.df-unknown').hide();
             break;
         case 'fail-btn':
             $('.df-failed').show();
             $('.df-success').hide();
-            $('.df-unknonw').hide();
+            $('.df-unknown').hide();
             break;
         case 'unknown-btn':
             $('.df-failed').hide();
             $('.df-success').hide();
-            $('.df-unknonw').show();
+            $('.df-unknown').show();
             break;
         default:
             $('.df-failed').show();
             $('.df-success').show();
-            $('.df-unknonw').show();
+            $('.df-unknown').show();
             break;
     }
 }
@@ -357,8 +358,54 @@ $(document).ready(function() {
         $(this).append(panel);
 
         $('#all-btn').removeAttr('disabled');
-        $('#all-btn').addClass('active');
+        if (!loadFromSessionStorage('{{ job_id }}')) {
+            $('#all-btn').addClass('active');
+        }
     });
+
+    var session_state = new SessionState('{{ job_id }}');
+    onbeforeunload = function () {
+
+        session_state.objects = {
+            '.df-success': {
+                'type': 'attr',
+                'name': 'style',
+                'value': $('.df-success').attr('style')
+            },
+            '.df-failed': {
+                'type': 'attr',
+                'name': 'style',
+                'value': $('.df-failed').attr('style')
+            },
+            '.df-unknown': {
+                'type': 'attr',
+                'name': 'style',
+                'value': $('.df-unknown').attr('style')
+            },
+            '#all-btn': {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#all-btn').attr('class')
+            },
+            '#success-btn': {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#success-btn').attr('class')
+            },
+            '#fail-btn': {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#fail-btn').attr('class')
+            },
+            '#unknown-btn': {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#unknown-btn').attr('class')
+            }
+        };
+
+        saveToSessionStorage(session_state);
+    };
 });
 </script>
 {%- endblock %}
