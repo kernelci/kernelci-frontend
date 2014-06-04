@@ -127,6 +127,7 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-jslib-1.0.min.js"></script>
 <script type="text/javascript">
 function showHideDefconfs(element) {
     switch (element.id) {
@@ -288,20 +289,22 @@ $(document).ready(function() {
             }
         }
     }).done(function(data) {
-        var file_server = '{{ config['FILE_SERVER_URL'] }}';
-        var panel = '',
+        var file_server = '{{ config['FILE_SERVER_URL'] }}',
+            panel = '',
             cls,
             data_url,
             defconfig,
             metadata,
-            label;
+            label,
+            i = 0,
+            len = data.length;
 
-        for (var i = 0; i < data.length; i++) {
-            metadata = data[i]['metadata'];
-            data_url = file_server + data[i]['job'] + '/' + data[i]['kernel'] +
-                '/' + data[i]['dirname'] + '/';
+        for (i; i < len; i++) {
+            metadata = data[i].metadata;
+            data_url = file_server + data[i].job + '/' + data[i].kernel +
+                '/' + data[i].dirname + '/';
 
-            switch (data[i]['status']) {
+            switch (data[i].status) {
                 case 'FAIL':
                     label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
                     cls = 'df-failed';
@@ -319,68 +322,118 @@ $(document).ready(function() {
                     break;
             }
 
-            defconfig = data[i]['defconfig'];
-            if (metadata['kconfig_fragments'] != null) {
-                defconfig = data[i]['defconfig'] + '&nbsp;<small>' +
-                    metadata['kconfig_fragments'] + '</small>';
+            defconfig = data[i].defconfig;
+            if (!$.isEmptyObject(metadata) &&
+                    metadata.hasOwnProperty('kconfig_fragments') &&
+                    metadata.kconfig_fragments !== null) {
+                defconfig = data[i].defconfig + '&nbsp;<small>' +
+                    metadata.kconfig_fragments + '</small>';
             }
 
             panel += '<div class="panel panel-default ' + cls + '">' +
-                '<div class="panel-heading" data-toggle="collapse" data-parent="accordion" data-target="#defconf' + i + '">' +
-                '<h4 class="panel-title">' +
-                '<a data-toggle="collapse" data-parent="#accordion" href="#defconf' + i + '">' +
-                defconfig +
-                '</a>' + label + '</h4></div>' +
-                '<div id="defconf' + i + '" class="panel-collapse collapse">' +
-                '<div class="panel-body">';
+                '<div class="panel-heading" data-toggle="collapse" ' +
+                    'id="panel-defconf' + i + '"' +
+                    'data-parent="accordion" data-target="#collapse-defconf' +
+                    i + '">' +
+                    '<h4 class="panel-title">' +
+                    '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-defconf' + i + '">' +
+                    defconfig +
+                    '</a>' + label + '</h4></div>' +
+                    '<div id="collapse-defconf' + i + '" class="panel-collapse collapse">' +
+                    '<div class="panel-body">';
 
+            panel += '<div class="row">';
+            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
             panel += '<dl class="dl-horizontal">';
 
             if ($.isEmptyObject(metadata)) {
                 panel += '<strong>No data to show.</strong>';
             } else {
-                if (metadata['dtb_dir'] != null) {
-                    panel += '<dt>DTB directory</dt>' +
+                if (metadata.hasOwnProperty('dtb_dir') &&
+                        metadata.dtb_dir !== null) {
+                    panel += '<dt>Dtb directory</dt>' +
                         '<dd><a href="' +
-                        data_url + metadata['dtb_dir'] + '/' + '">' +
-                        metadata['dtb_dir'] +
-                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
+                            data_url + metadata.dtb_dir + '/' + '">' +
+                            metadata.dtb_dir +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></dd>';
                 }
-                if (metadata['modules_dir'] != null) {
+
+                if (metadata.hasOwnProperty('modules_dir') &&
+                        metadata.modules_dir !== null) {
                     panel += '<dt>Modules directory</dt>' +
                         '<dd><a href="' +
-                        data_url + metadata['modules_dir'] + '/' + '">' +
-                        metadata['modules_dir'] +
-                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
+                            data_url + metadata.modules_dir + '/' + '">' +
+                            metadata.modules_dir +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></dd>';
                 }
-                if (metadata['text_offset'] != null) {
+
+                if (metadata.hasOwnProperty('text_offset') &&
+                        metadata.text_offset !== null) {
                     panel += '<dt>Text offset</dt>' +
-                        '<dd>' + metadata['text_offset'] + '</dd>';
+                        '<dd>' + metadata.text_offset + '</dd>';
                 }
-                if (metadata['kernel_image'] != null) {
+
+                if (metadata.hasOwnProperty('kernel_image') &&
+                        metadata.kernel_image !== null) {
                     panel += '<dt>Kernel image</dt>' +
                         '<dd><a href="' +
-                        data_url + metadata['kernel_image'] + '">' +
-                        metadata['kernel_image'] +
-                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
+                            data_url + metadata.kernel_image + '">' +
+                            metadata.kernel_image +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></dd>';
                 }
-                if (metadata['kernel_config'] != null) {
+
+                if (metadata.hasOwnProperty('kernel_config') &&
+                        metadata.kernel_config !== null) {
                     panel += '<dt>Kernel config</dt>' +
                         '<dd><a href="' +
-                        data_url + metadata['kernel_config'] + '">' +
-                        metadata['kernel_config'] +
-                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
+                            data_url + metadata.kernel_config + '">' +
+                            metadata.kernel_config +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></dd>';
                 }
-                if (metadata['build_log'] != null) {
+
+                if (metadata.hasOwnProperty('build_log') &&
+                        metadata.build_log !== null) {
                     panel += '<dt>Build log</dt>' +
                         '<dd><a href="' +
-                        data_url + metadata['build_log'] + '">' +
-                        metadata['build_log'] +
-                        '&nbsp;<i class="fa fa-external-link"></i></a></dd>';
+                            data_url + metadata.build_log + '">' +
+                            metadata.build_log +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></dd>';
                 }
             }
 
-            panel += '</dl>';
+            panel += '</dl></div>';
+
+            if (!$.isEmptyObject(metadata)) {
+                panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+                panel += '<dl class="dl-horizontal">';
+
+                if (metadata.hasOwnProperty('build_erros') &&
+                        metadata.build_erros !== null) {
+                    panel += '<dt>Build errors</dt>';
+                    panel += '<dd>' + metadata.build_errors + '</dd>';
+                }
+
+                if (metadata.hasOwnProperty('build_warnings') &&
+                        metadata.build_warnings !== null) {
+                    panel += '<dt>Build warnings</dt>';
+                    panel += '<dd>' + metadata.build_warnings + '</dd>';
+                }
+
+                if (metadata.hasOwnProperty('build_time') &&
+                        metadata.build_time !== null) {
+                    panel += '<dt>Build time</dt>';
+                    panel += '<dd>' + metadata.build_time + '&nbsp;sec.</dd>';
+                }
+
+                panel += '</dl></div>';
+            }
+
+            panel += '</div>';
             panel += '</div></div></div>\n';
         }
         $(this).append(panel);
@@ -392,9 +445,28 @@ $(document).ready(function() {
     });
 
     var session_state = new SessionState('{{ job_id }}');
-    onbeforeunload = function () {
+    onbeforeunload = function() {
 
-        session_state.objects = {
+        var panel_state = {},
+            page_state;
+
+        $('[id^="panel-defconf"]').each(function(id) {
+            panel_state['#panel-defconf' + id] = {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#panel-defconf' + id).attr('class')
+            };
+        });
+
+        $('[id^="collapse-defconf"]').each(function(id) {
+            panel_state['#collapse-defconf' + id] = {
+                'type': 'class',
+                'name': 'class',
+                'value': $('#collapse-defconf' + id).attr('class')
+            };
+        });
+
+        page_state = {
             '.df-success': {
                 'type': 'attr',
                 'name': 'style',
@@ -432,6 +504,7 @@ $(document).ready(function() {
             }
         };
 
+        session_state.objects = CollectObjects(panel_state, page_state);
         saveToSessionStorage(session_state);
     };
 });
