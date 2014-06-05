@@ -212,8 +212,9 @@ $(document).ready(function() {
                     'class="alert alert-danger alert-dismissable">' +
                     '<button type="button" class="close" ' +
                     'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '404 error while loading boot reports from the server.\n' +
-                    'Please contact the website administrators.' +
+                    'Error while loading boot reports from the server.\n' +
+                    'Please contact the website administrators.&nbsp;' +
+                    'Error code was: 404' +
                     '</div>';
                 $('#errors-container').append(text);
                 $('#boots-404-error').alert();
@@ -227,8 +228,9 @@ $(document).ready(function() {
                     'class="alert alert-danger alert-dismissable">' +
                     '<button type="button" class="close" ' +
                     'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '500 error while loading boot reports from the server.\n' +
-                    'Please contact the website administrators.' +
+                    'Error while loading boot reports from the server.\n' +
+                    'Please contact the website administrators.&nbsp;' +
+                    'Error code was: 500' +
                     '</div>';
                 $('#errors-container').append(text);
                 $('#boots-500-error').alert();
