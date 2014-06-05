@@ -74,7 +74,11 @@
             {{ metadata.cross_compile }}
         </dd>
         {%- else %}
-        <dd>N/A</dd>
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
         {%- endif %}
         <dt>Compiler</dt>
         {%- if metadata.compiler_version %}
@@ -82,7 +86,11 @@
             {{ metadata.compiler_version }}
         </dd>
         {%- else %}
-        <dd>N/A</dd>
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
         {%- endif %}
     </dl>
     </div>
@@ -119,7 +127,9 @@
 </p>
 </div>
 <div class="col-lg-12">
-    <div class="panel-group" id="accordion"></div>
+    <div class="panel-group" id="accordion">
+        <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+    </div>
 </div>
 </div>
 {%- endblock %}
@@ -298,6 +308,8 @@ $(document).ready(function() {
             label,
             i = 0,
             len = data.length;
+
+        $(this).empty();
 
         for (i; i < len; i++) {
             metadata = data[i].metadata;
