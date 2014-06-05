@@ -134,6 +134,38 @@ $(document).ready(function() {
             } else {
                 return data;
             }
+        },
+        'statusCode': {
+            404: function() {
+                $('#failed-builds-body').empty().append(
+                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="defconfs-404-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '404 error while loading defconfigs from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#defconfs-404-error').alert();
+            },
+            500: function() {
+                $('#failed-builds-body').empty().append(
+                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="defconfs-500-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '500 error while loading defconfigs from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#defconfs-500-error').alert();
+            }
         }
     }).done(function(data) {
         var row = '',
@@ -192,6 +224,38 @@ $(document).ready(function() {
             } else {
                 return data;
             }
+        },
+        'statusCode': {
+            404: function() {
+                $('#failed-jobs-body').empty().append(
+                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="jobs-404-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '404 error while loading jobs from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#jobs-404-error').alert();
+            },
+            500: function() {
+                $('#failed-jobs-body').empty().append(
+                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="jobs-500-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '500 error while loading jobs from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#jobs-500-error').alert();
+            }
         }
     }).done(function(data) {
         var row = '',
@@ -248,6 +312,38 @@ $(document).ready(function() {
                 return $.parseJSON(data).result;
             } else {
                 return data;
+            }
+        },
+        'statusCode': {
+            404: function() {
+                $('#failed-boots-body').empty().append(
+                    '<tr><td colspan="6" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="boots-404-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '404 error while loading boot reports from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#boots-404-error').alert();
+            },
+            500: function() {
+                $('#failed-boots-body').empty().append(
+                    '<tr><td colspan="6" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="boots-500-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    '500 error while loading boot reports from the server.\n' +
+                    'Please contact the website administrators.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#boots-500-error').alert();
             }
         }
     }).done(function(data) {
