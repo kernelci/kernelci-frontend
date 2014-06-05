@@ -105,6 +105,18 @@ $(document).ready(function() {
             } else {
                 return data;
             }
+        },
+        'statusCode': {
+            404: function() {
+                $('#container-content').empty().load(
+                    '/static/html/404-content.html'
+                );
+            },
+            500: function() {
+                $('#container-content').empty().load(
+                    '/static/html/500-content.html'
+                );
+            }
         }
     }).done(function(data) {
         var boot_time = new Date(data.time['$date']),

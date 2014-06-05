@@ -1,27 +1,5 @@
 {% extends 'base.html' %}
 {%- block title %}500 &dash; Internal server error{%- endblock %}
-{%- block head %}
-{{ super() }}
-<style type="text/css">
-    p {
-        font-size: 24px !important; 
-    }
-</style>
-{%- endblock %}
 {%- block content %}
-<div class="row">
-    <div class="col-lg-12">
-        <h1>500</h1>
-        <i class="fa fa-quote-left fa-3x pull-left fa-border"></i>
-        <p>
-            Uh, we had a slight weapons malfunction, but uh&hellip; everything's perfectly all right now.
-            <br />
-            We're fine. We're all fine here now, thank you. How are you?
-            <br />
-            We had a reactor leak here now. Give us a few minutes to lock it down.
-            <br />
-            Large leak, very dangerous. 
-        </p>
-    </div>
-</div>
+{{ page_content }}
 {%- endblock %}

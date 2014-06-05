@@ -17,6 +17,7 @@ import os
 
 from flask import (
     Flask,
+    Markup,
     render_template,
     request,
 )
@@ -81,17 +82,34 @@ app.add_url_rule(
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    path = os.path.join(app.root_path, 'static', 'html', '404-content.html')
+    page_content = ''
+
+    with open(path) as content_file:
+        page_content = Markup(content_file.read())
+
+    return render_template('404.html', page_content=page_content), 404
 
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('500.html'), 500
+    path = os.path.join(app.root_path, 'static', 'html', '500-content.html')
+    page_content = ''
+
+    with open(path) as content_file:
+        page_content = Markup(content_file.read())
+
+    return render_template('500.html', page_content=page_content), 500
 
 
 @app.route('/static/js/<path:path>')
-def static_proxy(path):
+def static_js_proxy(path):
     return app.send_static_file(os.path.join('js', path))
+
+
+@app.route('/static/html/<path:path>')
+def static_html_proxy(path):
+    return app.send_static_file(os.path.join('html', path))
 
 
 @app.route('/_ajax/job')

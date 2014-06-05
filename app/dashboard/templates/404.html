@@ -1,25 +1,5 @@
 {% extends 'base.html' %}
 {%- block title %}404 &dash; Resource not found{%- endblock %}
-{%- block head %}
-{{ super() }}
-<style type="text/css">
-    p {
-        font-size: 24px !important; 
-    }
-</style>
-{%- endblock %}
 {%- block content %}
-<div class="row">
-    <div class="col-lg-12">
-        <h1>404</h1>
-        <i class="fa fa-quote-left fa-3x pull-left fa-border"></i>
-        <p>
-            This is not the web page you are looking for.
-            <br />
-            You can go about your businness.
-            <br />
-            Move along&hellip; Move along&hellip;
-        </p>
-    </div>
-</div>
+{{ page_content }}
 {%- endblock %}
