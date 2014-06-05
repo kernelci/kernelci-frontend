@@ -21,7 +21,7 @@ $(document).ready(function() {
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
-                return $.parseJSON(data).result;
+                return JSON.parse(data).result;
             }
             return data;
         },
@@ -110,7 +110,7 @@ $(document).ready(function() {
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
-                return $.parseJSON(data).result;
+                return JSON.parse(data).result;
             }
             return data;
         },
@@ -198,7 +198,7 @@ $(document).ready(function() {
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
-                return $.parseJSON(data).result;
+                return JSON.parse(data).result;
             }
             return data;
         },
