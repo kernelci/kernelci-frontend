@@ -1,3 +1,4 @@
+// JavaScript code for the job-kernel.html template.
 function showHideDefconfs(element) {
     switch (element.id) {
         case 'success-cell':
