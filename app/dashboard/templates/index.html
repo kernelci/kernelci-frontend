@@ -27,7 +27,7 @@
                 <tr>
                     <td colspan="4">
                     <span rel="tooltip" data-toggle="tooltip" title="View all available builds">
-                        <small><a href="/build">All builds</a></small>
+                        <a href="/build">All builds</a>
                     </span>
                     </td>
                 </tr>
@@ -60,7 +60,7 @@
                 <tr>
                     <td colspan="4">
                     <span rel="tooltip" data-toggle="tooltip" title="View all available jobs">
-                    <small><a href="/job">All jobs</a></small>
+                    <a href="/job">All jobs</a>
                     </span>
                     </td>
                 </tr>
@@ -95,7 +95,7 @@
                 <tr>
                     <td colspan="6">
                     <span rel="tooltip" data-toggle="tooltip" title="View all available boot reports">
-                    <small><a href="/boot">All boot reports</a></small>
+                    <a href="/boot">All boot reports</a>
                     </span>
                     </td>
                 </tr>
@@ -129,28 +129,31 @@ $(document).ready(function() {
             'field': ['job', 'kernel', 'metadata', 'created_on']
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;
             }
         }
     }).done(function(data) {
-        var row, job, created, col1, col2, col3, col4;
-        var kernel, git_branch;
+        var row = '',
+            job, created, col1, col2, col3, col4,
+            kernel, git_branch,
+            i = 0,
+            len = data.length;
 
         $(this).empty();
 
-        if (data.length == 0) {
+        if (len === 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed builds.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < data.length; i++) {
-                job = data[i]['job'];
-                kernel = data[i]['kernel'];
-                git_branch = data[i]['metadata']['git_branch'];
-                created = new Date(data[i]['created_on']['$date']);
+            for (i; i < len; i++) {
+                job = data[i].job;
+                kernel = data[i].kernel;
+                git_branch = data[i].metadata.git_branch;
+                created = new Date(data[i].created_on['$date']);
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small></td>';
@@ -163,10 +166,10 @@ $(document).ready(function() {
                     '<a href="/job/' + job + '/kernel/' + kernel + '/">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
-                row = '<tr>' + col1 + col2 + col3 + col4 + '</tr>';
-
-                $(this).append(row);
+                row += '<tr>' + col1 + col2 + col3 + col4 + '</tr>';
             }
+
+            $(this).append(row);
         }
     });
 
@@ -184,28 +187,31 @@ $(document).ready(function() {
             'field': ['job', 'kernel', 'created_on', 'metadata']
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;
             }
         }
     }).done(function(data) {
-        var row, created, col1, col2, col3, col4;
-        var job, kernel, git_branch;
+        var row = '',
+            created, col1, col2, col3, col4,
+            job, kernel, git_branch,
+            i = 0,
+            len = data.length;
 
         $(this).empty();
 
-        if (data.length == 0) {
+        if (len === 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed jobs.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < data.length; i++) {
-                created = new Date(data[i]['created_on']['$date']);
-                job = data[i]['job'];
-                kernel = data[i]['kernel'];
-                git_branch = data[i]['metadata']['git_branch'];
+            for (i; i < len; i++) {
+                created = new Date(data[i].created_on['$date']);
+                job = data[i].job;
+                kernel = data[i].kernel;
+                git_branch = data[i].metadata.git_branch;
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small>' + '</td>';
@@ -219,9 +225,9 @@ $(document).ready(function() {
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
                 row = '<tr>' + col1 + col2 + col3 + col4 + '</tr>';
-
-                $(this).append(row);
             }
+
+            $(this).append(row);
         }
     });
 
@@ -238,29 +244,32 @@ $(document).ready(function() {
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;
             }
         }
     }).done(function(data) {
-        var row, created, board, job, kernel, defconfig,
-            col1, col2, col3, col4, col5, col6;
+        var row = '',
+            created, board, job, kernel, defconfig,
+            col1, col2, col3, col4, col5, col6,
+            len = data.length,
+            i = 0;
 
         $(this).empty();
 
-        if (data.length == 0) {
+        if (len === 0) {
             row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
                 'No failed boot reports.</h4></td></tr>';
             $(this).append(row);
         } else {
-            for (var i = 0; i < data.length; i++) {
-                created = new Date(data[i]['created_on']['$date']);
-                job = data[i]['job'];
-                kernel = data[i]['kernel'];
-                board = data[i]['board'];
-                defconfig = data[i]['defconfig'];
+            for (i; i < len; i++) {
+                created = new Date(data[i].created_on['$date']);
+                job = data[i].job;
+                kernel = data[i].kernel;
+                board = data[i].board;
+                defconfig = data[i].defconfig;
 
                 col1 = '<td>' + job + '</td>';
                 col2 = '<td>' + kernel + '</td>';
@@ -274,11 +283,11 @@ $(document).ready(function() {
                     kernel + '/defconfig/' + defconfig + '/">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
-                row = '<tr>' + col1 + col2 + col3 + col4 +
-                    col5 + col6 + '</tr>';
-
-                $(this).append(row);
+                row += '<tr>' + col1 + col2 + col3 + col4 +
+                        col5 + col6 + '</tr>';
             }
+
+            $(this).append(row);
         }
     });
 });

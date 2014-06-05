@@ -203,7 +203,7 @@ $(document).ready(function() {
             'date_range': 15
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;

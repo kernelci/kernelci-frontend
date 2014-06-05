@@ -100,7 +100,7 @@ $(document).ready(function() {
             'id': '{{ board }}-{{ job }}-{{ kernel }}-{{ defconfig }}'
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;

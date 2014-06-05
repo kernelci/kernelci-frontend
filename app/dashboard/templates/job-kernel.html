@@ -210,7 +210,7 @@ $(document).ready(function() {
             'nfield': '_id'
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;
@@ -292,7 +292,7 @@ $(document).ready(function() {
             'sort_order': 1
         },
         'dataFilter': function(data, type) {
-            if (type == 'json') {
+            if (type === 'json') {
                 return $.parseJSON(data).result;
             } else {
                 return data;
