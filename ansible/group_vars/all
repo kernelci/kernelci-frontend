@@ -1,6 +1,6 @@
 install_base: /srv
 nickname: kernel-ci-frontend
-hostname: frontend.kernel-ci.linaro.org
+hostname: kbuilds01.linaro.org
 web_user: www-data
 app_user: www-data
 web_root: /usr/share/nginx/html
