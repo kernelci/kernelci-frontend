@@ -7,6 +7,8 @@
   tags:
     - install
     - app
+  notify:
+    - reload-uwsgi
 
 - name: Fix cloned repo permissions
   file: path={{ install_base }}/{{ hostname }}
@@ -24,6 +26,8 @@
   tags:
     - install
     - app
+  notify:
+    - reload-uwsgi
 
 - name: Fix virtualenv permissions
   file: path={{ install_base }}/.venv/{{ hostname }}
