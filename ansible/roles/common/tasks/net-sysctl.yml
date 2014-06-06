@@ -1,0 +1,7 @@
+---
+- name: Tweak kernel network configuration for performance
+  copy: src=sysctl.conf
+        dest=/etc/sysctl.conf
+        owner=root
+        group=root
+        mode=0644
