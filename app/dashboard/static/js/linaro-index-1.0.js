@@ -5,95 +5,144 @@ $(document).ready(function() {
         'selector': '[rel=tooltip]',
         'placement': 'auto'
     });
+});
 
-    $.ajax({
-        'url': '/_ajax/defconf',
-        'traditional': true,
-        'dataType': 'json',
-        'context': $('#failed-builds-body'),
-        'data': {
-            'limit': 5,
-            'status': 'FAIL',
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': 15,
-            'field': ['job', 'kernel', 'metadata', 'created_on']
-        },
-        'dataFilter': function(data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
-        'statusCode': {
-            404: function() {
-                $('#failed-builds-body').empty().append(
-                    '<tr><td colspan="4" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="defconfs-404-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '404 error while loading defconfigs from the server.\n' +
-                    'Please contact the website administrators.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#defconfs-404-error').alert();
+$(document).ready(function() {
+    function countFailedDefconfigs(data) {
+        var i = 0,
+            len = data.length,
+            job, kernel;
+
+        for (i; i < len; i++) {
+            job = data[i].job;
+            kernel = data[i].kernel;
+
+            $.ajax({
+                'url': '/_ajax/count/defconfig',
+                'traditional': true,
+                'dataType': 'json',
+                'data': {
+                    'status': 'FAIL',
+                    'job': job,
+                    'kernel': kernel
+                },
+                'dataFilter': function(data, type) {
+                    if (type === 'json') {
+                        return JSON.parse(data).result;
+                    }
+                    return data;
+                }
+            }).done(function(data) {
+                $('#fail-' + job + '-' + kernel).empty().append(data.count);
+            });
+        }
+    }
+
+    function countFailCallback() {
+        $('.fail-badge').each(function() {
+            $(this).empty().append('&infin;');
+        });
+    }
+
+    $.when(
+        $.ajax({
+            'url': '/_ajax/defconf',
+            'traditional': true,
+            'dataType': 'json',
+            'context': $('#failed-builds-body'),
+            'data': {
+                'aggregate': 'kernel',
+                'limit': 5,
+                'status': 'FAIL',
+                'sort': 'created_on',
+                'sort_order': -1,
+                'date_range': 15,
+                'field': ['job', 'kernel', 'metadata', 'created_on']
             },
-            500: function() {
-                $('#failed-builds-body').empty().append(
-                    '<tr><td colspan="4" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="defconfs-500-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '500 error while loading defconfigs from the server.\n' +
-                    'Please contact the website administrators.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#defconfs-500-error').alert();
+            'dataFilter': function(data, type) {
+                if (type === 'json') {
+                    return JSON.parse(data).result;
+                }
+                return data;
+            },
+            'statusCode': {
+                404: function() {
+                    $('#failed-builds-body').empty().append(
+                        '<tr><td colspan="5" align="center" valign="middle">' +
+                        '<h4>Error loading data.</h4></td></tr>'
+                    );
+                    var text = '<div id="defconfs-404-error" ' +
+                        'class="alert alert-danger alert-dismissable">' +
+                        '<button type="button" class="close" ' +
+                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        '404 error while loading defconfigs from the server.\n' +
+                        'Please contact the website administrators.' +
+                        '</div>';
+                    $('#errors-container').append(text);
+                    $('#defconfs-404-error').alert();
+                },
+                500: function() {
+                    $('#failed-builds-body').empty().append(
+                        '<tr><td colspan="5" align="center" valign="middle">' +
+                        '<h4>Error loading data.</h4></td></tr>'
+                    );
+                    var text = '<div id="defconfs-500-error" ' +
+                        'class="alert alert-danger alert-dismissable">' +
+                        '<button type="button" class="close" ' +
+                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        '500 error while loading defconfigs from the server.\n' +
+                        'Please contact the website administrators.' +
+                        '</div>';
+                    $('#errors-container').append(text);
+                    $('#defconfs-500-error').alert();
+                }
             }
-        }
-    }).done(function(data) {
-        var row = '',
-            job, created, col1, col2, col3, col4,
-            kernel, git_branch,
-            i = 0,
-            len = data.length;
+        }).done(function(data) {
+            var row = '',
+                job, created, col1, col2, col3, col4, col5,
+                kernel, git_branch,
+                i = 0,
+                len = data.length;
 
-        $(this).empty();
+            $(this).empty();
 
-        if (len === 0) {
-            row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
-                'No failed builds.</h4></td></tr>';
-            $(this).append(row);
-        } else {
-            for (i; i < len; i++) {
-                job = data[i].job;
-                kernel = data[i].kernel;
-                git_branch = data[i].metadata.git_branch;
-                created = new Date(data[i].created_on['$date']);
+            if (len === 0) {
+                row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
+                    'No failed builds.</h4></td></tr>';
+                $(this).append(row);
+            } else {
+                for (i; i < len; i++) {
+                    job = data[i].job;
+                    kernel = data[i].kernel;
+                    git_branch = data[i].metadata.git_branch;
+                    created = new Date(data[i].created_on['$date']);
 
-                col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
-                    git_branch + '</small></td>';
-                col2 = '<td>' + kernel + '</td>';
-                col3 = '<td>' + created.getCustomISODate() + '</td>';
-                col4 = '<td>' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for job&nbsp;' + job +
-                    '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                    '<a href="/job/' + job + '/kernel/' + kernel + '/">' +
-                    '<i class="fa fa-search"></i></a>' +
-                    '</span></td>';
-                row += '<tr>' + col1 + col2 + col3 + col4 + '</tr>';
+                    col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
+                        git_branch + '</small></td>';
+                    col2 = '<td>' + kernel + '</td>';
+                    col3 = '<td><span class="badge alert-danger">' +
+                        '<span id="fail-' + job + '-' + kernel + '" ' +
+                        'class="fail-badge">' +
+                        '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                        '</td>';
+                    col4 = '<td>' + created.getCustomISODate() + '</td>';
+                    col5 = '<td>' +
+                        '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="Details for job&nbsp;' + job +
+                        '&nbsp;&dash;&nbsp;' + kernel + '">' +
+                        '<a href="/job/' + job + '/kernel/' + kernel + '/">' +
+                        '<i class="fa fa-search"></i></a>' +
+                        '</span></td>';
+                    row += '<tr>' + col1 + col2 + col3 + col4 + col5 + '</tr>';
+                }
+
+                $(this).append(row);
             }
+        })
+    ).then(countFailedDefconfigs, countFailCallback);
+});
 
-            $(this).append(row);
-        }
-    });
+$(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/job',
@@ -183,6 +232,9 @@ $(document).ready(function() {
             $(this).append(row);
         }
     });
+});
+
+$(document).ready(function() {
 
     $.ajax({
         'url': '/_ajax/boot',
