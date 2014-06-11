@@ -5,6 +5,13 @@ $(document).ready(function() {
         'selector': '[rel=tooltip]',
         'placement': 'auto'
     });
+
+    $('.clickable-table tbody').on("click", "tr", function() {
+        var url = $(this).data('url');
+        if (url) {
+            window.location = url;
+        }
+    });
 });
 
 $(document).ready(function() {
@@ -115,7 +122,8 @@ $(document).ready(function() {
                     job = data[i].job;
                     kernel = data[i].kernel;
                     git_branch = data[i].metadata.git_branch;
-                    created = new Date(data[i].created_on['$date']);
+                    created = new Date(data[i].created_on['$date']),
+                    href = '/job/' + job + '/kernel/' + kernel + '/';
 
                     col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                         git_branch + '</small></td>';
@@ -130,10 +138,11 @@ $(document).ready(function() {
                         '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Details for job&nbsp;' + job +
                         '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                        '<a href="/job/' + job + '/kernel/' + kernel + '/">' +
+                        '<a href="' + href + '">' +
                         '<i class="fa fa-search"></i></a>' +
                         '</span></td>';
-                    row += '<tr>' + col1 + col2 + col3 + col4 + col5 + '</tr>';
+                    row += '<tr data-url="' + href + '">' +
+                        col1 + col2 + col3 + col4 + col5 + '</tr>';
                 }
 
                 $(this).append(row);
@@ -213,7 +222,8 @@ $(document).ready(function() {
                 created = new Date(data[i].created_on['$date']);
                 job = data[i].job;
                 kernel = data[i].kernel;
-                git_branch = data[i].metadata.git_branch;
+                git_branch = data[i].metadata.git_branch,
+                href = '/job/' + job + '/kernel/' + kernel + '/';
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small>' + '</td>';
@@ -223,10 +233,11 @@ $(document).ready(function() {
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for job&nbsp;' + job +
                     '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                    '<a href="/job/' + job + '/kernel/' + kernel + '/">' +
+                    '<a href="/job/' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
-                row = '<tr>' + col1 + col2 + col3 + col4 + '</tr>';
+                row = '<tr data-url="' + href + '">' +
+                    col1 + col2 + col3 + col4 + '</tr>';
             }
 
             $(this).append(row);
@@ -307,7 +318,9 @@ $(document).ready(function() {
                 job = data[i].job;
                 kernel = data[i].kernel;
                 board = data[i].board;
-                defconfig = data[i].defconfig;
+                defconfig = data[i].defconfig,
+                href = '/boot/' + board + '/job/' + job + '/kernel/' +
+                    kernel + '/defconfig/' + defconfig + '/';
 
                 col1 = '<td>' + job + '</td>';
                 col2 = '<td>' + kernel + '</td>';
@@ -317,12 +330,11 @@ $(document).ready(function() {
                 col6 = '<td>' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for board&nbsp;' + board + '">' +
-                    '<a href="/boot/' + board + '/job/' + job + '/kernel/' +
-                    kernel + '/defconfig/' + defconfig + '/">' +
+                    '<a href="' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
-                row += '<tr>' + col1 + col2 + col3 + col4 +
-                        col5 + col6 + '</tr>';
+                row += '<tr data-url="' + href + '">' +
+                    col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
             }
 
             $(this).append(row);
