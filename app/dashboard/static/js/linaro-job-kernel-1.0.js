@@ -147,7 +147,7 @@ $(document).ready(function() {
         'context': $('#accordion'),
         'data': {
             'job_id': $('#job-id').val(),
-            'sort': '_id',
+            'sort': ['status', '_id'],
             'sort_order': 1
         },
         'dataFilter': function(data, type) {
