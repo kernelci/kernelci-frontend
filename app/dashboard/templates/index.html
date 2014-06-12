@@ -1,13 +1,5 @@
 {% extends 'base.html' %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-<style type="text/css">
-    .clickable-table tbody tr {
-        cursor: pointer;
-    }
-</style>
-{%- endblock %}
 {%- block content %}
 {% include 'date_range.html' %}
 <div class="row">
@@ -53,21 +45,20 @@
             <thead>
                 <tr>
                     <th>Tree &dash; Branch</th>
-                    <th>Kernel</th>
                     <th>Date</th>
                     <th></th>
                 </tr>
             <thead>
             <tbody id="failed-jobs-body">
                 <tr>
-                    <td colspan="4" align="center" valign="middle">
+                    <td colspan="3" align="center" valign="middle">
                         <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
                     </td>
                 </tr>
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4">
+                    <td colspan="3">
                     <span rel="tooltip" data-toggle="tooltip" title="View all available jobs">
                     <a href="/job">All jobs</a>
                     </span>

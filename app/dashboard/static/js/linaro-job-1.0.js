@@ -123,6 +123,7 @@ $(document).ready(function() {
                 'title': '',
                 'searchable': false,
                 'orderable': false,
+                'className': 'pull-center',
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +

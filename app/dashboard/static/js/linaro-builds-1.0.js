@@ -116,6 +116,7 @@ $(document).ready(function() {
                 'title': '',
                 'orderable': false,
                 'searchable': false,
+                'className': 'pull-center',
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +

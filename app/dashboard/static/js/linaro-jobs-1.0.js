@@ -6,7 +6,7 @@ $(document).ready(function() {
         'placement': 'auto'
     });
 
-    $('#jobstable').dataTable({
+    var table = $('#jobstable').dataTable({
         'dom': '<"row"<"col-lg-6"<"length-menu"l>>' +
             '<"col-lg-4 col-lg-offset-2"f>r<"col-lg-12"t>>' +
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
@@ -43,7 +43,7 @@ $(document).ready(function() {
                 'sort_order': -1,
                 'date_range': 15,
                 'field': [
-                    'job', 'kernel', 'created_on', 'status', 'metadata'
+                    'job', 'created_on', 'status', 'metadata'
                 ]
             }
         },
@@ -55,10 +55,6 @@ $(document).ready(function() {
                     return data + '&nbsp;&dash;&nbsp;<small>' +
                         object.metadata.git_branch + '</small>';
                 }
-            },
-            {
-                'data': 'kernel',
-                'title': 'Kernel'
             },
             {
                 'data': 'created_on',
@@ -115,16 +111,23 @@ $(document).ready(function() {
                 'title': '',
                 'searchable': false,
                 'orderable': false,
+                'width': '30px',
+                'className': 'pull-center',
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Details for&nbsp;' + data +
-                        '&nbsp;&dash;&nbsp;' + object.kernel + '">' +
-                        '<a href="/job/' + data +
-                        '/kernel/' + object.kernel + '">' +
+                        'title="Details for&nbsp;' + data + '">' +
+                        '<a href="/job/' + data + '">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
             }
         ]
+    });
+
+    $(document).on("click", "#jobstable tbody tr", function() {
+        var data = table.fnGetData(this);
+        if (data) {
+            window.location = '/job/' + data.job + '/';
+        }
     });
 
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');

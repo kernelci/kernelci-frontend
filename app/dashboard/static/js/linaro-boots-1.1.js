@@ -121,6 +121,7 @@ $(document).ready(function() {
                 'title': '',
                 'orderable': false,
                 'searchable': false,
+                'className': 'pull-center',
                 'render': function(data, type, object) {
                     var defconfig = object.defconfig,
                         kernel = object.kernel,

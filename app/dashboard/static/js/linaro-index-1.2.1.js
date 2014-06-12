@@ -40,7 +40,7 @@ $(document).ready(function() {
                     return data;
                 }
             }).done(function(data) {
-                $('#fail-' + job + '-' + kernel).empty().append(data.count);
+                $('#fail-count' + (i - 1)).empty().append(data.count);
             });
         }
     }
@@ -111,12 +111,10 @@ $(document).ready(function() {
                 i = 0,
                 len = data.length;
 
-            $(this).empty();
-
             if (len === 0) {
                 row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
                     'No failed builds.</h4></td></tr>';
-                $(this).append(row);
+                $(this).empty().append(row);
             } else {
                 for (i; i < len; i++) {
                     job = data[i].job;
@@ -129,12 +127,12 @@ $(document).ready(function() {
                         git_branch + '</small></td>';
                     col2 = '<td>' + kernel + '</td>';
                     col3 = '<td><span class="badge alert-danger">' +
-                        '<span id="fail-' + job + '-' + kernel + '" ' +
+                        '<span id="fail-count' + i + '" ' +
                         'class="fail-badge">' +
                         '<i class="fa fa-cog fa-spin"></i></span></span>' +
                         '</td>';
                     col4 = '<td>' + created.getCustomISODate() + '</td>';
-                    col5 = '<td>' +
+                    col5 = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Details for job&nbsp;' + job +
                         '&nbsp;&dash;&nbsp;' + kernel + '">' +
@@ -145,7 +143,7 @@ $(document).ready(function() {
                         col1 + col2 + col3 + col4 + col5 + '</tr>';
                 }
 
-                $(this).append(row);
+                $(this).empty().append(row);
             }
         })
     ).then(countFailedDefconfigs, countFailCallback);
@@ -164,7 +162,7 @@ $(document).ready(function() {
             'sort': 'created_on',
             'sort_order': -1,
             'date_range': 15,
-            'field': ['job', 'kernel', 'created_on', 'metadata']
+            'field': ['job', 'created_on', 'metadata']
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
@@ -175,7 +173,7 @@ $(document).ready(function() {
         'statusCode': {
             404: function() {
                 $('#failed-jobs-body').empty().append(
-                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<tr><td colspan="3" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
                 );
                 var text = '<div id="jobs-404-error" ' +
@@ -190,7 +188,7 @@ $(document).ready(function() {
             },
             500: function() {
                 $('#failed-jobs-body').empty().append(
-                    '<tr><td colspan="4" align="center" valign="middle">' +
+                    '<tr><td colspan="3" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
                 );
                 var text = '<div id="jobs-500-error" ' +
@@ -206,41 +204,36 @@ $(document).ready(function() {
         }
     }).done(function(data) {
         var row = '',
-            created, col1, col2, col3, col4,
-            job, kernel, git_branch,
+            created, col1, col2, col3,
+            job, git_branch,
             i = 0,
             len = data.length;
-
-        $(this).empty();
 
         if (len === 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed jobs.</h4></td></tr>';
-            $(this).append(row);
+            $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
                 created = new Date(data[i].created_on['$date']);
                 job = data[i].job;
-                kernel = data[i].kernel;
                 git_branch = data[i].metadata.git_branch,
-                href = '/job/' + job + '/kernel/' + kernel + '/';
+                href = '/job/' + job + '/';
 
                 col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small>' + '</td>';
-                col2 = '<td>' + kernel + '</td>';
-                col3 = '<td>' + created.getCustomISODate() + '</td>';
-                col4 = '<td>' +
+                col2 = '<td>' + created.getCustomISODate() + '</td>';
+                col3 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for job&nbsp;' + job +
-                    '&nbsp;&dash;&nbsp;' + kernel + '">' +
+                    'title="Details for job&nbsp;' + job + '">' +
                     '<a href="/job/' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
                 row = '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + '</tr>';
+                    col1 + col2 + col3 + '</tr>';
             }
 
-            $(this).append(row);
+            $(this).empty().append(row);
         }
     });
 });
@@ -306,12 +299,10 @@ $(document).ready(function() {
             len = data.length,
             i = 0;
 
-        $(this).empty();
-
         if (len === 0) {
             row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
                 'No failed boot reports.</h4></td></tr>';
-            $(this).append(row);
+            $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
                 created = new Date(data[i].created_on['$date']);
@@ -327,7 +318,7 @@ $(document).ready(function() {
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
                 col5 = '<td>' + created.getCustomISODate() + '</td>';
-                col6 = '<td>' +
+                col6 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for board&nbsp;' + board + '">' +
                     '<a href="' + href + '">' +
@@ -337,7 +328,7 @@ $(document).ready(function() {
                     col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
             }
 
-            $(this).append(row);
+            $(this).empty().append(row);
         }
     });
 });
