@@ -201,9 +201,8 @@ $(document).ready(function() {
             metadata,
             label,
             i = 0,
-            len = data.length;
-
-        $(this).empty();
+            len = data.length,
+            hasFailed = false;
 
         for (i; i < len; i++) {
             metadata = data[i].metadata;
@@ -215,6 +214,7 @@ $(document).ready(function() {
                     label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
                     cls = 'df-failed';
                     $('#fail-btn').removeAttr('disabled');
+                    hasFailed = true;
                     break;
                 case 'PASS':
                     label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
@@ -342,11 +342,19 @@ $(document).ready(function() {
             panel += '</div>';
             panel += '</div></div></div>\n';
         }
-        $(this).append(panel);
+        $(this).empty().append(panel);
 
         $('#all-btn').removeAttr('disabled');
         if (!loadFromSessionStorage($('#job-id').val())) {
-            $('#all-btn').addClass('active');
+            if (hasFailed) {
+                // If there is no saved session, show only the failed ones.
+                $('.df-failed').show();
+                $('.df-success').hide();
+                $('.df-unknown').hide();
+                $('#fail-btn').addClass('active').siblings().removeClass('active');
+            } else {
+                $('#all-btn').addClass('active');
+            }
         }
     });
 
