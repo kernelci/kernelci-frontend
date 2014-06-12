@@ -87,6 +87,11 @@ $(document).ready(function() {
                     'title="Boot failed"><span class="label label-danger">' +
                         '<i class="fa fa-exclamation-triangle"></i></span></span>';
                 break;
+            case 'OFFLINE':
+                displ = '<span rel="tooltip" data-toggle="tooltip"' +
+                    'title="Board offline" <span class="label label-info">' +
+                    '<i class="fa fa-power-off"></i></span></span>';
+                break;
             default:
                 displ = '<span rel="tooltip" data-toggle="tooltip"' +
                     'title="Unknown status"><span class="label ' +
