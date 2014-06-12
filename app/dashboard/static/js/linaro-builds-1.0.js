@@ -6,7 +6,7 @@ $(document).ready(function() {
         'placement': 'auto'
     });
 
-    $('#defconfstable').dataTable({
+    var table = $('#defconfstable').dataTable({
         'dom': '<"row"<"col-lg-6"<"length-menu"l>>' +
             '<"col-lg-4 col-lg-offset-2"f>r<"col-lg-12"t>>' +
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
@@ -127,6 +127,13 @@ $(document).ready(function() {
                 }
             }
         ]
+    });
+
+    $(document).on("click", "#defconfstable tbody tr", function() {
+        var data = table.fnGetData(this);
+        if (data) {
+            window.location = '/job/' + data.job + '/kernel/' + data.kernel + '/';
+        }
     });
 
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
