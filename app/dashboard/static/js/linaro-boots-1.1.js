@@ -51,7 +51,11 @@ $(document).ready(function() {
         'columns': [
             {
                 'data': 'job',
-                'title': 'Tree'
+                'title': 'Tree',
+                'render': function(data, type, object) {
+                    return '<a class="table-link" href="/job/' + data + '/">' +
+                        data + '</a>';
+                }
             },
             {
                 'data': 'kernel',

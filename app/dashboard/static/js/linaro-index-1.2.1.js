@@ -123,9 +123,9 @@ $(document).ready(function() {
                     created = new Date(data[i].created_on['$date']),
                     href = '/job/' + job + '/kernel/' + kernel + '/';
 
-                    col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
+                    col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
                         git_branch + '</small></td>';
-                    col2 = '<td>' + kernel + '</td>';
+                    col2 = '<td>' + kernel + '</a></td>';
                     col3 = '<td><span class="badge alert-danger">' +
                         '<span id="fail-count' + i + '" ' +
                         'class="fail-badge">' +
@@ -220,8 +220,9 @@ $(document).ready(function() {
                 git_branch = data[i].metadata.git_branch,
                 href = '/job/' + job + '/';
 
-                col1 = '<td>' + job + '&nbsp;&dash;&nbsp;<small>' +
-                    git_branch + '</small>' + '</td>';
+                col1 = '<td><a class="table-link" href="' + href + '">' +
+                    job + '&nbsp;&dash;&nbsp;<small>' +
+                    git_branch + '</small>' + '</a></td>';
                 col2 = '<td>' + created.getCustomISODate() + '</td>';
                 col3 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -313,7 +314,8 @@ $(document).ready(function() {
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
                     kernel + '/defconfig/' + defconfig + '/';
 
-                col1 = '<td>' + job + '</td>';
+                col1 = '<td><a class="table-link" href="/job/' + job + '/">' 
+                    + job + '</a></td>';
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';

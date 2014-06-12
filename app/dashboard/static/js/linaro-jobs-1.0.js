@@ -52,8 +52,9 @@ $(document).ready(function() {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
                 'render': function(data, type, object) {
-                    return data + '&nbsp;&dash;&nbsp;<small>' +
-                        object.metadata.git_branch + '</small>';
+                    return '<a class="table-link" href="/job/' + data + '/">' +
+                        data + '&nbsp;&dash;&nbsp;<small>' +
+                        object.metadata.git_branch + '</small></a>';
                 }
             },
             {

@@ -9,7 +9,6 @@
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.1.0/css/font-awesome.min.css">
-{%- endblock %}
     <style type="text/css">
         .clickable-table tbody tr {
             cursor: pointer;
@@ -18,7 +17,11 @@
             text-align: center !important;
             valign: middle !important;
         }
+        .table tbody td a.table-link {
+            color: inherit;
+        }
     </style>
+{%- endblock %}
 </head>
 <body>
     <div class="navbar navbar-default navbar-static-top" role="navigation">
