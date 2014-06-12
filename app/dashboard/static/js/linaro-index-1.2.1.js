@@ -18,20 +18,17 @@ $(document).ready(function() {
     function countFailedDefconfigs(data) {
         var i = 0,
             len = data.length,
-            job, kernel;
+            deferredCalls = new Array(len);
 
         for (i; i < len; i++) {
-            job = data[i].job;
-            kernel = data[i].kernel;
-
-            $.ajax({
+            deferredCalls[i] = $.ajax({
                 'url': '/_ajax/count/defconfig',
                 'traditional': true,
                 'dataType': 'json',
                 'data': {
                     'status': 'FAIL',
-                    'job': job,
-                    'kernel': kernel
+                    'job': data[i].job,
+                    'kernel': data[i].kernel
                 },
                 'dataFilter': function(data, type) {
                     if (type === 'json') {
@@ -39,10 +36,21 @@ $(document).ready(function() {
                     }
                     return data;
                 }
-            }).done(function(data) {
-                $('#fail-count' + (i - 1)).empty().append(data.count);
             });
         }
+
+        $.when.apply($, deferredCalls).then(function() {
+            var i = 0,
+                len = arguments.length,
+                count = '&infin;';
+
+            for (i; i < len; i++) {
+                if (arguments[i] !== null) {
+                    count = arguments[i][0].count;
+                }
+                $('#fail-count' + i).empty().append(count);
+            }
+        });
     }
 
     function countFailCallback() {
