@@ -6,7 +6,7 @@ $(document).ready(function() {
         'placement': 'auto'
     });
 
-    $('#jobstable').dataTable({
+    var table = $('#jobstable').dataTable({
         'dom': '<"row"<"col-lg-6"<"length-menu"l>>' +
             '<"col-lg-4 col-lg-offset-2"f>r<"col-lg-12"t>>' +
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
@@ -43,7 +43,7 @@ $(document).ready(function() {
                 'sort_order': -1,
                 'date_range': 15,
                 'field': [
-                    'job', 'kernel', 'created_on', 'status', 'metadata'
+                    'job', 'kernel', 'created_on', 'metadata'
                 ]
             }
         },
@@ -78,51 +78,11 @@ $(document).ready(function() {
                 }
             },
             {
-                'data': 'status',
-                'title': 'Status',
-                'type': 'string',
-                'render': function(data, type, object) {
-                    var displ;
-                    switch (data) {
-                        case 'BUILD':
-                            displ = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Building">' +
-                                '<span class="label label-info">' +
-                                '<i class="fa fa-cogs"></i></span></span>';
-                            break;
-                        case 'PASS':
-                            displ = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Build completed">' +
-                                '<span class="label label-success">' +
-                                '<i class="fa fa-check"></i></span></span>';
-                            break;
-                        case 'FAIL':
-                            displ = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Build failed">' +
-                                '<span class="label label-danger">' +
-                                '<i class="fa fa-exclamation-triangle">' +
-                                '</i></span></span>';
-                            break;
-                        default:
-                            displ = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Unknown status">' +
-                                '<span class="label label-warning">' +
-                                '<i class="fa fa-question">' +
-                                '</i></span></span>';
-                            break;
-                    }
-                    return displ;
-                }
-            },
-            {
                 'data': 'job',
                 'title': '',
                 'searchable': false,
                 'orderable': false,
+                'width': '50px',
                 'className': 'pull-center',
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
@@ -135,6 +95,14 @@ $(document).ready(function() {
             }
         ]
     });
+
+    $(document).on("click", "#jobstable tbody tr", function() {
+        var data = table.fnGetData(this);
+        if (data) {
+            window.location = '/job/' + data.job + '/kernel/' + data.kernel + '/';
+        }
+    });
+
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
     $('.input-sm').keyup(function(key) {
         // Remove focus from input when Esc is pressed.
