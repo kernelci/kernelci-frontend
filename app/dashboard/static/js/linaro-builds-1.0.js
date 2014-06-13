@@ -43,7 +43,7 @@ $(document).ready(function() {
                 'date_range': 15,
                 'field': [
                     '_id', 'job', 'kernel', 'defconfig', 'status',
-                    'metadata', 'arch', 'created_on'
+                    'metadata', 'arch', 'created_on', 'dirname'
                 ]
             }
         },
@@ -123,7 +123,8 @@ $(document).ready(function() {
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel + '">' +
                         '<a href="/build/' + data +
-                        '/kernel/' + object.kernel + '">' +
+                        '/kernel/' + object.kernel + '/defconfig/' +
+                        object.dirname + '/">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
             }

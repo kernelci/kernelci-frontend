@@ -26,6 +26,7 @@ from dashboard.views.about import AboutView
 from dashboard.views.build import (
     BuildsAllView,
     BuildsJobKernelView,
+    BuildsJobKernelDefconfigView,
 )
 from dashboard.views.boot import (
     BootIdView,
@@ -71,6 +72,11 @@ app.add_url_rule(
 app.add_url_rule(
     '/build/<string:job>/kernel/<string:kernel>/',
     view_func=BuildsJobKernelView.as_view('job-kernel-builds'),
+    methods=['GET']
+)
+app.add_url_rule(
+    '/build/<string:job>/kernel/<string:kernel>/defconfig/<string:defconfig>/',
+    view_func=BuildsJobKernelDefconfigView.as_view('job-kernel-defconf'),
     methods=['GET']
 )
 

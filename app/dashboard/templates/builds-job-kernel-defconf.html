@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+<div class="page-header">
+    <h3>{{ body_title|safe }}&nbsp;<small>{{ result.defconfig }}</small></h3>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+    <dl class="dl-horizontal">
+        <dt>Tree</dt>
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp; {{ job }}"> 
+            <a href="/job/{{ job }}">
+                {{ job }}
+                <i class="fa fa-search"></i>
+            </a>
+            </span>
+        </dd>
+        <dt>Git branch</dt>
+        <dd>
+            {{ metadata.git_branch }}
+        </dd>
+        <dt>Git describe</dt>
+        <dd>
+            {{ metadata.git_describe }}
+        </dd>
+        <dt>Git URL</dt>
+        {% if base_url %}
+        <dd>
+            <a href="{{ base_url }}">
+            {{ metadata.git_url }}
+            <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {% else %}
+        <dd>{{ metadata.git_url }}</dd>
+        {% endif %}
+        <dt>Git commit</dt>
+        {% if commit_url %}
+        <dd>
+            <a href="{{ commit_url }}">
+                {{ metadata.git_commit }}
+                <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {% else %}
+        <dd>{{ metadata.git_commit }}</dd>
+        {% endif %}
+        <dt>Cross-compile</dt>
+        {%- if metadata.cross_compile %}
+        <dd>
+            {{ metadata.cross_compile }}
+        </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+        <dt>Compiler</dt>
+        {%- if metadata.compiler_version %}
+        <dd>
+            {{ metadata.compiler_version }}
+        </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+    </dl>
+</div>
+</div>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-jslib-1.0.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-job-kernel-1.0.js"></script>
+{%- endblock %}

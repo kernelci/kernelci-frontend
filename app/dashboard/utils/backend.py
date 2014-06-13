@@ -70,9 +70,27 @@ def get_job(**kwargs):
 
     This function is only used for server side processing data.
 
-    :return A`requests.Response` object.
+    :return A `requests.Response` object.
     """
     api_path = current_app.config.get('JOB_API_ENDPOINT')
+
+    if kwargs.get('id', None):
+        api_path = _create_api_path(api_path, kwargs['id'])
+        kwargs.pop('id')
+
+    url, headers = _create_url_headers(api_path)
+
+    return requests.get(url, params=kwargs, headers=headers)
+
+
+def get_defconfig(**kwargs):
+    """Get a defconfig document from the backend.
+
+    This function is only used for server side processing data.
+
+    :return A `requests.Response` object.
+    """
+    api_path = current_app.config.get('DEFCONFIG_API_ENDPOINT')
 
     if kwargs.get('id', None):
         api_path = _create_api_path(api_path, kwargs['id'])
@@ -108,7 +126,6 @@ def ajax_count_get(request, api_path, collection):
 
 def ajax_get(request, api_path):
     """Handle general AJAX calls from the client.
-
 
     :param request: The request performed.
     :param api_path: The API endpoint where to perform the request.
