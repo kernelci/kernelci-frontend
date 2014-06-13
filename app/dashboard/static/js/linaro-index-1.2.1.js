@@ -129,7 +129,7 @@ $(document).ready(function() {
                     kernel = data[i].kernel;
                     git_branch = data[i].metadata.git_branch;
                     created = new Date(data[i].created_on['$date']),
-                    href = '/job/' + job + '/kernel/' + kernel + '/';
+                    href = '/build/' + job + '/kernel/' + kernel + '/';
 
                     col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
                         git_branch + '</small></td>';
@@ -235,7 +235,7 @@ $(document).ready(function() {
                 col3 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for job&nbsp;' + job + '">' +
-                    '<a href="/job/' + href + '">' +
+                    '<a href="' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
                 row = '<tr data-url="' + href + '">' +

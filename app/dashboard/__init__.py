@@ -23,16 +23,18 @@ from flask import (
 )
 
 from dashboard.views.about import AboutView
-from dashboard.views.build import BuildsView
+from dashboard.views.build import (
+    BuildsAllView,
+    BuildsJobKernelView,
+)
 from dashboard.views.boot import (
     BootIdView,
     BootsView,
 )
 from dashboard.views.index import IndexView
 from dashboard.views.job import (
-    JobsView,
-    JobView,
-    JobIdView,
+    JobsAllView,
+    JobsJobView,
 )
 from utils.backend import (
     ajax_get,
@@ -51,22 +53,36 @@ app.config.from_object('dashboard.default_settings')
 if os.environ.get(APP_ENVVAR):
     app.config.from_envvar(APP_ENVVAR)
 
-app.add_url_rule(
-    '/build/', view_func=BuildsView.as_view('builds'), methods=['GET'],
-)
+# General URLs.
+app.add_url_rule('/', view_func=IndexView.as_view('index'), methods=['GET'])
 app.add_url_rule(
     '/info/', view_func=AboutView.as_view('about'), methods=['GET'],
 )
+
+# Builds related URLs.
 app.add_url_rule(
-    '/job/<string:job>/', view_func=JobView.as_view('job'), methods=['GET'],
+    '/build/', view_func=BuildsAllView.as_view('builds'), methods=['GET'],
 )
-app.add_url_rule('/job/', view_func=JobsView.as_view('jobs'), methods=['GET'])
-app.add_url_rule('/', view_func=IndexView.as_view('index'), methods=['GET'])
 app.add_url_rule(
-    '/job/<string:job>/kernel/<string:kernel>/',
-    view_func=JobIdView.as_view('job-id'),
-    methods=['GET'],
+    '/build/all/',
+    view_func=BuildsAllView.as_view('all-builds'),
+    methods=['GET']
 )
+app.add_url_rule(
+    '/build/<string:job>/kernel/<string:kernel>/',
+    view_func=BuildsJobKernelView.as_view('job-kernel-builds'),
+    methods=['GET']
+)
+
+# Jobs related URLs
+app.add_url_rule(
+    '/job/', view_func=JobsAllView.as_view('jobs'), methods=['GET']
+)
+app.add_url_rule(
+    '/job/<string:job>/', view_func=JobsJobView.as_view('job'), methods=['GET'],
+)
+
+# Boots related URLs.
 app.add_url_rule(
     '/boot/', view_func=BootsView.as_view('boots'), methods=['GET'],
 )
