@@ -47,7 +47,7 @@ $(document).ready(function() {
             '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for job&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' +
-                data.kernel + '"><a href="/job/' + data.job + '/kernel/' +
+                data.kernel + '"><a href="/build/' + data.job + '/kernel/' +
                 data.kernel + '">' + data.kernel +
                 '&nbsp;<i class="fa fa-search"></i></a></span>'
         );

@@ -1,4 +1,4 @@
-// JavaScript code for the job-kernel.html template.
+// JavaScript code for the builds-job-kernel.html template.
 function showHideDefconfs(element) {
     switch (element.id) {
         case 'success-cell':
@@ -54,7 +54,7 @@ $(document).ready(function() {
         'placement': 'auto top'
     });
 
-    $('#li-job').addClass('active');
+    $('#li-build').addClass('active');
 
     $('.btn-group > .btn').click(function() {
         $(this).addClass('active').siblings().removeClass('active');
