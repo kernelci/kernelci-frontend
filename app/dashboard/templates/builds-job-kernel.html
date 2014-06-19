@@ -39,37 +39,65 @@
             </span>
         </dd>
         <dt>Git branch</dt>
+        {%- if metadata and metadata.git_branch %}
         <dd>
             {{ metadata.git_branch }}
         </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
         <dt>Git describe</dt>
+        {%- if metadata and metadata.git_describe %}
         <dd>
             {{ metadata.git_describe }}
         </dd>
+        {%- elese %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
         <dt>Git URL</dt>
-        {% if base_url %}
+        {%- if metadata and metadata.git_url and base_url %}
         <dd>
             <a href="{{ base_url }}">
             {{ metadata.git_url }}
             <i class="fa fa-external-link"></i>
             </a>
         </dd>
-        {% else %}
+        {%- elif metadata and metadata.git_url %}
         <dd>{{ metadata.git_url }}</dd>
-        {% endif %}
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
         <dt>Git commit</dt>
-        {% if commit_url %}
+        {%- if metadata and metadata.git_commit and commit_url %}
         <dd>
             <a href="{{ commit_url }}">
                 {{ metadata.git_commit }}
                 <i class="fa fa-external-link"></i>
             </a>
         </dd>
-        {% else %}
+        {%- elif metadata and metadata.git_commit %}
         <dd>{{ metadata.git_commit }}</dd>
-        {% endif %}
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
         <dt>Cross-compile</dt>
-        {%- if metadata.cross_compile %}
+        {%- if metadata and metadata.cross_compile %}
         <dd>
             {{ metadata.cross_compile }}
         </dd>
