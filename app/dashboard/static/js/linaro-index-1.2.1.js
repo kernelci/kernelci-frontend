@@ -67,7 +67,7 @@ $(document).ready(function() {
             'context': $('#failed-builds-body'),
             'data': {
                 'aggregate': 'kernel',
-                'limit': 5,
+                'limit': 25,
                 'status': 'FAIL',
                 'sort': 'created_on',
                 'sort_order': -1,
@@ -165,7 +165,7 @@ $(document).ready(function() {
         'traditional': true,
         'context': $('#failed-jobs-body'),
         'data': {
-            'limit': 5,
+            'limit': 25,
             'status': 'FAIL',
             'sort': 'created_on',
             'sort_order': -1,
@@ -255,7 +255,7 @@ $(document).ready(function() {
         'dataType': 'json',
         'context': $('#failed-boots-body'),
         'data': {
-            'limit': 15,
+            'limit': 25,
             'status': 'FAIL',
             'sort_order': -1,
             'sort': 'created_on',
