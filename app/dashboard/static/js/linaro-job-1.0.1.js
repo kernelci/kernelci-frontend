@@ -88,7 +88,7 @@ $(document).ready(function() {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel + '">' +
-                        '<a href="/job/' + data +
+                        '<a href="/build/' + data +
                         '/kernel/' + object.kernel + '">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
@@ -99,7 +99,7 @@ $(document).ready(function() {
     $(document).on("click", "#jobstable tbody tr", function() {
         var data = table.fnGetData(this);
         if (data) {
-            window.location = '/job/' + data.job + '/kernel/' + data.kernel + '/';
+            window.location = '/build/' + data.job + '/kernel/' + data.kernel + '/';
         }
     });
 
