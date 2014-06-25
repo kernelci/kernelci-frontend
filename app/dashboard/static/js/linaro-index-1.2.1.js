@@ -24,6 +24,7 @@ $(document).ready(function() {
             deferredCalls[i] = $.ajax({
                 'url': '/_ajax/count/defconfig',
                 'traditional': true,
+                'cache': true,
                 'dataType': 'json',
                 'data': {
                     'status': 'FAIL',
@@ -63,6 +64,7 @@ $(document).ready(function() {
         $.ajax({
             'url': '/_ajax/defconf',
             'traditional': true,
+            'cache': true,
             'dataType': 'json',
             'context': $('#failed-builds-body'),
             'data': {
@@ -163,6 +165,7 @@ $(document).ready(function() {
         'url': '/_ajax/job',
         'dataType': 'json',
         'traditional': true,
+        'cache': true,
         'context': $('#failed-jobs-body'),
         'data': {
             'limit': 25,
@@ -252,6 +255,7 @@ $(document).ready(function() {
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
+        'cache': true,
         'dataType': 'json',
         'context': $('#failed-boots-body'),
         'data': {

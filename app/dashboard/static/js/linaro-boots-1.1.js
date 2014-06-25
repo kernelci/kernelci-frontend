@@ -1,4 +1,3 @@
-// JavaScript code for the boots.html template
 $(document).ready(function() {
     $('#li-boot').addClass('active');
 
@@ -17,6 +16,7 @@ $(document).ready(function() {
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
+        'deferRender': true,
         'ordering': true,
         'processing': true,
         'stateDuration': -1,
@@ -28,6 +28,7 @@ $(document).ready(function() {
         'ajax': {
             'url': '/_ajax/boot',
             'traditional': true,
+            'cache': true,
             'dataType': 'json',
             'dataSrc': 'result',
             'dataFilter': function(data, type) {

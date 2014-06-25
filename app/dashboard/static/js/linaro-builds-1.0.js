@@ -16,6 +16,7 @@ $(document).ready(function() {
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
+        'deferRender': true,
         'ordering': true,
         'processing': true,
         'stateDuration': -1,
@@ -27,6 +28,7 @@ $(document).ready(function() {
         'ajax': {
             'url': '/_ajax/defconf',
             'traditional': true,
+            'cache': true,
             'dataType': 'json',
             'dataSrc': 'result',
             'dataFilter': function(data, type) {

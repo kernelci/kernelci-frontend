@@ -10,6 +10,7 @@ $(document).ready(function() {
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
+        'cache': true,
         'dataType': 'json',
         'data': {
             'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +

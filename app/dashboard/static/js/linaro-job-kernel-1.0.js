@@ -63,6 +63,7 @@ $(document).ready(function() {
     $.ajax({
         'url': '/_ajax/defconf',
         'traditional': true,
+        'cache': true,
         'dataType': 'json',
         'data': {
             'job_id': $('#job-id').val(),
@@ -143,6 +144,7 @@ $(document).ready(function() {
     $.ajax({
         'url': '/_ajax/defconf',
         'traditional': true,
+        'cache': true,
         'dataType': 'json',
         'context': $('#accordion'),
         'data': {
