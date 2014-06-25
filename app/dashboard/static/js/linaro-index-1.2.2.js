@@ -69,11 +69,10 @@ $(document).ready(function() {
             'context': $('#failed-builds-body'),
             'data': {
                 'aggregate': 'kernel',
-                'limit': 25,
                 'status': 'FAIL',
                 'sort': 'created_on',
                 'sort_order': -1,
-                'date_range': 15,
+                'date_range': $('#date-range').val(),
                 'field': ['job', 'kernel', 'metadata', 'created_on']
             },
             'dataFilter': function(data, type) {
@@ -168,11 +167,10 @@ $(document).ready(function() {
         'cache': true,
         'context': $('#failed-jobs-body'),
         'data': {
-            'limit': 25,
             'status': 'FAIL',
             'sort': 'created_on',
             'sort_order': -1,
-            'date_range': 15,
+            'date_range': $('#date-range').val(),
             'field': ['job', 'created_on', 'metadata']
         },
         'dataFilter': function(data, type) {
@@ -259,10 +257,10 @@ $(document).ready(function() {
         'dataType': 'json',
         'context': $('#failed-boots-body'),
         'data': {
-            'limit': 25,
             'status': 'FAIL',
             'sort_order': -1,
             'sort': 'created_on',
+            'date_range': $('#date-range').val(),
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
         'dataFilter': function(data, type) {
@@ -326,8 +324,8 @@ $(document).ready(function() {
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
                     kernel + '/defconfig/' + defconfig + '/';
 
-                col1 = '<td><a class="table-link" href="/job/' + job + '/">' 
-                    + job + '</a></td>';
+                col1 = '<td><a class="table-link" href="/job/' + job + '/">' +
+                    job + '</a></td>';
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
