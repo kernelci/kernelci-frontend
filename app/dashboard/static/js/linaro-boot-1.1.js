@@ -1,4 +1,3 @@
-// JavaScript code for the boot.html template
 $(document).ready(function() {
     $('body').tooltip({
         'selector': '[rel=tooltip]',
