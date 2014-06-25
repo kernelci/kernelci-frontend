@@ -59,6 +59,10 @@ DEFCONFIG_API_ENDPOINT = '/api/defconfig'
 BOOT_API_ENDPOINT = '/api/boot'
 COUNT_API_ENDPOINT = '/api/count'
 
+# Default date range to show the results. The higher the value, the more
+# data will need to be loaded from the server and parsed. It can take time
+# for the browser to show it all.
+DATE_RANGE = 5
 
 DEBUG = True
 TESTING = DEBUG

@@ -4,10 +4,11 @@
     <h2>{{ results_title|default('Latest Results')|safe }}</h2>
     </div>
         <p>
-            The results shown here cover the last <strong>15 days</strong> of available data. The starting date is calculated from {{ server_date }}.
+            The results shown here cover the last
+            <strong>{{ config['DATE_RANGE'] }} days</strong> of available data. The starting date is calculated from {{ server_date }}.
             <br/>
-            The time and date are based on the server clock (UTC), not your local
-            timezone.
+            The time and date are based on the server clock (UTC), not your
+            local timezone.
         </p>
     </div>
 </div>
