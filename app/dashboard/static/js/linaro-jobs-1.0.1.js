@@ -12,7 +12,7 @@ $(document).ready(function() {
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
-            'zeroRecords': '<strong>No jobs to display.<strong>',
+            'zeroRecords': '<h4>No jobs to display.</h4>',
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
