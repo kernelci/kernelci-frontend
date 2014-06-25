@@ -46,7 +46,7 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     $.ajax({
-        'url': '/_ajax/count/job',
+        'url': '/_ajax/count/defconfig',
         'traditional': true,
         'cache': true,
         'context': $('#defconfs-count'),
