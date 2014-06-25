@@ -109,7 +109,7 @@
         </dd>
         {%- endif %}
         <dt>Compiler</dt>
-        {%- if metadata.compiler_version %}
+        {%- if metadata and metadata.compiler_version %}
         <dd>
             {{ metadata.compiler_version }}
         </dd>
