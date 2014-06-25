@@ -12,7 +12,7 @@ $(document).ready(function() {
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>boot reports per page</strong>',
-            'zeroRecords': '<strong>No boot reports to display.</strong>',
+            'zeroRecords': '<h4>No boot reports to display.</h4>',
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
@@ -42,7 +42,7 @@ $(document).ready(function() {
             'data': {
                 'sort': 'created_on',
                 'sort_order': -1,
-                'date_range': 15,
+                'date_range': $('#date-range').val(),
                 'field': [
                     'job', 'kernel', 'defconfig', 'board', 'created_on',
                     'status'
