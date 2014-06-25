@@ -23,7 +23,7 @@ $(document).ready(function() {
         'dataType': 'json',
         'data': {
             'job': $('#job-id').val(),
-            'date_range': 7
+            'date_range': $('#date-range').val()
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
@@ -53,7 +53,7 @@ $(document).ready(function() {
         'dataType': 'json',
         'data': {
             'job': $('#job-id').val(),
-            'date_range': 7
+            'date_range': $('#date-range').val()
         },
         'dataFilter': function(data, type) {
             if (type === 'json') {
@@ -134,7 +134,7 @@ $(document).ready(function() {
                 'job': $('#job-id').val(),
                 'sort': 'created_on',
                 'sort_order': -1,
-                'date_range': 7,
+                'date_range': $('#date-range').val(),
                 'field': ['kernel', 'metadata', 'created_on']
             },
             'dataFilter': function(data, type) {
