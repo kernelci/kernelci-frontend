@@ -21,7 +21,7 @@ $(document).ready(function() {
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'order': [2, 'desc'],
+        'order': [1, 'desc'],
         'search': {
             'regex': true
         },
