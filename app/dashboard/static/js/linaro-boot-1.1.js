@@ -1,4 +1,3 @@
-// JavaScript code for the boot.html template
 $(document).ready(function() {
     $('body').tooltip({
         'selector': '[rel=tooltip]',
@@ -10,6 +9,7 @@ $(document).ready(function() {
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
+        'cache': true,
         'dataType': 'json',
         'data': {
             'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +
@@ -47,7 +47,7 @@ $(document).ready(function() {
             '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for job&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' +
-                data.kernel + '"><a href="/job/' + data.job + '/kernel/' +
+                data.kernel + '"><a href="/build/' + data.job + '/kernel/' +
                 data.kernel + '">' + data.kernel +
                 '&nbsp;<i class="fa fa-search"></i></a></span>'
         );

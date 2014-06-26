@@ -52,7 +52,6 @@ def _extract_response_data(response):
 
             if git_url and commit_id:
                 t_url = urlparse.urlparse(git_url)
-
                 known_git_urls = app.config.get('KNOWN_GIT_URLS')
 
                 if t_url.netloc in known_git_urls.keys():
@@ -139,10 +138,42 @@ class BuildsJobKernelDefconfigView(View):
                 response
             )
 
+            job_doc = json_util.loads(response.content)
+            job_doc['result'] = json_util.loads(job_doc['result'])
+
+            if job_doc.get('result', None):
+                metadata = job_doc['result'].get('metadata', None)
+                if metadata:
+                    git_url = metadata.get('git_url', None)
+                    commit_id = metadata.get('git_commit', None)
+
+                    if git_url and commit_id:
+                        t_url = urlparse.urlparse(git_url)
+
+                        known_git_urls = app.config.get('KNOWN_GIT_URLS')
+
+                        if t_url.netloc in known_git_urls.keys():
+                            known_git = known_git_urls.get(t_url.netloc)
+
+                            path = t_url.path
+                            for replace_rule in known_git[3]:
+                                path = path.replace(*replace_rule)
+
+                            base_url = urlparse.urlunparse((
+                                known_git[0], t_url.netloc, known_git[1] % path,
+                                '', '', ''
+                            ))
+                            commit_url = urlparse.urlunparse((
+                                known_git[0], t_url.netloc,
+                                (known_git[2] % path) + commit_id,
+                                '', '', ''
+                            ))
+
             return render_template(
                 'builds-job-kernel-defconf.html', page_title=PAGE_TITLE,
-                body_title=body_title, metadata=metadata, base_url=base_url,
-                commit_url=commit_url, result=result
+                body_title=body_title,
+                base_url=base_url, commit_url=commit_url,
+                job=kwargs['job'], metadata=metadata, result=result,
             )
         else:
             abort(response.status_code)

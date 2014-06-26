@@ -1,32 +1,34 @@
 $(document).ready(function() {
-    $('#li-job').addClass('active');
+    $('#li-boot').addClass('active');
 
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto'
     });
 
-    var table = $('#jobstable').dataTable({
+    var table = $('#bootstable').dataTable({
         'dom': '<"row"<"col-lg-6"<"length-menu"l>>' +
             '<"col-lg-4 col-lg-offset-2"f>r<"col-lg-12"t>>' +
             '<"row"<"col-lg-6"i><"col-lg-6"p>>',
         'language': {
-            'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
-            'zeroRecords': '<strong>No jobs to display.<strong>',
+            'lengthMenu': '_MENU_&nbsp;<strong>boot reports per page</strong>',
+            'zeroRecords': '<h4>No boot reports to display.</h4>',
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
         },
         'lengthMenu': [25, 50, 75, 100],
+        'deferRender': true,
         'ordering': true,
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'order': [2, 'desc'],
+        'order': [4, 'desc'],
         'search': {
             'regex': true
         },
         'ajax': {
-            'url': '/_ajax/job',
+            'url': '/_ajax/boot',
             'traditional': true,
+            'cache': true,
             'dataType': 'json',
             'dataSrc': 'result',
             'dataFilter': function(data, type) {
@@ -34,28 +36,39 @@ $(document).ready(function() {
                     var parsed = JSON.parse(data);
                     parsed.result = JSON.parse(parsed.result);
                     return JSON.stringify(parsed);
-                } 
+                }
                 return data;
             },
             'data': {
-                'aggregate': 'job',
                 'sort': 'created_on',
                 'sort_order': -1,
-                'date_range': 15,
+                'date_range': $('#date-range').val(),
                 'field': [
-                    'job', 'created_on', 'status', 'metadata'
+                    'job', 'kernel', 'defconfig', 'board', 'created_on',
+                    'status'
                 ]
             }
         },
         'columns': [
             {
                 'data': 'job',
-                'title': 'Tree &dash; Branch',
+                'title': 'Tree',
                 'render': function(data, type, object) {
                     return '<a class="table-link" href="/job/' + data + '/">' +
-                        data + '&nbsp;&dash;&nbsp;<small>' +
-                        object.metadata.git_branch + '</small></a>';
+                        data + '</a>';
                 }
+            },
+            {
+                'data': 'kernel',
+                'title': 'Kernel'
+            },
+            {
+                'data': 'defconfig',
+                'title': 'Defconfig'
+            },
+            {
+                'data': 'board',
+                'title': 'Board Model'
             },
             {
                 'data': 'created_on',
@@ -73,26 +86,27 @@ $(document).ready(function() {
                 'render': function(data, type, object) {
                     var displ;
                     switch (data) {
-                        case 'BUILD':
-                            displ = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Building">' +
-                                '<span class="label label-info">' +
-                                '<i class="fa fa-cogs"></i></span></span>';
-                            break;
                         case 'PASS':
                             displ = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
-                                'title="Build completed">' +
+                                'title="Boot completed">' +
                                 '<span class="label label-success">' +
                                 '<i class="fa fa-check"></i></span></span>';
                             break;
                         case 'FAIL':
                             displ = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
-                                'title="Build failed">' +
+                                'title="Boot failed">' +
                                 '<span class="label label-danger">' +
                                 '<i class="fa fa-exclamation-triangle">' +
+                                '</i></span></span>';
+                            break;
+                        case 'OFFLINE':
+                            displ = '<span rel="tooltip"' +
+                                'data-toggle="tooltip"' +
+                                'title="Board offline"' +
+                                '<span class="label label-info">' +
+                                '<i class="fa fa-power-off">' +
                                 '</i></span></span>';
                             break;
                         default:
@@ -108,26 +122,32 @@ $(document).ready(function() {
                 }
             },
             {
-                'data': 'job',
+                'data': 'board',
                 'title': '',
-                'searchable': false,
                 'orderable': false,
-                'width': '30px',
+                'searchable': false,
                 'className': 'pull-center',
                 'render': function(data, type, object) {
+                    var defconfig = object.defconfig,
+                        kernel = object.kernel,
+                        job = object.job;
+
                     return '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Details for&nbsp;' + data + '">' +
-                        '<a href="/job/' + data + '">' +
+                        'title="Details for board&nbsp;' + data + 'with&nbsp;' +
+                        job + '&dash;' + kernel + '&dash;' + defconfig +
+                        '"><a href="/boot/' + data + '/job/' + job +
+                        '/kernel/' + kernel + '/defconfig/' + defconfig + '">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
             }
         ]
     });
 
-    $(document).on("click", "#jobstable tbody tr", function() {
+    $(document).on("click", "#bootstable tbody tr", function() {
         var data = table.fnGetData(this);
         if (data) {
-            window.location = '/job/' + data.job + '/';
+            window.location = '/boot/' + data.board + '/job/' + data.job +
+                '/kernel/' + data.kernel + '/defconfig/' + data.defconfig + '/';
         }
     });
 

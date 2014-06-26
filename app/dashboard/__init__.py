@@ -64,16 +64,19 @@ app.add_url_rule(
 app.add_url_rule(
     '/build/', view_func=BuildsAllView.as_view('builds'), methods=['GET'],
 )
+
 app.add_url_rule(
     '/build/all/',
     view_func=BuildsAllView.as_view('all-builds'),
     methods=['GET']
 )
+
 app.add_url_rule(
     '/build/<string:job>/kernel/<string:kernel>/',
     view_func=BuildsJobKernelView.as_view('job-kernel-builds'),
     methods=['GET']
 )
+
 app.add_url_rule(
     '/build/<string:job>/kernel/<string:kernel>/defconfig/<string:defconfig>/',
     view_func=BuildsJobKernelDefconfigView.as_view('job-kernel-defconf'),
@@ -84,6 +87,7 @@ app.add_url_rule(
 app.add_url_rule(
     '/job/', view_func=JobsAllView.as_view('jobs'), methods=['GET']
 )
+
 app.add_url_rule(
     '/job/<string:job>/', view_func=JobsJobView.as_view('job'), methods=['GET'],
 )
