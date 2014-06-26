@@ -106,11 +106,21 @@ $(document).ready(function() {
                     len = arguments.length,
                     count = '&infin;';
 
-                for (i; i < len; i++) {
-                    if (arguments[i] !== null) {
-                        count = arguments[i][0].count;
+                if (len > 0) {
+                    // This is the case when we have only one build and the
+                    // deferred call returns just the plain object not in an
+                    // Array like way.
+                    if (! Array.isArray(arguments[0])) {
+                        count = arguments[0].count;
+                        $('#fail-count0').empty().append(count);
+                    } else {
+                        for (i; i < len; i++) {
+                            if (arguments[i] !== null) {
+                                count = arguments[i][0].count;
+                                $('#fail-count' + i).empty().append(count);
+                            }
+                        }
                     }
-                    $('#fail-count' + i).empty().append(count);
                 }
             });
         }
