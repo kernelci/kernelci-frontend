@@ -123,7 +123,9 @@ $(document).ready(function() {
                 'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
-                        '&nbsp;&dash;&nbsp;' + object.kernel + '">' +
+                        '&nbsp;&dash;&nbsp;' + object.kernel +
+                        '&nbsp;&dash;&nbsp;' + object.defconfig +
+                        '">' +
                         '<a href="/build/' + data +
                         '/kernel/' + object.kernel + '/defconfig/' +
                         object.dirname + '/">' +

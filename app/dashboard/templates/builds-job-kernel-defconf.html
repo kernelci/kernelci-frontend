@@ -5,78 +5,411 @@
 <div class="page-header">
     <h3>{{ body_title|safe }}&nbsp;<small>{{ result.defconfig }}</small></h3>
 </div>
-<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    <dl class="dl-horizontal">
-        <dt>Tree</dt>
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp; {{ job }}"> 
-            <a href="/job/{{ job }}">
-                {{ job }}
-                <i class="fa fa-search"></i>
-            </a>
-            </span>
-        </dd>
-        <dt>Git branch</dt>
-        <dd>
-            {{ metadata.git_branch }}
-        </dd>
-        <dt>Git describe</dt>
-        <dd>
-            {{ metadata.git_describe }}
-        </dd>
-        <dt>Git URL</dt>
-        {% if base_url %}
-        <dd>
-            <a href="{{ base_url }}">
-            {{ metadata.git_url }}
-            <i class="fa fa-external-link"></i>
-            </a>
-        </dd>
-        {% else %}
-        <dd>{{ metadata.git_url }}</dd>
-        {% endif %}
-        <dt>Git commit</dt>
-        {% if commit_url %}
-        <dd>
-            <a href="{{ commit_url }}">
-                {{ metadata.git_commit }}
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp; {{ job }}">
+                <a href="/job/{{ job }}">
+                    {{ job }}
+                    <i class="fa fa-search"></i>
+                </a>
+                </span>
+            </dd>
+            <dt>Git branch</dt>
+            {%- if metadata and metadata.git_branch %}
+            <dd>
+                {{ metadata.git_branch }}
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Git describe</dt>
+            {%- if metadata and metadata.git_describe %}
+            <dd>
+                {{ metadata.git_describe }}
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Git URL</dt>
+            {%- if metadata and metadata.git_url and base_url %}
+            <dd>
+                <a href="{{ base_url }}">
+                {{ metadata.git_url }}
                 <i class="fa fa-external-link"></i>
-            </a>
-        </dd>
-        {% else %}
-        <dd>{{ metadata.git_commit }}</dd>
-        {% endif %}
-        <dt>Cross-compile</dt>
-        {%- if metadata.cross_compile %}
-        <dd>
-            {{ metadata.cross_compile }}
-        </dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-        </dd>
-        {%- endif %}
-        <dt>Compiler</dt>
-        {%- if metadata.compiler_version %}
-        <dd>
-            {{ metadata.compiler_version }}
-        </dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-        </dd>
-        {%- endif %}
-    </dl>
+                </a>
+            </dd>
+            {%- elif metadata and metadata.git_url %}
+            <dd>{{ metadata.git_url }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Git commit</dt>
+            {%- if metadata and metadata.git_commit and commit_url %}
+            <dd>
+                <a href="{{ commit_url }}">
+                    {{ metadata.git_commit }}
+                    <i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- elif metadata and metadata.git_commit %}
+            <dd>{{ metadata.git_commit }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Cross-compile</dt>
+            {%- if metadata and metadata.cross_compile %}
+            <dd>
+                {{ metadata.cross_compile }}
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Compiler</dt>
+            {%- if metadata and metadata.compiler_version %}
+            <dd>
+                {{ metadata.compiler_version }}
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+        </dl>
+    </div>
+
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <dl class="dl-horizontal">
+            <dt>Status</dt>
+            {%- if result.status %}
+                {%- if result.status == 'PASS' %}
+                <dd>
+                    <span rel="tooltip" data-toggle="tooltip"
+                        title="Build completed">
+                        <span class="label label-success">
+                        <i class="fa fa-check"></i>
+                        </span>
+                    </span>
+                </dd>
+                {%- elif result.status == 'FAIL' %}
+                <dd>
+                    <span rel="tooltip" data-toggle="tooltip"
+                        title="Build failed">
+                        <span class="label label-danger">
+                        <li class="fa fa-exclamation-triangle"></li>
+                        </span>
+                    </span>
+                </dd>
+                {%- else %}
+                <dd>
+                    <span rel="tooltip" data-toggle="tooltip"
+                        title="Unknown status">
+                        <span class="label label-warning">
+                        <li class="fa fa-question"></li>
+                        </span>
+                    </span>
+                </dd>
+                {%- endif %}
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Architecture</dt>
+            {%- if metadata and metadata.arch %}
+            <dd>{{ metadata.arch }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Build errors</dt>
+            {%- if metadata and metadata.build_errors %}
+            <dd>{{ metadata.builds_errros }}</dd>
+            {%- else %}
+            <dd>0</dd>
+            {%- endif %}
+            <dt>Build warnings</dt>
+            {%- if metadata and metadata.build_warnings %}
+            <dd>{{ metadata.build_warnings }}</dd>
+            {%- else %}
+            <dd>0</dd>
+            {%- endif %}
+            <dt>Build time</dt>
+            {%- if metadata and metadata.build_time %}
+            <dd>{{ metadata.build_time }} sec.</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+        </dl>
+    </div>
+
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>Dtb directory</dt>
+            {%- if metadata and metadata.dtb_dir %}
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.dtb_dir }}/">
+                {{ metadata.dtb_dir }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Modules directory</dt>
+            {%- if metadata and metadata.modules_dir %}
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.modules_dir }}/">
+                {{ metadata.modules_dir }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Text offset</dt>
+            {%- if metadata and metadata.text_offset %}
+            <dd>{{ metadata.text_offset }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+        </dl>
+    </div>
+
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <dl class="dl-horizontal">
+            <dt>Kernel image</dt>
+            {%- if metadata and metadata.kernel_image %}
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.kernel_image }}">
+                {{ metadata.kernel_image }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Kernel config</dt>
+            {%- if metadata and metadata.kernel_config %}
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.kernel_config }}">
+                {{ metadata.kernel_config }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+            <dt>Build log</dt>
+            {%- if metadata and metadata.build_log %}
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.build_log }}">
+                {{ metadata.build_log }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
+        </dl>
+    </div>
 </div>
+
+<div class="row">
+    <div class="page-header">
+        <h4>Build Platform</h4>
+    </div>
+    {%- if metadata and metadata.build_platform %}
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>System</dt>
+            <dd>{{ metadata.build_platform[0] }}</dd>
+            <dt>Node name</dt>
+            <dd>{{ metadata.build_platform[1] }}</dd>
+            <dt>Release</dt>
+            <dd>{{ metadata.build_platform[2] }}</dd>
+            <dt>Full release</dt>
+            <dd>{{ metadata.build_platform[3] }}</dd>
+        </dl>
+    </div>
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <dl class="dl-horizontal">
+            <dt>Machine type</dt>
+            <dd>{{ metadata.build_platform[4] }}</dd>
+            <dt>CPU</dt>
+            <dd>{{ metadata.build_platform[5] }}</dd>
+        </dl>
+    </div>
+    {%- else %}
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="pull-center">
+            <h5><strong>No data available</strong></h5>
+        </div>
+    </div>
+    {%- endif %}
+</div>
+
+<div class="row">
+    <div class="page-header">
+        <h4>Boot Reports</h4>
+    </div>
+    <div id="boot-report">
+        <div class="pull-center">
+            <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;searching boot reports&hellip;
+        </div>
+    </div>
+</div>
+
 </div>
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-jslib-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-job-kernel-1.0.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto top'
+    });
+
+    console.log('{{ result.created_on }}')
+
+    $('#li-build').addClass('active');
+
+    $.ajax({
+        'url': '/_ajax/boot',
+        'traditional': true,
+        'cache': true,
+        'dataType': 'json',
+        'data': {
+            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on'],
+            'job': '{{ job }}',
+            'kernel': '{{ result.kernel }}',
+            'defconfig': '{{ result.dirname }}',
+        },
+        'dataFilter': function(data, type) {
+            if (type === 'json') {
+                return JSON.parse(data).result;
+            }
+            return data;
+        },
+        'statusCode': {
+            404: function() {
+                $("#boot-report").empty().append(
+                    '<div class="text-center">' +
+                    '<h3>Error loading data.</h3>' +
+                    '</div>'
+                );
+                var text = '<div id="boot-404-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    'Error while searching boot reports from the server.\n' +
+                    'Please contact the website administrators.&nbsp;' +
+                    'Error code was: 404' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#boot-404-error').alert();
+            },
+            500: function() {
+                $('#boot-report').empty().append(
+                    '<div class="text-center">' +
+                    '<h3>Error loading data.</h3>' +
+                    '</div>'
+                );
+                var text = '<div id="boot-500-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    'Error while searching boot reports from the server.\n' +
+                    'Please contact the website administrators.&nbsp;' +
+                    'Error code was: 500' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#boot-500-error').alert();
+            }
+        }
+    }).done(function(data) {
+        var len = data.length;
+
+        if (len > 0) {
+            var i = 0,
+                row = '<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">';
+                row += '<ul class="list-unstyled">'
+            for (i; i < len; i++) {
+                row += '<li>' +
+                    '<a href="/boot/' + data[i].board +
+                    '/job/' + data[i].job + '/kernel/' + data[i].kernel +
+                    '/defconfig/' + data[i].defconfig + '">' +
+                    data[i].board +
+                    '</a>';
+                row += '</li>';
+            }
+            row += '</ul></div>';
+            $('#boot-report').empty().append(row);
+        } else {
+            $('#boot-report').empty().append(
+                '<div class="text-center">' +
+                '<h5><strong>No boot reports available.</strong></h5>' +
+                '</div>'
+            );
+        }
+    });
+})
+</script>
 {%- endblock %}
