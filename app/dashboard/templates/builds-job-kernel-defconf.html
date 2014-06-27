@@ -217,6 +217,16 @@
                 </span>
             </dd>
             {%- endif %}
+            <dt>Config fragments</dt>
+            {%- if metadata and metadata.kconfig_fragments %}
+            <dd>{{ metadata.kconfig_fragments }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                    <i class="fa fa-ban"></i>
+                </span>
+            </dd>
+            {%- endif %}
         </dl>
     </div>
 
