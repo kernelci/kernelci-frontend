@@ -138,7 +138,8 @@ $(document).ready(function() {
     $(document).on("click", "#defconfstable tbody tr", function() {
         var data = table.fnGetData(this);
         if (data) {
-            window.location = '/build/' + data.job + '/kernel/' + data.kernel + '/';
+            window.location = '/build/' + data.job +
+                '/kernel/' + data.kernel + '/defconfig/' + data.dirname;
         }
     });
 
