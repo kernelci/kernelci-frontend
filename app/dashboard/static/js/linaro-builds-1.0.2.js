@@ -56,9 +56,16 @@ $(document).ready(function() {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
                 'render': function(data, type, object) {
-                    return '<a class="table-link" href="/job/' + data + '/">' +
-                        data + '&nbsp;&dash;&nbsp;<small>' +
-                        object.metadata.git_branch + '</small></a>';
+                    var display =  '<a class="table-link" href="/job/' +
+                        data + '/">' + data;
+
+                    if (!$.isEmptyObject(object.metadata) &&
+                            object.metadata.hasOwnProperty('git_branch') &&
+                            object.metadata.git_branch !== null) {
+                        display += '&nbsp;&dash;&nbsp;<small>' +
+                            object.metadata.git_branch + '</small>';
+                    }
+                    return display + '</a>';
                 }
             },
             {
@@ -67,7 +74,18 @@ $(document).ready(function() {
             },
             {
                 'data': 'defconfig',
-                'title': 'Defconfig'
+                'title': 'Defconfig',
+                'render': function(data, type, object) {
+                    var display = data;
+
+                    if (!$.isEmptyObject(object.metadata) &&
+                            object.metadata.hasOwnProperty('kconfig_fragments') &&
+                            object.metadata.kconfig_fragments !== null) {
+                        display = data + '&nbsp<small>' +
+                            object.metadata.kconfig_fragments + '</small>';
+                    }
+                    return display;
+                }
             },
             {
                 'data': 'arch',
