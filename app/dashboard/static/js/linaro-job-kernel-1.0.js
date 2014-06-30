@@ -312,16 +312,14 @@ $(document).ready(function() {
                             '&nbsp;<i class="fa fa-external-link">' +
                             '</i></a></dd>';
                 }
-            }
 
-            panel += '</dl></div>';
+                panel += '</dl></div>';
 
-            if (!$.isEmptyObject(metadata)) {
                 panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
                 panel += '<dl class="dl-horizontal">';
 
-                if (metadata.hasOwnProperty('build_erros') &&
-                        metadata.build_erros !== null) {
+                if (metadata.hasOwnProperty('build_errors') &&
+                        metadata.build_errors !== null) {
                     panel += '<dt>Build errors</dt>';
                     panel += '<dd>' + metadata.build_errors + '</dd>';
                 }
@@ -340,6 +338,16 @@ $(document).ready(function() {
 
                 panel += '</dl></div>';
             }
+
+            panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
+            panel += '<div class="pull-center">' +
+                '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' +
+                'build with defconfig&nbsp;' + data[i].defconfig + '">' +
+                '<a href="/build/' + data[i].job + '/kernel/' + data[i].kernel +
+                '/defconfig/' + data[i].dirname + '/' +
+                '">More info&nbsp;<i class="fa fa-search"></i>' +
+                '</a></span>';
+            panel += '</div></div>';
 
             panel += '</div>';
             panel += '</div></div></div>\n';
