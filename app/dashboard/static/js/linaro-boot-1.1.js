@@ -109,31 +109,31 @@ $(document).ready(function() {
             $('#dd-board-warnings').empty().append(0);
         }
 
-        if (data.dtb !== null) {
+        if (data.dtb !== null && data.dtb !== '') {
             $('#dd-board-dtb').empty().append(data.dtb);
         } else {
             $('#dd-board-dtb').empty().append(non_avail);
         }
 
-        if (data.dtb_addr !== null) {
+        if (data.dtb_addr !== null && data.dtb_addr !== '') {
             $('#dd-board-dtb-address').empty().append(data.dtb_addr);
         } else {
             $('#dd-board-dtb-address').empty().append(non_avail);
         }
 
-        if (data.initrd_addr !== null) {
+        if (data.initrd_addr !== null && data.initrd_addr !== '') {
             $('#dd-board-initrd-address').empty().append(data.initrd_addr);
         } else {
             $('#dd-board-initrd-address').empty().append(non_avail);
         }
 
-        if (data.load_addr !== null) {
+        if (data.load_addr !== null && data.load_addr !== '') {
             $('#dd-board-load-address').empty().append(data.load_addr);
         } else {
             $('#dd-board-load-address').empty().append(non_avail);
         }
 
-        if (data.kernel_image !== null) {
+        if (data.kernel_image !== null && data.kernel_image !== '') {
             $('#dd-board-kernel-image').empty().append(data.kernel_image);
         } else {
             $('#dd-board-kernel-image').empty().append(non_avail);
