@@ -251,12 +251,16 @@ $(document).ready(function() {
                     '<div class="panel-body">';
 
             panel += '<div class="row">';
-            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-            panel += '<dl class="dl-horizontal">';
 
             if ($.isEmptyObject(metadata)) {
-                panel += '<strong>No data to show.</strong>';
+                panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
+                    '<div class="pull-center">' +
+                    '<strong>No data to show.</strong>' +
+                    '</div></div>\n';
             } else {
+                panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+                panel += '<dl class="dl-horizontal">';
+
                 if (metadata.hasOwnProperty('dtb_dir') &&
                         metadata.dtb_dir !== null) {
                     panel += '<dt>Dtb directory</dt>' +
