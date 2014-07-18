@@ -141,8 +141,8 @@ class BuildsJobKernelDefconfigView(View):
             return render_template(
                 'builds-job-kernel-defconf.html', page_title=PAGE_TITLE,
                 body_title=body_title,
-                base_url=base_url, commit_url=commit_url,
-                job=kwargs['job'], metadata=metadata, result=result,
+                base_url=base_url, commit_url=commit_url, kernel=kernel,
+                job=job, metadata=metadata, result=result,
             )
         else:
             abort(response.status_code)

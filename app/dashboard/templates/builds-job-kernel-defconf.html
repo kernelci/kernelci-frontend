@@ -29,17 +29,14 @@
             </dd>
             {%- endif %}
             <dt>Git describe</dt>
-            {%- if metadata and metadata.git_describe %}
             <dd>
-                {{ metadata.git_describe }}
-            </dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                    <i class="fa fa-ban"></i>
+                <span rel="tooltip" data-toggle="tooltip" title="Details for build&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
+                <a href="/build/{{ job }}/kernel/{{ kernel }}">
+                    {{ kernel }}
+                    <i class="fa fa-search"></i>
+                </a>
                 </span>
             </dd>
-            {%- endif %}
             <dt>Git URL</dt>
             {%- if metadata and metadata.git_url and base_url %}
             <dd>
