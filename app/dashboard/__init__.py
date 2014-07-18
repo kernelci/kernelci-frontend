@@ -97,6 +97,9 @@ app.add_url_rule(
     '/boot/', view_func=BootsView.as_view('boots'), methods=['GET'],
 )
 app.add_url_rule(
+    '/boot/all/', view_func=BootsView.as_view('all-boots'), methods=['GET'],
+)
+app.add_url_rule(
     (
         '/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/'
         'defconfig/<string:defconfig>/'
