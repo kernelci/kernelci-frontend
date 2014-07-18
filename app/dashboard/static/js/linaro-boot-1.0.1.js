@@ -42,10 +42,19 @@ $(document).ready(function() {
                 '</span>';
 
         $('#dd-board-board').empty().append(data.board);
-        $('#dd-board-defconfig').empty().append(data.defconfig);
+        $('#dd-board-defconfig').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip"' +
+                'title="Details for build&nbsp;' + data.job +
+                '&nbsp;&dash;&nbsp;' + data.kernel +
+                '&nbsp;&dash;&nbsp;' + data.defconfig +
+                '"><a href="/build/' + data.job + '/kernel/' + data.kernel +
+                '/defconfig/' + data.defconfig + '">' +
+                data.defconfig +
+                '&nbsp;<i class="fa fa-search"></i></a></span>'
+        );
         $('#dd-board-kernel').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for job&nbsp;' + data.job +
+                'title="Details for build&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' +
                 data.kernel + '"><a href="/build/' + data.job + '/kernel/' +
                 data.kernel + '">' + data.kernel +
@@ -53,7 +62,7 @@ $(document).ready(function() {
         );
         $('#dd-board-tree').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for&nbsp;' + data.job + '"><a href="/job/' +
+                'title="Details for job&nbsp;' + data.job + '"><a href="/job/' +
                 data.job + '">' + data.job +
                 '&nbsp;<i class="fa fa-search"></i></a></span>'
         );
