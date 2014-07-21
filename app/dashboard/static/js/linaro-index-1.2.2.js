@@ -1,12 +1,15 @@
-// JavaScript code for the index.html template.
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('#li-home').addClass('active');
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto'
     });
 
-    $('.clickable-table tbody').on("click", "tr", function() {
+    $('.clickable-table tbody').on("click", "tr", function () {
         var url = $(this).data('url');
         if (url) {
             window.location = url;
@@ -14,7 +17,9 @@ $(document).ready(function() {
     });
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+
     function countFailedDefconfigs(data) {
         var i = 0,
             len = data.length,
@@ -31,21 +36,23 @@ $(document).ready(function() {
                     'job': data[i].job,
                     'kernel': data[i].kernel
                 },
-                'dataFilter': function(data, type) {
+                'dataFilter': function (data, type) {
                     if (type === 'json') {
                         return JSON.parse(data).result;
                     }
                     return data;
+                },
+                'beforeSend': function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
             });
         }
 
-        $.when.apply($, deferredCalls).then(function() {
-            var i = 0,
-                len = arguments.length,
-                count = '&infin;';
+        $.when.apply($, deferredCalls).then(function () {
+            var count = '&infin;';
+            len = arguments.length;
 
-            for (i; i < len; i++) {
+            for (i = 0; i < len; i++) {
                 if (arguments[i] !== null) {
                     count = arguments[i][0].count;
                 }
@@ -55,7 +62,7 @@ $(document).ready(function() {
     }
 
     function countFailCallback() {
-        $('.fail-badge').each(function() {
+        $('.fail-badge').each(function () {
             $(this).empty().append('&infin;');
         });
     }
@@ -75,14 +82,17 @@ $(document).ready(function() {
                 'date_range': $('#date-range').val(),
                 'field': ['job', 'kernel', 'metadata', 'created_on']
             },
-            'dataFilter': function(data, type) {
+            'dataFilter': function (data, type) {
                 if (type === 'json') {
                     return JSON.parse(data).result;
                 }
                 return data;
             },
+            'beforeSend': function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
             'statusCode': {
-                404: function() {
+                404: function () {
                     $('#failed-builds-body').empty().append(
                         '<tr><td colspan="5" align="center" valign="middle">' +
                         '<h4>Error loading data.</h4></td></tr>'
@@ -97,7 +107,7 @@ $(document).ready(function() {
                     $('#errors-container').append(text);
                     $('#defconfs-404-error').alert();
                 },
-                500: function() {
+                500: function () {
                     $('#failed-builds-body').empty().append(
                         '<tr><td colspan="5" align="center" valign="middle">' +
                         '<h4>Error loading data.</h4></td></tr>'
@@ -113,9 +123,9 @@ $(document).ready(function() {
                     $('#defconfs-500-error').alert();
                 }
             }
-        }).done(function(data) {
+        }).done(function (data) {
             var row = '',
-                job, created, col1, col2, col3, col4, col5,
+                job, created, col1, col2, col3, col4, col5, href,
                 kernel, git_branch,
                 i = 0,
                 len = data.length;
@@ -129,7 +139,7 @@ $(document).ready(function() {
                     job = data[i].job;
                     kernel = data[i].kernel;
                     git_branch = data[i].metadata.git_branch;
-                    created = new Date(data[i].created_on['$date']),
+                    created = new Date(data[i].created_on['$date']);
                     href = '/build/' + job + '/kernel/' + kernel + '/';
 
                     col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
@@ -158,7 +168,8 @@ $(document).ready(function() {
     ).then(countFailedDefconfigs, countFailCallback);
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
 
     $.ajax({
         'url': '/_ajax/job',
@@ -173,14 +184,17 @@ $(document).ready(function() {
             'date_range': $('#date-range').val(),
             'field': ['job', 'created_on', 'metadata']
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $('#failed-jobs-body').empty().append(
                     '<tr><td colspan="3" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
@@ -195,7 +209,7 @@ $(document).ready(function() {
                 $('#errors-container').append(text);
                 $('#jobs-404-error').alert();
             },
-            500: function() {
+            500: function () {
                 $('#failed-jobs-body').empty().append(
                     '<tr><td colspan="3" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
@@ -211,9 +225,9 @@ $(document).ready(function() {
                 $('#jobs-500-error').alert();
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         var row = '',
-            created, col1, col2, col3,
+            created, col1, col2, col3, href,
             job, git_branch,
             i = 0,
             len = data.length;
@@ -226,7 +240,7 @@ $(document).ready(function() {
             for (i; i < len; i++) {
                 created = new Date(data[i].created_on['$date']);
                 job = data[i].job;
-                git_branch = data[i].metadata.git_branch,
+                git_branch = data[i].metadata.git_branch;
                 href = '/job/' + job + '/';
 
                 col1 = '<td><a class="table-link" href="' + href + '">' +
@@ -248,7 +262,8 @@ $(document).ready(function() {
     });
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
 
     $.ajax({
         'url': '/_ajax/boot',
@@ -263,14 +278,17 @@ $(document).ready(function() {
             'date_range': $('#date-range').val(),
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $('#failed-boots-body').empty().append(
                     '<tr><td colspan="6" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
@@ -286,7 +304,7 @@ $(document).ready(function() {
                 $('#errors-container').append(text);
                 $('#boots-404-error').alert();
             },
-            500: function() {
+            500: function () {
                 $('#failed-boots-body').empty().append(
                     '<tr><td colspan="6" align="center" valign="middle">' +
                     '<h4>Error loading data.</h4></td></tr>'
@@ -303,10 +321,10 @@ $(document).ready(function() {
                 $('#boots-500-error').alert();
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         var row = '',
             created, board, job, kernel, defconfig,
-            col1, col2, col3, col4, col5, col6,
+            col1, col2, col3, col4, col5, col6, href,
             len = data.length,
             i = 0;
 
@@ -320,7 +338,7 @@ $(document).ready(function() {
                 job = data[i].job;
                 kernel = data[i].kernel;
                 board = data[i].board;
-                defconfig = data[i].defconfig,
+                defconfig = data[i].defconfig;
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
                     kernel + '/defconfig/' + defconfig + '/';
 
