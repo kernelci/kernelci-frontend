@@ -1,5 +1,8 @@
-// JavaScript code for the builds-job-kernel.html template.
-function showHideDefconfs(element) {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+function showHideDefconfs (element) {
+    "use strict";
+
     switch (element.id) {
         case 'success-cell':
             if ($('#success-btn').attr('disabled') !== 'disabled') {
@@ -48,7 +51,9 @@ function showHideDefconfs(element) {
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top'
@@ -56,7 +61,7 @@ $(document).ready(function() {
 
     $('#li-build').addClass('active');
 
-    $('.btn-group > .btn').click(function() {
+    $('.btn-group > .btn').click(function () {
         $(this).addClass('active').siblings().removeClass('active');
     });
 
@@ -75,8 +80,11 @@ $(document).ready(function() {
                 return JSON.parse(data).result;
             }
             return data;
+        },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
-    }).done(function(data) {
+    }).done(function (data) {
         var success = 0,
             fail = 0,
             unknown = 0,
@@ -152,14 +160,17 @@ $(document).ready(function() {
             'sort': ['status', '_id'],
             'sort_order': 1
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $('#accordion-container').empty().append(
                     '<div class="text-center">' +
                     '<h3>Error loading data.</h3>' +
@@ -176,7 +187,7 @@ $(document).ready(function() {
                 $('#errors-container').append(text);
                 $('#defconfs-404-error').alert();
             },
-            500: function() {
+            500: function () {
                 $('#accordion-container').empty().append(
                     '<div class="text-center">' +
                     '<h3>Error loading data.</h3>' +
@@ -194,7 +205,7 @@ $(document).ready(function() {
                 $('#defconfs-500-error').alert();
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         var file_server = $('#file-server').val(),
             panel = '',
             cls,
@@ -373,12 +384,12 @@ $(document).ready(function() {
     });
 
     var session_state = new SessionState($('#job-id').val());
-    onbeforeunload = function() {
+    onbeforeunload = function () {
 
         var panel_state = {},
             page_state;
 
-        $('[id^="panel-defconf"]').each(function(id) {
+        $('[id^="panel-defconf"]').each(function (id) {
             panel_state['#panel-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
@@ -386,7 +397,7 @@ $(document).ready(function() {
             };
         });
 
-        $('[id^="collapse-defconf"]').each(function(id) {
+        $('[id^="collapse-defconf"]').each(function (id) {
             panel_state['#collapse-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
@@ -432,7 +443,7 @@ $(document).ready(function() {
             }
         };
 
-        session_state.objects = CollectObjects(panel_state, page_state);
+        session_state.objects = collectObjects(panel_state, page_state);
         saveToSessionStorage(session_state);
     };
 });
