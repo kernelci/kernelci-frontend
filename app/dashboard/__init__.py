@@ -135,6 +135,17 @@ def internal_server_error(e):
     return render_template('500.html', page_content=page_content), 500
 
 
+@app.errorhandler(400)
+def bad_request_error(e):
+    path = os.path.join(app.root_path, 'static', 'html', '400-content.html')
+    page_content = ''
+
+    with open(path) as content_file:
+        page_content = Markup(content_file.read())
+
+    return render_template('400.html', page_content=page_content), 400
+
+
 @app.route('/static/js/<path:path>')
 def static_js_proxy(path):
     return app.send_static_file(os.path.join('js', path))
