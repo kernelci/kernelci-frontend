@@ -1,4 +1,8 @@
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('#li-job').addClass('active');
 
     $('body').tooltip({
@@ -33,13 +37,16 @@ $(document).ready(function() {
             'cache': true,
             'dataType': 'json',
             'dataSrc': 'result',
-            'dataFilter': function(data, type) {
+            'dataFilter': function (data, type) {
                 if (type === 'json') {
                     var parsed = JSON.parse(data);
                     parsed.result = JSON.parse(parsed.result);
                     return JSON.stringify(parsed);
-                } 
+                }
                 return data;
+            },
+            'beforeSend': function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
             },
             'data': {
                 'aggregate': 'job',
@@ -55,7 +62,7 @@ $(document).ready(function() {
             {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
-                'render': function(data, type, object) {
+                'render': function (data, object) {
                     return '<a class="table-link" href="/job/' + data + '/">' +
                         data + '&nbsp;&dash;&nbsp;<small>' +
                         object.metadata.git_branch + '</small></a>';
@@ -65,7 +72,7 @@ $(document).ready(function() {
                 'data': 'created_on',
                 'title': 'Date',
                 'type': 'date',
-                'render': function(data, type, object) {
+                'render': function (data) {
                     var created = new Date(data['$date']);
                     return created.getCustomISODate();
                 }
@@ -74,7 +81,7 @@ $(document).ready(function() {
                 'data': 'status',
                 'title': 'Status',
                 'type': 'string',
-                'render': function(data, type, object) {
+                'render': function (data) {
                     var displ;
                     switch (data) {
                         case 'BUILD':
@@ -118,7 +125,7 @@ $(document).ready(function() {
                 'orderable': false,
                 'width': '30px',
                 'className': 'pull-center',
-                'render': function(data, type, object) {
+                'render': function (data) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data + '">' +
                         '<a href="/job/' + data + '">' +
@@ -128,7 +135,7 @@ $(document).ready(function() {
         ]
     });
 
-    $(document).on("click", "#jobstable tbody tr", function() {
+    $(document).on("click", "#jobstable tbody tr", function () {
         var data = table.fnGetData(this);
         if (data) {
             window.location = '/job/' + data.job + '/';
@@ -136,7 +143,7 @@ $(document).ready(function() {
     });
 
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
-    $('.input-sm').keyup(function(key) {
+    $('.input-sm').keyup(function (key) {
         // Remove focus from input when Esc is pressed.
         if (key.keyCode === 27) {
             $(this).blur();
