@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import random
 
 from flask import (
     Flask,
@@ -24,6 +25,7 @@ from flask import (
 )
 from flask_wtf.csrf import (
     CsrfProtect,
+    generate_csrf,
     validate_csrf,
 )
 
@@ -48,6 +50,17 @@ from utils.backend import (
 )
 
 
+def generate_csrf_token():
+    """Custom function for tokens generation.
+
+    It returns a CSRF token with a random time limit between 25 and
+    180 seconds.
+
+    :return A random CSRF token.
+    """
+    return generate_csrf(time_limit=random.randint(25, 180))
+
+
 # Name of the environment variable that will be lookep up for app configuration
 # parameters.
 APP_ENVVAR = 'FLASK_SETTINGS'
@@ -61,6 +74,9 @@ if os.environ.get(APP_ENVVAR):
     app.config.from_envvar(APP_ENVVAR)
 
 CsrfProtect(app)
+
+# Use the custom CSRF token generation.
+app.jinja_env.globals['csrf_token_r'] = generate_csrf_token
 
 # General URLs.
 app.add_url_rule('/', view_func=IndexView.as_view('index'), methods=['GET'])
