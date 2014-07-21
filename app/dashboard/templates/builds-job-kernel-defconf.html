@@ -328,7 +328,11 @@
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript">
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top'
@@ -345,16 +349,19 @@ $(document).ready(function() {
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on'],
             'job': '{{ job }}',
             'kernel': '{{ result.kernel }}',
-            'defconfig': '{{ result.dirname }}',
+            'defconfig': '{{ result.dirname }}'
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $("#boot-report").empty().append(
                     '<div class="text-center">' +
                     '<h3>Error loading data.</h3>' +
@@ -371,7 +378,7 @@ $(document).ready(function() {
                 $('#errors-container').append(text);
                 $('#boot-404-error').alert();
             },
-            500: function() {
+            500: function () {
                 $('#boot-report').empty().append(
                     '<div class="text-center">' +
                     '<h3>Error loading data.</h3>' +
@@ -389,22 +396,21 @@ $(document).ready(function() {
                 $('#boot-500-error').alert();
             }
         }
-    }).done(function(data) {
-        var len = data.length;
+    }).done(function (data) {
+        var len = data.length,
+            i = 0,
+            totalColumns = 3,
+            columnIndex = 1,
+            columns = {
+                'col1': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+                    'col-lg-4"><ul class="list-unstyled">',
+                'col2': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+                    'col-lg-4">' + '<ul class="list-unstyled">',
+                'col3' : '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+                    'col-lg-4"><ul class="list-unstyled">'
+            };
 
         if (len > 0) {
-            var i = 0,
-                totalColumns = 3,
-                columns = {
-                    'col1': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                        'col-lg-4"><ul class="list-unstyled">',
-                    'col2': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                        'col-lg-4">' + '<ul class="list-unstyled">',
-                    'col3' : '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                        'col-lg-4"><ul class="list-unstyled">'
-                },
-                columnIndex = 1;
-
             for (i; i < len; i++) {
                 columnIndex = (i + 1) % totalColumns;
                 columns['col' + columnIndex] += '<li>' +
@@ -429,6 +435,6 @@ $(document).ready(function() {
             );
         }
     });
-})
+});
 </script>
 {%- endblock %}
