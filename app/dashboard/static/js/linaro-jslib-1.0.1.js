@@ -92,7 +92,7 @@ Date.prototype.getCustomTime = function () {
 /*
     Concatenate objects together in one single object.
 */
-function CollectObjects() {
+function collectObjects() {
     'use strict';
     var return_obj = {},
         len = arguments.length,
