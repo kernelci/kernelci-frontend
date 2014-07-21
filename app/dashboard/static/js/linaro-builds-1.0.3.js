@@ -62,7 +62,7 @@ $(document).ready(function () {
             {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
-                'render': function (data, object) {
+                'render': function (data, type, object) {
                     var display =  '<a class="table-link" href="/job/' +
                         data + '/">' + data;
 
@@ -82,7 +82,7 @@ $(document).ready(function () {
             {
                 'data': 'defconfig',
                 'title': 'Defconfig',
-                'render': function (data, object) {
+                'render': function (data, type, object) {
                     var display = data;
 
                     if (!$.isEmptyObject(object.metadata) &&
@@ -147,7 +147,7 @@ $(document).ready(function () {
                 'orderable': false,
                 'searchable': false,
                 'className': 'pull-center',
-                'render': function (data, object) {
+                'render': function (data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel +

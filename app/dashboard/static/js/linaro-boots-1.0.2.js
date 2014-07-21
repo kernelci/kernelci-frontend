@@ -136,7 +136,7 @@ $(document).ready(function () {
                 'orderable': false,
                 'searchable': false,
                 'className': 'pull-center',
-                'render': function (data, object) {
+                'render': function (data, type, object) {
                     var defconfig = object.defconfig,
                         kernel = object.kernel,
                         job = object.job;
