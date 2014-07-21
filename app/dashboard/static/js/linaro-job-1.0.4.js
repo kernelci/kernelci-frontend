@@ -1,4 +1,8 @@
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('#li-job').addClass('active');
 
     $('body').tooltip({
@@ -6,7 +10,7 @@ $(document).ready(function() {
         'placement': 'auto'
     });
 
-    $('.clickable-table tbody').on("click", "tr", function() {
+    $('.clickable-table tbody').on("click", "tr", function () {
         var url = $(this).data('url');
         if (url) {
             window.location = url;
@@ -14,7 +18,9 @@ $(document).ready(function() {
     });
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+
     $.ajax({
         'url': '/_ajax/count/job',
         'traditional': true,
@@ -25,26 +31,31 @@ $(document).ready(function() {
             'job': $('#job-id').val(),
             'date_range': $('#date-range').val()
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $(this).empty().append('&infin;');
             },
-            500: function() {
+            500: function () {
                 $(this).empty().append('&infin;');
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         $(this).empty().append(data.count);
     });
 });
 
-$(document).ready(function() {
+$(document).ready(function () {
+    "use strict";
+
     $.ajax({
         'url': '/_ajax/count/defconfig',
         'traditional': true,
@@ -55,27 +66,32 @@ $(document).ready(function() {
             'job': $('#job-id').val(),
             'date_range': $('#date-range').val()
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $(this).empty().append('&infin;');
             },
-            500: function() {
+            500: function () {
                 $(this).empty().append('&infin;');
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         $(this).empty().append(data.count);
     });
 });
 
-$(document).ready(function() {
-    function countFailedDefconfigs(data) {
+$(document).ready(function () {
+    "use strict";
+
+    function countFailedDefconfigs (data) {
         var i = 0,
             len = data.length,
             deferredCalls = new Array(len);
@@ -92,29 +108,32 @@ $(document).ready(function() {
                         'job': $('#job-id').val(),
                         'kernel': data[i].kernel
                     },
-                    'dataFilter': function(data, type) {
+                    'dataFilter': function (data, type) {
                         if (type === 'json') {
                             return JSON.parse(data).result;
                         }
                         return data;
+                    },
+                    'beforeSend': function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
                 });
             }
 
-            $.when.apply($, deferredCalls).then(function() {
-                var i = 0,
-                    len = arguments.length,
-                    count = '&infin;';
+            $.when.apply($, deferredCalls).then(function () {
+                var count = '&infin;';
+                len = arguments.length;
 
                 if (len > 0) {
                     // This is the case when we have only one build and the
                     // deferred call returns just the plain object not in an
                     // Array like way.
-                    if (! Array.isArray(arguments[0])) {
-                        count = arguments[0].count;
+                    var first = arguments[0];
+                    if (! Array.isArray(first)) {
+                        count = first.count;
                         $('#fail-count0').empty().append(count);
                     } else {
-                        for (i; i < len; i++) {
+                        for (i = 0; i < len; i++) {
                             if (arguments[i] !== null) {
                                 count = arguments[i][0].count;
                                 $('#fail-count' + i).empty().append(count);
@@ -126,8 +145,8 @@ $(document).ready(function() {
         }
     }
 
-    function countFailCallback() {
-        $('.fail-badge').each(function() {
+    function countFailCallback () {
+        $('.fail-badge').each(function () {
             $(this).empty().append('&infin;');
         });
     }
@@ -147,14 +166,17 @@ $(document).ready(function() {
                 'date_range': $('#date-range').val(),
                 'field': ['kernel', 'metadata', 'created_on']
             },
-            'dataFilter': function(data, type) {
+            'dataFilter': function (data, type) {
                 if (type === 'json') {
                     return JSON.parse(data).result;
                 }
                 return data;
             },
+            'beforeSend': function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
             'statusCode': {
-                404: function() {
+                404: function () {
                     $('#failed-builds-body').empty().append(
                         '<tr><td colspan="6" align="center" valign="middle">' +
                         '<h4>Error loading data.</h4></td></tr>'
@@ -169,7 +191,7 @@ $(document).ready(function() {
                     $('#errors-container').append(text);
                     $('#defconfs-404-error').alert();
                 },
-                500: function() {
+                500: function () {
                     $('#failed-builds-body').empty().append(
                         '<tr><td colspan="6" align="center" valign="middle">' +
                         '<h4>Error loading data.</h4></td></tr>'
@@ -185,10 +207,10 @@ $(document).ready(function() {
                     $('#defconfs-500-error').alert();
                 }
             }
-        }).done(function(data) {
+        }).done(function (data) {
             var row = '',
                 job = $('#job-id').val(),
-                created, col1, col2, col3, col4, col5, col6,
+                created, col1, col2, col3, col4, col5, col6, href,
                 kernel, git_branch, git_commit,
                 i = 0,
                 len = data.length;
@@ -202,7 +224,7 @@ $(document).ready(function() {
                     kernel = data[i].kernel;
                     git_branch = data[i].metadata.git_branch;
                     git_commit = data[i].metadata.git_commit;
-                    created = new Date(data[i].created_on['$date']),
+                    created = new Date(data[i].created_on['$date']);
                     href = '/build/' + job + '/kernel/' + kernel + '/';
 
                     col1 = '<td>' + kernel + '</td>';
