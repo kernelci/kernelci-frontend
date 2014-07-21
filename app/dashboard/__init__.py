@@ -18,8 +18,13 @@ import os
 from flask import (
     Flask,
     Markup,
+    abort,
     render_template,
     request,
+)
+from flask_wtf.csrf import (
+    CsrfProtect,
+    validate_csrf,
 )
 
 from dashboard.views.about import AboutView
@@ -42,6 +47,7 @@ from utils.backend import (
     ajax_count_get,
 )
 
+
 # Name of the environment variable that will be lookep up for app configuration
 # parameters.
 APP_ENVVAR = 'FLASK_SETTINGS'
@@ -54,6 +60,8 @@ app.config.from_object('dashboard.default_settings')
 if os.environ.get(APP_ENVVAR):
     app.config.from_envvar(APP_ENVVAR)
 
+CsrfProtect(app)
+
 # General URLs.
 app.add_url_rule('/', view_func=IndexView.as_view('index'), methods=['GET'])
 app.add_url_rule(
@@ -64,19 +72,16 @@ app.add_url_rule(
 app.add_url_rule(
     '/build/', view_func=BuildsAllView.as_view('builds'), methods=['GET'],
 )
-
 app.add_url_rule(
     '/build/all/',
     view_func=BuildsAllView.as_view('all-builds'),
     methods=['GET']
 )
-
 app.add_url_rule(
     '/build/<string:job>/kernel/<string:kernel>/',
     view_func=BuildsJobKernelView.as_view('job-kernel-builds'),
     methods=['GET']
 )
-
 app.add_url_rule(
     '/build/<string:job>/kernel/<string:kernel>/defconfig/<string:defconfig>/',
     view_func=BuildsJobKernelDefconfigView.as_view('job-kernel-defconf'),
@@ -87,7 +92,6 @@ app.add_url_rule(
 app.add_url_rule(
     '/job/', view_func=JobsAllView.as_view('jobs'), methods=['GET']
 )
-
 app.add_url_rule(
     '/job/<string:job>/', view_func=JobsJobView.as_view('job'), methods=['GET'],
 )
@@ -143,23 +147,35 @@ def static_html_proxy(path):
 
 @app.route('/_ajax/job')
 def ajax_job():
-    return ajax_get(request, app.config.get('JOB_API_ENDPOINT'))
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        return ajax_get(request, app.config.get('JOB_API_ENDPOINT'))
+    else:
+        abort(400)
 
 
 @app.route('/_ajax/defconf')
 def ajax_defconf():
-    return ajax_get(request, app.config.get('DEFCONFIG_API_ENDPOINT'))
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        return ajax_get(request, app.config.get('DEFCONFIG_API_ENDPOINT'))
+    else:
+        abort(400)
 
 
 @app.route('/_ajax/boot')
 def ajax_boot():
-    return ajax_get(request, app.config.get('BOOT_API_ENDPOINT'))
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        return ajax_get(request, app.config.get('BOOT_API_ENDPOINT'))
+    else:
+        abort(400)
 
 
 @app.route('/_ajax/count')
 @app.route('/_ajax/count/<string:collection>')
 def ajax_count(collection=None):
-    return ajax_count_get(
-        request, app.config.get('COUNT_API_ENDPOINT'),
-        collection
-    )
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        return ajax_count_get(
+            request, app.config.get('COUNT_API_ENDPOINT'),
+            collection
+        )
+    else:
+        abort(400)
