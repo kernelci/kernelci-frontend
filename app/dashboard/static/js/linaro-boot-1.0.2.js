@@ -1,4 +1,8 @@
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top'
@@ -15,25 +19,28 @@ $(document).ready(function() {
             'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +
                 $('#kernel-id').val() + '-' + $('#defconfig-id').val()
         },
-        'dataFilter': function(data, type) {
+        'dataFilter': function (data, type) {
             if (type === 'json') {
                 return JSON.parse(data).result;
             }
             return data;
         },
+        'beforeSend': function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        },
         'statusCode': {
-            404: function() {
+            404: function () {
                 $('#container-content').empty().load(
                     '/static/html/404-content.html'
                 );
             },
-            500: function() {
+            500: function () {
                 $('#container-content').empty().load(
                     '/static/html/500-content.html'
                 );
             }
         }
-    }).done(function(data) {
+    }).done(function (data) {
         var boot_time = new Date(data.time['$date']),
             displ = '',
             file_server = $('#file-server').val(),
