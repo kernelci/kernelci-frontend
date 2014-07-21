@@ -382,7 +382,10 @@ $(document).ready(function () {
             }
         }
     });
+});
 
+$(document).ready(function () {
+    // No use strict here, or onbeforeunload is not recognized.
     var session_state = new SessionState($('#job-id').val());
     onbeforeunload = function () {
 
