@@ -1,4 +1,8 @@
-$(document).ready(function() {
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
+$(document).ready(function () {
+    "use strict";
+
     $('#li-build').addClass('active');
 
     $('body').tooltip({
@@ -33,13 +37,16 @@ $(document).ready(function() {
             'cache': true,
             'dataType': 'json',
             'dataSrc': 'result',
-            'dataFilter': function(data, type) {
+            'dataFilter': function (data, type) {
                 if (type === 'json') {
                     var parsed = JSON.parse(data);
                     parsed.result = JSON.parse(parsed.result);
                     return JSON.stringify(parsed);
                 }
                 return data;
+            },
+            'beforeSend': function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
             },
             'data': {
                 'sort': 'created_on',
@@ -55,7 +62,7 @@ $(document).ready(function() {
             {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
-                'render': function(data, type, object) {
+                'render': function (data, object) {
                     var display =  '<a class="table-link" href="/job/' +
                         data + '/">' + data;
 
@@ -75,7 +82,7 @@ $(document).ready(function() {
             {
                 'data': 'defconfig',
                 'title': 'Defconfig',
-                'render': function(data, type, object) {
+                'render': function (data, object) {
                     var display = data;
 
                     if (!$.isEmptyObject(object.metadata) &&
@@ -95,7 +102,7 @@ $(document).ready(function() {
                 'data': 'created_on',
                 'title': 'Date',
                 'type': 'date',
-                'render': function(data, type, object) {
+                'render': function (data) {
                     var created = new Date(data['$date']);
                     return created.getCustomISODate();
                 }
@@ -104,7 +111,7 @@ $(document).ready(function() {
                 'data': 'status',
                 'title': 'Status',
                 'type': 'string',
-                'render': function(data, type, object) {
+                'render': function (data) {
                     var displ;
                     switch (data) {
                         case 'PASS':
@@ -140,7 +147,7 @@ $(document).ready(function() {
                 'orderable': false,
                 'searchable': false,
                 'className': 'pull-center',
-                'render': function(data, type, object) {
+                'render': function (data, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel +
@@ -155,7 +162,7 @@ $(document).ready(function() {
         ]
     });
 
-    $(document).on("click", "#defconfstable tbody tr", function() {
+    $(document).on("click", "#defconfstable tbody tr", function () {
         var data = table.fnGetData(this);
         if (data) {
             window.location = '/build/' + data.job +
@@ -164,7 +171,7 @@ $(document).ready(function() {
     });
 
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
-    $('.input-sm').keyup(function(key) {
+    $('.input-sm').keyup(function (key) {
         // Remove focus from input when Esc is pressed.
         if (key.keyCode === 27) {
             $(this).blur();
