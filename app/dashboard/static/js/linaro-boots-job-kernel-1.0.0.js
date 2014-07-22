@@ -222,115 +222,121 @@ $(document).ready(function () {
                 'title="Not available"><i class="fa fa-ban"></i>' +
                 '</span>';
 
-        console.log(data);
+        if (len > 0) {
+            for (i; i < len; i++) {
+                boot_obj = data[i];
+                defconfig = boot_obj.defconfig;
+                metadata = boot_obj.metadata;
+                job = boot_obj.job;
+                kernel = boot_obj.kernel;
+                board = boot_obj.board;
 
-        for (i; i < len; i++) {
-            boot_obj = data[i];
-            defconfig = boot_obj.defconfig;
-            metadata = boot_obj.metadata;
-            job = boot_obj.job;
-            kernel = boot_obj.kernel;
-            board = boot_obj.board;
+                data_url = file_server + job + '/' + kernel + '/' + defconfig + '/';
 
-            data_url = file_server + job + '/' + kernel + '/' + defconfig + '/';
+                switch (boot_obj.status) {
+                    case 'FAIL':
+                        label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
+                        cls = 'df-failed';
+                        // TODO: move these DOM operations outside the for loop
+                        $('#fail-btn').removeAttr('disabled');
+                        hasFailed = true;
+                        break;
+                    case 'PASS':
+                        label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
+                        cls = 'df-success';
+                        $('#success-btn').removeAttr('disabled');
+                        break;
+                    default:
+                        label = '<span class="pull-right label label-warning"><li class="fa fa-question"></li></span>';
+                        cls = 'df-unknown';
+                        $('#unknown-btn').removeAttr('disabled');
+                        break;
+                }
 
-            switch (boot_obj.status) {
-                case 'FAIL':
-                    label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
-                    cls = 'df-failed';
-                    // TODO: move these DOM operations outside the for loop
-                    $('#fail-btn').removeAttr('disabled');
-                    hasFailed = true;
-                    break;
-                case 'PASS':
-                    label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
-                    cls = 'df-success';
-                    $('#success-btn').removeAttr('disabled');
-                    break;
-                default:
-                    label = '<span class="pull-right label label-warning"><li class="fa fa-question"></li></span>';
-                    cls = 'df-unknown';
-                    $('#unknown-btn').removeAttr('disabled');
-                    break;
+                panel += '<div class="panel panel-default ' + cls + '">' +
+                    '<div class="panel-heading" data-toggle="collapse" ' +
+                        'id="panel-boots' + i + '"' +
+                        'data-parent="accordion" data-target="#collapse-boots' +
+                        i + '">' +
+                        '<h4 class="panel-title">' +
+                        '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-boots' + i + '">' +
+                        board + '&nbsp;<small>' + defconfig + '</small>' +
+                        '</a>' + label + '</h4></div>' +
+                        '<div id="collapse-boots' + i + '" class="panel-collapse collapse">' +
+                        '<div class="panel-body">';
+
+                panel += '<div class="row">';
+                panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+                panel += '<dl class="dl-horizontal">';
+
+                panel += '<dt>Endianness</dt>';
+                if (boot_obj.endian !== null) {
+                    panel += '<dd>' + boot_obj.endian + '</dd>';
+                } else {
+                    panel += '<dd>' + non_avail + '</dd>';
+                }
+
+                panel += '<dt>Kernel image</dt>'
+                if (boot_obj.kernel_image !== null) {
+                    panel += '<dd>' + boot_obj.kernel_image + '</dd>';
+                } else {
+                    panel += '<dd>' + non_avail + '</dd>';
+                }
+
+                panel += '</dl></div>';
+                panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+                panel += '<dl class="dl-horizontal">';
+
+                panel += '<dt>Warnings</dt>'
+                if (boot_obj.warnings !== null) {
+                    panel += '<dd>' + boot_obj.warnings + '</dd>';
+                } else {
+                    panel += '<dd>' + non_avail + '</dd>';
+                }
+
+                panel += '<dt>Boot time</dt>';
+                if (boot_obj.time !== null) {
+                    boot_time = new Date(boot_obj.time['$date'])
+                    panel += '<dd>' + boot_time.getCustomTime() + '</dd>';
+                } else {
+                    panel += '<dd>' + non_avail + '</dd>';
+                }
+
+                panel += '</dl></div>';
+
+                panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
+                panel += '<div class="pull-center">' +
+                    '<span rel="tooltip" data-toggle="tooltip" title="Details for ' +
+                    'this boot report">' +
+                    '<a href="/boot/' + board + '/job/' + job + '/kernel/' + kernel +
+                    '/defconfig/' + defconfig + '/' +
+                    '">More info&nbsp;<i class="fa fa-search"></i>' +
+                    '</a></span>';
+                panel += '</div></div>';
+
+                panel += '</div>';
+                panel += '</div></div></div>\n';
             }
 
-            panel += '<div class="panel panel-default ' + cls + '">' +
-                '<div class="panel-heading" data-toggle="collapse" ' +
-                    'id="panel-boots' + i + '"' +
-                    'data-parent="accordion" data-target="#collapse-boots' +
-                    i + '">' +
-                    '<h4 class="panel-title">' +
-                    '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-boots' + i + '">' +
-                    board + '&nbsp;<small>' + defconfig + '</small>' +
-                    '</a>' + label + '</h4></div>' +
-                    '<div id="collapse-boots' + i + '" class="panel-collapse collapse">' +
-                    '<div class="panel-body">';
+            $(this).empty().append(panel);
 
-            panel += '<div class="row">';
-            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-            panel += '<dl class="dl-horizontal">';
-
-            panel += '<dt>Endianness</dt>';
-            if (boot_obj.endian !== null) {
-                panel += '<dd>' + boot_obj.endian + '</dd>';
-            } else {
-                panel += '<dd>' + non_avail + '</dd>';
+            $('#all-btn').removeAttr('disabled');
+            if (!loadFromSessionStorage($('#storage-id').val())) {
+                if (hasFailed) {
+                    // If there is no saved session, show only the failed ones.
+                    $('.df-failed').show();
+                    $('.df-success').hide();
+                    $('.df-unknown').hide();
+                    $('#fail-btn').addClass('active').siblings().removeClass('active');
+                } else {
+                    $('#all-btn').addClass('active');
+                }
             }
-
-            panel += '<dt>Kernel image</dt>'
-            if (boot_obj.kernel_image !== null) {
-                panel += '<dd>' + boot_obj.kernel_image + '</dd>';
-            } else {
-                panel += '<dd>' + non_avail + '</dd>';
-            }
-
-            panel += '</dl></div>';
-            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-            panel += '<dl class="dl-horizontal">';
-
-            panel += '<dt>Warnings</dt>'
-            if (boot_obj.warnings !== null) {
-                panel += '<dd>' + boot_obj.warnings + '</dd>';
-            } else {
-                panel += '<dd>' + non_avail + '</dd>';
-            }
-
-            panel += '<dt>Boot time</dt>';
-            if (boot_obj.time !== null) {
-                boot_time = new Date(boot_obj.time['$date'])
-                panel += '<dd>' + boot_time.getCustomTime() + '</dd>';
-            } else {
-                panel += '<dd>' + non_avail + '</dd>';
-            }
-
-            panel += '</dl></div>';
-
-            panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
-            panel += '<div class="pull-center">' +
-                '<span rel="tooltip" data-toggle="tooltip" title="Details for ' +
-                'this boot report">' +
-                '<a href="/boot/' + board + '/job/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfig + '/' +
-                '">More info&nbsp;<i class="fa fa-search"></i>' +
-                '</a></span>';
-            panel += '</div></div>';
-
-            panel += '</div>';
-            panel += '</div></div></div>\n';
-        }
-        $(this).empty().append(panel);
-
-        $('#all-btn').removeAttr('disabled');
-        if (!loadFromSessionStorage($('#storage-id').val())) {
-            if (hasFailed) {
-                // If there is no saved session, show only the failed ones.
-                $('.df-failed').show();
-                $('.df-success').hide();
-                $('.df-unknown').hide();
-                $('#fail-btn').addClass('active').siblings().removeClass('active');
-            } else {
-                $('#all-btn').addClass('active');
-            }
+        } else {
+            $(this).empty().append(
+                '<div class="pull-center"><strong>No boards tested.' +
+                '<strong></div>'
+            );
         }
     });
 });
