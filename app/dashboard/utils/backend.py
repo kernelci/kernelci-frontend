@@ -14,10 +14,63 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import requests
+import urlparse
 
+from bson import json_util
 from datetime import date
-from flask import current_app
+from flask import current_app as app
 from urlparse import urljoin
+
+
+def extract_response_metadata(response):
+    """Extract data from a response object.
+
+    It is used to extract metadata from a backend response, in order to
+    translate URLs into real clickable URLs based on the KNOWN_GIT_URLS
+    translation rules.
+
+    :param response: A response object as returned by a requests.
+    :return A tuple with the metadata from the response, the base_url, the
+        commit_url and the response's result.
+    """
+    metadata = {}
+    base_url = ''
+    commit_url = ''
+    result = {}
+
+    document = json_util.loads(response.content)
+    document['result'] = json_util.loads(document['result'])
+
+    if document.get('result', None):
+        result = document['result']
+        metadata = result.get('metadata', None)
+
+        if metadata:
+            git_url = metadata.get('git_url', None)
+            commit_id = metadata.get('git_commit', None)
+
+            if git_url and commit_id:
+                t_url = urlparse.urlparse(git_url)
+                known_git_urls = app.config.get('KNOWN_GIT_URLS')
+
+                if t_url.netloc in known_git_urls.keys():
+                    known_git = known_git_urls.get(t_url.netloc)
+
+                    path = t_url.path
+                    for replace_rule in known_git[3]:
+                        path = path.replace(*replace_rule)
+
+                    base_url = urlparse.urlunparse((
+                        known_git[0], t_url.netloc, known_git[1] % path,
+                        '', '', ''
+                    ))
+                    commit_url = urlparse.urlunparse((
+                        known_git[0], t_url.netloc,
+                        (known_git[2] % path) + commit_id,
+                        '', '', ''
+                    ))
+
+    return metadata, base_url, commit_url, result
 
 
 def today_date():
@@ -38,8 +91,8 @@ def _create_url_headers(api_path):
     :param api_path: The API path.
     :return A tuple with the full URL, and the headers set.
     """
-    backend_token = current_app.config.get('BACKEND_TOKEN')
-    backend_url = current_app.config.get('BACKEND_URL')
+    backend_token = app.config.get('BACKEND_TOKEN')
+    backend_url = app.config.get('BACKEND_URL')
 
     backend_url = urljoin(backend_url, api_path)
 
@@ -72,7 +125,7 @@ def get_job(**kwargs):
 
     :return A `requests.Response` object.
     """
-    api_path = current_app.config.get('JOB_API_ENDPOINT')
+    api_path = app.config.get('JOB_API_ENDPOINT')
 
     if kwargs.get('id', None):
         api_path = _create_api_path(api_path, kwargs['id'])
@@ -90,7 +143,7 @@ def get_defconfig(**kwargs):
 
     :return A `requests.Response` object.
     """
-    api_path = current_app.config.get('DEFCONFIG_API_ENDPOINT')
+    api_path = app.config.get('DEFCONFIG_API_ENDPOINT')
 
     if kwargs.get('id', None):
         api_path = _create_api_path(api_path, kwargs['id'])
