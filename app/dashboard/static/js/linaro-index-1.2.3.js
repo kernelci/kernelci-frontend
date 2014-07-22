@@ -79,6 +79,7 @@ $(document).ready(function () {
                 'status': 'FAIL',
                 'sort': 'created_on',
                 'sort_order': -1,
+                'limit': 25,
                 'date_range': $('#date-range').val(),
                 'field': ['job', 'kernel', 'metadata', 'created_on']
             },
@@ -181,6 +182,7 @@ $(document).ready(function () {
             'status': 'FAIL',
             'sort': 'created_on',
             'sort_order': -1,
+            'limit': 25,
             'date_range': $('#date-range').val(),
             'field': ['job', 'created_on', 'metadata']
         },
@@ -275,6 +277,7 @@ $(document).ready(function () {
             'status': 'FAIL',
             'sort_order': -1,
             'sort': 'created_on',
+            'limit': 25,
             'date_range': $('#date-range').val(),
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
