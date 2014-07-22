@@ -51,7 +51,9 @@ class BuildsJobKernelView(View):
 
         job_id = '%s-%s' % (job, kernel)
 
-        body_title = 'Details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (job, kernel)
+        body_title = 'Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
+            job, kernel
+        )
 
         params = {'id': job_id}
         response = get_job(**params)
@@ -73,8 +75,8 @@ class BuildsJobKernelView(View):
                 commit_url=commit_url,
                 job_id=job_id,
                 job=job,
-                metadata=metadata,
                 kernel=kernel,
+                metadata=metadata,
             )
         else:
             abort(response.status_code)
@@ -89,7 +91,7 @@ class BuildsJobKernelDefconfigView(View):
 
         defconfig_id = job + '-' + kernel + '-' + defconfig
 
-        body_title = 'Details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
+        body_title = 'Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
             job, kernel)
 
         params = {'id': defconfig_id}

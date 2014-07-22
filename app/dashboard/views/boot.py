@@ -48,7 +48,7 @@ class BootIdView(View):
     def dispatch_request(self, **kwargs):
 
         page_title = PAGE_TITLE + '&nbsp;&dash;Board&nbsp;%(board)s' % kwargs
-        body_title = 'Details for board&nbsp;%(board)s' % kwargs
+        body_title = 'Boot details for board&nbsp;%(board)s' % kwargs
 
         return render_template(
             'boot.html',
@@ -70,8 +70,8 @@ class BootJobKernelView(View):
         job_id = '%s-%s' % (job, kernel)
         storage_id = 'boot-' + job_id
 
-        body_title = body_title = 'Details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
-            job, kernel
+        body_title = body_title = (
+            'Boot details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (job, kernel)
         )
 
         params = {'id': job_id}
