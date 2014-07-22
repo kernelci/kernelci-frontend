@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+    <style type="text/css">
+        .panel-heading {
+            cursor: pointer;
+        }
+
+        #success-cell, #fail-cell, #unknown-cell {
+            cursor: pointer;
+        }
+
+        #pie-chart-legend td {
+            text-align: center;
+            width: 25px;
+            border-bottom: 3px solid;
+        }
+
+        #pie-chart-legend td:nth-child(even) {
+            border: none;
+        }
+    </style>
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3>{{ body_title|safe }}</h3>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+    <dl class="dl-horizontal">
+        <dt>Tree</dt>
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="All boot reports for job&nbsp;{{ job }}"> 
+            <a href="/boot/all/job/{{ job }}">
+                {{ job }}
+                <i class="fa fa-search"></i>
+            </a>
+            </span>
+            &nbsp;&mdash;&nbsp;
+            <span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp; {{ job }}"> 
+            <a href="/job/{{ job }}"><i class="fa fa-cog"></i></a>
+            </span>
+        </dd>
+        <dt>Git branch</dt>
+        {%- if metadata and metadata.git_branch %}
+        <dd>
+            {{ metadata.git_branch }}
+        </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+        <dt>Git describe</dt>
+        <dd>
+            {{ kernel }}
+            &nbsp;&mdash;&nbsp;
+            <span rel="tooltip" data-toggle="tooltip" title="Details for build&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
+                <a href="/build/{{ job }}/kernel/{{ kernel }}">
+                <i class="fa fa-building"></i>
+                </a>
+            </span>
+        </dd>
+        <dt>Git URL</dt>
+        {%- if metadata and metadata.git_url and base_url %}
+        <dd>
+            <a href="{{ base_url }}">
+            {{ metadata.git_url }}
+            <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {%- elif metadata and metadata.git_url %}
+        <dd>{{ metadata.git_url }}</dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+        <dt>Git commit</dt>
+        {%- if metadata and metadata.git_commit and commit_url %}
+        <dd>
+            <a href="{{ commit_url }}">
+                {{ metadata.git_commit }}
+                <i class="fa fa-external-link"></i>
+            </a>
+        </dd>
+        {%- elif metadata and metadata.git_commit %}
+        <dd>{{ metadata.git_commit }}</dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+        <dt>Cross-compile</dt>
+        {%- if metadata and metadata.cross_compile %}
+        <dd>
+            {{ metadata.cross_compile }}
+        </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+        <dt>Compiler</dt>
+        {%- if metadata and metadata.compiler_version %}
+        <dd>
+            {{ metadata.compiler_version }}
+        </dd>
+        {%- else %}
+        <dd>
+            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <i class="fa fa-ban"></i>
+            </span>
+        </dd>
+        {%- endif %}
+    </dl>
+    </div>
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <div id="pie-chart" align="center">
+            <div id="pie-chart-heading">
+            <table id="pie-chart-legend">
+                <tbody>
+                <tr>
+                    <td id="success-cell" onclick="showHideBoots(this)">0</td>
+                    <td>&nbsp;/&nbsp;</td>
+                    <td id="fail-cell" onclick="showHideBoots(this)">0</td>
+                    <td>&nbsp;/&nbsp;</td>
+                    <td id="unknown-cell" onclick="showHideBoots(this)">0</td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+<div class="page-header">
+    <h3>Boards Tested</h3>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<p>
+    <div class="btn-group">
+        <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">All</button>
+        <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Successful</button>
+        <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Failed</button>
+        <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Unknown</button>
+    </div>
+</p>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div id="accordion-container">
+        <div class="panel-group" id="accordion">
+            <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+        </div>
+    </div>
+</div>
+</div>
+<input type="hidden" id="job-id" value="{{ job_id }}">
+<input type="hidden" id="storage-id" value="{{ job_id }}">
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-jslib-1.0.1.min.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-1.0.0.js"></script>
+{%- endblock %}
