@@ -36,7 +36,7 @@ class BootsView(View):
         results_title = 'Available Boot Reports'
 
         return render_template(
-            'boots.html',
+            'boots-all.html',
             page_title=PAGE_TITLE,
             server_date=today_date(),
             results_title=results_title
