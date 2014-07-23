@@ -40,6 +40,12 @@
                 <i class="fa fa-search"></i>
             </a>
             </span>
+            &nbsp;&mdash;&nbsp;
+            <span rel="tooltip" data-toggle="tooltip" title="Boot reports details for&nbsp;{{ job }}">
+                <a href="/boot/all/job/{{ job }}/">
+                <i class="fa fa-desktop"></i>
+                </a>
+            </span>
         </dd>
         <dt>Git branch</dt>
         {%- if metadata and metadata.git_branch %}
