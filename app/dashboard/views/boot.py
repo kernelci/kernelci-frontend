@@ -100,3 +100,18 @@ class BootJobKernelView(View):
             )
         else:
             abort(response.status_code)
+
+
+class BootJobView(View):
+
+    def dispatch_request(self, **kwargs):
+
+        job = kwargs['job']
+        body_title = 'Boot details for&nbsp;%s' % job
+
+        return render_template(
+            'boots-job.html',
+            page_title=PAGE_TITLE,
+            body_title=body_title,
+            job=job,
+        )
