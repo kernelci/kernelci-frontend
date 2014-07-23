@@ -62,14 +62,21 @@ $(document).ready(function () {
             {
                 'data': 'job',
                 'title': 'Tree',
+                'type': 'string',
                 'render': function (data) {
-                    return '<a class="table-link" href="/job/' + data + '/">' +
-                        data + '</a>';
+                    return '<a class="table-link" href="/boot/all/job/' +
+                        data + '/">' + data + '</a>';
                 }
             },
             {
                 'data': 'kernel',
-                'title': 'Kernel'
+                'title': 'Kernel',
+                'type': 'string',
+                'render': function (data, type, object) {
+                    return '<a class="table-link" href="/boot/all/job/' +
+                        object.job + '/kernel/' + data + '/">' + data +
+                        '</a>';
+                }
             },
             {
                 'data': 'defconfig',
