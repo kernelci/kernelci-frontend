@@ -51,7 +51,7 @@ class BootIdView(View):
         body_title = 'Boot details for board&nbsp;%(board)s' % kwargs
 
         return render_template(
-            'boot.html',
+            'boots-id.html',
             page_title=page_title,
             body_title=body_title,
             board=kwargs['board'],
