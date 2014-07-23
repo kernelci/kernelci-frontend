@@ -167,7 +167,7 @@
 </div>
 </div>
 <input type="hidden" id="job-id" value="{{ job_id }}">
-<input type="hidden" id="storage-id" value="{{ job_id }}">
+<input type="hidden" id="storage-id" value="boot-{{ job_id }}">
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 {%- endblock %}
 {%- block scripts %}
