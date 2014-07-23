@@ -50,28 +50,38 @@ $(document).ready(function () {
 
         $('#dd-board-board').empty().append(data.board);
         $('#dd-board-defconfig').empty().append(
-            '<span rel="tooltip" data-toggle="tooltip"' +
+            data.defconfig + '&nbsp;&mdash;&nbsp;' +
+                '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Details for build&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' + data.kernel +
                 '&nbsp;&dash;&nbsp;' + data.defconfig +
                 '"><a href="/build/' + data.job + '/kernel/' + data.kernel +
                 '/defconfig/' + data.defconfig + '">' +
-                data.defconfig +
-                '&nbsp;<i class="fa fa-search"></i></a></span>'
+                '<i class="fa fa-building"></i></a></span>'
         );
         $('#dd-board-kernel').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Boot report details for&nbsp;' + data.job +
+                '&nbsp;&dash;&nbsp;' +
+                data.kernel + '"><a href="/boot/all/job/' + data.job + '/kernel/' +
+                data.kernel + '">' + data.kernel +
+                '</a></span>' +
+                '&nbsp;&mdash;&nbsp;' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for build&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' +
                 data.kernel + '"><a href="/build/' + data.job + '/kernel/' +
-                data.kernel + '">' + data.kernel +
-                '&nbsp;<i class="fa fa-search"></i></a></span>'
+                data.kernel + '"><i class="fa fa-building"></i></a></span>'
         );
         $('#dd-board-tree').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Boot details for&nbsp;' + data.job + '">' +
+                '<a href="/boot/all/job/' + data.job + '">' + data.job +
+                '</a></span>' +
+                '&nbsp;&mdash;&nbsp;' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for job&nbsp;' + data.job + '"><a href="/job/' +
-                data.job + '">' + data.job +
-                '&nbsp;<i class="fa fa-search"></i></a></span>'
+                data.job + '"><i class="fa fa-cog"></i></a></span>'
         );
 
         if (data.endian !== null) {
