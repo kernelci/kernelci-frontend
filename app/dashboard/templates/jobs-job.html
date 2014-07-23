@@ -3,10 +3,6 @@
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/28e7751dbec/integration/bootstrap/3/dataTables.bootstrap.css">
-{%- endblock %}
 {%- block content %}
 <div class="row">
     <div class="page-header">
