@@ -79,12 +79,12 @@ $(document).ready(function () {
                 }
             },
             {
-                'data': 'defconfig',
-                'title': 'Defconfig'
-            },
-            {
                 'data': 'board',
                 'title': 'Board Model'
+            },
+            {
+                'data': 'defconfig',
+                'title': 'Defconfig'
             },
             {
                 'data': 'created_on',
