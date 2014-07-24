@@ -93,6 +93,22 @@ $(document).ready(function () {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             },
             'statusCode': {
+                403: function () {
+                    $('#failed-builds-body').empty().append(
+                        '<tr><td colspan="5" align="center" valign="middle">' +
+                        '<h4>Error loading data.</h4></td></tr>'
+                    );
+                    var text = '<div id="defconfs-403-error" ' +
+                        'class="alert alert-danger alert-dismissable">' +
+                        '<button type="button" class="close" ' +
+                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                        'Error while loading defconfigs data from the server. ' +
+                        'Please contact the website administrators. ' +
+                        'Error code was: 403.' +
+                        '</div>';
+                    $('#errors-container').append(text);
+                    $('#defconfs-403-error').alert();
+                },
                 404: function () {
                     $('#failed-builds-body').empty().append(
                         '<tr><td colspan="5" align="center" valign="middle">' +
@@ -102,8 +118,9 @@ $(document).ready(function () {
                         'class="alert alert-danger alert-dismissable">' +
                         '<button type="button" class="close" ' +
                         'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        '404 error while loading defconfigs from the server.\n' +
-                        'Please contact the website administrators.' +
+                        'Error while loading defconfigs data from the server. ' +
+                        'Please contact the website administrators. ' +
+                        'Error code was: 404.' +
                         '</div>';
                     $('#errors-container').append(text);
                     $('#defconfs-404-error').alert();
@@ -117,8 +134,9 @@ $(document).ready(function () {
                         'class="alert alert-danger alert-dismissable">' +
                         '<button type="button" class="close" ' +
                         'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        '500 error while loading defconfigs from the server.\n' +
-                        'Please contact the website administrators.' +
+                        'Error while loading defconfigs data from the server. ' +
+                        'Please contact the website administrators. ' +
+                        'Error code was: 500.' +
                         '</div>';
                     $('#errors-container').append(text);
                     $('#defconfs-500-error').alert();
@@ -196,6 +214,22 @@ $(document).ready(function () {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
         'statusCode': {
+            403: function () {
+                $('#failed-jobs-body').empty().append(
+                    '<tr><td colspan="3" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="jobs-403-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    'Error while loading jobs data from the server. ' +
+                    'Please contact the website administrators. ' +
+                    'Error code was: 403.' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#jobs-403-error').alert();
+            },
             404: function () {
                 $('#failed-jobs-body').empty().append(
                     '<tr><td colspan="3" align="center" valign="middle">' +
@@ -205,8 +239,9 @@ $(document).ready(function () {
                     'class="alert alert-danger alert-dismissable">' +
                     '<button type="button" class="close" ' +
                     'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '404 error while loading jobs from the server.\n' +
-                    'Please contact the website administrators.' +
+                    'Error while loading jobs data from the server. ' +
+                    'Please contact the website administrators. ' +
+                    'Error code was: 404.' +
                     '</div>';
                 $('#errors-container').append(text);
                 $('#jobs-404-error').alert();
@@ -220,8 +255,9 @@ $(document).ready(function () {
                     'class="alert alert-danger alert-dismissable">' +
                     '<button type="button" class="close" ' +
                     'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '500 error while loading jobs from the server.\n' +
-                    'Please contact the website administrators.' +
+                    'Error while loading jobs data from the server. ' +
+                    'Please contact the website administrators. ' +
+                    'Error code was: 500.' +
                     '</div>';
                 $('#errors-container').append(text);
                 $('#jobs-500-error').alert();
@@ -291,6 +327,22 @@ $(document).ready(function () {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
         'statusCode': {
+            403: function () {
+                $('#failed-boots-body').empty().append(
+                    '<tr><td colspan="6" align="center" valign="middle">' +
+                    '<h4>Error loading data.</h4></td></tr>'
+                );
+                var text = '<div id="boots-403-error" ' +
+                    'class="alert alert-danger alert-dismissable">' +
+                    '<button type="button" class="close" ' +
+                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
+                    'Error while loading boot reports from the server.\n' +
+                    'Please contact the website administrators.&nbsp;' +
+                    'Error code was: 403' +
+                    '</div>';
+                $('#errors-container').append(text);
+                $('#boots-403-error').alert();
+            },
             404: function () {
                 $('#failed-boots-body').empty().append(
                     '<tr><td colspan="6" align="center" valign="middle">' +
