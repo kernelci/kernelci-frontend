@@ -221,7 +221,7 @@ $(document).ready(function () {
 
             if (len === 0) {
                 row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
-                    'No builds available.</h4></td></tr>';
+                    'No boot reports available.</h4></td></tr>';
                 $(this).empty().append(row);
             } else {
                 for (i; i < len; i++) {
