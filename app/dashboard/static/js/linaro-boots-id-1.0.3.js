@@ -57,7 +57,7 @@ $(document).ready(function () {
                 '&nbsp;&dash;&nbsp;' + data.defconfig +
                 '"><a href="/build/' + data.job + '/kernel/' + data.kernel +
                 '/defconfig/' + data.defconfig + '">' +
-                '<i class="fa fa-building"></i></a></span>'
+                '<i class="fa fa-cube"></i></a></span>'
         );
         $('#dd-board-kernel').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -71,7 +71,7 @@ $(document).ready(function () {
                 'title="Details for build&nbsp;' + data.job +
                 '&nbsp;&dash;&nbsp;' +
                 data.kernel + '"><a href="/build/' + data.job + '/kernel/' +
-                data.kernel + '"><i class="fa fa-building"></i></a></span>'
+                data.kernel + '"><i class="fa fa-cube"></i></a></span>'
         );
         $('#dd-board-tree').empty().append(
             '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -81,7 +81,7 @@ $(document).ready(function () {
                 '&nbsp;&mdash;&nbsp;' +
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for job&nbsp;' + data.job + '"><a href="/job/' +
-                data.job + '"><i class="fa fa-cog"></i></a></span>'
+                data.job + '"><i class="fa fa-sitemap"></i></a></span>'
         );
 
         if (data.endian !== null) {
