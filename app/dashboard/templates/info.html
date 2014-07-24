@@ -1,9 +1,37 @@
 {% extends 'base.html' %}
 {% block title %}Information on Kernel CI Dashboard{% endblock %}
 {% block content %}
-<p>
-    What this is all about.
-</p>
+<div class="row">
+<div class="page-header">
+    <h4>Symbols Legend</h4>
+</div>
+    <dl class="dl-horizontal">
+        <dt><a href="#"><i class="fa fa-sitemap"></i></a></dt>
+        <dd>Indicates job and/or tree resources</dd>
+        <dt><a href="#"><i class="fa fa-cube"></i></a></dt>
+        <dd>Indicates build resources</dd>
+        <dt><a href="#"><i class="fa fa-hdd-o"></i></a></dt>
+        <dd>Indicates boot report resources</dd>
+        <dt>
+            <a href="#"><i class="fa fa-external-link"></i></a>
+        </dt>
+        <dd>Indicates an external link</dd>
+        <dt>
+            <a href="#"><i class="fa fa-search"></i></a>
+        </dt>
+        <dd>Indicates details for a resource</dd>
+    </dl>
+</div>
+<div class="row">
+    <div class="page-header">
+        <h4>Keyboard shortcuts</h4>
+    </div>
+    <p>
+        Keyboard shortcuts to navigate between resources are available by
+        pressing <kbd>s</kbd> then <kbd>h</kbd>.<br />
+        A pop-up window will appear with all the available combinations.
+    </p>
+</div>
 {% endblock %}
 {%- block scripts %}
 {{ super() }}
