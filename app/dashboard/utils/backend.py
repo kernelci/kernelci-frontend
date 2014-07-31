@@ -93,12 +93,15 @@ def _create_url_headers(api_path):
     """
     backend_token = app.config.get('BACKEND_TOKEN')
     backend_url = app.config.get('BACKEND_URL')
+    backend_token_header = app.config.get('BACKEND_TOKEN_HEADER')
 
     backend_url = urljoin(backend_url, api_path)
 
     headers = {}
     if backend_token:
-        headers = {'X-XSRF-Header': backend_token}
+        headers = {
+            backend_token_header: backend_token,
+        }
 
     return (backend_url, headers)
 

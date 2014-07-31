@@ -23,6 +23,7 @@ PREFERRED_URL_SCHEME = 'http'
 BACKEND_URL = 'http://127.0.0.1:8888/'
 BASE_URL = 'http://127.0.0.1:5000'
 BACKEND_TOKEN = 'foo'
+BACKEND_TOKEN_HEADER = 'X-Backend-Token'
 SECRET_KEY = 'bar'
 # Add the trailing slash!
 FILE_SERVER_URL = 'http://armcloud.us/kernel-ci/'
