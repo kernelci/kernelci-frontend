@@ -21,44 +21,43 @@ $(document).ready(function () {
     "use strict";
 
     function countFailedDefconfigs(data) {
+        data = data.result;
+
         var i = 0,
             len = data.length,
             deferredCalls = new Array(len);
 
-        for (i; i < len; i++) {
-            deferredCalls[i] = $.ajax({
-                'url': '/_ajax/count/defconfig',
-                'traditional': true,
-                'cache': true,
-                'dataType': 'json',
-                'data': {
-                    'status': 'FAIL',
-                    'job': data[i].job,
-                    'kernel': data[i].kernel
-                },
-                'dataFilter': function (data, type) {
-                    if (type === 'json') {
-                        return JSON.parse(data).result;
+        if (len > 0) {
+            for (i; i < len; i++) {
+                deferredCalls[i] = $.ajax({
+                    'url': '/_ajax/count/defconfig',
+                    'traditional': true,
+                    'cache': true,
+                    'dataType': 'json',
+                    'data': {
+                        'status': 'FAIL',
+                        'job': data[i].job,
+                        'kernel': data[i].kernel
+                    },
+                    'beforeSend': function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
-                    return data;
-                },
-                'beforeSend': function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                });
+            }
+
+            $.when.apply($, deferredCalls).then(function () {
+                var count = '&infin;';
+                len = arguments.length;
+
+                for (i = 0; i < len; i++) {
+                    console.log(arguments[i])
+                    if (arguments[i] !== null) {
+                        count = arguments[i][0].result[0].count;
+                    }
+                    $('#fail-count' + i).empty().append(count);
                 }
             });
         }
-
-        $.when.apply($, deferredCalls).then(function () {
-            var count = '&infin;';
-            len = arguments.length;
-
-            for (i = 0; i < len; i++) {
-                if (arguments[i] !== null) {
-                    count = arguments[i][0].count;
-                }
-                $('#fail-count' + i).empty().append(count);
-            }
-        });
     }
 
     function countFailCallback() {
@@ -82,12 +81,6 @@ $(document).ready(function () {
                 'limit': 25,
                 'date_range': $('#date-range').val(),
                 'field': ['job', 'kernel', 'metadata', 'created_on']
-            },
-            'dataFilter': function (data, type) {
-                if (type === 'json') {
-                    return JSON.parse(data).result;
-                }
-                return data;
             },
             'beforeSend': function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -143,6 +136,8 @@ $(document).ready(function () {
                 }
             }
         }).done(function (data) {
+            data = data.result;
+
             var row = '',
                 job, created, col1, col2, col3, col4, col5, href,
                 kernel, git_branch,
@@ -204,12 +199,6 @@ $(document).ready(function () {
             'date_range': $('#date-range').val(),
             'field': ['job', 'created_on', 'metadata']
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -264,6 +253,8 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
+        data = data.result;
+
         var row = '',
             created, col1, col2, col3, href,
             job, git_branch,
@@ -316,12 +307,6 @@ $(document).ready(function () {
             'limit': 25,
             'date_range': $('#date-range').val(),
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
-        },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
         },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -377,6 +362,8 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
+        data = data.result;
+
         var row = '',
             created, board, job, kernel, defconfig,
             col1, col2, col3, col4, col5, col6, href,
