@@ -207,7 +207,15 @@ $(document).ready(function () {
             label,
             i = 0,
             len = data.length,
-            hasFailed = false;
+            hasFailed = false,
+            hasSuccess = false,
+            hasUnknown = false,
+            fail_label = '<span class="pull-right label label-danger">' +
+                '<li class="fa fa-exclamation-triangle"></li></span>',
+            success_label = '<span class="pull-right label label-success">' +
+                '<li class="fa fa-check"></li></span>',
+            unknown_label = '<span class="pull-right label label-warning">' +
+                '<li class="fa fa-question"></li></span>';
 
         for (i; i < len; i++) {
             metadata = data[i].metadata;
@@ -216,20 +224,19 @@ $(document).ready(function () {
 
             switch (data[i].status) {
                 case 'FAIL':
-                    label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
-                    cls = 'df-failed';
-                    $('#fail-btn').removeAttr('disabled');
                     hasFailed = true;
+                    label = fail_label;
+                    cls = 'df-failed';
                     break;
                 case 'PASS':
-                    label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
+                    hasSuccess = true;
+                    label = success_label;
                     cls = 'df-success';
-                    $('#success-btn').removeAttr('disabled');
                     break;
                 default:
-                    label = '<span class="pull-right label label-warning"><li class="fa fa-question"></li></span>';
+                    hasUnknown = true;
+                    label = unknown_label;
                     cls = 'df-unknown';
-                    $('#unknown-btn').removeAttr('disabled');
                     break;
             }
 
@@ -360,6 +367,18 @@ $(document).ready(function () {
             panel += '</div></div></div>\n';
         }
         $(this).empty().append(panel);
+
+        if (hasFailed) {
+            $('#fail-btn').removeAttr('disabled');
+        }
+
+        if (hasSuccess) {
+            $('#success-btn').removeAttr('disabled');
+        }
+
+        if (hasUnknown) {
+            $('#unknown-btn').removeAttr('disabled');
+        }
 
         $('#all-btn').removeAttr('disabled');
         if (!loadFromSessionStorage($('#job-id').val())) {

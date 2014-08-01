@@ -209,10 +209,18 @@ $(document).ready(function () {
             len = data.length,
             boot_obj = null,
             hasFailed = false,
+            hasSuccess = false,
+            hasUnknown = false,
             boot_time = null,
             non_avail = '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Not available"><i class="fa fa-ban"></i>' +
-                '</span>';
+                '</span>',
+            fail_label = '<span class="pull-right label label-danger">' +
+                '<li class="fa fa-exclamation-triangle"></li></span>',
+            success_label = '<span class="pull-right label label-success">' +
+                '<li class="fa fa-check"></li></span>',
+            unknown_label = '<span class="pull-right label label-warning">' +
+                '<li class="fa fa-question"></li></span>';
 
         if (len > 0) {
             for (i; i < len; i++) {
@@ -227,21 +235,19 @@ $(document).ready(function () {
 
                 switch (boot_obj.status) {
                     case 'FAIL':
-                        label = '<span class="pull-right label label-danger"><li class="fa fa-exclamation-triangle"></li></span>';
-                        cls = 'df-failed';
-                        // TODO: move these DOM operations outside the for loop
-                        $('#fail-btn').removeAttr('disabled');
                         hasFailed = true;
+                        label = fail_label;
+                        cls = 'df-failed';
                         break;
                     case 'PASS':
-                        label = '<span class="pull-right label label-success"><li class="fa fa-check"></li></span>';
+                        hasSuccess = true;
+                        label = success_label;
                         cls = 'df-success';
-                        $('#success-btn').removeAttr('disabled');
                         break;
                     default:
-                        label = '<span class="pull-right label label-warning"><li class="fa fa-question"></li></span>';
+                        hasUnknown = true;
+                        label = unknown_label;
                         cls = 'df-unknown';
-                        $('#unknown-btn').removeAttr('disabled');
                         break;
                 }
 
@@ -311,6 +317,18 @@ $(document).ready(function () {
             }
 
             $(this).empty().append(panel);
+
+            if (hasFailed) {
+                $('#fail-btn').removeAttr('disabled');
+            }
+
+            if (hasSuccess) {
+                $('#success-btn').removeAttr('disabled');
+            }
+
+            if (hasUnknown) {
+                $('#unknown-btn').removeAttr('disabled');
+            }
 
             $('#all-btn').removeAttr('disabled');
             if (!loadFromSessionStorage($('#storage-id').val())) {
