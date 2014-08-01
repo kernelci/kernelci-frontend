@@ -75,16 +75,12 @@ $(document).ready(function () {
             'field': 'status',
             'nfield': '_id'
         },
-        'dataFilter': function(data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
     }).done(function (data) {
+        data = data.result;
+
         var success = 0,
             fail = 0,
             unknown = 0,
@@ -160,12 +156,6 @@ $(document).ready(function () {
             'sort': ['status', '_id'],
             'sort_order': 1
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -206,6 +196,8 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
+        data = data.result;
+
         var file_server = $('#file-server').val(),
             panel = '',
             cls,
