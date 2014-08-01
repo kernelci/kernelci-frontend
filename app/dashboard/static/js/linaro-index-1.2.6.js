@@ -50,7 +50,6 @@ $(document).ready(function () {
                 len = arguments.length;
 
                 for (i = 0; i < len; i++) {
-                    console.log(arguments[i])
                     if (arguments[i] !== null) {
                         count = arguments[i][0].result[0].count;
                     }
