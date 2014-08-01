@@ -31,12 +31,6 @@ $(document).ready(function () {
             'job': $('#job-id').val(),
             'date_range': $('#date-range').val()
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -49,7 +43,13 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
-        $(this).empty().append(data.count);
+        data = data.result
+
+        if (data.length === 1) {
+            $(this).empty().append(data[0].count);
+        } else {
+            $(this).empty().append("?");
+        }
     });
 });
 
@@ -66,12 +66,6 @@ $(document).ready(function () {
             'job': $('#job-id').val(),
             'date_range': $('#date-range').val()
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -84,7 +78,13 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
-        $(this).empty().append(data.count);
+        data = data.result
+
+        if (data.length === 1) {
+            $(this).empty().append(data[0].count);
+        } else {
+            $(this).empty().append("?");
+        }
     });
 });
 
@@ -92,6 +92,8 @@ $(document).ready(function () {
     "use strict";
 
     function countFailedDefconfigs (data) {
+        data = data.result;
+
         var i = 0,
             len = data.length,
             deferredCalls = new Array(len);
@@ -107,12 +109,6 @@ $(document).ready(function () {
                         'status': 'FAIL',
                         'job': $('#job-id').val(),
                         'kernel': data[i].kernel
-                    },
-                    'dataFilter': function (data, type) {
-                        if (type === 'json') {
-                            return JSON.parse(data).result;
-                        }
-                        return data;
                     },
                     'beforeSend': function (xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -135,7 +131,7 @@ $(document).ready(function () {
                     } else {
                         for (i = 0; i < len; i++) {
                             if (arguments[i] !== null) {
-                                count = arguments[i][0].count;
+                                count = arguments[i][0].result[0].count;
                                 $('#fail-count' + i).empty().append(count);
                             }
                         }
@@ -165,12 +161,6 @@ $(document).ready(function () {
                 'sort_order': -1,
                 'date_range': $('#date-range').val(),
                 'field': ['kernel', 'metadata', 'created_on']
-            },
-            'dataFilter': function (data, type) {
-                if (type === 'json') {
-                    return JSON.parse(data).result;
-                }
-                return data;
             },
             'beforeSend': function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
@@ -208,6 +198,8 @@ $(document).ready(function () {
                 }
             }
         }).done(function (data) {
+            data = data.result
+
             var row = '',
                 job = $('#job-id').val(),
                 created, col1, col2, col3, col4, col5, col6, href,
