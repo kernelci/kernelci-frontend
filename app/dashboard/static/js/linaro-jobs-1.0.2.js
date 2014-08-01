@@ -39,9 +39,8 @@ $(document).ready(function () {
             'dataSrc': 'result',
             'dataFilter': function (data, type) {
                 if (type === 'json') {
-                    var parsed = JSON.parse(data);
-                    parsed.result = JSON.parse(parsed.result);
-                    return JSON.stringify(parsed);
+                    data.result = JSON.stringify(data.result)
+                    return data;
                 }
                 return data;
             },
