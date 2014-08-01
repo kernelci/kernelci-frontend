@@ -18,7 +18,10 @@ import urlparse
 
 from bson import json_util
 from datetime import date
-from flask import current_app as app
+from flask import (
+    abort,
+    current_app as app,
+)
 from urlparse import urljoin
 
 
@@ -39,10 +42,10 @@ def extract_response_metadata(response):
     result = {}
 
     document = json_util.loads(response.content)
-    document['result'] = json_util.loads(document['result'])
+    result = document.get('result', None)
 
-    if document.get('result', None):
-        result = document['result']
+    if result and len(result) == 1:
+        result = result[0]
         metadata = result.get('metadata', None)
 
         if metadata:
@@ -69,6 +72,8 @@ def extract_response_metadata(response):
                         (known_git[2] % path) + commit_id,
                         '', '', ''
                     ))
+    else:
+        abort(404)
 
     return metadata, base_url, commit_url, result
 
