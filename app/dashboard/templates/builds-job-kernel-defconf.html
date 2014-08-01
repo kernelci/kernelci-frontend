@@ -364,12 +364,6 @@ $(document).ready(function () {
             'kernel': '{{ result.kernel }}',
             'defconfig': '{{ result.dirname }}'
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -410,6 +404,8 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
+        data = data.result;
+
         var len = data.length,
             i = 0,
             totalColumns = 3,
