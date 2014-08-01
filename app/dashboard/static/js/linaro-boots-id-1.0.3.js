@@ -19,12 +19,6 @@ $(document).ready(function () {
             'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +
                 $('#kernel-id').val() + '-' + $('#defconfig-id').val()
         },
-        'dataFilter': function (data, type) {
-            if (type === 'json') {
-                return JSON.parse(data).result;
-            }
-            return data;
-        },
         'beforeSend': function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         },
@@ -41,6 +35,8 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
+        data = data.result[0];
+
         var boot_time = new Date(data.time['$date']),
             displ = '',
             file_server = $('#file-server').val(),
