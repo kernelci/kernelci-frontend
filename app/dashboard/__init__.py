@@ -62,6 +62,7 @@ def generate_csrf_token():
     """
     return generate_csrf(time_limit=random.randint(20, 50))
 
+DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-frontend.cfg'
 
 # Name of the environment variable that will be lookep up for app configuration
 # parameters.
@@ -72,6 +73,9 @@ app = Flask('kernel-ci-frontend')
 app.root_path = os.path.abspath(os.path.dirname(__file__))
 
 app.config.from_object('dashboard.default_settings')
+if os.path.isfile(DEFAULT_CONFIG_FILE):
+    app.config.from_pyfile()
+
 if os.environ.get(APP_ENVVAR):
     app.config.from_envvar(APP_ENVVAR)
 
