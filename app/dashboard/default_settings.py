@@ -26,7 +26,7 @@ BACKEND_TOKEN = 'foo'
 BACKEND_TOKEN_HEADER = 'Authorization'
 SECRET_KEY = 'bar'
 # Add the trailing slash!
-FILE_SERVER_URL = 'http://armcloud.us/kernel-ci/'
+FILE_SERVER_URL = 'http://127.0.0.1/'
 
 # The following structure is used to give translation rules to know
 # git:// URLs.
