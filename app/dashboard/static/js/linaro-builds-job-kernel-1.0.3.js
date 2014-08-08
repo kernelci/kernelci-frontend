@@ -215,7 +215,8 @@ $(document).ready(function () {
             success_label = '<span class="pull-right label label-success">' +
                 '<li class="fa fa-check"></li></span>',
             unknown_label = '<span class="pull-right label label-warning">' +
-                '<li class="fa fa-question"></li></span>';
+                '<li class="fa fa-question"></li></span>',
+            architecture_label = '';
 
         for (i; i < len; i++) {
             metadata = data[i].metadata;
@@ -241,11 +242,19 @@ $(document).ready(function () {
             }
 
             defconfig = data[i].defconfig;
-            if (!$.isEmptyObject(metadata) &&
-                    metadata.hasOwnProperty('kconfig_fragments') &&
+            if (!$.isEmptyObject(metadata)) {
+                if (metadata.hasOwnProperty('kconfig_fragments') &&
                     metadata.kconfig_fragments !== null) {
-                defconfig = data[i].defconfig + '&nbsp;<small>' +
-                    metadata.kconfig_fragments + '</small>';
+                        defconfig = data[i].defconfig + '&nbsp;<small>' +
+                        metadata.kconfig_fragments + '</small>';
+                }
+
+                if (metadata.hasOwnProperty('arch') &&
+                    metadata.arch !== null) {
+                        architecture_label = '<small>' +
+                            '<span class="pull-right" style="padding: 3px">' +
+                            metadata.arch + '</span></small>';
+                }
             }
 
             panel += '<div class="panel panel-default ' + cls + '">' +
@@ -256,7 +265,7 @@ $(document).ready(function () {
                     '<h4 class="panel-title">' +
                     '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-defconf' + i + '">' +
                     defconfig +
-                    '</a>' + label + '</h4></div>' +
+                    '</a>' + label + architecture_label + '</h4></div>' +
                     '<div id="collapse-defconf' + i + '" class="panel-collapse collapse">' +
                     '<div class="panel-body">';
 
