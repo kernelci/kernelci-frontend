@@ -46,15 +46,30 @@ $(document).ready(function () {
             }
 
             $.when.apply($, deferredCalls).then(function () {
-                var count = '&infin;';
+                var count = '&infin;',
+                    first = null;
                 len = arguments.length;
 
-                for (i = 0; i < len; i++) {
-                    if (arguments[i] !== null) {
-                        count = arguments[i][0].result[0].count;
+                if (len > 0) {
+                    first = arguments[0];
+                    if (! Array.isArray(first)) {
+                        // This is the case where we have just one result.
+                        if (first !== null) {
+                            count = first.result[0].count;
+                        }
+                        $('#fail-count0').empty().append(count);
+                    } else {
+                        for (i = 0; i < len; i++) {
+                            if (arguments[i] !== null) {
+                                count = arguments[i][0].result[0].count;
+                            }
+                            $('#fail-count' + i).empty().append(count);
+                        }
                     }
-                    $('#fail-count' + i).empty().append(count);
+                } else {
+                    countFailCallback();
                 }
+
             });
         }
     }

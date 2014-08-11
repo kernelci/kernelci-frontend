@@ -119,7 +119,7 @@ $(document).ready(function () {
                     // Array like way.
                     first = arguments[0];
                     if (! Array.isArray(first)) {
-                        count = first.count;
+                        count = first.result[0].count;
                         $('#fail-count0').empty().append(count);
                     } else {
                         for (i = 0; i < len; i++) {

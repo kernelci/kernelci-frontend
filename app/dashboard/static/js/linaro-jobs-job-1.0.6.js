@@ -117,16 +117,17 @@ $(document).ready(function () {
             }
 
             $.when.apply($, deferredCalls).then(function () {
-                var count = '&infin;';
+                var count = '&infin;',
+                    first = null;
                 len = arguments.length;
 
                 if (len > 0) {
                     // This is the case when we have only one build and the
                     // deferred call returns just the plain object not in an
                     // Array like way.
-                    var first = arguments[0];
+                    first = arguments[0];
                     if (! Array.isArray(first)) {
-                        count = first.count;
+                        count = first.result[0].count;
                         $('#fail-count0').empty().append(count);
                     } else {
                         for (i = 0; i < len; i++) {
