@@ -24,13 +24,13 @@ class JobsAllView(View):
     def dispatch_request(self):
 
         page_title = 'Kernel CI Dashboard &mdash; Jobs'
-        results_title = 'Available Jobs'
+        body_title = 'Available Jobs'
 
         return render_template(
             'jobs-all.html',
             page_title=page_title,
             server_date=today_date(),
-            results_title=results_title
+            body_title=body_title
         )
 
 

@@ -8,9 +8,11 @@
     <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
-{% include "date-range.html" %}
 <br />
 <div class="row">
+    <div class="page-header">
+        <h3>{{ body_title|safe }}</h3>
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="table-responsive">
             <table cellpadding="0" cellspacing="0" border="0" class="table table-hover table-striped table-condensed clickable-table" id="jobstable">

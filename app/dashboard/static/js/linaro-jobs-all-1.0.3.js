@@ -51,7 +51,6 @@ $(document).ready(function () {
                 'aggregate': 'job',
                 'sort': 'created_on',
                 'sort_order': -1,
-                'date_range': $('#date-range').val(),
                 'field': [
                     'job', 'created_on', 'status', 'metadata'
                 ]
