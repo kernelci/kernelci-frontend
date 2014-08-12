@@ -102,30 +102,6 @@
             </span>
         </dd>
         {%- endif %}
-        <dt>Cross-compile</dt>
-        {%- if metadata and metadata.cross_compile %}
-        <dd>
-            {{ metadata.cross_compile }}
-        </dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-        </dd>
-        {%- endif %}
-        <dt>Compiler</dt>
-        {%- if metadata and metadata.compiler_version %}
-        <dd>
-            {{ metadata.compiler_version }}
-        </dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-        </dd>
-        {%- endif %}
     </dl>
     </div>
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
