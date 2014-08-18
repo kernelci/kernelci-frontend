@@ -86,14 +86,31 @@ $(document).ready(function () {
             $('#dd-board-endianness').empty().append(non_avail);
         }
 
-        if (data.boot_log !== null) {
-            $('#dd-board-boot-log').empty().append(
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="View boot log"><a href="' + file_server +
-                    data.job + '/' + data.kernel + '/' + data.defconfig +
-                    '/' + data.boot_log + '">' + data.boot_log +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></span>'
-            );
+        if (data.boot_log !== null || data.boot_log_html !== null) {
+            $('#dd-board-boot-log').empty();
+
+            if (data.boot_log !== null) {
+                $('#dd-board-boot-log').append(
+                    '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="View raw text boot log"><a href="' + file_server +
+                        data.job + '/' + data.kernel + '/' + data.defconfig +
+                        '/' + data.boot_log + '">txt' +
+                        '&nbsp;<i class="fa fa-external-link"></i></a></span>'
+                );
+            }
+
+            if (data.boot_log_html !== null) {
+                if (data.boot_log !== null) {
+                    $('#dd-board-boot-log').append('&nbsp;&mdash;&nbsp;');
+                }
+                $('#dd-board-boot-log').append(
+                    '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="View HTML boot log"><a href="' + file_server +
+                        data.job + '/' + data.kernel + '/' + data.defconfig +
+                        '/' + data.boot_log_html + '">html' +
+                        '&nbsp;<i class="fa fa-external-link"></i></a></span>'
+                );
+            }
         } else {
             $('#dd-board-boot-log').empty().append(non_avail);
         }
