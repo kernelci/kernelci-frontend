@@ -10,6 +10,8 @@ $(document).ready(function () {
         'placement': 'auto'
     });
 
+    $('#table-div').hide();
+
     var table = $('#defconfstable').dataTable({
         'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
             '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
@@ -20,6 +22,10 @@ $(document).ready(function () {
             'lengthMenu': '_MENU_&nbsp;<strong>builds per page</strong>',
             'zeroRecords': '<h4>No builds to display.</h4>',
             'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
+        },
+        'initComplete': function (settings, data) {
+            $("#table-loading").remove();
+            $("#table-div").show();
         },
         'lengthMenu': [25, 50, 75, 100],
         'deferRender': true,
