@@ -25,7 +25,7 @@ $(document).ready(function () {
         },
         'initComplete': function (settings, data) {
             $("#table-loading").remove();
-            $("#table-div").show();
+            $("#table-div").fadeIn("slow", "linear");
         },
         'lengthMenu': [25, 50, 75, 100],
         'deferRender': true,
