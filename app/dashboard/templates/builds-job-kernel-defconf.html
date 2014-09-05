@@ -229,7 +229,13 @@
             {%- endif %}
             <dt>Config fragments</dt>
             {%- if metadata and metadata.kconfig_fragments %}
-            <dd>{{ metadata.kconfig_fragments }}</dd>
+                {%- if metadata.kconfig_fragments|length > 80 -%}
+                <dd>
+                    {{ metadata.kconfig_fragments[:50] }}&nbsp;&hellip;
+                </dd>
+                {%- else -%}
+                <dd>{{ metadata.kconfig_fragments }}</dd>
+                {%- endif -%}
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">

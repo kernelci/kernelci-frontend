@@ -91,8 +91,13 @@ $(document).ready(function () {
                     if (!$.isEmptyObject(object.metadata) &&
                             object.metadata.hasOwnProperty('kconfig_fragments') &&
                             object.metadata.kconfig_fragments !== null) {
-                        display = data + '&nbsp<small>' +
-                            object.metadata.kconfig_fragments + '</small>';
+                        if (object.metadata.kconfig_fragments.length > 45) {
+                            display = data + '&nbsp<small>' +
+                                object.metadata.kconfig_fragments.slice(0, 39) + '&nbsp;&hellip;</small>';
+                        } else {
+                            display = data + '&nbsp<small>' +
+                                object.metadata.kconfig_fragments + '</small>';
+                        }
                     }
                     return display;
                 }
