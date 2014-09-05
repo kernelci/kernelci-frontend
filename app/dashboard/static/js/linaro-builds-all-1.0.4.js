@@ -1,8 +1,6 @@
 var csrftoken = $('meta[name=csrf-token]').attr('content');
 
 $(document).ready(function () {
-    "use strict";
-
     $('#li-build').addClass('active');
 
     $('body').tooltip({
