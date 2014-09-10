@@ -13,7 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import render_template
+from flask import (
+    render_template,
+    request,
+)
 from flask.views import View
 
 from dashboard.utils.backend import today_date
@@ -26,11 +29,16 @@ class JobsAllView(View):
         page_title = 'Kernel CI Dashboard &mdash; Jobs'
         body_title = 'Available Jobs'
 
+        search_filter = ""
+        if request.args:
+            search_filter = " ".join([arg for arg in request.args])
+
         return render_template(
             'jobs-all.html',
             page_title=page_title,
             server_date=today_date(),
-            body_title=body_title
+            body_title=body_title,
+            search_filter=search_filter
         )
 
 
