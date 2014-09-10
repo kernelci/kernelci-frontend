@@ -16,6 +16,7 @@
 from flask import (
     abort,
     render_template,
+    request,
 )
 
 from flask.views import View
@@ -35,11 +36,16 @@ class BuildsAllView(View):
     def dispatch_request(self, *args, **kwargs):
         results_title = 'Available Builds'
 
+        search_filter = ""
+        if request.args:
+            search_filter = " ".join([arg for arg in request.args])
+
         return render_template(
             'builds-all.html',
             page_title=PAGE_TITLE,
             server_date=today_date(),
             results_title=results_title,
+            search_filter=search_filter
         )
 
 

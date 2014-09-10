@@ -1,4 +1,5 @@
 var csrftoken = $('meta[name=csrf-token]').attr('content');
+var searchFilter = $('#search-filter').val();
 
 $(document).ready(function () {
     $('#li-build').addClass('active');
@@ -24,6 +25,11 @@ $(document).ready(function () {
         'initComplete': function (settings, data) {
             $("#table-loading").remove();
             $("#table-div").fadeIn("slow", "linear");
+
+            if (searchFilter !== null && searchFilter.length > 0) {
+                var api = this.api();
+                api.search(searchFilter, true).draw();
+            }
         },
         'lengthMenu': [25, 50, 75, 100],
         'deferRender': true,
