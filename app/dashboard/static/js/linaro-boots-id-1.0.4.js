@@ -40,9 +40,12 @@ $(document).ready(function () {
         var boot_time = new Date(data.time['$date']),
             displ = '',
             file_server = $('#file-server').val(),
+            metadata,
             non_avail = '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Not available"><i class="fa fa-ban"></i>' +
                 '</span>';
+
+        metadata = data.metadata;
 
         $('#dd-board-board').empty().append(data.board);
         $('#dd-board-defconfig').empty().append(
@@ -137,6 +140,16 @@ $(document).ready(function () {
                         'label-warning"><i class="fa fa-question"></i>' +
                         '</span></span>';
                 break;
+        }
+
+        // Do we have a description for the boot result?
+        // We might have it directly in the json or in the metadata property.
+        if (data.hasOwnProperty('boot_result_description')) {
+            displ += '&nbsp;<small>' + data.boot_result_description +
+                '</small>';
+        } else if (! $.isEmptyObject(metadata) && metadata.hasOwnProperty('boot_result_description')) {
+            displ += '&nbsp;<small>' + metadata.boot_result_description +
+                '</small>';
         }
 
         $('#dd-board-status').empty().append(displ);
