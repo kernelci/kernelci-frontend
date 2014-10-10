@@ -43,10 +43,10 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
-        data = data.result
+        var localData = data.result;
 
-        if (data.length === 1) {
-            $(this).empty().append(data[0].count);
+        if (localData.length === 1) {
+            $(this).empty().append(localData[0].count);
         } else {
             $(this).empty().append("?");
         }
@@ -78,10 +78,10 @@ $(document).ready(function () {
             }
         }
     }).done(function (data) {
-        data = data.result
+        var localData = data.result;
 
-        if (data.length === 1) {
-            $(this).empty().append(data[0].count);
+        if (localData.length === 1) {
+            $(this).empty().append(localData[0].count);
         } else {
             $(this).empty().append("?");
         }
@@ -91,11 +91,14 @@ $(document).ready(function () {
 $(document).ready(function () {
     "use strict";
 
-    function countFailedDefconfigs (data) {
-        data = data.result;
+    function setXhrHeader (xhr) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+    }
 
+    function countFailedDefconfigs (data) {
         var i = 0,
-            len = data.length,
+            localData = data.result,
+            len = localData.length,
             deferredCalls = new Array(len);
 
         if (len > 0) {
@@ -108,11 +111,9 @@ $(document).ready(function () {
                     'data': {
                         'status': 'FAIL',
                         'job': $('#job-id').val(),
-                        'kernel': data[i].kernel
+                        'kernel': localData[i].kernel
                     },
-                    'beforeSend': function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
+                    'beforeSend': setXhrHeader
                 });
             }
 
@@ -129,11 +130,21 @@ $(document).ready(function () {
                     if (! Array.isArray(first)) {
                         count = first.result[0].count;
                         $('#fail-count0').empty().append(count);
+                        if (count === 0) {
+                            $('#span-id0').addClass('alert-success');
+                        } else {
+                            $('#span-id0').addClass('alert-danger');
+                        }
                     } else {
                         for (i = 0; i < len; i++) {
                             if (arguments[i] !== null) {
                                 count = arguments[i][0].result[0].count;
                                 $('#fail-count' + i).empty().append(count);
+                                if (count === 0) {
+                                    $('#span-id' + i).addClass('alert-success');
+                                } else {
+                                    $('#span-id' + i).addClass('alert-danger');
+                                }
                             }
                         }
                     }
@@ -143,7 +154,7 @@ $(document).ready(function () {
     }
 
     function countFailCallback () {
-        $('.fail-badge').each(function () {
+        $('.count-badge').each(function () {
             $(this).empty().append('&infin;');
         });
     }
@@ -199,7 +210,7 @@ $(document).ready(function () {
                 }
             }
         }).done(function (data) {
-            data = data.result
+            data = data.result;
 
             var row = '',
                 job = $('#job-id').val(),
@@ -223,12 +234,15 @@ $(document).ready(function () {
                     col1 = '<td>' + kernel + '</td>';
                     col2 = '<td>' + git_branch + '</td>';
                     col3 = '<td>' + git_commit + '</td>';
-                    col4 = '<td><span class="badge alert-danger">' +
-                        '<span id="fail-count' + i + '" ' +
-                        'class="fail-badge">' +
+                    col4 = '<td><div class="pull-center">' +
+                        '<span id="span-id' + i + '" ' +
+                        'class="badge">' +
+                        '<span id="fail-count' + i + '" class="count-badge">' +
                         '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                        '</td>';
-                    col5 = '<td>' + created.getCustomISODate() + '</td>';
+                        '<div></td>';
+                    col5 = '<td><div class="pull-center">' +
+                        created.getCustomISODate() +
+                        '</div></td>';
                     col6 = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Details for build&nbsp;' + job +
