@@ -205,3 +205,20 @@ def ajax_get(request, api_path):
     r = requests.get(url, headers=headers, params=params_list, stream=True)
 
     return (r.raw.data, r.status_code, r.headers.items())
+
+
+def ajax_batch_post(request, api_path):
+    """Handle batch POST operations.
+
+    :param request: The request performed.
+    :param api_path: The API endpoint where to perform the request.
+    :return A tuple with the data, status code and headers of the
+        `requests.Response` object.
+    """
+
+    url, headers = _create_url_headers(api_path)
+    # Make sure we send JSON.
+    headers['Content-Type'] = "application/json"
+    r = requests.post(url, data=request.data, headers=headers, stream=True)
+
+    return (r.raw.data, r.status_code, r.headers.items())

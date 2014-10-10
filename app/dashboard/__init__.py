@@ -47,8 +47,9 @@ from dashboard.views.job import (
     JobsJobView,
 )
 from utils.backend import (
-    ajax_get,
+    ajax_batch_post,
     ajax_count_get,
+    ajax_get,
 )
 
 
@@ -220,5 +221,18 @@ def ajax_count(collection=None):
             request, app.config.get('COUNT_API_ENDPOINT'),
             collection
         )
+    else:
+        abort(400)
+
+
+@app.route('/_ajax/batch', methods=('POST', 'OPTIONS'))
+def ajax_batch():
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        if request.data:
+            return ajax_batch_post(
+                request, app.config.get('BATCH_API_ENDPOINT')
+            )
+        else:
+            abort(400)
     else:
         abort(400)

@@ -59,6 +59,7 @@ JOB_API_ENDPOINT = '/api/job'
 DEFCONFIG_API_ENDPOINT = '/api/defconfig'
 BOOT_API_ENDPOINT = '/api/boot'
 COUNT_API_ENDPOINT = '/api/count'
+BATCH_API_ENDPOINT = '/api/batch'
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
