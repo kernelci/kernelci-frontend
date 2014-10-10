@@ -20,64 +20,92 @@ $(document).ready(function () {
 $(document).ready(function () {
     "use strict";
 
-    function countFailedDefconfigs(data) {
-        data = data.result;
+    function countFailCallback() {
+        $('.fail-badge').each(function () {
+            $(this).empty().append('&infin;');
+        });
+    }
 
-        var i = 0,
-            len = data.length,
-            deferredCalls = new Array(len);
+    function countDoneCallback(data) {
+        var localData = data.result,
+            len = localData.length,
+            i = 0,
+            batchResult = null;
 
         if (len > 0) {
-            for (i; i < len; i++) {
-                deferredCalls[i] = $.ajax({
+            if (len === 1) {
+                $('#fail-count0').empty().append(localData.count);
+            } else {
+                for (i; i < len; i++) {
+                    batchResult = localData[i].result[0];
+                    $(localData[i].operation_id).empty().append(
+                        batchResult.count
+                    );
+                }
+            }
+        } else {
+            countFailCallback();
+        }
+    }
+
+    function countFailedDefconfigs(data) {
+        var localData = data.result,
+            i = 0,
+            len = localData.length,
+            deferredCall = null,
+            batchQueries = new Array(len);
+
+        if (len > 0) {
+            if (len === 1) {
+                // Peform normal GET.
+                deferredCall = $.ajax({
                     'url': '/_ajax/count/defconfig',
                     'traditional': true,
                     'cache': true,
                     'dataType': 'json',
                     'data': {
                         'status': 'FAIL',
-                        'job': data[i].job,
-                        'kernel': data[i].kernel
+                        'job': localData[0].job,
+                        'kernel': localData[0].kernel
                     },
                     'beforeSend': function (xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
+                    },
+                    'error': countFailCallback
+                });
+            } else {
+                // Perform POST on batch API.
+                for (i; i < len; i++) {
+                    batchQueries[i] = {
+                        'method': 'GET',
+                        'operation_id': '#fail-count' + i,
+                        'collection': 'count',
+                        'document_id': 'defconfig',
+                        'query': 'status=FAIL&job=' + localData[i].job +
+                            '&kernel=' + localData[i].kernel
+                    };
+                }
+
+                deferredCall = $.ajax({
+                    'url': '/_ajax/batch',
+                    'type': 'POST',
+                    'traditional': true,
+                    'dataType': 'json',
+                    'headers': {
+                        'Content-Type': 'application/json'
+                    },
+                    'beforeSend': function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    },
+                    'data': JSON.stringify({
+                        'batch': batchQueries
+                    }),
+                    'error': countFailCallback
                 });
             }
 
-            $.when.apply($, deferredCalls).then(function () {
-                var count = '&infin;',
-                    first = null;
-                len = arguments.length;
-
-                if (len > 0) {
-                    first = arguments[0];
-                    if (! Array.isArray(first)) {
-                        // This is the case where we have just one result.
-                        if (first !== null) {
-                            count = first.result[0].count;
-                        }
-                        $('#fail-count0').empty().append(count);
-                    } else {
-                        for (i = 0; i < len; i++) {
-                            if (arguments[i] !== null) {
-                                count = arguments[i][0].result[0].count;
-                            }
-                            $('#fail-count' + i).empty().append(count);
-                        }
-                    }
-                } else {
-                    countFailCallback();
-                }
-
-            });
+            $.when(deferredCall).then(countDoneCallback, countFailCallback);
         }
-    }
-
-    function countFailCallback() {
-        $('.fail-badge').each(function () {
-            $(this).empty().append('&infin;');
-        });
     }
 
     $.when(
@@ -102,8 +130,9 @@ $(document).ready(function () {
             'statusCode': {
                 403: function () {
                     $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" valign="middle">' +
-                        '<h4>Error loading data.</h4></td></tr>'
+                        '<tr><td colspan="5" align="center" ' +
+                            'valign="middle">' +
+                            '<h4>Error loading data.</h4></td></tr>'
                     );
                     var text = '<div id="defconfs-403-error" ' +
                         'class="alert alert-danger alert-dismissable">' +
@@ -118,8 +147,9 @@ $(document).ready(function () {
                 },
                 404: function () {
                     $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" valign="middle">' +
-                        '<h4>Error loading data.</h4></td></tr>'
+                        '<tr><td colspan="5" align="center" ' +
+                            'valign="middle">' +
+                            '<h4>Error loading data.</h4></td></tr>'
                     );
                     var text = '<div id="defconfs-404-error" ' +
                         'class="alert alert-danger alert-dismissable">' +
@@ -134,8 +164,9 @@ $(document).ready(function () {
                 },
                 500: function () {
                     $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" valign="middle">' +
-                        '<h4>Error loading data.</h4></td></tr>'
+                        '<tr><td colspan="5" align="center" ' +
+                            'valign="middle">' +
+                            '<h4>Error loading data.</h4></td></tr>'
                     );
                     var text = '<div id="defconfs-500-error" ' +
                         'class="alert alert-danger alert-dismissable">' +
@@ -153,8 +184,16 @@ $(document).ready(function () {
             data = data.result;
 
             var row = '',
-                job, created, col1, col2, col3, col4, col5, href,
-                kernel, git_branch,
+                job,
+                created,
+                col1,
+                col2,
+                col3,
+                col4,
+                col5,
+                href,
+                kernel,
+                git_branch,
                 i = 0,
                 len = data.length;
 
@@ -173,12 +212,14 @@ $(document).ready(function () {
                     col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
                         git_branch + '</small></td>';
                     col2 = '<td>' + kernel + '</a></td>';
-                    col3 = '<td><span class="badge alert-danger">' +
+                    col3 = '<td class="pull-center">' +
+                        '<span class="badge alert-danger">' +
                         '<span id="fail-count' + i + '" ' +
                         'class="fail-badge">' +
                         '<i class="fa fa-cog fa-spin"></i></span></span>' +
                         '</td>';
-                    col4 = '<td>' + created.getCustomISODate() + '</td>';
+                    col4 = '<td class="pull-center">' +
+                        created.getCustomISODate() + '</td>';
                     col5 = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Details for job&nbsp;' + job +
@@ -289,7 +330,8 @@ $(document).ready(function () {
                 col1 = '<td><a class="table-link" href="' + href + '">' +
                     job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small>' + '</a></td>';
-                col2 = '<td>' + created.getCustomISODate() + '</td>';
+                col2 = '<td class="pull-center">' +
+                    created.getCustomISODate() + '</td>';
                 col3 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for job&nbsp;' + job + '">' +
@@ -403,7 +445,8 @@ $(document).ready(function () {
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
-                col5 = '<td>' + created.getCustomISODate() + '</td>';
+                col5 = '<td class="pull-center">' +
+                    created.getCustomISODate() + '</td>';
                 col6 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for board&nbsp;' + board + '">' +
