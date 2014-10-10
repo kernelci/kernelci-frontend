@@ -116,6 +116,7 @@ $(document).ready(function () {
                 'data': 'created_on',
                 'title': 'Date',
                 'type': 'date',
+                'className': 'pull-center',
                 'render': function (data) {
                     var created = new Date(data['$date']);
                     return created.getCustomISODate();
@@ -125,6 +126,7 @@ $(document).ready(function () {
                 'data': 'status',
                 'title': 'Status',
                 'type': 'string',
+                'className': 'pull-center',
                 'render': function (data) {
                     var displ;
                     switch (data) {
