@@ -308,7 +308,8 @@ $(document).ready(function () {
 $(document).ready(function () {
     "use strict";
 
-    var errorReason = 'Boot data call failed.';
+    var errorReason = 'Boot data call failed.',
+        colSpan = 7;
 
     $.ajax({
         'url': '/_ajax/boot',
@@ -322,11 +323,11 @@ $(document).ready(function () {
             'sort': 'created_on',
             'limit': 25,
             'date_range': $('#date-range').val(),
-            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
+            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on', 'metadata']
         },
         'beforeSend': setXhrHeader,
         'timeout': 6000,
-        'error': emptyTableOnError('#failed-boots-body', 6),
+        'error': emptyTableOnError('#failed-boots-body', colSpan),
         'statusCode': {
             403: function () {
                 setErrorAlert('boots-403-error', 403, errorReason);
@@ -341,17 +342,52 @@ $(document).ready(function () {
     }).done(function (data) {
         var localData = data.result,
             row = '',
-            created, board, job, kernel, defconfig,
-            col1, col2, col3, col4, col5, col6, href,
+            created,
+            board,
+            job,
+            kernel,
+            defconfig,
+            col1,
+            col2,
+            col3,
+            col4,
+            col5,
+            col6,
+            col7,
+            href,
             len = localData.length,
+            col5Content,
+            failureReason = null,
             i = 0;
 
         if (len === 0) {
-            row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
+            row = '<tr><td colspan="' + colSpan +
+                '" align="center" valign="middle"><h4>' +
                 'No failed boot reports.</h4></td></tr>';
             $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
+                if (localData[i].boot_result_description !== undefined) {
+                    failureReason = localData[i].boot_result_description;
+                } else if (localData[i].metadata !== undefined) {
+                    if (localData[i].metadata.hasOwnProperty('boot_result_description')) {
+                        failureReason = localData[i].metadata.boot_result_description;
+                    }
+                }
+
+                if (failureReason === null) {
+                    col5Content = '<td class="pull-center">' +
+                        '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="Not available"><i class="fa fa-ban"></i>' +
+                        '</span></td>';
+                } else {
+                    col5Content = '<td class="pull-center">' +
+                        '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="' + failureReason + '">' +
+                        '<i class="fa fa-question-circle"></i>' +
+                        '</span></td>';
+                }
+
                 created = new Date(localData[i].created_on['$date']);
                 job = localData[i].job;
                 kernel = localData[i].kernel;
@@ -365,16 +401,17 @@ $(document).ready(function () {
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
-                col5 = '<td class="pull-center">' +
-                    created.getCustomISODate() + '</td>';
+                col5 = col5Content;
                 col6 = '<td class="pull-center">' +
+                    created.getCustomISODate() + '</td>';
+                col7 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for board&nbsp;' + board + '">' +
                     '<a href="' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
                 row += '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
+                    col1 + col2 + col3 + col4 + col5 + col6 + col7 + '</tr>';
             }
 
             $(this).empty().append(row);
