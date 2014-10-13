@@ -141,7 +141,10 @@ def get_job(**kwargs):
 
     url, headers = _create_url_headers(api_path)
 
-    return requests.get(url, params=kwargs, headers=headers)
+    try:
+        return requests.get(url, params=kwargs, headers=headers)
+    except requests.ConnectionError:
+        abort(500)
 
 
 def get_defconfig(**kwargs):
@@ -159,7 +162,10 @@ def get_defconfig(**kwargs):
 
     url, headers = _create_url_headers(api_path)
 
-    return requests.get(url, params=kwargs, headers=headers)
+    try:
+        return requests.get(url, params=kwargs, headers=headers)
+    except requests.ConnectionError:
+        abort(500)
 
 
 def ajax_count_get(request, api_path, collection):
@@ -180,9 +186,12 @@ def ajax_count_get(request, api_path, collection):
         api_path = _create_api_path(api_path, collection)
 
     url, headers = _create_url_headers(api_path)
-    r = requests.get(url, headers=headers, params=params_list, stream=True)
 
-    return (r.raw.data, r.status_code, r.headers.items())
+    try:
+        r = requests.get(url, headers=headers, params=params_list, stream=True)
+        return (r.raw.data, r.status_code, r.headers.items())
+    except requests.ConnectionError:
+        abort(500)
 
 
 def ajax_get(request, api_path):
@@ -202,9 +211,11 @@ def ajax_get(request, api_path):
         params_list.remove(('id', [boot_id]))
 
     url, headers = _create_url_headers(api_path)
-    r = requests.get(url, headers=headers, params=params_list, stream=True)
-
-    return (r.raw.data, r.status_code, r.headers.items())
+    try:
+        r = requests.get(url, headers=headers, params=params_list, stream=True)
+        return (r.raw.data, r.status_code, r.headers.items())
+    except requests.ConnectionError:
+        abort(500)
 
 
 def ajax_batch_post(request, api_path):
@@ -219,6 +230,8 @@ def ajax_batch_post(request, api_path):
     url, headers = _create_url_headers(api_path)
     # Make sure we send JSON.
     headers['Content-Type'] = "application/json"
-    r = requests.post(url, data=request.data, headers=headers, stream=True)
-
-    return (r.raw.data, r.status_code, r.headers.items())
+    try:
+        r = requests.post(url, data=request.data, headers=headers, stream=True)
+        return (r.raw.data, r.status_code, r.headers.items())
+    except requests.ConnectionError:
+        abort(500)
