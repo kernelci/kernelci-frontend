@@ -1,5 +1,10 @@
 var csrftoken = $('meta[name=csrf-token]').attr('content');
 
+function setXhrHeader (xhr) {
+    "use strict";
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+}
+
 $(document).ready(function () {
     "use strict";
 
@@ -20,7 +25,7 @@ $(document).ready(function () {
 $(document).ready(function () {
     "use strict";
 
-    function countFailCallback() {
+    function countFailCallback () {
         $('.fail-badge').each(function () {
             $(this).empty().append('&infin;');
         });
@@ -68,9 +73,7 @@ $(document).ready(function () {
                         'job': localData[0].job,
                         'kernel': localData[0].kernel
                     },
-                    'beforeSend': function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    },
+                    'beforeSend': setXhrHeader,
                     'error': countFailCallback
                 });
             } else {
@@ -94,9 +97,7 @@ $(document).ready(function () {
                     'headers': {
                         'Content-Type': 'application/json'
                     },
-                    'beforeSend': function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    },
+                    'beforeSend': setXhrHeader,
                     'data': JSON.stringify({
                         'batch': batchQueries
                     }),
@@ -124,9 +125,7 @@ $(document).ready(function () {
                 'date_range': $('#date-range').val(),
                 'field': ['job', 'kernel', 'metadata', 'created_on']
             },
-            'beforeSend': function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            },
+            'beforeSend': setXhrHeader,
             'statusCode': {
                 403: function () {
                     $('#failed-builds-body').empty().append(
@@ -254,9 +253,7 @@ $(document).ready(function () {
             'date_range': $('#date-range').val(),
             'field': ['job', 'created_on', 'metadata']
         },
-        'beforeSend': function (xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        },
+        'beforeSend': setXhrHeader,
         'statusCode': {
             403: function () {
                 $('#failed-jobs-body').empty().append(
@@ -364,9 +361,7 @@ $(document).ready(function () {
             'date_range': $('#date-range').val(),
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
-        'beforeSend': function (xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        },
+        'beforeSend': setXhrHeader,
         'statusCode': {
             403: function () {
                 $('#failed-boots-body').empty().append(
