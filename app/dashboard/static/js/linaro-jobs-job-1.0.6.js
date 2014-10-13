@@ -3,12 +3,12 @@ var jobId= $('#job-id').val();
 var dateRange = $('#date-range').val();
 
 function setXhrHeader (xhr) {
-    "use strict";
+    'use strict';
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
 }
 
 $(document).ready(function () {
-    "use strict";
+    'use strict';
 
     $('#li-job').addClass('active');
 
@@ -26,10 +26,11 @@ $(document).ready(function () {
 });
 
 $(document).ready(function() {
-    "use strict";
+    'use strict';
 
     var deferredCall = null,
-        batchQueries = new Array(2);
+        batchQueries = new Array(2),
+        errorReason = '';
 
     function countFailCallback () {
         $('.count-list-badge').each(function () {
@@ -77,6 +78,7 @@ $(document).ready(function() {
         'query': 'job=' + jobId + '&date_range=' + dateRange
     };
 
+    errorReason = 'Batch count failed.';
     deferredCall = $.ajax({
         'url': '/_ajax/batch',
         'type': 'POST',
@@ -93,10 +95,10 @@ $(document).ready(function() {
         'timeout': 5000,
         'statusCode': {
             404: function () {
-                countFailCallback();
+                setErrorAlert('counts-404-error', 404, errorReason);
             },
             500: function () {
-                countFailCallback();
+                setErrorAlert('counts-500-error', 500, errorReason);
             }
         }
     });
@@ -105,7 +107,10 @@ $(document).ready(function() {
 });
 
 $(document).ready(function () {
-    "use strict";
+    'use strict';
+
+    var errorReason = '',
+        ajaxDefconCall = null;
 
     function countFailCallback () {
         $('.count-badge').each(function () {
@@ -170,7 +175,15 @@ $(document).ready(function () {
                     },
                     'beforeSend': setXhrHeader,
                     'error': countFailCallback,
-                    'timeout': 6000
+                    'timeout': 6000,
+                    'statusCode': {
+                        404: function () {
+                            setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        500: function () {
+                            setErrorAlert('batch-500-error', 500, errorReason);
+                        }
+                    }
                 });
             } else {
                 // Perform POST on batch API.
@@ -185,6 +198,7 @@ $(document).ready(function () {
                     };
                 }
 
+                errorReason = 'Batch build count failed.';
                 deferredCall = $.ajax({
                     'url': '/_ajax/batch',
                     'type': 'POST',
@@ -198,7 +212,15 @@ $(document).ready(function () {
                         'batch': batchQueries
                     }),
                     'error': countFailCallback,
-                    'timeout': 10000
+                    'timeout': 10000,
+                    'statusCode': {
+                        404: function () {
+                            setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        500: function () {
+                            setErrorAlert('batch-500-error', 500, errorReason);
+                        }
+                    }
                 });
             }
 
@@ -208,7 +230,15 @@ $(document).ready(function () {
         }
     }
 
-    var ajaxDefconCall = $.ajax({
+    function emptyTableOnError () {
+        $('#builds-body').empty().append(
+            '<tr><td colspan="6" align="center" valign="middle">' +
+            '<h4>Error loading data.</h4></td></tr>'
+        );
+    }
+
+    errorReason = 'Defconfig data call failed.';
+    ajaxDefconCall = $.ajax({
         'url': '/_ajax/defconf',
         'traditional': true,
         'cache': true,
@@ -223,46 +253,23 @@ $(document).ready(function () {
             'field': ['kernel', 'metadata', 'created_on']
         },
         'beforeSend': setXhrHeader,
+        'error': emptyTableOnError,
+        'timeout': 6000,
         'statusCode': {
             404: function () {
-                $('#failed-builds-body').empty().append(
-                    '<tr><td colspan="6" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="defconfs-404-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '404 error while loading defconfigs from the server.\n' +
-                    'Please contact the website administrators.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#defconfs-404-error').alert();
+                setErrorAlert('defconfs-404-error', 404, errorReason);
             },
             500: function () {
-                $('#failed-builds-body').empty().append(
-                    '<tr><td colspan="6" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="defconfs-500-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    '500 error while loading defconfigs from the server.\n' +
-                    'Please contact the website administrators.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#defconfs-500-error').alert();
+                setErrorAlert('defconfs-500-error', 500, errorReason);
             }
         }
     }).done(function (data) {
-        data = data.result;
-
-        var row = '',
+        var localData = data.result,
+            row = '',
             created, col1, col2, col3, col4, col5, col6, href,
             kernel, git_branch, git_commit,
             i = 0,
-            len = data.length;
+            len = localData.length;
 
         if (len === 0) {
             row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
@@ -270,10 +277,10 @@ $(document).ready(function () {
             $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
-                kernel = data[i].kernel;
-                git_branch = data[i].metadata.git_branch;
-                git_commit = data[i].metadata.git_commit;
-                created = new Date(data[i].created_on['$date']);
+                kernel = localData[i].kernel;
+                git_branch = localData[i].metadata.git_branch;
+                git_commit = localData[i].metadata.git_commit;
+                created = new Date(localData[i].created_on['$date']);
                 href = '/build/' + jobId + '/kernel/' + kernel + '/';
 
                 col1 = '<td>' + kernel + '</td>';

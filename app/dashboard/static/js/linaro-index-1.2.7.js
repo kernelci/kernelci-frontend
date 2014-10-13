@@ -1,12 +1,28 @@
 var csrftoken = $('meta[name=csrf-token]').attr('content');
 
 function setXhrHeader (xhr) {
-    "use strict";
+    'use strict';
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
 }
 
+
+function emptyTableOnError (tableId, colspan) {
+    'use strict';
+
+    var localId = tableId;
+    if (tableId[0] !== '#') {
+        localId = '#' + tableId;
+    }
+
+    $(localId).empty().append(
+        '<tr><td colspan="' + colspan +
+        '" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>'
+    );
+}
+
 $(document).ready(function () {
-    "use strict";
+    'use strict';
 
     $('#li-home').addClass('active');
     $('body').tooltip({
@@ -23,7 +39,10 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    "use strict";
+    'use strict';
+
+    var errorReason = '',
+        ajaxDeferredCall = null;
 
     function countFailCallback () {
         $('.fail-badge').each(function () {
@@ -74,7 +93,16 @@ $(document).ready(function () {
                         'kernel': localData[0].kernel
                     },
                     'beforeSend': setXhrHeader,
-                    'error': countFailCallback
+                    'error': countFailCallback,
+                    'timeout': 6000,
+                    'statusCode': {
+                        404: function () {
+                            setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        500: function () {
+                            setErrorAlert('batch-500-error', 500, errorReason);
+                        }
+                    }
                 });
             } else {
                 // Perform POST on batch API.
@@ -101,7 +129,16 @@ $(document).ready(function () {
                     'data': JSON.stringify({
                         'batch': batchQueries
                     }),
-                    'error': countFailCallback
+                    'error': countFailCallback,
+                    'timeout': 10000,
+                    'statusCode': {
+                        404: function () {
+                            setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        500: function () {
+                            setErrorAlert('batch-500-error', 500, errorReason);
+                        }
+                    }
                 });
             }
 
@@ -109,135 +146,97 @@ $(document).ready(function () {
         }
     }
 
-    $.when(
-        $.ajax({
-            'url': '/_ajax/defconf',
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'context': $('#failed-builds-body'),
-            'data': {
-                'aggregate': 'kernel',
-                'status': 'FAIL',
-                'sort': 'created_on',
-                'sort_order': -1,
-                'limit': 25,
-                'date_range': $('#date-range').val(),
-                'field': ['job', 'kernel', 'metadata', 'created_on']
+    errorReason = 'Defconfig data call failed.';
+    ajaxDeferredCall = $.ajax({
+        'url': '/_ajax/defconf',
+        'traditional': true,
+        'cache': true,
+        'dataType': 'json',
+        'context': $('#failed-builds-body'),
+        'data': {
+            'aggregate': 'kernel',
+            'status': 'FAIL',
+            'sort': 'created_on',
+            'sort_order': -1,
+            'limit': 25,
+            'date_range': $('#date-range').val(),
+            'field': ['job', 'kernel', 'metadata', 'created_on']
+        },
+        'beforeSend': setXhrHeader,
+        'timeout': 6000,
+        'error': emptyTableOnError('#failed-builds-body', 5),
+        'statusCode': {
+            403: function () {
+                setErrorAlert('defconfs-403-error', 403, errorReason);
             },
-            'beforeSend': setXhrHeader,
-            'statusCode': {
-                403: function () {
-                    $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" ' +
-                            'valign="middle">' +
-                            '<h4>Error loading data.</h4></td></tr>'
-                    );
-                    var text = '<div id="defconfs-403-error" ' +
-                        'class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" ' +
-                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        'Error while loading defconfigs data from the server. ' +
-                        'Please contact the website administrators. ' +
-                        'Error code was: 403.' +
-                        '</div>';
-                    $('#errors-container').append(text);
-                    $('#defconfs-403-error').alert();
-                },
-                404: function () {
-                    $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" ' +
-                            'valign="middle">' +
-                            '<h4>Error loading data.</h4></td></tr>'
-                    );
-                    var text = '<div id="defconfs-404-error" ' +
-                        'class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" ' +
-                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        'Error while loading defconfigs data from the server. ' +
-                        'Please contact the website administrators. ' +
-                        'Error code was: 404.' +
-                        '</div>';
-                    $('#errors-container').append(text);
-                    $('#defconfs-404-error').alert();
-                },
-                500: function () {
-                    $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="5" align="center" ' +
-                            'valign="middle">' +
-                            '<h4>Error loading data.</h4></td></tr>'
-                    );
-                    var text = '<div id="defconfs-500-error" ' +
-                        'class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" ' +
-                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        'Error while loading defconfigs data from the server. ' +
-                        'Please contact the website administrators. ' +
-                        'Error code was: 500.' +
-                        '</div>';
-                    $('#errors-container').append(text);
-                    $('#defconfs-500-error').alert();
-                }
+            404: function () {
+                setErrorAlert('defconfs-404-error', 404, errorReason);
+            },
+            500: function () {
+                setErrorAlert('defconfs-500-error', 500, errorReason);
             }
-        }).done(function (data) {
-            data = data.result;
+        }
+    }).done(function (data) {
+        var localData = data.result,
+            row = '',
+            job,
+            created,
+            col1,
+            col2,
+            col3,
+            col4,
+            col5,
+            href,
+            kernel,
+            git_branch,
+            i = 0,
+            len = localData.length;
 
-            var row = '',
-                job,
-                created,
-                col1,
-                col2,
-                col3,
-                col4,
-                col5,
-                href,
-                kernel,
-                git_branch,
-                i = 0,
-                len = data.length;
+        if (len === 0) {
+            row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
+                'No failed builds.</h4></td></tr>';
+            $(this).empty().append(row);
+        } else {
+            for (i; i < len; i++) {
+                job = localData[i].job;
+                kernel = localData[i].kernel;
+                git_branch = localData[i].metadata.git_branch;
+                created = new Date(localData[i].created_on['$date']);
+                href = '/build/' + job + '/kernel/' + kernel + '/';
 
-            if (len === 0) {
-                row = '<tr><td colspan="5" align="center" valign="middle"><h4>' +
-                    'No failed builds.</h4></td></tr>';
-                $(this).empty().append(row);
-            } else {
-                for (i; i < len; i++) {
-                    job = data[i].job;
-                    kernel = data[i].kernel;
-                    git_branch = data[i].metadata.git_branch;
-                    created = new Date(data[i].created_on['$date']);
-                    href = '/build/' + job + '/kernel/' + kernel + '/';
-
-                    col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
-                        git_branch + '</small></td>';
-                    col2 = '<td>' + kernel + '</a></td>';
-                    col3 = '<td class="pull-center">' +
-                        '<span class="badge alert-danger">' +
-                        '<span id="fail-count' + i + '" ' +
-                        'class="fail-badge">' +
-                        '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                        '</td>';
-                    col4 = '<td class="pull-center">' +
-                        created.getCustomISODate() + '</td>';
-                    col5 = '<td class="pull-center">' +
-                        '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="Details for job&nbsp;' + job +
-                        '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                        '<a href="' + href + '">' +
-                        '<i class="fa fa-search"></i></a>' +
-                        '</span></td>';
-                    row += '<tr data-url="' + href + '">' +
-                        col1 + col2 + col3 + col4 + col5 + '</tr>';
-                }
-
-                $(this).empty().append(row);
+                col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
+                    git_branch + '</small></td>';
+                col2 = '<td>' + kernel + '</a></td>';
+                col3 = '<td class="pull-center">' +
+                    '<span class="badge alert-danger">' +
+                    '<span id="fail-count' + i + '" ' +
+                    'class="fail-badge">' +
+                    '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                    '</td>';
+                col4 = '<td class="pull-center">' +
+                    created.getCustomISODate() + '</td>';
+                col5 = '<td class="pull-center">' +
+                    '<span rel="tooltip" data-toggle="tooltip" ' +
+                    'title="Details for job&nbsp;' + job +
+                    '&nbsp;&dash;&nbsp;' + kernel + '">' +
+                    '<a href="' + href + '">' +
+                    '<i class="fa fa-search"></i></a>' +
+                    '</span></td>';
+                row += '<tr data-url="' + href + '">' +
+                    col1 + col2 + col3 + col4 + col5 + '</tr>';
             }
-        })
-    ).then(countFailedDefconfigs, countFailCallback);
+
+            $(this).empty().append(row);
+        }
+    });
+
+    $.when(ajaxDeferredCall).then(countFailedDefconfigs, countFailCallback);
 });
 
 $(document).ready(function () {
     "use strict";
+
+    var errorReason = 'Job data call failed.';
 
     $.ajax({
         'url': '/_ajax/job',
@@ -254,64 +253,26 @@ $(document).ready(function () {
             'field': ['job', 'created_on', 'metadata']
         },
         'beforeSend': setXhrHeader,
+        'error': emptyTableOnError('#failed-jobs-body', 3),
+        'timeout': 6000,
         'statusCode': {
             403: function () {
-                $('#failed-jobs-body').empty().append(
-                    '<tr><td colspan="3" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="jobs-403-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading jobs data from the server. ' +
-                    'Please contact the website administrators. ' +
-                    'Error code was: 403.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#jobs-403-error').alert();
+                setErrorAlert('jobs-403-error', 403, errorReason);
             },
             404: function () {
-                $('#failed-jobs-body').empty().append(
-                    '<tr><td colspan="3" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="jobs-404-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading jobs data from the server. ' +
-                    'Please contact the website administrators. ' +
-                    'Error code was: 404.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#jobs-404-error').alert();
+                setErrorAlert('jobs-404-error', 404, errorReason);
             },
             500: function () {
-                $('#failed-jobs-body').empty().append(
-                    '<tr><td colspan="3" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="jobs-500-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading jobs data from the server. ' +
-                    'Please contact the website administrators. ' +
-                    'Error code was: 500.' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#jobs-500-error').alert();
+                setErrorAlert('jobs-500-error', 500, errorReason);
             }
         }
     }).done(function (data) {
-        data = data.result;
-
-        var row = '',
+        var localData = data.result,
+            row = '',
             created, col1, col2, col3, href,
             job, git_branch,
             i = 0,
-            len = data.length;
+            len = localData.length;
 
         if (len === 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
@@ -319,9 +280,9 @@ $(document).ready(function () {
             $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
-                created = new Date(data[i].created_on['$date']);
-                job = data[i].job;
-                git_branch = data[i].metadata.git_branch;
+                created = new Date(localData[i].created_on['$date']);
+                job = localData[i].job;
+                git_branch = localData[i].metadata.git_branch;
                 href = '/job/' + job + '/';
 
                 col1 = '<td><a class="table-link" href="' + href + '">' +
@@ -347,6 +308,8 @@ $(document).ready(function () {
 $(document).ready(function () {
     "use strict";
 
+    var errorReason = 'Boot data call failed.';
+
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
@@ -362,63 +325,25 @@ $(document).ready(function () {
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on']
         },
         'beforeSend': setXhrHeader,
+        'timeout': 6000,
+        'error': emptyTableOnError('#failed-boots-body', 6),
         'statusCode': {
             403: function () {
-                $('#failed-boots-body').empty().append(
-                    '<tr><td colspan="6" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="boots-403-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading boot reports from the server.\n' +
-                    'Please contact the website administrators.&nbsp;' +
-                    'Error code was: 403' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#boots-403-error').alert();
+                setErrorAlert('boots-403-error', 403, errorReason);
             },
             404: function () {
-                $('#failed-boots-body').empty().append(
-                    '<tr><td colspan="6" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="boots-404-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading boot reports from the server.\n' +
-                    'Please contact the website administrators.&nbsp;' +
-                    'Error code was: 404' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#boots-404-error').alert();
+                setErrorAlert('boots-404-error', 404, errorReason);
             },
             500: function () {
-                $('#failed-boots-body').empty().append(
-                    '<tr><td colspan="6" align="center" valign="middle">' +
-                    '<h4>Error loading data.</h4></td></tr>'
-                );
-                var text = '<div id="boots-500-error" ' +
-                    'class="alert alert-danger alert-dismissable">' +
-                    '<button type="button" class="close" ' +
-                    'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                    'Error while loading boot reports from the server.\n' +
-                    'Please contact the website administrators.&nbsp;' +
-                    'Error code was: 500' +
-                    '</div>';
-                $('#errors-container').append(text);
-                $('#boots-500-error').alert();
+                setErrorAlert('boots-500-error', 500, errorReason);
             }
         }
     }).done(function (data) {
-        data = data.result;
-
-        var row = '',
+        var localData = data.result,
+            row = '',
             created, board, job, kernel, defconfig,
             col1, col2, col3, col4, col5, col6, href,
-            len = data.length,
+            len = localData.length,
             i = 0;
 
         if (len === 0) {
@@ -427,11 +352,11 @@ $(document).ready(function () {
             $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
-                created = new Date(data[i].created_on['$date']);
-                job = data[i].job;
-                kernel = data[i].kernel;
-                board = data[i].board;
-                defconfig = data[i].defconfig;
+                created = new Date(localData[i].created_on['$date']);
+                job = localData[i].job;
+                kernel = localData[i].kernel;
+                board = localData[i].board;
+                defconfig = localData[i].defconfig;
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
                     kernel + '/defconfig/' + defconfig + '/';
 
