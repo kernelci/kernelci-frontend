@@ -1,4 +1,3 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
 var searchFilter = $('#search-filter').val();
 
 $(document).ready(function () {
@@ -13,18 +12,20 @@ $(document).ready(function () {
 
     $('#table-div').hide();
 
-    function failedAjaxCall() {
-        // TODO
+    var errorReason = '',
+        getDataAjax = null;
+
+    function failedAjaxCall () {
+        $("#table-loading").remove();
     }
 
-    function countFailCallback() {
-        // TODO
+    function countFailCallback () {
         $('.count-badge').each(function () {
             $(this).empty().append('&infin;');
         });
     }
 
-    function batchCountElements(data) {
+    function batchCountElements (data) {
         var localData = data.result,
             i = 0,
             j = 0,
@@ -34,6 +35,8 @@ $(document).ready(function () {
             len = localData.length,
             queriesLen = len * 4,
             batchQueries = new Array(queriesLen);
+
+        errorReason = 'Batch count failed.';
 
         if (len > 0) {
             for (i; i < queriesLen; i += batchElements) {
@@ -89,13 +92,24 @@ $(document).ready(function () {
                 'headers': {
                     'Content-Type': 'application/json'
                 },
-                'beforeSend': function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                },
+                'beforeSend': setXhrHeader,
                 'data': JSON.stringify({
                     'batch': batchQueries
                 }),
-                'error': countFailCallback
+                'timeout': 10000,
+                'error': countFailCallback,
+                'statusCode': {
+                    404: function () {
+                        setErrorAlert('batch-404-error', 404, errorReason);
+                    },
+                    408: function () {
+                        errorReason = 'Batch count failed: timeout.';
+                        setErrorAlert('batch-408-error', 408, errorReason);
+                    },
+                    500: function () {
+                        setErrorAlert('batch-500-error', 500, errorReason);
+                    }
+                }
             }).done(function (data) {
                 var batchData = data.result,
                     batchLen = batchData.length,
@@ -126,7 +140,7 @@ $(document).ready(function () {
                 'zeroRecords': '<h4>No jobs to display.</h4>',
                 'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
             },
-            'initComplete': function (settings, data) {
+            'initComplete': function () {
                 $("#table-loading").remove();
                 $("#table-div").fadeIn("slow", "linear");
 
@@ -166,7 +180,7 @@ $(document).ready(function () {
                     'searchable': false,
                     'orderable': false,
                     'className': 'pull-center',
-                    'render': function(data) {
+                    'render': function (data) {
                         return '<span class="badge alert-success">' +
                             '<span id="defconf-success-count-' + data +
                             '" class="count-badge">' +
@@ -189,7 +203,7 @@ $(document).ready(function () {
                     'searchable': false,
                     'orderable': false,
                     'className': 'pull-center',
-                    'render': function(data) {
+                    'render': function (data) {
                         return '<span class="badge alert-success">' +
                             '<span id="boot-success-count-' + data +
                             '" class="count-badge">' +
@@ -289,21 +303,20 @@ $(document).ready(function () {
         return data;
     }
 
-    function updateJobsPage(data) {
+    function updateJobsPage (data) {
         // Simple function needed to wrap another deferred call.
         // Create the table, then update it with the batch count operation.
-        $.when(createJobsTable(data)).then(batchCountElements);
+        $.when(createJobsTable(data)).done(batchCountElements);
     }
 
-    var getDataAjax = $.ajax({
+    errorReason = 'Job data call failed.';
+    getDataAjax = $.ajax({
         'url': '/_ajax/job',
         'traditional': true,
         'cache': true,
         'dataType': 'json',
         'dataSrc': 'result',
-        'beforeSend': function (xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        },
+        'beforeSend': setXhrHeader,
         'data': {
             'aggregate': 'job',
             'sort': 'created_on',
@@ -312,6 +325,20 @@ $(document).ready(function () {
             'field': [
                 'job', 'created_on', 'status', 'metadata'
             ]
+        },
+        'timeout': 6000,
+        'error': failedAjaxCall,
+        'statusCode': {
+            404: function () {
+                setErrorAlert('job-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Job data call failed: timeout.';
+                setErrorAlert('batch-408-error', 408, errorReason);
+            },
+            500: function () {
+                setErrorAlert('job-500-error', 500, errorReason);
+            }
         }
     });
 
