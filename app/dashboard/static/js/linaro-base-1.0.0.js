@@ -1,3 +1,5 @@
+var csrftoken = $('meta[name=csrf-token]').attr('content');
+
 function setErrorAlert (id, code, reason) {
     /*
      * Pass code (int) and id (string) to alert an error on the page.
@@ -29,4 +31,13 @@ function setErrorAlert (id, code, reason) {
 
     $('#errors-container').append(text);
     $(localId).alert();
+}
+
+function setXhrHeader (xhr) {
+    /*
+        Set the CSRF token header for ajax request.
+        xhr: The xhr object to add the header to.
+    */
+    'use strict';
+    xhr.setRequestHeader("X-CSRFToken", csrftoken);
 }
