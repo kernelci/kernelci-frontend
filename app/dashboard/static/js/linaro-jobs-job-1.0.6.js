@@ -1,11 +1,5 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
 var jobId= $('#job-id').val();
 var dateRange = $('#date-range').val();
-
-function setXhrHeader (xhr) {
-    'use strict';
-    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-}
 
 $(document).ready(function () {
     'use strict';
@@ -127,7 +121,7 @@ $(document).ready(function () {
 
         if (len > 0) {
             if (len === 1) {
-                count = localData.count;
+                count = localData[0].count;
                 $('#fail-count0').empty().append(count);
 
                 if (count === 0) {
