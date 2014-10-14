@@ -334,7 +334,7 @@ $(document).ready(function () {
             },
             408: function () {
                 errorReason = 'Job data call failed: timeout.';
-                setErrorAlert('batch-408-error', 408, errorReason);
+                setErrorAlert('job-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('job-500-error', 500, errorReason);
