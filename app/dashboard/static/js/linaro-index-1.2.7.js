@@ -1,11 +1,3 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
-
-function setXhrHeader (xhr) {
-    'use strict';
-    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-}
-
-
 function emptyTableOnError (tableId, colspan) {
     'use strict';
 
@@ -58,7 +50,7 @@ $(document).ready(function () {
 
         if (len > 0) {
             if (len === 1) {
-                $('#fail-count0').empty().append(localData.count);
+                $('#fail-count0').empty().append(localData[0].count);
             } else {
                 for (i; i < len; i++) {
                     batchResult = localData[i].result[0];
@@ -79,8 +71,10 @@ $(document).ready(function () {
             deferredCall = null,
             batchQueries = new Array(len);
 
+
         if (len > 0) {
             if (len === 1) {
+                errorReason = 'Defconfig data call failed.';
                 // Peform normal GET.
                 deferredCall = $.ajax({
                     'url': '/_ajax/count/defconfig',
@@ -98,6 +92,10 @@ $(document).ready(function () {
                     'statusCode': {
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        408: function () {
+                            errorReason = 'Defconfing data call failed: timeout.';
+                            setErrorAlert('batch-408-error', 408, errorReason);
                         },
                         500: function () {
                             setErrorAlert('batch-500-error', 500, errorReason);
@@ -117,6 +115,7 @@ $(document).ready(function () {
                     };
                 }
 
+                errorReason = 'Batch count failed.';
                 deferredCall = $.ajax({
                     'url': '/_ajax/batch',
                     'type': 'POST',
@@ -134,6 +133,10 @@ $(document).ready(function () {
                     'statusCode': {
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        408: function () {
+                            errorReason = 'Batch count failed: timeout.';
+                            setErrorAlert('batch-408-error', 408, errorReason);
                         },
                         500: function () {
                             setErrorAlert('batch-500-error', 500, errorReason);
@@ -171,6 +174,10 @@ $(document).ready(function () {
             },
             404: function () {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Defconfing data call failed: timeout.';
+                setErrorAlert('defconfs-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('defconfs-500-error', 500, errorReason);
@@ -262,6 +269,10 @@ $(document).ready(function () {
             404: function () {
                 setErrorAlert('jobs-404-error', 404, errorReason);
             },
+            408: function () {
+                errorReason = 'Job data call failed: timeout.';
+                setErrorAlert('jobs-408-error', 408, errorReason);
+            },
             500: function () {
                 setErrorAlert('jobs-500-error', 500, errorReason);
             }
@@ -334,6 +345,10 @@ $(document).ready(function () {
             },
             404: function () {
                 setErrorAlert('boots-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Boot data call failed: timeout.';
+                setErrorAlert('boots-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('boots-500-error', 500, errorReason);
