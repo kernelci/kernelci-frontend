@@ -1,17 +1,12 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
 var searchFilter = $('#search-filter').val();
 
-$(document).ready(function () {
-    $('#li-build').addClass('active');
+function createBuildsTable (data) {
+    'use strict';
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto'
-    });
+    var localData = data.result,
+        table = null;
 
-    $('#table-div').hide();
-
-    var table = $('#defconfstable').dataTable({
+    table = $('#defconfstable').dataTable({
         'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
             '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
@@ -41,32 +36,7 @@ $(document).ready(function () {
         'search': {
             'regex': true
         },
-        'ajax': {
-            'url': '/_ajax/defconf',
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'dataSrc': 'result',
-            'dataFilter': function (data, type) {
-                if (type === 'json') {
-                    data.result = JSON.stringify(data.result);
-                    return data;
-                }
-                return data;
-            },
-            'beforeSend': function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            },
-            'data': {
-                'sort': 'created_on',
-                'sort_order': -1,
-                'date_range': $('#date-range').val(),
-                'field': [
-                    '_id', 'job', 'kernel', 'defconfig', 'status',
-                    'metadata', 'arch', 'created_on', 'dirname'
-                ]
-            }
-        },
+        'data': localData,
         'columns': [
             {
                 'data': 'job',
@@ -179,10 +149,10 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#defconfstable tbody tr", function () {
-        var data = table.fnGetData(this);
-        if (data) {
-            window.location = '/build/' + data.job +
-                '/kernel/' + data.kernel + '/defconfig/' + data.dirname;
+        var tableData = table.fnGetData(this);
+        if (tableData) {
+            window.location = '/build/' + tableData.job +
+                '/kernel/' + tableData.kernel + '/defconfig/' + tableData.dirname;
         }
     });
 
@@ -193,4 +163,59 @@ $(document).ready(function () {
             $(this).blur();
         }
     });
+}
+
+function failedAjaxCall () {
+    'use strict';
+    $("#table-loading").remove();
+}
+
+$(document).ready(function () {
+    'use strict';
+
+    $('#li-build').addClass('active');
+
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto'
+    });
+
+    $('#table-div').hide();
+
+    var ajaxCall = null,
+        errorReason = '';
+
+    errorReason = 'Defconfig data call failed.';
+    ajaxCall = $.ajax({
+        'url': '/_ajax/defconf',
+        'traditional': true,
+        'cache': true,
+        'dataType': 'json',
+        'data': {
+            'sort': 'created_on',
+            'sort_order': -1,
+            'date_range': $('#date-range').val(),
+            'field': [
+                '_id', 'job', 'kernel', 'defconfig', 'status',
+                'metadata', 'arch', 'created_on', 'dirname'
+            ]
+        },
+        'timeout': 6000,
+        'beforeSend': setXhrHeader,
+        'error': failedAjaxCall,
+        'statusCode': {
+            404: function () {
+                setErrorAlert('build-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Defconfig data call failed: timeout.';
+                setErrorAlert('build-408-error', 408, errorReason);
+            },
+            500: function () {
+                setErrorAlert('build-500-error', 500, errorReason);
+            }
+        }
+    });
+
+    $.when(ajaxCall).then(createBuildsTable, failedAjaxCall);
 });
