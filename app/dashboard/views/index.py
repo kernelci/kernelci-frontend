@@ -26,6 +26,6 @@ class IndexView(View):
 
         return render_template(
             'index.html',
-            page_tile=page_title,
+            page_title=page_title,
             server_date=today_date(),
         )
