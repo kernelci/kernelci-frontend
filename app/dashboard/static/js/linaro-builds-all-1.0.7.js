@@ -148,7 +148,7 @@ function createBuildsTable (data) {
         ]
     });
 
-    $(document).on("click", "#defconfstable tbody tr", function () {
+    $(document).on('click', '#defconfstable tbody tr', function () {
         var tableData = table.fnGetData(this);
         if (tableData) {
             window.location = '/build/' + tableData.job +
@@ -167,7 +167,7 @@ function createBuildsTable (data) {
 
 function failedAjaxCall () {
     'use strict';
-    $("#table-loading").remove();
+    $('#table-loading').remove();
 }
 
 $(document).ready(function () {
