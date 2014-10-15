@@ -79,8 +79,6 @@
         </dl>
     </div>
 </div>
-<div id="dyn-content">
-</div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 <input type="hidden" id="board-id" value="{{ board }}">
 <input type="hidden" id="job-id" value="{{ job }}">
@@ -90,5 +88,5 @@
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript" src="/static/js/linaro-jslib-1.0.1.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-boots-id-1.0.5.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-id-1.0.6.js"></script>
 {%- endblock %}
