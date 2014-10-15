@@ -1,17 +1,12 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
 var searchFilter = $('#search-filter').val();
 
-$(document).ready(function () {
-    $('#li-boot').addClass('active');
+function createBootsTable (data) {
+    'use strict';
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto'
-    });
+    var localData = data.result,
+        table = null;
 
-    $('#table-div').hide();
-
-    var table = $('#bootstable').dataTable({
+    table = $('#bootstable').dataTable({
         'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
             '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
@@ -41,32 +36,7 @@ $(document).ready(function () {
         'search': {
             'regex': true
         },
-        'ajax': {
-            'url': '/_ajax/boot',
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'dataSrc': 'result',
-            'dataFilter': function (data, type) {
-                if (type === 'json') {
-                    data.result = JSON.stringify(data.result);
-                    return data;
-                }
-                return data;
-            },
-            'beforeSend': function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            },
-            'data': {
-                'sort': 'created_on',
-                'sort_order': -1,
-                'date_range': $('#date-range').val(),
-                'field': [
-                    'job', 'kernel', 'defconfig', 'board', 'created_on',
-                    'status'
-                ]
-            }
-        },
+        'data': localData,
         'columns': [
             {
                 'data': 'job',
@@ -170,11 +140,12 @@ $(document).ready(function () {
         ]
     });
 
-    $(document).on("click", "#bootstable tbody tr", function () {
-        var data = table.fnGetData(this);
-        if (data) {
-            window.location = '/boot/' + data.board + '/job/' + data.job +
-                '/kernel/' + data.kernel + '/defconfig/' + data.defconfig + '/';
+    $(document).on('click', '#bootstable tbody tr', function () {
+        var localTable = table.fnGetData(this);
+        if (localTable) {
+            window.location = '/boot/' + localTable.board + '/job/' +
+                localTable.job + '/kernel/' + localTable.kernel +
+                '/defconfig/' + localTable.defconfig + '/';
         }
     });
 
@@ -185,4 +156,60 @@ $(document).ready(function () {
             $(this).blur();
         }
     });
+}
+
+function failedAjaxCall () {
+    'use strict';
+    $('#table-loading').remove();
+}
+
+$(document).ready(function () {
+    'use strict';
+
+    $('#li-boot').addClass('active');
+
+    $('body').tooltip({
+        'selector': '[rel=tooltip]',
+        'placement': 'auto'
+    });
+
+    $('#table-div').hide();
+
+    var ajaxCall = null,
+        errorReason = '';
+
+    errorReason = 'Boot data call failed.';
+    ajaxCall = $.ajax({
+        'url': '/_ajax/boot',
+        'traditional': true,
+        'cache': true,
+        'dataType': 'json',
+        'dataSrc': 'result',
+        'data': {
+            'sort': 'created_on',
+            'sort_order': -1,
+            'date_range': $('#date-range').val(),
+            'field': [
+                'job', 'kernel', 'defconfig', 'board', 'created_on',
+                'status'
+            ]
+        },
+        'beforeSend': setXhrHeader,
+        'timeout': 6000,
+        'error': failedAjaxCall,
+        'statusCode': {
+            404: function () {
+                setErrorAlert('boot-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Boot data call failed: timeout.';
+                setErrorAlert('boot-408-error', 408, errorReason);
+            },
+            500: function () {
+                setErrorAlert('boot-500-error', 500, errorReason);
+            }
+        }
+    });
+
+    $.when(ajaxCall).then(createBootsTable, failedAjaxCall);
 });
