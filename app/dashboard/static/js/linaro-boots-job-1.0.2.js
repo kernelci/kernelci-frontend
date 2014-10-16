@@ -1,6 +1,5 @@
 var jobId = $('#job-id').val();
-// var dateRange = $('#date-range').val();
-var dateRange = 15;
+var dateRange = $('#date-range').val();
 
 function countFailCallback () {
     'use strict';
