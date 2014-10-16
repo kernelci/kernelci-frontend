@@ -181,26 +181,26 @@ $(document).ready(function () {
         'beforeSend': setXhrHeader,
         'statusCode': {
             400: function () {
-                $('#container-content').empty().load(
-                    '/static/html/400-content.html'
+                loadContent(
+                    '#container-content', '/static/html/400-content.html'
                 );
                 setErrorAlert('data-400-error', 400, errorReason);
             },
             404: function () {
-                $('#container-content').empty().load(
-                    '/static/html/404-content.html'
+                loadContent(
+                    '#container-content', '/static/html/404-content.html'
                 );
                 setErrorAlert('data-404-error', 404, errorReason);
             },
             408: function () {
-                $('#container-content').empty().load(
-                    '/static/html/408-content.html'
+                loadContent(
+                    '#container-content', '/static/html/408-content.html'
                 );
                 setErrorAlert('data-408-error', 408, errorReason);
             },
             500: function () {
-                $('#container-content').empty().load(
-                    '/static/html/500-content.html'
+                loadContent(
+                    '#container-content', '/static/html/500-content.html'
                 );
                 setErrorAlert('data-500-error', 500, errorReason);
             }
