@@ -1,7 +1,263 @@
-var csrftoken = $('meta[name=csrf-token]').attr('content');
+var jobId = $('#job-id').val();
+var dateRange = $('#date-range').val();
+
+function countFailCallback () {
+    'use strict';
+
+    $('.fail-badge').each(function () {
+        $(this).empty().append('&infin;');
+    });
+}
+
+function failedMainAjaxCall () {
+    'use strict';
+
+    $('#failed-builds-body').empty().append(
+        '<tr><td colspan="4" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>'
+    );
+}
+
+function populateBootReports (data) {
+    'use strict';
+
+    var localData = data.result,
+        row = '',
+        job = jobId,
+        created,
+        col1,
+        col2,
+        col3,
+        col4,
+        href,
+        kernel,
+        i = 0,
+        len = localData.length;
+
+    if (len === 0) {
+        row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
+            'No boot reports available.</h4></td></tr>';
+        $('#boot-reports-body').empty().append(row);
+    } else {
+        for (i; i < len; i++) {
+            kernel = localData[i].kernel;
+            created = new Date(localData[i].created_on['$date']);
+            href = '/boot/all/job/' + job + '/kernel/' + kernel + '/';
+
+            col1 = '<td>' + kernel + '</td>';
+            col2 = '<td class="pull-center"><span class="badge alert-danger">' +
+                '<span id="fail-count' + i + '" ' +
+                'class="fail-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                '</td>';
+            col3 = '<td class="pull-center">' + created.getCustomISODate() + '</td>';
+            col4 = '<td class="pull-center">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Details for boot reports&nbsp;' + job +
+                '&nbsp;&dash;&nbsp;' + kernel + '">' +
+                '<a href="' + href + '">' +
+                '<i class="fa fa-search"></i></a>' +
+                '</span></td>';
+            row += '<tr data-url="' + href + '">' +
+                col1 + col2 + col3 + col4 + '</tr>';
+        }
+
+        $('#boot-reports-body').empty().append(row);
+    }
+}
+
+function countFailedDoneCallback (data) {
+    'use strict';
+
+    var localData = data.result,
+        len = localData.length,
+        i = 0,
+        batchResult = null;
+
+    if (len > 0) {
+        if (len === 1) {
+            $('#fail-count0').empty().append(localData[0].count);
+        } else {
+            for (i; i < len; i++) {
+                batchResult = localData[i].result[0];
+                $(localData[i].operation_id).empty().append(batchResult.count);
+            }
+        }
+    }
+}
+
+function countFailedErrorCallback () {
+    'use strict';
+    $('.fail-badge').each(function () {
+        $(this).empty().append('&infin;');
+    });
+}
+
+function countFailedBootReports (data) {
+    'use strict';
+
+    var localData = data.result,
+        i = 0,
+        len = localData.length,
+        deferredCall = null,
+        batchQueris = new Array(len),
+        errorReason;
+
+    if (len > 0) {
+        if (len === 1) {
+            errorReason = 'Boot count data call failed.';
+            // Perform normal GET.
+            deferredCall = $.ajax({
+                'url': '/_ajax/count/boot',
+                'traditional': true,
+                'cache': true,
+                'dataType': 'json',
+                'data': {
+                    'status': 'FAIL',
+                    'job': jobId,
+                    'kernel': localData[0].kernel
+                },
+                'beforeSend': setXhrHeader,
+                'error': countFailedErrorCallback,
+                'timeout': 6000,
+                'statusCode': {
+                    404: function () {
+                        setErrorAlert('batch-404-error', 404, errorReason);
+                    },
+                    408: function () {
+                        errorReason = 'Boot count data call failed: timeout.';
+                        setErrorAlert('batch-408-error', 408, errorReason);
+                    },
+                    500: function () {
+                        setErrorAlert('batch-500-error', 500, errorReason);
+                    }
+                }
+            });
+        } else {
+            // Perform POST on batch API.
+            for (i; i < len; i++) {
+                batchQueris[i] = {
+                    'method': 'GET',
+                    'operation_id': '#fail-count' + i,
+                    'collection': 'count',
+                    'document_id': 'boot',
+                    'query': 'status=FAIL&job=' + jobId + '&kernel=' +
+                        localData[i].kernel
+                };
+            }
+
+            errorReason = 'Batch count failed';
+            deferredCall = $.ajax({
+                'url': '/_ajax/batch',
+                'type': 'POST',
+                'traditional': true,
+                'dataType': 'json',
+                'headers': {
+                    'Content-Type': 'application/json'
+                },
+                'data': JSON.stringify({
+                    'batch': batchQueris
+                }),
+                'beforeSend': setXhrHeader,
+                'timeout': 10000,
+                'error': countFailedErrorCallback,
+                'statusCode': {
+                    404: function () {
+                        setErrorAlert('batch-404-error', 404, errorReason);
+                    },
+                    408: function () {
+                        errorReason = 'Batch count failed: timeout.';
+                        setErrorAlert('batch-408-error', 408, errorReason);
+                    },
+                    500: function () {
+                        setErrorAlert('batch-500-error', 500, errorReason);
+                    }
+                }
+            });
+        }
+
+        $.when(deferredCall).done(countFailedDoneCallback);
+    }
+}
+
+function countBootDetails (data) {
+    'use strict';
+    var localData = data.result,
+        bootReportsCount,
+        bootBoardsCount;
+
+    if (localData[0].operation_id === '#boot-reports-count') {
+        console.log("WE ARE HERE");
+        bootReportsCount = localData[0].result[0].count;
+        bootBoardsCount = localData[1].result.length;
+    } else {
+        console.log("WE ARE HERE 2");
+        bootBoardsCount = localData[0].result.length;
+        bootReportsCount = localData[1].result[0].count;
+    }
+
+    $('#boot-reports-count').empty().append(bootReportsCount);
+    $('#boot-boards-count').empty().append(bootBoardsCount);
+ }
+
+ function failedCountBootDetails () {
+    'use strict';
+    $('#boot-reports-count').empty().append('&infin;');
+    $('#boot-boards-count').empty().append('&infin;');
+ }
+
 
 $(document).ready(function () {
-    "use strict";
+    'use strict';
+
+    var batchQueries = new Array(2),
+        errorReason = 'Batch data call failed.',
+        ajaxBatchCall;
+
+    batchQueries[0] = {
+        'method': 'GET',
+        'operation_id': '#boot-reports-count',
+        'collection': 'count',
+        'document_id': 'boot',
+        'query': 'job=' + jobId + '&date_range=' + dateRange
+    };
+
+    batchQueries[1] = {
+        'method': 'GET',
+        'operation_id': '#boot-boards-count',
+        'collection': 'boot',
+        'query': 'job=' + jobId + '&date_range=' + dateRange +
+            '&aggregate=board&field=board'
+    };
+
+    ajaxBatchCall = $.ajax({
+        'url': '/_ajax/batch',
+        'type': 'POST',
+        'traditional': true,
+        'dataType': 'json',
+        'headers': {
+            'Content-Type': 'application/json'
+        },
+        'data': JSON.stringify({
+            'batch': batchQueries
+        }),
+        'beforeSend': setXhrHeader,
+        'timeout': 10000,
+        'statusCode': {
+            404: function () {
+                setErrorAlert('count-404-error', 404, errorReason);
+            },
+            500: function () {
+                setErrorAlert('count-500-error', 500, errorReason);
+            }
+        }
+    });
+
+    $.when(ajaxBatchCall).then(countBootDetails, failedCountBootDetails);
+});
+
+$(document).ready(function () {
+    'use strict';
 
     $('#li-boot').addClass('active');
 
@@ -16,220 +272,35 @@ $(document).ready(function () {
             window.location = url;
         }
     });
-});
 
-$(document).ready(function () {
-    "use strict";
+    var errorReason = 'Boot data call failed.',
+        ajaxCall = null;
 
-    $.ajax({
-        'url': '/_ajax/count/boot',
-        'traditional': true,
-        'cache': true,
-        'context': $('#boot-reports-count'),
-        'dataType': 'json',
-        'data': {
-            'job': $('#job-id').val(),
-            'date_range': $('#date-range').val()
-        },
-        'beforeSend': function (xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        },
-        'statusCode': {
-            404: function () {
-                $(this).empty().append('&infin;');
-            },
-            500: function () {
-                $(this).empty().append('&infin;');
-            }
-        }
-    }).done(function (data) {
-        data = data.result[0];
-        $(this).empty().append(data.count);
-    });
-});
-
-$(document).ready(function () {
-    "use strict";
-
-    $.ajax({
+    ajaxCall = $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
-        'context': $('#boot-boards-count'),
         'dataType': 'json',
+        'context': $('#boot-reports-body'),
         'data': {
-            'job': $('#job-id').val(),
-            'date_range': $('#date-range').val(),
-            'aggregate': 'board',
-            'field': 'board'
+            'aggregate': 'kernel',
+            'job': jobId,
+            'sort': 'created_on',
+            'sort_order': -1,
+            'date_range': dateRange,
+            'field': ['job', 'kernel', 'created_on']
         },
-        'beforeSend': function (xhr) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        },
+        'beforeSend': setXhrHeader,
+        'error': failedMainAjaxCall,
         'statusCode': {
             404: function () {
-                $(this).empty().append('&infin;');
+                setErrorAlert('boots-404-error', 404, errorReason);
             },
             500: function () {
-                $(this).empty().append('&infin;');
+                setErrorAlert('boots-500-error', 500, errorReason);
             }
         }
-    }).done(function (data) {
-        data = data.result;
-        $(this).empty().append(data.length);
-    });
-});
+    }).done(populateBootReports);
 
-$(document).ready(function () {
-    "use strict";
-
-    function countFailedBootReports (data) {
-        data = data.result;
-
-        var i = 0,
-            len = data.length,
-            deferredCalls = new Array(len);
-
-        if (len > 0) {
-            for (i; i < len; i++) {
-                deferredCalls[i] = $.ajax({
-                    'url': '/_ajax/count/boot',
-                    'traditional': true,
-                    'cache': true,
-                    'dataType': 'json',
-                    'data': {
-                        'status': 'FAIL',
-                        'job': $('#job-id').val(),
-                        'kernel': data[i].kernel
-                    },
-                    'beforeSend': function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                });
-            }
-
-            $.when.apply($, deferredCalls).then(function () {
-                var count = '&infin;',
-                    first = null;
-                len = arguments.length;
-
-                if (len > 0) {
-                    // This is the case when we have only one build and the
-                    // deferred call returns just the plain object not in an
-                    // Array like way.
-                    first = arguments[0];
-                    if (! Array.isArray(first)) {
-                        count = first.result[0].count;
-                        $('#fail-count0').empty().append(count);
-                    } else {
-                        for (i = 0; i < len; i++) {
-                            if (arguments[i] !== null) {
-                                count = arguments[i][0].result[0].count;
-                                $('#fail-count' + i).empty().append(count);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    }
-
-    function countFailCallback () {
-        $('.fail-badge').each(function () {
-            $(this).empty().append('&infin;');
-        });
-    }
-
-    $.when(
-        $.ajax({
-            'url': '/_ajax/boot',
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'context': $('#boot-reports-body'),
-            'data': {
-                'aggregate': 'kernel',
-                'job': $('#job-id').val(),
-                'sort': 'created_on',
-                'sort_order': -1,
-                'date_range': $('#date-range').val(),
-                'field': ['job', 'kernel', 'created_on']
-            },
-            'beforeSend': function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            },
-            'statusCode': {
-                404: function () {
-                    $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="4" align="center" valign="middle">' +
-                        '<h4>Error loading data.</h4></td></tr>'
-                    );
-                    var text = '<div id="boots-404-error" ' +
-                        'class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" ' +
-                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        '404 error while loading defconfigs from the server.\n' +
-                        'Please contact the website administrators.' +
-                        '</div>';
-                    $('#errors-container').append(text);
-                    $('#boots-404-error').alert();
-                },
-                500: function () {
-                    $('#failed-builds-body').empty().append(
-                        '<tr><td colspan="4" align="center" valign="middle">' +
-                        '<h4>Error loading data.</h4></td></tr>'
-                    );
-                    var text = '<div id="boots-500-error" ' +
-                        'class="alert alert-danger alert-dismissable">' +
-                        '<button type="button" class="close" ' +
-                        'data-dismiss="alert" aria-hidden="true">&times;</button>' +
-                        '500 error while loading defconfigs from the server.\n' +
-                        'Please contact the website administrators.' +
-                        '</div>';
-                    $('#errors-container').append(text);
-                    $('#boots-500-error').alert();
-                }
-            }
-        }).done(function (data) {
-            data = data.result;
-
-            var row = '',
-                job = $('#job-id').val(),
-                created, col1, col2, col3, col4, href,
-                kernel,
-                i = 0,
-                len = data.length;
-
-            if (len === 0) {
-                row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
-                    'No boot reports available.</h4></td></tr>';
-                $(this).empty().append(row);
-            } else {
-                for (i; i < len; i++) {
-                    kernel = data[i].kernel;
-                    created = new Date(data[i].created_on['$date']);
-                    href = '/boot/all/job/' + job + '/kernel/' + kernel + '/';
-
-                    col1 = '<td>' + kernel + '</td>';
-                    col2 = '<td><span class="badge alert-danger">' +
-                        '<span id="fail-count' + i + '" ' +
-                        'class="fail-badge">' +
-                        '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                        '</td>';
-                    col3 = '<td>' + created.getCustomISODate() + '</td>';
-                    col4 = '<td class="pull-center">' +
-                        '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="Details for boot reports&nbsp;' + job +
-                        '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                        '<a href="' + href + '">' +
-                        '<i class="fa fa-search"></i></a>' +
-                        '</span></td>';
-                    row += '<tr data-url="' + href + '">' +
-                        col1 + col2 + col3 + col4 + '</tr>';
-                }
-
-                $(this).empty().append(row);
-            }
-        })
-    ).then(countFailedBootReports, countFailCallback);
+    $.when(ajaxCall).then(countFailedBootReports, countFailCallback);
 });
