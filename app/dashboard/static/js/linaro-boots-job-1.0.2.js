@@ -1,10 +1,11 @@
 var jobId = $('#job-id').val();
-var dateRange = $('#date-range').val();
+// var dateRange = $('#date-range').val();
+var dateRange = 15;
 
 function countFailCallback () {
     'use strict';
 
-    $('.fail-badge').each(function () {
+    $('.badge-count').each(function () {
         $(this).empty().append('&infin;');
     });
 }
@@ -12,7 +13,7 @@ function countFailCallback () {
 function failedMainAjaxCall () {
     'use strict';
 
-    $('#failed-builds-body').empty().append(
+    $('#boot-reports-body').empty().append(
         '<tr><td colspan="4" align="center" valign="middle">' +
         '<h4>Error loading data.</h4></td></tr>'
     );
@@ -45,12 +46,14 @@ function populateBootReports (data) {
             href = '/boot/all/job/' + job + '/kernel/' + kernel + '/';
 
             col1 = '<td>' + kernel + '</td>';
-            col2 = '<td class="pull-center"><span class="badge alert-danger">' +
+            col2 = '<td class="pull-center"><span id="span-id' + i +
+                '" class="badge">' +
                 '<span id="fail-count' + i + '" ' +
-                'class="fail-badge">' +
+                'class="badge-count">' +
                 '<i class="fa fa-cog fa-spin"></i></span></span>' +
                 '</td>';
-            col3 = '<td class="pull-center">' + created.getCustomISODate() + '</td>';
+            col3 = '<td class="pull-center">' + created.getCustomISODate() +
+                '</td>';
             col4 = '<td class="pull-center">' +
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for boot reports&nbsp;' + job +
@@ -72,15 +75,30 @@ function countFailedDoneCallback (data) {
     var localData = data.result,
         len = localData.length,
         i = 0,
-        batchResult = null;
+        batchResult = null,
+        count;
 
     if (len > 0) {
         if (len === 1) {
-            $('#fail-count0').empty().append(localData[0].count);
+            count = localData[0].count;
+
+            $('#fail-count0').empty().append(count);
+            if (count === 0) {
+                $('#span-id0').addClass('alert-success');
+            } else {
+                $('#span-id0').addClass('alert-danger');
+            }
         } else {
             for (i; i < len; i++) {
                 batchResult = localData[i].result[0];
-                $(localData[i].operation_id).empty().append(batchResult.count);
+                count = batchResult.count;
+
+                $(localData[i].operation_id).empty().append(count);
+                if (count === 0) {
+                    $('#span-id' + i).addClass('alert-success');
+                } else {
+                    $('#span-id' + i).addClass('alert-danger');
+                }
             }
         }
     }
@@ -88,7 +106,7 @@ function countFailedDoneCallback (data) {
 
 function countFailedErrorCallback () {
     'use strict';
-    $('.fail-badge').each(function () {
+    $('.badge-count').each(function () {
         $(this).empty().append('&infin;');
     });
 }
@@ -159,7 +177,7 @@ function countFailedBootReports (data) {
                     'batch': batchQueris
                 }),
                 'beforeSend': setXhrHeader,
-                'timeout': 10000,
+                'timeout': 12000,
                 'error': countFailedErrorCallback,
                 'statusCode': {
                     404: function () {
@@ -187,11 +205,9 @@ function countBootDetails (data) {
         bootBoardsCount;
 
     if (localData[0].operation_id === '#boot-reports-count') {
-        console.log("WE ARE HERE");
         bootReportsCount = localData[0].result[0].count;
         bootBoardsCount = localData[1].result.length;
     } else {
-        console.log("WE ARE HERE 2");
         bootBoardsCount = localData[0].result.length;
         bootReportsCount = localData[1].result[0].count;
     }
@@ -242,10 +258,14 @@ $(document).ready(function () {
             'batch': batchQueries
         }),
         'beforeSend': setXhrHeader,
-        'timeout': 10000,
+        'timeout': 12000,
         'statusCode': {
             404: function () {
                 setErrorAlert('count-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Batch data call failed: timeout.';
+                setErrorAlert('count-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('count-500-error', 500, errorReason);
@@ -295,6 +315,10 @@ $(document).ready(function () {
         'statusCode': {
             404: function () {
                 setErrorAlert('boots-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Boot data call failed: timeout.';
+                setErrorAlert('count-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('boots-500-error', 500, errorReason);
