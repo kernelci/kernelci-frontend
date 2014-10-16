@@ -127,7 +127,7 @@ $(document).ready(function () {
                 if (count === 0) {
                     $('#span-id0').addClass('alert-success');
                 } else {
-                    $('#span-id0'   ).addClass('alert-danger');
+                    $('#span-id0').addClass('alert-danger');
                 }
             } else {
                 for (i; i < len; i++) {
