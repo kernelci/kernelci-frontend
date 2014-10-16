@@ -41,3 +41,19 @@ function setXhrHeader (xhr) {
     'use strict';
     xhr.setRequestHeader("X-CSRFToken", csrftoken);
 }
+
+function loadContent (elementId, staticContent) {
+    /*
+        Load some static content replacing what is inside the provided element.
+        elementId: The ID of the element to empty and re-populate.
+        staticContent: URI of the static content HTML to load.
+    */
+    'use strict';
+    var localId = elementId;
+
+    if (elementId[0] !== '#') {
+        localId = '#' + elementId;
+    }
+
+    $(localId).empty().load(staticContent);
+}
