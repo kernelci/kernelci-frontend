@@ -1,15 +1,16 @@
-function populatePage (data) {
+function populatePage(data) {
     'use strict';
 
     var localData = data.result[0],
-        boot_time = new Date(localData.time['$date']),
+        bootTime,
         displ = '',
-        file_server = $('#file-server').val(),
+        fileServer = $('#file-server').val(),
         metadata,
-        non_avail = '<span rel="tooltip" data-toggle="tooltip"' +
+        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
 
+    bootTime = new Date(localData.time['$date']);
     metadata = localData.metadata;
 
     $('#dd-board-board').empty().append(localData.board);
@@ -19,23 +20,24 @@ function populatePage (data) {
             'title="Details for build&nbsp;' + localData.job +
             '&nbsp;&dash;&nbsp;' + localData.kernel +
             '&nbsp;&dash;&nbsp;' + localData.defconfig +
-            '"><a href="/build/' + localData.job + '/kernel/' + localData.kernel +
-            '/defconfig/' + localData.defconfig + '">' +
-            '<i class="fa fa-cube"></i></a></span>'
+            '"><a href="/build/' + localData.job + '/kernel/' +
+            localData.kernel + '/defconfig/' + localData.defconfig +
+            '"><i class="fa fa-cube"></i></a></span>'
     );
     $('#dd-board-kernel').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Boot report details for&nbsp;' + localData.job +
             '&nbsp;&dash;&nbsp;' +
-            localData.kernel + '"><a href="/boot/all/job/' + localData.job + '/kernel/' +
-            localData.kernel + '">' + localData.kernel +
+            localData.kernel + '"><a href="/boot/all/job/' + localData.job +
+            '/kernel/' + localData.kernel + '">' + localData.kernel +
             '</a></span>' +
             '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Details for build&nbsp;' + localData.job +
             '&nbsp;&dash;&nbsp;' +
-            localData.kernel + '"><a href="/build/' + localData.job + '/kernel/' +
-            localData.kernel + '"><i class="fa fa-cube"></i></a></span>'
+            localData.kernel + '"><a href="/build/' + localData.job +
+            '/kernel/' + localData.kernel +
+            '"><i class="fa fa-cube"></i></a></span>'
     );
     $('#dd-board-tree').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -44,14 +46,15 @@ function populatePage (data) {
             '</a></span>' +
             '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for job&nbsp;' + localData.job + '"><a href="/job/' +
-            localData.job + '"><i class="fa fa-sitemap"></i></a></span>'
+            'title="Details for job&nbsp;' + localData.job +
+            '"><a href="/job/' + localData.job +
+            '"><i class="fa fa-sitemap"></i></a></span>'
     );
 
     if (localData.endian !== null) {
         $('#dd-board-endianness').empty().append(localData.endian);
     } else {
-        $('#dd-board-endianness').empty().append(non_avail);
+        $('#dd-board-endianness').empty().append(nonAvail);
     }
 
     if (localData.boot_log !== null || localData.boot_log_html !== null) {
@@ -60,10 +63,10 @@ function populatePage (data) {
         if (localData.boot_log !== null) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="View raw text boot log"><a href="' + file_server +
-                    localData.job + '/' + localData.kernel + '/' + localData.defconfig +
-                    '/' + localData.boot_log + '">txt' +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></span>'
+                'title="View raw text boot log"><a href="' + fileServer +
+                localData.job + '/' + localData.kernel + '/' +
+                localData.defconfig + '/' + localData.boot_log + '">txt' +
+                '&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
 
@@ -73,14 +76,14 @@ function populatePage (data) {
             }
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="View HTML boot log"><a href="' + file_server +
-                    localData.job + '/' + localData.kernel + '/' + localData.defconfig +
-                    '/' + localData.boot_log_html + '">html' +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></span>'
+                'title="View HTML boot log"><a href="' + fileServer +
+                localData.job + '/' + localData.kernel + '/' +
+                localData.defconfig + '/' + localData.boot_log_html +
+                '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
     } else {
-        $('#dd-board-boot-log').empty().append(non_avail);
+        $('#dd-board-boot-log').empty().append(nonAvail);
     }
 
     switch (localData.status) {
@@ -112,13 +115,14 @@ function populatePage (data) {
     if (localData.hasOwnProperty('boot_result_description')) {
         displ += '&nbsp;<small>' + localData.boot_result_description +
             '</small>';
-    } else if (! $.isEmptyObject(metadata) && metadata.hasOwnProperty('boot_result_description')) {
+    } else if (! $.isEmptyObject(metadata) &&
+            metadata.hasOwnProperty('boot_result_description')) {
         displ += '&nbsp;<small>' + metadata.boot_result_description +
             '</small>';
     }
 
     $('#dd-board-status').empty().append(displ);
-    $('#dd-board-boot-time').empty().append(boot_time.getCustomTime());
+    $('#dd-board-boot-time').empty().append(bootTime.getCustomTime());
 
     if (localData.warnings !== null) {
         $('#dd-board-warnings').empty().append(localData.warnings);
@@ -129,35 +133,35 @@ function populatePage (data) {
     if (localData.dtb !== null && localData.dtb !== '') {
         $('#dd-board-dtb').empty().append(localData.dtb);
     } else {
-        $('#dd-board-dtb').empty().append(non_avail);
+        $('#dd-board-dtb').empty().append(nonAvail);
     }
 
     if (localData.dtb_addr !== null && localData.dtb_addr !== '') {
         $('#dd-board-dtb-address').empty().append(localData.dtb_addr);
     } else {
-        $('#dd-board-dtb-address').empty().append(non_avail);
+        $('#dd-board-dtb-address').empty().append(nonAvail);
     }
 
     if (localData.initrd_addr !== null && localData.initrd_addr !== '') {
         $('#dd-board-initrd-address').empty().append(localData.initrd_addr);
     } else {
-        $('#dd-board-initrd-address').empty().append(non_avail);
+        $('#dd-board-initrd-address').empty().append(nonAvail);
     }
 
     if (localData.load_addr !== null && localData.load_addr !== '') {
         $('#dd-board-load-address').empty().append(localData.load_addr);
     } else {
-        $('#dd-board-load-address').empty().append(non_avail);
+        $('#dd-board-load-address').empty().append(nonAvail);
     }
 
     if (localData.kernel_image !== null && localData.kernel_image !== '') {
         $('#dd-board-kernel-image').empty().append(localData.kernel_image);
     } else {
-        $('#dd-board-kernel-image').empty().append(non_avail);
+        $('#dd-board-kernel-image').empty().append(nonAvail);
     }
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('body').tooltip({
@@ -180,25 +184,25 @@ $(document).ready(function () {
         },
         'beforeSend': setXhrHeader,
         'statusCode': {
-            400: function () {
+            400: function() {
                 loadContent(
                     '#container-content', '/static/html/400-content.html'
                 );
                 setErrorAlert('data-400-error', 400, errorReason);
             },
-            404: function () {
+            404: function() {
                 loadContent(
                     '#container-content', '/static/html/404-content.html'
                 );
                 setErrorAlert('data-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 loadContent(
                     '#container-content', '/static/html/408-content.html'
                 );
                 setErrorAlert('data-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 loadContent(
                     '#container-content', '/static/html/500-content.html'
                 );
