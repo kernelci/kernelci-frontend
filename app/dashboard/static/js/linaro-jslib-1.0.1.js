@@ -15,7 +15,7 @@
     Return a custom date in ISO format, based on UTC time.
     The format returned is: YYYY-MM-DD HH:MM:SS UTC
 */
-Date.prototype.getCustomISOFormat = function () {
+Date.prototype.getCustomISOFormat = function() {
     'use strict';
     var year = this.getUTCFullYear().toString(),
         month = (this.getUTCMonth() + 1).toString(),
@@ -40,7 +40,7 @@ Date.prototype.getCustomISOFormat = function () {
     Return a custom date in ISO format.
     The format returned is: YYYY-MM-DD
 */
-Date.prototype.getCustomISODate = function () {
+Date.prototype.getCustomISODate = function() {
     'use strict';
     var year = this.getUTCFullYear().toString(),
         month = (this.getUTCMonth() + 1).toString(),
@@ -60,31 +60,35 @@ Date.prototype.getCustomISODate = function () {
     If one of the values for hours, minutes, seconds or milliseconds is 0,
     it will not be returned.
 */
-Date.prototype.getCustomTime = function () {
+Date.prototype.getCustomTime = function() {
     'use strict';
-    var l_hours = this.getUTCHours(),
-        l_minutes = this.getUTCMinutes(),
-        l_seconds = this.getUTCSeconds(),
-        l_milliseconds = this.getMilliseconds(),
-        l_time = '';
+    var localHours = this.getUTCHours(),
+        localMinutes = this.getUTCMinutes(),
+        localSeconds = this.getUTCSeconds(),
+        localMilliseconds = this.getMilliseconds(),
+        localTime = '';
 
-    if (l_hours !== 0) {
-        l_time += l_hours.toString() + ' hours ';
+    if (localHours !== 0) {
+        localTime += localHours.toString() + ' hours ';
     }
 
-    if (l_minutes !== 0) {
-        l_time += l_minutes.toString() + ' min. ';
+    if (localMinutes !== 0) {
+        localTime += localMinutes.toString() + ' min. ';
     }
 
-    if (l_seconds !== 0) {
-        l_time += l_seconds.toString() + ' sec. ';
+    if (localSeconds !== 0) {
+        localTime += localSeconds.toString() + ' sec. ';
     }
 
-    if (l_milliseconds !== 0) {
-        l_time += l_milliseconds.toString() + ' mill.';
+    if (localMilliseconds !== 0) {
+        localTime += localMilliseconds.toString() + ' mill.';
     }
 
-    return l_time.trim();
+    if (!localTime) {
+        localTime = '0';
+    }
+
+    return localTime.trim();
 };
 
 /*
@@ -101,7 +105,7 @@ function collectObjects() {
     for (i = 0; i < len; i++) {
         arg = arguments[i];
 
-        if (typeof arg === "object") {
+        if (typeof arg === 'object') {
             for (key in arg) {
                 if (arg.hasOwnProperty(key)) {
                     return_obj[key] = arg[key];
