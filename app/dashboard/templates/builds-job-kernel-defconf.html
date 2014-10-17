@@ -341,8 +341,10 @@
     </div>
     {%- endif %}
 </div>
-
 </div>
+<input type="hidden" id="job" value="{{ job }}">
+<input type="hidden" id="kernel" value="{{ result.kernel }}">
+<input type="hidden" id="defconfig" value="{{ result.dirname }}">
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}

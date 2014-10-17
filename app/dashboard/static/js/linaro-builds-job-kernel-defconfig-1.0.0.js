@@ -60,7 +60,10 @@ $(document).ready(function () {
 
     $('#li-build').addClass('active');
 
-    var errorReason = 'Builds data call failed.';
+    var errorReason = 'Boot data call failed.',
+        job = $('#job').val(),
+        kernel = $('#kernel').val(),
+        defconfig = $('#defconfig').val();
 
     $.ajax({
         'url': '/_ajax/boot',
@@ -69,11 +72,12 @@ $(document).ready(function () {
         'dataType': 'json',
         'data': {
             'field': ['board', 'job', 'kernel', 'defconfig', 'created_on'],
-            'job': '{{ job }}',
-            'kernel': '{{ result.kernel }}',
-            'defconfig': '{{ result.dirname }}'
+            'job': job,
+            'kernel': kernel,
+            'defconfig': defconfig
         },
         'beforeSend': function (jqXHR) {
+            console.log("SETTING HEADER");
             setXhrHeader(jqXHR);
         },
         'error': function() {
@@ -82,17 +86,17 @@ $(document).ready(function () {
         'timeout': 6000,
         'statusCode': {
             403: function () {
-                setErrorAlert('build-403-error', 403, errorReason);
+                setErrorAlert('boot-403-error', 403, errorReason);
             },
             404: function () {
-                setErrorAlert('build-404-error', 404, errorReason);
+                setErrorAlert('boot-404-error', 404, errorReason);
             },
             408: function () {
                 errorReason = 'Defconfing data call failed: timeout.';
-                setErrorAlert('build-408-error', 408, errorReason);
+                setErrorAlert('boot-408-error', 408, errorReason);
             },
             500: function () {
-                setErrorAlert('build-500-error', 500, errorReason);
+                setErrorAlert('boot-500-error', 500, errorReason);
             }
         }
     }).done(populatePage);
