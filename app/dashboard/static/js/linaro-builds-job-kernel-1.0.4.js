@@ -374,9 +374,16 @@ $(document).ready(function () {
             'sort': ['status', '_id'],
             'sort_order': 1
         },
-        'beforeSend': setXhrHeader,
-        'error': ajaxCallFailed,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            ajaxCallFailed();
+        },
         'statusCode': {
+            403: function () {
+                setErrorAlert('defconfs-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
             },
