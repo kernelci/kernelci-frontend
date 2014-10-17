@@ -1,5 +1,5 @@
 Flask==0.10.1
-Flask-WTF==0.10.0
+Flask-WTF==0.10.2
 requests==2.4.3
 pymongo
 
