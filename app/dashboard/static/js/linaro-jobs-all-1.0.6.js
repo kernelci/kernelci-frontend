@@ -1,5 +1,3 @@
-var searchFilter = $('#search-filter').val();
-
 $(document).ready(function () {
     "use strict";
 
@@ -92,13 +90,20 @@ $(document).ready(function () {
                 'headers': {
                     'Content-Type': 'application/json'
                 },
-                'beforeSend': setXhrHeader,
+                'beforeSend': function(jqXHR) {
+                    setXhrHeader(jqXHR);
+                },
                 'data': JSON.stringify({
                     'batch': batchQueries
                 }),
                 'timeout': 10000,
-                'error': countFailCallback,
+                'error': function() {
+                    countFailCallback();
+                },
                 'statusCode': {
+                    403: function () {
+                        setErrorAlert('batch-403-error', 403, errorReason);
+                    },
                     404: function () {
                         setErrorAlert('batch-404-error', 404, errorReason);
                     },
@@ -141,11 +146,14 @@ $(document).ready(function () {
                 'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
             },
             'initComplete': function () {
-                $("#table-loading").remove();
-                $("#table-div").fadeIn("slow", "linear");
+                $('#table-loading').remove();
+                $('#table-div').fadeIn('slow', 'linear');
+
+                var searchFilter = $('#search-filter').val(),
+                    api;
 
                 if (searchFilter !== null && searchFilter.length > 0) {
-                    var api = this.api();
+                    api = this.api();
                     api.search(searchFilter, true).draw();
                 }
             },
@@ -316,7 +324,9 @@ $(document).ready(function () {
         'cache': true,
         'dataType': 'json',
         'dataSrc': 'result',
-        'beforeSend': setXhrHeader,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
         'data': {
             'aggregate': 'job',
             'sort': 'created_on',
@@ -326,9 +336,14 @@ $(document).ready(function () {
                 'job', 'created_on', 'status', 'metadata'
             ]
         },
+        'error': function() {
+            failedAjaxCall();
+        },
         'timeout': 6000,
-        'error': failedAjaxCall,
         'statusCode': {
+            403: function () {
+                setErrorAlert('job-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('job-404-error', 404, errorReason);
             },
