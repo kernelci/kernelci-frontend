@@ -1,0 +1,44 @@
+.clickable-table tbody tr {
+    cursor: pointer;
+}
+
+.pull-center {
+    text-align: center !important;
+    valign: middle !important;
+}
+
+.table tbody td a.table-link {
+    color: inherit;
+}
+
+.panel-heading {
+    cursor: pointer;
+}
+
+#success-cell, #fail-cell, #unknown-cell {
+    cursor: pointer;
+}
+
+#builds-chart-legend td {
+    text-align: center;
+    width: 25px;
+    border-bottom: 3px solid;
+}
+
+#builds-chart-legend td:nth-child(even) {
+    border: none;
+}
+
+.chart-div {
+    text-align: -webkit-center;
+}
+
+.btn-group {
+    padding-bottom: 1em;
+}
+
+.big-table td {
+    border: 0;
+    border-spacing: 0;
+    padding: 0;
+}

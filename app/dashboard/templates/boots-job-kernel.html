@@ -5,25 +5,6 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
-    <style type="text/css">
-        .panel-heading {
-            cursor: pointer;
-        }
-
-        #success-cell, #fail-cell, #unknown-cell {
-            cursor: pointer;
-        }
-
-        #pie-chart-legend td {
-            text-align: center;
-            width: 25px;
-            border-bottom: 3px solid;
-        }
-
-        #pie-chart-legend td:nth-child(even) {
-            border: none;
-        }
-    </style>
 {%- endblock %}
 {%- block content %}
 <div class="row">
@@ -103,7 +84,7 @@
     </dl>
     </div>
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <div id="pie-chart" align="center">
+        <div id="pie-chart" class="chart-div">
             <div id="pie-chart-heading">
             <table id="pie-chart-legend">
                 <tbody>
@@ -125,14 +106,12 @@
     <h3>Boards Tested</h3>
 </div>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<p>
     <div class="btn-group">
-        <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">All</button>
-        <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Successful</button>
-        <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Failed</button>
-        <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled="disable">Unknown</button>
+        <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>All</button>
+        <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Successful</button>
+        <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Failed</button>
+        <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Unknown</button>
     </div>
-</p>
 </div>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div id="accordion-container">
