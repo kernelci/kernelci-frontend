@@ -94,6 +94,9 @@ $(document).ready(function () {
                     },
                     'timeout': 6000,
                     'statusCode': {
+                        403: function() {
+                            setErrorAlert('batch-403-error', 403, errorReason);
+                        },
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
@@ -139,6 +142,9 @@ $(document).ready(function () {
                     },
                     'timeout': 10000,
                     'statusCode': {
+                        403: function() {
+                            setErrorAlert('batch-403-error', 403, errorReason);
+                        },
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
