@@ -81,15 +81,26 @@ $(document).ready(function() {
         'headers': {
             'Content-Type': 'application/json'
         },
-        'beforeSend': setXhrHeader,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
         'data': JSON.stringify({
             'batch': batchQueries
         }),
-        'error': countFailCallback,
-        'timeout': 5000,
+        'error': function() {
+            countFailCallback();
+        },
+        'timeout': 6000,
         'statusCode': {
+            403: function () {
+                setErrorAlert('counts-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('counts-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Batch count failed: timeout.';
+                setErrorAlert('counts-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('counts-500-error', 500, errorReason);
@@ -157,6 +168,7 @@ $(document).ready(function () {
         if (len > 0) {
             if (len === 1) {
                 // Peform normal GET.
+                errorReason = 'Defconfig count failed.';
                 deferredCall = $.ajax({
                     'url': '/_ajax/count/defconfig',
                     'traditional': true,
@@ -167,12 +179,23 @@ $(document).ready(function () {
                         'job': jobId,
                         'kernel': localData[0].kernel
                     },
-                    'beforeSend': setXhrHeader,
-                    'error': countFailCallback,
+                    'beforeSend': function(jqXHR) {
+                        setXhrHeader(jqXHR);
+                    },
+                    'error': function() {
+                        countFailCallback();
+                    },
                     'timeout': 6000,
                     'statusCode': {
+                        403: function () {
+                            setErrorAlert('batch-403-error', 403, errorReason);
+                        },
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        408: function () {
+                            errorReason = 'Defconfig count failed: timeout.';
+                            setErrorAlert('batch-408-error', 408, errorReason);
                         },
                         500: function () {
                             setErrorAlert('batch-500-error', 500, errorReason);
@@ -201,15 +224,26 @@ $(document).ready(function () {
                     'headers': {
                         'Content-Type': 'application/json'
                     },
-                    'beforeSend': setXhrHeader,
+                    'beforeSend': function(jqXHR) {
+                        setXhrHeader(jqXHR);
+                    },
                     'data': JSON.stringify({
                         'batch': batchQueries
                     }),
-                    'error': countFailCallback,
+                    'error': function() {
+                        countFailCallback();
+                    },
                     'timeout': 10000,
                     'statusCode': {
+                        403: function () {
+                            setErrorAlert('batch-403-error', 403, errorReason);
+                        },
                         404: function () {
                             setErrorAlert('batch-404-error', 404, errorReason);
+                        },
+                        408: function () {
+                            errorReason = 'Batch build count failed: timeout.';
+                            setErrorAlert('batch-408-error', 408, errorReason);
                         },
                         500: function () {
                             setErrorAlert('batch-500-error', 500, errorReason);
@@ -246,12 +280,23 @@ $(document).ready(function () {
             'date_range': dateRange,
             'field': ['kernel', 'metadata', 'created_on']
         },
-        'beforeSend': setXhrHeader,
-        'error': emptyTableOnError,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            emptyTableOnError();
+        },
         'timeout': 6000,
         'statusCode': {
+            403: function () {
+                setErrorAlert('defconfs-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Defconfig data call failed: timeout.';
+                setErrorAlert('defconfs-408-error', 408, errorReason);
             },
             500: function () {
                 setErrorAlert('defconfs-500-error', 500, errorReason);
