@@ -182,7 +182,9 @@ $(document).ready(function() {
             'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +
                 $('#kernel-id').val() + '-' + $('#defconfig-id').val()
         },
-        'beforeSend': setXhrHeader,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
         'statusCode': {
             400: function() {
                 loadContent(
