@@ -134,10 +134,17 @@ function countFailedBootReports (data) {
                     'job': jobId,
                     'kernel': localData[0].kernel
                 },
-                'beforeSend': setXhrHeader,
-                'error': countFailedErrorCallback,
+                'beforeSend': function(jqXHR) {
+                    setXhrHeader(jqXHR);
+                },
+                'error': function() {
+                    countFailedErrorCallback();
+                },
                 'timeout': 6000,
                 'statusCode': {
+                    403: function() {
+                        setErrorAlert('batch-403-error', 403, errorReason);
+                    },
                     404: function () {
                         setErrorAlert('batch-404-error', 404, errorReason);
                     },
@@ -175,10 +182,17 @@ function countFailedBootReports (data) {
                 'data': JSON.stringify({
                     'batch': batchQueris
                 }),
-                'beforeSend': setXhrHeader,
+                'beforeSend': function(jqXHR) {
+                    setXhrHeader(jqXHR);
+                },
+                'error': function() {
+                    countFailedErrorCallback();
+                },
                 'timeout': 12000,
-                'error': countFailedErrorCallback,
                 'statusCode': {
+                    403: function() {
+                        setErrorAlert('batch-403-error', 403, errorReason);
+                    },
                     404: function () {
                         setErrorAlert('batch-404-error', 404, errorReason);
                     },
@@ -256,9 +270,14 @@ $(document).ready(function () {
         'data': JSON.stringify({
             'batch': batchQueries
         }),
-        'beforeSend': setXhrHeader,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
         'timeout': 12000,
         'statusCode': {
+            403: function() {
+                setErrorAlert('batch-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('count-404-error', 404, errorReason);
             },
@@ -309,9 +328,16 @@ $(document).ready(function () {
             'date_range': dateRange,
             'field': ['job', 'kernel', 'created_on']
         },
-        'beforeSend': setXhrHeader,
-        'error': failedMainAjaxCall,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            failedMainAjaxCall();
+        },
         'statusCode': {
+            403: function() {
+                setErrorAlert('batch-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('boots-404-error', 404, errorReason);
             },
