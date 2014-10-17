@@ -194,10 +194,17 @@ $(document).ready(function () {
                 'status'
             ]
         },
-        'beforeSend': setXhrHeader,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
         'timeout': 6000,
-        'error': failedAjaxCall,
+        'error': function() {
+            failedAjaxCall();
+        },
         'statusCode': {
+            403: function() {
+                setErrorAlert('boot-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('boot-404-error', 404, errorReason);
             },
