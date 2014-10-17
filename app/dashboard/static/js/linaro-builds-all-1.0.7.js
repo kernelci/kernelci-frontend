@@ -201,9 +201,16 @@ $(document).ready(function () {
             ]
         },
         'timeout': 6000,
-        'beforeSend': setXhrHeader,
-        'error': failedAjaxCall,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            failedAjaxCall();
+        },
         'statusCode': {
+            403: function () {
+                setErrorAlert('build-403-error', 403, errorReason);
+            },
             404: function () {
                 setErrorAlert('build-404-error', 404, errorReason);
             },
