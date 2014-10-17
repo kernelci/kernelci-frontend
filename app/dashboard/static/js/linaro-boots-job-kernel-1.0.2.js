@@ -124,7 +124,7 @@ function populateBootsPage (data) {
     var file_server = $('#file-server').val(),
         panel = '',
         cls,
-        data_url,
+        dataUrl,
         defconfig, job, kernel, board,
         metadata,
         label,
@@ -154,7 +154,7 @@ function populateBootsPage (data) {
             kernel = boot_obj.kernel;
             board = boot_obj.board;
 
-            data_url = file_server + job + '/' + kernel + '/' + defconfig + '/';
+            dataUrl = file_server + job + '/' + kernel + '/' + defconfig + '/';
 
             switch (boot_obj.status) {
                 case 'FAIL':
@@ -318,10 +318,17 @@ $(document).ready(function () {
             'sort': ['status', '_id'],
             'sort_order': 1
         },
-        'beforeSend': setXhrHeader,
-        'error': ajaxCallFailed,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            ajaxCallFailed();
+        },
         'timeout': 6000,
         'statusCode': {
+            403: function () {
+                setErrorAlert('boots-403-error', 403, errorReason);
+            },
             400: function () {
                 setErrorAlert('boots-400-error', 400, errorReason);
             },
