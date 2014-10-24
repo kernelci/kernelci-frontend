@@ -4,7 +4,7 @@
 
 .pull-center {
     text-align: center !important;
-    valign: middle !important;
+    vertical-align: middle !important;
 }
 
 .table tbody td a.table-link {
@@ -41,4 +41,52 @@
     border: 0;
     border-spacing: 0;
     padding: 0;
+}
+
+.bisect-table {
+    table-layout: fixed;
+}
+
+.bisect-table thead tr th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.bisect-table tbody tr td:first-child, tbody tr td:nth-child(0) {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.bisect-table tbody tr td {
+    text-align: center;
+    vertical-align: middle;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.bisect-tooltip {
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.bisect-text {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.bisect-table thead tr th:first-child, thead tr th:nth-child(0) {
+    border: none;
+}
+
+.bisect-table tbody tr td:first-child, tbody tr td:nth-child(0) {
+    border: none;
+}
+
+.bisect-table tbody tr:hover td:first-child .bisect-text,
+.bisect-table tbody tr:hover th:first-child .bisect-text  {
+    font-weight: bold;
 }
