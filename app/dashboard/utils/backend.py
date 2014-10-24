@@ -27,6 +27,10 @@ from requests.exceptions import (
     ConnectTimeout,
     ReadTimeout,
 )
+from types import (
+    ListType,
+    StringTypes,
+)
 from urlparse import urljoin
 
 # Timeout seconds to connect and read from the remote server.
@@ -120,19 +124,35 @@ def _create_url_headers(api_path):
     return (backend_url, headers)
 
 
-def _create_api_path(api_path, other_path=''):
-    """Merge two URL tokens together.
+def _create_api_path(api_path, other_path=None):
+    """Merge URL tokens together.
 
     :param api_path: The path to the API endpoint.
-    :param other_path: The path to append, defaults to empty string.
+    :type api_path: str
+    :param other_path: The path to append, defaults to None.
+    :type other_path: list or str
     """
-    if api_path[-1] != '/':
-        api_path += '/'
+    def _check_and_add_trailing_slash(path):
+        if path[-1] != '/':
+            path += '/'
+        return path
 
-    if other_path and other_path[-1] == '/':
-        other_path = other_path[:-1]
+    def _check_and_remove_trailing_slash(path):
+        if path[-1] == '/':
+            path = path[:-1]
+        return path
 
-    return api_path + other_path
+    api_path = _check_and_add_trailing_slash(api_path)
+
+    if other_path:
+        if isinstance(other_path, StringTypes):
+            api_path += _check_and_remove_trailing_slash(other_path)
+        elif isinstance(other_path, ListType):
+            for path in other_path:
+                api_path += _check_and_add_trailing_slash(path)
+            api_path = _check_and_remove_trailing_slash(api_path)
+
+    return api_path
 
 
 def get_job(**kwargs):
@@ -262,6 +282,22 @@ def ajax_batch_post(request, api_path):
     try:
         r = requests.post(
             url, data=request.data, headers=headers, stream=True,
+            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
+        )
+        return (r.raw.data, r.status_code, r.headers.items())
+    except (ConnectTimeout, ReadTimeout):
+        abort(408)
+    except ConnectionError:
+        abort(500)
+
+
+def ajax_bisect(request, collection, doc_id, api_path):
+    api_path = _create_api_path(api_path, [collection, doc_id])
+    url, headers = _create_url_headers(api_path)
+
+    try:
+        r = requests.get(
+            url, headers=headers, stream=True,
             timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
         )
         return (r.raw.data, r.status_code, r.headers.items())
