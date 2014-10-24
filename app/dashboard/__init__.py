@@ -48,6 +48,7 @@ from dashboard.views.job import (
 )
 from utils.backend import (
     ajax_batch_post,
+    ajax_bisect,
     ajax_count_get,
     ajax_get,
 )
@@ -231,6 +232,20 @@ def ajax_batch():
         if request.data:
             return ajax_batch_post(
                 request, app.config.get('BATCH_API_ENDPOINT')
+            )
+        else:
+            abort(400)
+    else:
+        abort(400)
+
+
+@app.route('/_ajax/bisect/<string:collection>/<string:doc_id>')
+def ajax_bisect_call(collection=None, doc_id=None):
+    if validate_csrf(request.headers.get('X-Csrftoken', None)):
+        if all([collection, doc_id]):
+            return ajax_bisect(
+                request, collection, doc_id,
+                app.config.get('BISECT_API_ENDPOINT')
             )
         else:
             abort(400)
