@@ -13,8 +13,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+
 from flask import (
     abort,
+    current_app as app,
     render_template,
     request,
 )
@@ -56,6 +59,8 @@ class BootIdView(View):
         page_title = PAGE_TITLE + '&nbsp;&dash;Board&nbsp;%(board)s' % kwargs
         body_title = 'Boot details for board&nbsp;%(board)s' % kwargs
 
+        url_translation = app.config.get('KNOWN_GIT_URLS')
+
         return render_template(
             'boots-id.html',
             page_title=page_title,
@@ -64,6 +69,7 @@ class BootIdView(View):
             job=kwargs['job'],
             kernel=kwargs['kernel'],
             defconfig=kwargs['defconfig'],
+            url_translation=url_translation,
         )
 
 
