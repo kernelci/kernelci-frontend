@@ -169,7 +169,7 @@ function populatePage(data) {
 function createBisectScriptURI(badCommit, goodCommit) {
     'use strict';
     var bisectScript = '#!/bin/bash\n' +
-        'git bisect start ' + badCommit + goodCommit + '\n';
+        'git bisect start ' + badCommit + ' ' + goodCommit + '\n';
 
     return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(bisectScript);
 }
