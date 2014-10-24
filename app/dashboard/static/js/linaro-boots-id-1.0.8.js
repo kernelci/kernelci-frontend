@@ -273,7 +273,7 @@ function createBootBisectTable(data) {
         $('#dl-bisect-script').remove();
     }
     $('#boot-bisect-table-body').empty().append(tableRows);
-    $('#table-div').fadeIn("slow", "linear");
+    $('#bisect-content').fadeIn("slow", "linear");
 }
 
 function bisectAjaxCallFailed(data) {
@@ -343,7 +343,7 @@ $(document).ready(function() {
     });
 
     $('#li-boot').addClass('active');
-    $('#table-div').hide();
+    $('#bisect-content').hide();
 
     var errorReason = 'Data call failed.';
 
