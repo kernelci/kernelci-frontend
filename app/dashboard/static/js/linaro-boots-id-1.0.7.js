@@ -1,3 +1,8 @@
+var boardId = $('#board-id').val();
+var jobId = $('#job-id').val();
+var kernelId = $('#kernel-id').val();
+var defconfId = $('#defconfig-id').val();
+
 function populatePage(data) {
     'use strict';
 
@@ -161,6 +166,174 @@ function populatePage(data) {
     }
 }
 
+function createBisectScriptURI(badCommit, goodCommit) {
+    'use strict';
+    var bisectScript = '#!/bin/bash\n' +
+        'git bisect start ' + badCommit + goodCommit + '\n';
+
+    return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(bisectScript);
+}
+
+function createBootBisectTable(data) {
+    'use strict';
+    $('#loading-content').empty().append("loading bisect data&hellip;");
+
+    var localData = data.result,
+        localLen = localData.length,
+        i = 0,
+        bisectData,
+        gitDescribeCell,
+        badCommitCell,
+        unknownCommitCell,
+        goodCommitCell,
+        bootStatus,
+        bisectDefMetadata,
+        tableRows,
+        tooltipLink,
+        tooltipTitle,
+        gitURLs,
+        gitDescribeVal,
+        badCommit = null,
+        goodCommit = null;
+
+    badCommit = localData[0].defconfig_metadata.git_commit;
+
+    for (i; i < localLen; i++) {
+        bisectData = localData[i];
+        bootStatus = bisectData.boot_status;
+        bisectDefMetadata = bisectData.defconfig_metadata;
+        gitDescribeVal = bisectDefMetadata.git_describe;
+
+        tooltipLink = '<a href="/boot/all/job/' + jobId +
+            '/kernel/' + gitDescribeVal + '">' +
+            gitDescribeVal + '</a>';
+
+        tooltipTitle = 'Boot report details for&nbsp;' + jobId +
+            '&nbsp;&dash;&nbsp;' + gitDescribeVal;
+
+        gitDescribeCell = '<td><span class="bisect-tooltip">' +
+            '<span rel="tooltip" data-toggle="tooltip" '+
+            'title="' + tooltipTitle + '">' +
+            '<span class="bisect-text">' + tooltipLink +
+            '</span></span></span></td>';
+
+        gitURLs = translateCommitURL(
+            bisectDefMetadata.git_url, bisectDefMetadata.git_commit);
+
+        switch (bootStatus) {
+            case 'PASS':
+                goodCommit = bisectDefMetadata.git_commit;
+                goodCommitCell = '<td class="bg-success"><a href="' +
+                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                badCommitCell = '<td class="bg-danger"></td>';
+                unknownCommitCell = '<td class="bg-warning"></td>';
+                break;
+            case 'FAIL':
+                goodCommitCell = '<td class="bg-success"></td>';
+                badCommitCell = '<td class="bg-danger"><a href="' +
+                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                unknownCommitCell = '<td class="bg-warning"></td>';
+                break;
+            default:
+                goodCommitCell = '<td class="bg-success"></td>';
+                badCommitCell = '<td class="bg-danger"></td>';
+                unknownCommitCell = '<td class="bg-warning"><a href="' +
+                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                break;
+        }
+
+        tableRows += '<tr>' + gitDescribeCell + badCommitCell +
+            unknownCommitCell + goodCommitCell + '</tr>';
+    }
+
+    $('#loading-div').remove();
+    $('#bad-commit').empty().append(
+        '<span class="text-danger">' + badCommit + '</span>');
+    if (goodCommit !== null) {
+        $('#good-commit').empty().append(
+            '<span class="text-success">' + goodCommit + '</span>');
+    } else {
+        $('#good-commit').empty().append(
+            '<span class="text-warning">No good commit found</span>');
+    }
+
+    if (badCommit !== null && goodCommit !== null) {
+        $('#dl-bisect-script').removeClass('hidden');
+        $('#bisect-script').append(
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Download boot bisect script">' +
+            '<a download="bisect.sh" href="' +
+            createBisectScriptURI(badCommit, goodCommit) +
+            '"><i class="fa fa-download"></i></a></span>'
+        );
+    } else {
+        $('#dl-bisect-script').remove();
+    }
+    $('#boot-bisect-table-body').empty().append(tableRows);
+    $('#table-div').fadeIn("slow", "linear");
+}
+
+function bisectAjaxCallFailed(data) {
+    'use strict';
+    $('#loading-div').remove();
+    $('#loading-content').empty().append(
+        '<h4>Error loading bisect data from server.</h4>'
+    );
+}
+
+function getBisectData(data) {
+    'use strict';
+
+    var localData = data.result[0],
+        status = localData.status,
+        docId,
+        bisectAjaxCall,
+        errorReason;
+
+    errorReason = "Bisect data call failed.";
+
+    if (status === "FAIL") {
+        $('#bisect-div').removeClass('hidden');
+        docId = boardId + '-' + jobId + '-' + kernelId + '-' + defconfId;
+
+        bisectAjaxCall = $.ajax({
+            'url': '/_ajax/bisect/boot/' + docId,
+            'traditional': true,
+            'cache': true,
+            'dataType': 'json',
+            'beforeSend': function(jqXHR) {
+                setXhrHeader(jqXHR);
+            },
+            'timeout': 8000,
+            'error': function() {
+                bisectAjaxCallFailed();
+            },
+            'statusCode': {
+                400: function() {
+                    setErrorAlert('bisect-400-error', 400, errorReason);
+                },
+                404: function() {
+                    setErrorAlert('bisect-404-error', 404, errorReason);
+                },
+                408: function() {
+                    errorReason = "Bisect data call failed: timeout".
+                    setErrorAlert('bisect-408-error', 408, errorReason);
+                },
+                500: function() {
+                    setErrorAlert('bisect-500-error', 500, errorReason);
+                }
+            }
+        });
+
+        $.when(bisectAjaxCall).done(createBootBisectTable);
+    } else {
+        $('#bisect-div').remove();
+    }
+}
+
 $(document).ready(function() {
     'use strict';
 
@@ -170,6 +343,7 @@ $(document).ready(function() {
     });
 
     $('#li-boot').addClass('active');
+    $('#table-div').hide();
 
     var errorReason = 'Data call failed.';
 
@@ -179,8 +353,7 @@ $(document).ready(function() {
         'cache': true,
         'dataType': 'json',
         'data': {
-            'id': $('#board-id').val() + '-' + $('#job-id').val() + '-' +
-                $('#kernel-id').val() + '-' + $('#defconfig-id').val()
+            'id': boardId + '-' + jobId + '-' + kernelId + '-' + defconfId
         },
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
@@ -211,5 +384,8 @@ $(document).ready(function() {
                 setErrorAlert('data-500-error', 500, errorReason);
             }
         }
-    }).done(populatePage);
+    }).done(function(data) {
+        populatePage(data);
+        getBisectData(data);
+    });
 });

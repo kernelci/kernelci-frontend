@@ -79,6 +79,50 @@
         </dl>
     </div>
 </div>
+<div class="row hidden" id="bisect-div">
+    <div class="page-header">
+        <h3>Boot bisect for board {{ board }}</h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="loading-div" class="pull-center">
+            <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;
+            <span id="loading-content">retrieving bisect data&hellip;</span>
+        </div>
+        <div id="bisect-content">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Bisect summary</h3>
+              </div>
+              <div class="panel-body" id="bisect-summary">
+                <dl class="dl-horizontal">
+                    <dt>Bad commit</dt>
+                    <dd id="bad-commit"></dd>
+                    <dt>Good commit</dt>
+                    <dd id="good-commit"></dd>
+                </dl>
+                <dl class="dl-horizontal hidden" id="dl-bisect-script">
+                    <dt>Bisect script</dt>
+                    <dd id="bisect-script"></dd>
+                </dl>
+              </div>
+            </div>
+            <div class="table-responsive" id="table-div">
+                <table id="boot-bisect-table" class="bisect-table table">
+                    <thead>
+                        <tr>
+                            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Bad</th>
+                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Unknown</th>
+                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Good</th>
+                        </tr>
+                    </thead>
+                    <tbody id="boot-bisect-table-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 <input type="hidden" id="board-id" value="{{ board }}">
 <input type="hidden" id="job-id" value="{{ job }}">
@@ -87,5 +131,55 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
+<script type="text/javascript">
+function translateCommitURL(commitURL, commitId) {
+    'use strict';
+
+    var uriParser,
+        hostName,
+        knownGit,
+        baseURL = '',
+        urlPath,
+        newCommitURL = '',
+        translateRule,
+        lenTranslate,
+        i,
+        urlTranslation = {{ url_translation|tojson|safe }};
+
+    if (commitURL !== null && commitId !== null) {
+        uriParser = new URI(commitURL);
+        hostName = uriParser.hostname();
+        urlPath = uriParser.path();
+
+        if (urlTranslation.hasOwnProperty(hostName)) {
+            knownGit = urlTranslation[hostName];
+            translateRule = knownGit[3];
+            lenTranslate = translateRule.length;
+
+            for (i = 0; i < lenTranslate; i++) {
+                urlPath = urlPath.replace(
+                    translateRule[i][0], translateRule[i][1]);
+            }
+
+            baseURL = new URI({
+                protocol: knownGit[0],
+                hostname: hostName,
+                path: knownGit[1].replace('%s', urlPath)
+            });
+
+            newCommitURL = new URI({
+                protocol: knownGit[0],
+                hostname: hostName,
+                path: knownGit[2].replace('%s', urlPath) + commitId
+            });
+
+            baseURL = baseURL.href();
+            newCommitURL = newCommitURL.href();
+        }
+    }
+    return [baseURL, newCommitURL];
+}
+</script>
 <script type="text/javascript" src="/static/js/linaro-boots-id-1.0.7.js"></script>
 {%- endblock %}
