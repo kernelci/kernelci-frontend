@@ -147,6 +147,11 @@ app.add_url_rule(
 )
 
 
+@app.context_processor
+def inject_analytics():
+    return dict(analytics=app.config.get('GOOGLE_ANALYTICS_ID'))
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     path = os.path.join(app.root_path, 'static', 'html', '404-content.html')

@@ -67,5 +67,8 @@ BISECT_API_ENDPOINT = '/api/bisect'
 # for the browser to show it all.
 DATE_RANGE = 5
 
+# Google Analytics code.
+GOOGLE_ANALYTICS_ID = None
+
 DEBUG = True
 TESTING = DEBUG
