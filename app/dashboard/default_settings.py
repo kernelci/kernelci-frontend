@@ -17,7 +17,8 @@ LOGGER_NAME = 'kernel-ci-frontend'
 SESSION_COOKIE_NAME = 'linarokernelci'
 
 # Following keys should be defined in an external file and passed as an
-# environment variable called FLASK_SETTINGS.
+# environment variable called FLASK_SETTINGS, or in /etc/linaro in a file
+# called kernelci-frontend.cfg.
 PREFERRED_URL_SCHEME = 'http'
 # Add the trailing slash!
 BACKEND_URL = 'http://127.0.0.1:8888/'
