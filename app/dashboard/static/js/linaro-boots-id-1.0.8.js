@@ -178,7 +178,8 @@ function createBootBisectTable(data) {
     'use strict';
     $('#loading-content').empty().append("loading bisect data&hellip;");
 
-    var localData = data.result,
+    var localResult = data.result[0],
+        localData = localResult.bisect_data,
         localLen = localData.length,
         i = 0,
         bisectData,
@@ -196,7 +197,8 @@ function createBootBisectTable(data) {
         badCommit = null,
         goodCommit = null;
 
-    badCommit = localData[0].defconfig_metadata.git_commit;
+    badCommit = localResult.bad_commit;
+    goodCommit = localResult.good_commit;
 
     for (i; i < localLen; i++) {
         bisectData = localData[i];
@@ -222,7 +224,6 @@ function createBootBisectTable(data) {
 
         switch (bootStatus) {
             case 'PASS':
-                goodCommit = bisectDefMetadata.git_commit;
                 goodCommitCell = '<td class="bg-success"><a href="' +
                     gitURLs[1] + '">' + bisectDefMetadata.git_commit +
                     '&nbsp;<i class="fa fa-external-link"></i></a></td>';
