@@ -8,6 +8,7 @@ BACKEND_TOKEN = '{{ backend_token }}'
 SECRET_KEY = '{{ secret_key }}'
 # Add the trailing slash!
 FILE_SERVER_URL = '{{ file_server }}'
+GOOGLE_ANALYTICS_ID = '{{ google_analytics }}'
 
 {% if role == "production" %}
 DEBUG = False

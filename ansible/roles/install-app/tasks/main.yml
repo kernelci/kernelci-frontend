@@ -4,11 +4,11 @@
         dest={{ install_base }}/{{ hostname }}
         version={{ git_head }}
         update=yes
+  notify:
+    - restart-uwsgi
   tags:
     - install
     - app
-  notify:
-    - reload-uwsgi
 
 - name: Fix cloned repo permissions
   file: path={{ install_base }}/{{ hostname }}
@@ -23,11 +23,11 @@
 - name: Install pip requirements
   pip:  requirements={{ install_base }}/{{ hostname }}/requirements.txt
         virtualenv={{ install_base }}/.venv/{{ hostname }}
+  notify:
+    - reload-uwsgi
   tags:
     - install
     - app
-  notify:
-    - reload-uwsgi
 
 - name: Fix virtualenv permissions
   file: path={{ install_base }}/.venv/{{ hostname }}
@@ -56,6 +56,8 @@
         group=root
         mode=0644
         state=touch
+  notify:
+    - restart-uwsgi
   tags:
     - install
     - app
