@@ -39,9 +39,9 @@
     - install
     - app
 
-- name: Copy Flask settings file
+- name: Copy app settings file
   template: src=flask_settings
-            dest=/etc/flask_settings
+            dest=/etc/linaro/kernelci-frontend.cfg
             owner=root
             group=root
             mode=0644

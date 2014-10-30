@@ -1,3 +1,4 @@
 [all]
 frontend.kernel-ci.linaro.org
 kbuilds01.linaro.org
+new-kernelci

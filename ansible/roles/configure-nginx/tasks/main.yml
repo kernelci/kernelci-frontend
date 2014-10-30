@@ -38,7 +38,7 @@
 
 - name: Install frontend nginx configuration
   template: src=kernelci-frontend.conf
-            dest=/etc/nginx/sites-available/kernelci-frontend
+            dest=/etc/nginx/sites-available/{{ hostname }}
             owner=root
             group=root
             mode=0644
@@ -49,8 +49,8 @@
 
 - name: Enable frontend website
   file: state=link
-        src=/etc/nginx/sites-available/kernelci-frontend
-        dest=/etc/nginx/sites-enabled/kernelci-frontend
+        src=/etc/nginx/sites-available/{{ hostname }}
+        dest=/etc/nginx/sites-enabled/{{ hostname }}
         owner=root
         group=root
   tags:
