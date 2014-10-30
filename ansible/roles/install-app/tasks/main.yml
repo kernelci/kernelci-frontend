@@ -45,6 +45,8 @@
             owner=root
             group=root
             mode=0644
+  notify:
+    - restart-uwsgi
   tags:
     - install
     - app
@@ -56,8 +58,6 @@
         group=root
         mode=0644
         state=touch
-  notify:
-    - restart-uwsgi
   tags:
     - install
     - app
