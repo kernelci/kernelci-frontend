@@ -76,7 +76,7 @@ app.root_path = os.path.abspath(os.path.dirname(__file__))
 
 app.config.from_object('dashboard.default_settings')
 if os.path.isfile(DEFAULT_CONFIG_FILE):
-    app.config.from_pyfile()
+    app.config.from_pyfile(DEFAULT_CONFIG_FILE)
 
 if os.environ.get(APP_ENVVAR):
     app.config.from_envvar(APP_ENVVAR)
