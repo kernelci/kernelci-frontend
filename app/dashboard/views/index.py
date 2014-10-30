@@ -22,7 +22,7 @@ from dashboard.utils.backend import today_date
 class IndexView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        page_title = 'Kernel CI Dashboad &mdash; Home'
+        page_title = 'Kernel CI Dashboard &mdash; Home'
 
         return render_template(
             'index.html',
