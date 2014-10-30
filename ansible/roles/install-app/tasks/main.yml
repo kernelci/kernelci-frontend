@@ -49,3 +49,13 @@
     - install
     - app
     - secrets
+
+- name: Create empty flask_settings
+  file: path=/etc/flask_settings
+        owner=root
+        group=root
+        mode=0644
+        state=touch
+  tags:
+    - install
+    - app
