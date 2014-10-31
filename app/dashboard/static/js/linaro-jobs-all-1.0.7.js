@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    "use strict";
+    'use strict';
 
     $('#li-job').addClass('active');
 
@@ -67,7 +67,7 @@ $(document).ready(function () {
                     'operation_id': '#boot-success-count-' + jobName,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=FAIL&date_range=' + dateRange +
+                    'query': 'status=PASS&date_range=' + dateRange +
                         '&job=' + jobName
                 };
 
