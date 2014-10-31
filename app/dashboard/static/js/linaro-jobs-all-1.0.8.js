@@ -189,17 +189,18 @@ $(document).ready(function () {
                     'orderable': false,
                     'className': 'pull-center',
                     'render': function (data) {
-                        return '<span class="badge alert-success">' +
+                        return '<a class="clean-link" href="/job/' + data +
+                            '"><span class="badge alert-success ' +
+                            'extra-margin">' +
                             '<span id="defconf-success-count-' + data +
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i>' +
                             '</span></span>' +
-                            '<span>&nbsp;</span>' +
                             '<span class="badge alert-danger">' +
                             '<span id="defconf-fail-count-' + data +
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span>';
+                            '</span></span></a>';
                     }
                 },
                 {
@@ -212,17 +213,18 @@ $(document).ready(function () {
                     'orderable': false,
                     'className': 'pull-center',
                     'render': function (data) {
-                        return '<span class="badge alert-success">' +
+                        return '<a class="clean-link" href="/boot/all/job/' +
+                            data + '"><span class="badge alert-success ' +
+                            'extra-margin">' +
                             '<span id="boot-success-count-' + data +
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i>' +
                             '</span></span>' +
-                            '<span>&nbsp;</span>' +
                             '<span class="badge alert-danger">' +
                             '<span id="boot-fail-count-' + data +
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span>';
+                            '</span></span></a>';
                     }
                 },
                 {

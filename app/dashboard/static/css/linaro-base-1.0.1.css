@@ -90,3 +90,11 @@
 .bisect-table tbody tr:hover th:first-child .bisect-text  {
     font-weight: bold;
 }
+
+.clean-link a:link a:visited a:hover a:active a:focus {
+    text-decoration: none;
+}
+
+.extra-margin {
+    margin-right: 5px;
+}
