@@ -260,47 +260,12 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
-    "use strict";
+    'use strict';
 
-    var errorReason = 'Job data call failed.';
+    var errorReason = 'Job data call failed.',
+        ajaxCall;
 
-    $.ajax({
-        'url': '/_ajax/job',
-        'dataType': 'json',
-        'traditional': true,
-        'cache': true,
-        'context': $('#failed-jobs-body'),
-        'data': {
-            'status': 'FAIL',
-            'sort': 'created_on',
-            'sort_order': -1,
-            'limit': 25,
-            'date_range': $('#date-range').val(),
-            'field': ['job', 'created_on', 'metadata']
-        },
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            emptyTableOnError('#failed-jobs-body', 3);
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function () {
-                setErrorAlert('jobs-403-error', 403, errorReason);
-            },
-            404: function () {
-                setErrorAlert('jobs-404-error', 404, errorReason);
-            },
-            408: function () {
-                errorReason = 'Job data call failed: timeout.';
-                setErrorAlert('jobs-408-error', 408, errorReason);
-            },
-            500: function () {
-                setErrorAlert('jobs-500-error', 500, errorReason);
-            }
-        }
-    }).done(function (data) {
+    function populateJobsTalbe(data) {
         var localData = data.result,
             row = '',
             created, col1, col2, col3, href,
@@ -311,7 +276,7 @@ $(document).ready(function () {
         if (len === 0) {
             row = '<tr><td colspan="4" align="center" valign="middle"><h4>' +
                 'No failed jobs.</h4></td></tr>';
-            $(this).empty().append(row);
+            $('#failed-jobs-body').empty().append(row);
         } else {
             for (i; i < len; i++) {
                 created = new Date(localData[i].created_on['$date']);
@@ -334,9 +299,49 @@ $(document).ready(function () {
                     col1 + col2 + col3 + '</tr>';
             }
 
-            $(this).empty().append(row);
+            $('#failed-jobs-body').empty().append(row);
+        }
+    }
+
+    ajaxCall = $.ajax({
+        'url': '/_ajax/job',
+        'dataType': 'json',
+        'traditional': true,
+        'cache': true,
+        'data': {
+            'status': 'FAIL',
+            'sort': 'created_on',
+            'sort_order': -1,
+            'limit': 25,
+            'date_range': $('#date-range').val(),
+            'field': ['job', 'created_on', 'metadata']
+        },
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function(jqXHR,  textStatus, errorThrown) {
+            console.log("ERROR RUNNING AJAX JOB CALL");
+            emptyTableOnError('#failed-jobs-body', 3);
+        },
+        'timeout': 6000,
+        'statusCode': {
+            403: function () {
+                setErrorAlert('jobs-403-error', 403, errorReason);
+            },
+            404: function () {
+                setErrorAlert('jobs-404-error', 404, errorReason);
+            },
+            408: function () {
+                errorReason = 'Job data call failed: timeout.';
+                setErrorAlert('jobs-408-error', 408, errorReason);
+            },
+            500: function () {
+                setErrorAlert('jobs-500-error', 500, errorReason);
+            }
         }
     });
+
+    $.when(ajaxCall).then(populateJobsTalbe);
 });
 
 $(document).ready(function () {
