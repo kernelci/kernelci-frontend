@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-LOGGER_NAME = 'kernel-ci-frontend'
+LOGGER_NAME = 'kernelci-frontend'
 SESSION_COOKIE_NAME = 'linarokernelci'
 
 # Following keys should be defined in an external file and passed as an
@@ -56,12 +56,12 @@ KNOWN_GIT_URLS = {
 }
 
 # Backend API endpoints.
-JOB_API_ENDPOINT = '/api/job'
-DEFCONFIG_API_ENDPOINT = '/api/defconfig'
-BOOT_API_ENDPOINT = '/api/boot'
-COUNT_API_ENDPOINT = '/api/count'
-BATCH_API_ENDPOINT = '/api/batch'
-BISECT_API_ENDPOINT = '/api/bisect'
+JOB_API_ENDPOINT = '/job'
+DEFCONFIG_API_ENDPOINT = '/defconfig'
+BOOT_API_ENDPOINT = '/boot'
+COUNT_API_ENDPOINT = '/count'
+BATCH_API_ENDPOINT = '/batch'
+BISECT_API_ENDPOINT = '/bisect'
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
@@ -73,3 +73,4 @@ GOOGLE_ANALYTICS_ID = None
 
 DEBUG = True
 TESTING = DEBUG
+THREADED = False
