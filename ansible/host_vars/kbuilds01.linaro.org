@@ -1,2 +1,0 @@
-hostname: kbuilds01.linaro.org
-role: staging
