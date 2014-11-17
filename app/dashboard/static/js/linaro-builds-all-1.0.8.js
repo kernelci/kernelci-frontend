@@ -1,6 +1,6 @@
 var searchFilter = $('#search-filter').val();
 
-function createBuildsTable (data) {
+function createBuildsTable(data) {
     'use strict';
 
     var localData = data.result,
@@ -15,11 +15,13 @@ function createBuildsTable (data) {
         'language': {
             'lengthMenu': '_MENU_&nbsp;<strong>builds per page</strong>',
             'zeroRecords': '<h4>No builds to display.</h4>',
-            'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
+            'search': '<div id="search-area" class="input-group">' +
+                '<span class="input-group-addon">' +
+                '<i class="fa fa-search"></i></span>_INPUT_</div>'
         },
-        'initComplete': function (settings, data) {
-            $("#table-loading").remove();
-            $("#table-div").fadeIn("slow", "linear");
+        'initComplete': function(settings, data) {
+            $('#table-loading').remove();
+            $('#table-div').fadeIn('slow', 'linear');
 
             if (searchFilter !== null && searchFilter.length > 0) {
                 var api = this.api();
@@ -32,17 +34,23 @@ function createBuildsTable (data) {
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'order': [4, 'desc'],
+        'order': [5, 'desc'],
         'search': {
             'regex': true
         },
         'data': localData,
         'columns': [
             {
+                'data': '_id',
+                'visible': false,
+                'searchable': false,
+                'orderable': false
+            },
+            {
                 'data': 'job',
                 'title': 'Tree &dash; Branch',
-                'render': function (data, type, object) {
-                    var display =  '<a class="table-link" href="/job/' +
+                'render': function(data, type, object) {
+                    var display = '<a class="table-link" href="/job/' +
                         data + '/">' + data;
 
                     if (!$.isEmptyObject(object.metadata) &&
@@ -61,18 +69,20 @@ function createBuildsTable (data) {
             {
                 'data': 'defconfig',
                 'title': 'Defconfig',
-                'render': function (data, type, object) {
-                    var display = data;
+                'render': function(data, type, object) {
+                    var display = data,
+                        metadata = object.metadata;
 
-                    if (!$.isEmptyObject(object.metadata) &&
-                            object.metadata.hasOwnProperty('kconfig_fragments') &&
-                            object.metadata.kconfig_fragments !== null) {
-                        if (object.metadata.kconfig_fragments.length > 45) {
+                    if (!$.isEmptyObject(metadata) &&
+                            metadata.hasOwnProperty('kconfig_fragments') &&
+                            metadata.kconfig_fragments !== null) {
+                        if (metadata.kconfig_fragments.length > 45) {
                             display = data + '&nbsp<small>' +
-                                object.metadata.kconfig_fragments.slice(0, 39) + '&nbsp;&hellip;</small>';
+                                metadata.kconfig_fragments.slice(0, 39) +
+                                '&nbsp;&hellip;</small>';
                         } else {
                             display = data + '&nbsp<small>' +
-                                object.metadata.kconfig_fragments + '</small>';
+                                metadata.kconfig_fragments + '</small>';
                         }
                     }
                     return display;
@@ -87,7 +97,7 @@ function createBuildsTable (data) {
                 'title': 'Date',
                 'type': 'date',
                 'className': 'pull-center',
-                'render': function (data) {
+                'render': function(data) {
                     var created = new Date(data['$date']);
                     return created.getCustomISODate();
                 }
@@ -97,7 +107,7 @@ function createBuildsTable (data) {
                 'title': 'Status',
                 'type': 'string',
                 'className': 'pull-center',
-                'render': function (data) {
+                'render': function(data) {
                     var displ;
                     switch (data) {
                         case 'PASS':
@@ -133,7 +143,7 @@ function createBuildsTable (data) {
                 'orderable': false,
                 'searchable': false,
                 'className': 'pull-center',
-                'render': function (data, type, object) {
+                'render': function(data, type, object) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel +
@@ -148,16 +158,23 @@ function createBuildsTable (data) {
         ]
     });
 
-    $(document).on('click', '#defconfstable tbody tr', function () {
-        var tableData = table.fnGetData(this);
+    $(document).on('click', '#defconfstable tbody tr', function() {
+        var tableData = table.fnGetData(this),
+            location = '#';
         if (tableData) {
-            window.location = '/build/' + tableData.job +
-                '/kernel/' + tableData.kernel + '/defconfig/' + tableData.dirname;
+            location = '/build/' + tableData.job +
+                '/kernel/' + tableData.kernel + '/defconfig/' +
+                tableData.dirname;
+            if (tableData._id !== null) {
+                location += '?_id=' + tableData._id['$oid'];
+            }
+
+            window.location = location;
         }
     });
 
     $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
-    $('.input-sm').keyup(function (key) {
+    $('.input-sm').keyup(function(key) {
         // Remove focus from input when Esc is pressed.
         if (key.keyCode === 27) {
             $(this).blur();
@@ -165,12 +182,12 @@ function createBuildsTable (data) {
     });
 }
 
-function failedAjaxCall () {
+function failedAjaxCall() {
     'use strict';
     $('#table-loading').remove();
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('#li-build').addClass('active');
@@ -208,17 +225,17 @@ $(document).ready(function () {
             failedAjaxCall();
         },
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('build-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('build-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Defconfig data call failed: timeout.';
                 setErrorAlert('build-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('build-500-error', 500, errorReason);
             }
         }
