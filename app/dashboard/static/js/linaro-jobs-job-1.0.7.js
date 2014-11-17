@@ -1,7 +1,7 @@
-var jobId= $('#job-id').val();
+var jobId = $('#job-id').val();
 var dateRange = $('#date-range').val();
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('#li-job').addClass('active');
@@ -11,7 +11,7 @@ $(document).ready(function () {
         'placement': 'auto'
     });
 
-    $('.clickable-table tbody').on("click", "tr", function () {
+    $('.clickable-table tbody').on('click', 'tr', function() {
         var url = $(this).data('url');
         if (url) {
             window.location = url;
@@ -26,13 +26,13 @@ $(document).ready(function() {
         batchQueries = new Array(2),
         errorReason = '';
 
-    function countFailCallback () {
-        $('.count-list-badge').each(function () {
+    function countFailCallback() {
+        $('.count-list-badge').each(function() {
             $(this).empty().append('&infin;');
         });
     }
 
-    function countDoneCallback (data) {
+    function countDoneCallback(data) {
         var localData = data.result,
             dataLen = localData.length,
             firstResult = null,
@@ -50,7 +50,7 @@ $(document).ready(function() {
             $(firstResult.operation_id).empty().append(firstCount);
             $(secondResult.operation_id).empty().append(secondCount);
         } else {
-            $('.count-list-badge').each(function () {
+            $('.count-list-badge').each(function() {
                 $(this).empty().append('?');
             });
         }
@@ -92,17 +92,17 @@ $(document).ready(function() {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('counts-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('counts-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Batch count failed: timeout.';
                 setErrorAlert('counts-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('counts-500-error', 500, errorReason);
             }
         }
@@ -111,19 +111,19 @@ $(document).ready(function() {
     $.when(deferredCall).then(countDoneCallback, countFailCallback);
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     var errorReason = '',
         ajaxDefconCall = null;
 
-    function countFailCallback () {
-        $('.count-badge').each(function () {
+    function countFailCallback() {
+        $('.count-badge').each(function() {
             $(this).empty().append('&infin;');
         });
     }
 
-    function countDoneCallback (data) {
+    function countDoneCallback(data) {
         var localData = data.result,
             len = localData.length,
             i = 0,
@@ -158,7 +158,7 @@ $(document).ready(function () {
         }
     }
 
-    function countFailedDefconfigs (data) {
+    function countFailedDefconfigs(data) {
         var i = 0,
             localData = data.result,
             len = localData.length,
@@ -187,17 +187,17 @@ $(document).ready(function () {
                     },
                     'timeout': 6000,
                     'statusCode': {
-                        403: function () {
+                        403: function() {
                             setErrorAlert('batch-403-error', 403, errorReason);
                         },
-                        404: function () {
+                        404: function() {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
-                        408: function () {
+                        408: function() {
                             errorReason = 'Defconfig count failed: timeout.';
                             setErrorAlert('batch-408-error', 408, errorReason);
                         },
-                        500: function () {
+                        500: function() {
                             setErrorAlert('batch-500-error', 500, errorReason);
                         }
                     }
@@ -235,17 +235,17 @@ $(document).ready(function () {
                     },
                     'timeout': 10000,
                     'statusCode': {
-                        403: function () {
+                        403: function() {
                             setErrorAlert('batch-403-error', 403, errorReason);
                         },
-                        404: function () {
+                        404: function() {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
-                        408: function () {
+                        408: function() {
                             errorReason = 'Batch build count failed: timeout.';
                             setErrorAlert('batch-408-error', 408, errorReason);
                         },
-                        500: function () {
+                        500: function() {
                             setErrorAlert('batch-500-error', 500, errorReason);
                         }
                     }
@@ -258,7 +258,7 @@ $(document).ready(function () {
         }
     }
 
-    function emptyTableOnError () {
+    function emptyTableOnError() {
         $('#builds-body').empty().append(
             '<tr><td colspan="6" align="center" valign="middle">' +
             '<h4>Error loading data.</h4></td></tr>'
@@ -278,7 +278,7 @@ $(document).ready(function () {
             'sort': 'created_on',
             'sort_order': -1,
             'date_range': dateRange,
-            'field': ['kernel', 'metadata', 'created_on']
+            'field': ['kernel', 'created_on', 'git_branch', 'git_commit']
         },
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
@@ -288,21 +288,21 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('defconfs-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Defconfig data call failed: timeout.';
                 setErrorAlert('defconfs-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('defconfs-500-error', 500, errorReason);
             }
         }
-    }).done(function (data) {
+    }).done(function(data) {
         var localData = data.result,
             row = '',
             created, col1, col2, col3, col4, col5, col6, href,
@@ -317,8 +317,8 @@ $(document).ready(function () {
         } else {
             for (i; i < len; i++) {
                 kernel = localData[i].kernel;
-                git_branch = localData[i].metadata.git_branch;
-                git_commit = localData[i].metadata.git_commit;
+                git_branch = localData[i].git_branch;
+                git_commit = localData[i].git_commit;
                 created = new Date(localData[i].created_on['$date']);
                 href = '/build/' + jobId + '/kernel/' + kernel + '/';
 
