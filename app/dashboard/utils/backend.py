@@ -38,6 +38,43 @@ CONNECT_TIMEOUT = 6.0
 READ_TIMEOUT = 10.0
 
 
+def translate_git_url(git_url, commit_id):
+    """Create a real git URL based on defined translations.
+
+    :param git_url: The git URL as obtained from the backend.
+    :param commit_id: The git SHA.
+    :return The base URL to create URLs, and the real commit URL.
+    """
+
+    base_url = ''
+    commit_url = ''
+
+    if git_url and commit_id:
+        t_url = urlparse.urlparse(git_url)
+        known_git_urls = app.config.get('KNOWN_GIT_URLS')
+
+        if t_url.netloc in known_git_urls.keys():
+            known_git = known_git_urls.get(t_url.netloc)
+
+            path = t_url.path
+            for replace_rule in known_git[3]:
+                path = path.replace(*replace_rule)
+
+            base_url = urlparse.urlunparse((
+                known_git[0], t_url.netloc, known_git[1] % path,
+                '', '', ''
+            ))
+            commit_url = urlparse.urlunparse((
+                known_git[0], t_url.netloc,
+                (known_git[2] % path) + commit_id,
+                '', '', ''
+            ))
+    else:
+        abort(400)
+
+    return base_url, commit_url
+
+
 def extract_response_metadata(response):
     """Extract data from a response object.
 
