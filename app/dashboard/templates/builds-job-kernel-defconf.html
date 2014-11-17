@@ -25,9 +25,9 @@
                 </span>
             </dd>
             <dt>Git branch</dt>
-            {%- if metadata and metadata.git_branch %}
+            {%- if result.git_branch %}
             <dd>
-                {{ metadata.git_branch }}
+                {{ result.git_branch }}
             </dd>
             {%- else %}
             <dd>
@@ -51,15 +51,15 @@
                 </span>
             </dd>
             <dt>Git URL</dt>
-            {%- if metadata and metadata.git_url and base_url %}
+            {%- if result.git_url and base_url %}
             <dd>
                 <a href="{{ base_url }}">
-                {{ metadata.git_url }}
+                {{ result.git_url }}
                 <i class="fa fa-external-link"></i>
                 </a>
             </dd>
-            {%- elif metadata and metadata.git_url %}
-            <dd>{{ metadata.git_url }}</dd>
+            {%- elif result.git_url %}
+            <dd>{{ result.git_url }}</dd>
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">
@@ -68,15 +68,15 @@
             </dd>
             {%- endif %}
             <dt>Git commit</dt>
-            {%- if metadata and metadata.git_commit and commit_url %}
+            {%- if result.git_commit and commit_url %}
             <dd>
                 <a href="{{ commit_url }}">
-                    {{ metadata.git_commit }}
+                    {{ result.git_commit }}
                     <i class="fa fa-external-link"></i>
                 </a>
             </dd>
-            {%- elif metadata and metadata.git_commit %}
-            <dd>{{ metadata.git_commit }}</dd>
+            {%- elif result.git_commit %}
+            <dd>{{ result.git_commit }}</dd>
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">
@@ -151,8 +151,8 @@
             </dd>
             {%- endif %}
             <dt>Architecture</dt>
-            {%- if metadata and metadata.arch %}
-            <dd>{{ metadata.arch }}</dd>
+            {%- if result.arch %}
+            <dd>{{ result.arch }}</dd>
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">
@@ -161,20 +161,12 @@
             </dd>
             {%- endif %}
             <dt>Build errors</dt>
-            {%- if metadata and metadata.build_errors %}
-            <dd>{{ metadata.build_errors }}</dd>
-            {%- else %}
-            <dd>0</dd>
-            {%- endif %}
+            <dd>{{ result.errors }}</dd>
             <dt>Build warnings</dt>
-            {%- if metadata and metadata.build_warnings %}
-            <dd>{{ metadata.build_warnings }}</dd>
-            {%- else %}
-            <dd>0</dd>
-            {%- endif %}
+            <dd>{{ result.warnings }}</dd>
             <dt>Build time</dt>
-            {%- if metadata and metadata.build_time %}
-            <dd>{{ metadata.build_time }} sec.</dd>
+            {%- if result.build_time %}
+            <dd>{{ result.build_time }} sec.</dd>
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">
@@ -188,10 +180,10 @@
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
             <dt>Dtb directory</dt>
-            {%- if metadata and metadata.dtb_dir %}
+            {%- if result.dtb_dir %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.dtb_dir }}/">
-                {{ metadata.dtb_dir }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.dtb_dir }}/">
+                {{ result.dtb_dir }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
@@ -202,11 +194,11 @@
                 </span>
             </dd>
             {%- endif %}
-            <dt>Modules directory</dt>
-            {%- if metadata and metadata.modules_dir %}
+            <dt>Modules</dt>
+            {%- if result.modules_dir %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.modules_dir }}/">
-                {{ metadata.modules_dir }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.modules }}/">
+                {{ result.modules_dir }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
@@ -218,8 +210,8 @@
             </dd>
             {%- endif %}
             <dt>Text offset</dt>
-            {%- if metadata and metadata.text_offset %}
-            <dd>{{ metadata.text_offset }}</dd>
+            {%- if result.text_offset %}
+            <dd>{{ result.text_offset }}</dd>
             {%- else %}
             <dd>
                 <span rel="tooltip" data-toggle="tooltip" title="Not available">
@@ -249,10 +241,10 @@
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
         <dl class="dl-horizontal">
             <dt>Kernel image</dt>
-            {%- if metadata and metadata.kernel_image %}
+            {%- if result.kernel_image %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.kernel_image }}">
-                {{ metadata.kernel_image }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.kernel_image }}">
+                {{ result.kernel_image }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
@@ -264,10 +256,10 @@
             </dd>
             {%- endif %}
             <dt>Kernel config</dt>
-            {%- if metadata and metadata.kernel_config %}
+            {%- if result.kernel_config %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.kernel_config }}">
-                {{ metadata.kernel_config }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.kernel_config }}">
+                {{ result.kernel_config }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
@@ -312,25 +304,25 @@
     <div class="page-header">
         <h4>Build Platform</h4>
     </div>
-    {%- if metadata and metadata.build_platform %}
+    {%- if result.build_platform %}
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
             <dt>System</dt>
-            <dd>{{ metadata.build_platform[0] }}</dd>
+            <dd>{{ result.build_platform[0] }}</dd>
             <dt>Node name</dt>
-            <dd>{{ metadata.build_platform[1] }}</dd>
+            <dd>{{ result.build_platform[1] }}</dd>
             <dt>Release</dt>
-            <dd>{{ metadata.build_platform[2] }}</dd>
+            <dd>{{ result.build_platform[2] }}</dd>
             <dt>Full release</dt>
-            <dd>{{ metadata.build_platform[3] }}</dd>
+            <dd>{{ result.build_platform[3] }}</dd>
         </dl>
     </div>
     <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
         <dl class="dl-horizontal">
             <dt>Machine type</dt>
-            <dd>{{ metadata.build_platform[4] }}</dd>
+            <dd>{{ result.build_platform[4] }}</dd>
             <dt>CPU</dt>
-            <dd>{{ metadata.build_platform[5] }}</dd>
+            <dd>{{ result.build_platform[5] }}</dd>
         </dl>
     </div>
     {%- else %}
@@ -343,8 +335,10 @@
 </div>
 </div>
 <input type="hidden" id="job" value="{{ job }}">
-<input type="hidden" id="kernel" value="{{ result.kernel }}">
-<input type="hidden" id="defconfig" value="{{ result.dirname }}">
+<input type="hidden" id="kernel" value="{{ kernel }}">
+<input type="hidden" id="defconfig" value="{{ result.defconfig }}">
+<input type="hidden" id="dirname" value="{{ result.dirname }}">
+<input type="hidden" id="defconfig-id" value="{{ defconfig_id }}">
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
