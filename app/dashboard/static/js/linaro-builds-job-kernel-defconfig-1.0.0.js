@@ -1,4 +1,4 @@
-function populatePage(data) {
+function populateBootSection(data) {
     'use strict';
     var localData = data.result,
         len = localData.length,
@@ -21,7 +21,9 @@ function populatePage(data) {
                 '<a href="/boot/' + localData[i].board +
                 '/job/' + localData[i].job + '/kernel/' +
                 localData[i].kernel +
-                '/defconfig/' + localData[i].defconfig + '">' +
+                '/defconfig/' + localData[i].defconfig +
+                '/lab/' + localData[i].lab_name +
+                '?_id=' + localData[i]._id['$oid'] + '">' +
                 localData[i].board +
                 '&nbsp;<i class="fa fa-search"></i></a></li>';
         }
@@ -43,14 +45,14 @@ function populatePage(data) {
 
 function ajaxCallFailed() {
     'use strict';
-    $("#boot-report").empty().append(
+    $('#boot-report').empty().append(
         '<div class="text-center">' +
         '<h3>Error loading data.</h3>' +
         '</div>'
     );
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('body').tooltip({
@@ -63,21 +65,29 @@ $(document).ready(function () {
     var errorReason = 'Boot data call failed.',
         job = $('#job').val(),
         kernel = $('#kernel').val(),
-        defconfig = $('#defconfig').val();
+        defconfig = $('#defconfig').val(),
+        defconfigId = $('#defconfig-id').val(),
+        data = {
+            'field': [
+                '_id', 'board', 'job', 'kernel', 'defconfig', 'lab_name'
+            ]
+        };
+
+    if (defconfigId !== 'None') {
+        data.defconfig_id = defconfigId;
+    } else {
+        data.job = job;
+        data.kernel = kernel;
+        data.defconfig = defconfig;
+    }
 
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
         'dataType': 'json',
-        'data': {
-            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on'],
-            'job': job,
-            'kernel': kernel,
-            'defconfig': defconfig
-        },
-        'beforeSend': function (jqXHR) {
-            console.log("SETTING HEADER");
+        'data': data,
+        'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
         'error': function() {
@@ -85,19 +95,19 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('boot-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('boot-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Defconfing data call failed: timeout.';
                 setErrorAlert('boot-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('boot-500-error', 500, errorReason);
             }
         }
-    }).done(populatePage);
+    }).done(populateBootSection);
 });
