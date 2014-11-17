@@ -1,4 +1,4 @@
-function emptyTableOnError (tableId, colspan) {
+function emptyTableOnError(tableId, colspan) {
     'use strict';
 
     var localId = tableId;
@@ -13,7 +13,7 @@ function emptyTableOnError (tableId, colspan) {
     );
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('#li-home').addClass('active');
@@ -22,7 +22,7 @@ $(document).ready(function () {
         'placement': 'auto'
     });
 
-    $('.clickable-table tbody').on("click", "tr", function () {
+    $('.clickable-table tbody').on('click', 'tr', function() {
         var url = $(this).data('url');
         if (url) {
             window.location = url;
@@ -30,14 +30,14 @@ $(document).ready(function () {
     });
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     var errorReason = '',
         ajaxDeferredCall = null;
 
-    function countFailCallback () {
-        $('.fail-badge').each(function () {
+    function countFailCallback() {
+        $('.fail-badge').each(function() {
             $(this).empty().append('&infin;');
         });
     }
@@ -97,14 +97,15 @@ $(document).ready(function () {
                         403: function() {
                             setErrorAlert('batch-403-error', 403, errorReason);
                         },
-                        404: function () {
+                        404: function() {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
-                        408: function () {
-                            errorReason = 'Defconfing data call failed: timeout.';
+                        408: function() {
+                            errorReason = 'Defconfing data call failed: ' +
+                                'timeout.';
                             setErrorAlert('batch-408-error', 408, errorReason);
                         },
-                        500: function () {
+                        500: function() {
                             setErrorAlert('batch-500-error', 500, errorReason);
                         }
                     }
@@ -145,14 +146,14 @@ $(document).ready(function () {
                         403: function() {
                             setErrorAlert('batch-403-error', 403, errorReason);
                         },
-                        404: function () {
+                        404: function() {
                             setErrorAlert('batch-404-error', 404, errorReason);
                         },
-                        408: function () {
+                        408: function() {
                             errorReason = 'Batch count failed: timeout.';
                             setErrorAlert('batch-408-error', 408, errorReason);
                         },
-                        500: function () {
+                        500: function() {
                             setErrorAlert('batch-500-error', 500, errorReason);
                         }
                     }
@@ -187,11 +188,12 @@ $(document).ready(function () {
             for (i; i < len; i++) {
                 job = localData[i].job;
                 kernel = localData[i].kernel;
-                git_branch = localData[i].metadata.git_branch;
+                git_branch = localData[i].git_branch;
                 created = new Date(localData[i].created_on['$date']);
                 href = '/build/' + job + '/kernel/' + kernel + '/';
 
-                col1 = '<td><a class="table-link" href="/job/' + job + '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
+                col1 = '<td><a class="table-link" href="/job/' + job +
+                    '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
                     git_branch + '</small></td>';
                 col2 = '<td>' + kernel + '</a></td>';
                 col3 = '<td class="pull-center">' +
@@ -230,7 +232,7 @@ $(document).ready(function () {
             'sort_order': -1,
             'limit': 25,
             'date_range': $('#date-range').val(),
-            'field': ['job', 'kernel', 'metadata', 'created_on']
+            'field': ['job', 'kernel', 'created_on', 'git_branch']
         },
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
@@ -240,17 +242,17 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('defconfs-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Defconfing data call failed: timeout.';
                 setErrorAlert('defconfs-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('defconfs-500-error', 500, errorReason);
             }
         }
@@ -259,7 +261,7 @@ $(document).ready(function () {
     $.when(ajaxDeferredCall).then(countFailedDefconfigs, countFailCallback);
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     var errorReason = 'Job data call failed.',
@@ -268,8 +270,13 @@ $(document).ready(function () {
     function populateJobsTalbe(data) {
         var localData = data.result,
             row = '',
-            created, col1, col2, col3, href,
-            job, git_branch,
+            created,
+            col1,
+            col2,
+            col3,
+            href,
+            job,
+            git_branch,
             i = 0,
             len = localData.length;
 
@@ -281,7 +288,7 @@ $(document).ready(function () {
             for (i; i < len; i++) {
                 created = new Date(localData[i].created_on['$date']);
                 job = localData[i].job;
-                git_branch = localData[i].metadata.git_branch;
+                git_branch = localData[i].git_branch;
                 href = '/job/' + job + '/';
 
                 col1 = '<td><a class="table-link" href="' + href + '">' +
@@ -314,28 +321,27 @@ $(document).ready(function () {
             'sort_order': -1,
             'limit': 25,
             'date_range': $('#date-range').val(),
-            'field': ['job', 'created_on', 'metadata']
+            'field': ['job', 'git_branch', 'created_on']
         },
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
         'error': function(jqXHR,  textStatus, errorThrown) {
-            console.log("ERROR RUNNING AJAX JOB CALL");
             emptyTableOnError('#failed-jobs-body', 3);
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('jobs-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('jobs-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Job data call failed: timeout.';
                 setErrorAlert('jobs-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('jobs-500-error', 500, errorReason);
             }
         }
@@ -344,7 +350,7 @@ $(document).ready(function () {
     $.when(ajaxCall).then(populateJobsTalbe);
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     var errorReason = 'Boot data call failed.',
@@ -362,7 +368,10 @@ $(document).ready(function () {
             'sort': 'created_on',
             'limit': 25,
             'date_range': $('#date-range').val(),
-            'field': ['board', 'job', 'kernel', 'defconfig', 'created_on', 'metadata']
+            'field': [
+                'board', 'job', 'kernel', 'defconfig', 'created_on',
+                'boot_result_description'
+            ]
         },
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
@@ -372,21 +381,21 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('boots-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('boots-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Boot data call failed: timeout.';
                 setErrorAlert('boots-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('boots-500-error', 500, errorReason);
             }
         }
-    }).done(function (data) {
+    }).done(function(data) {
         var localData = data.result,
             row = '',
             created,
@@ -414,25 +423,19 @@ $(document).ready(function () {
             $(this).empty().append(row);
         } else {
             for (i; i < len; i++) {
-                if (localData[i].boot_result_description !== undefined) {
-                    failureReason = localData[i].boot_result_description;
-                } else if (localData[i].metadata !== undefined) {
-                    if (localData[i].metadata.hasOwnProperty('boot_result_description')) {
-                        failureReason = localData[i].metadata.boot_result_description;
-                    }
-                }
-
+                failureReason = localData[i].boot_result_description;
                 if (failureReason === null) {
                     col5Content = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Not available"><i class="fa fa-ban"></i>' +
+                        'title="Failure reason unknown">' +
+                        '<i class="fa fa-question-circle"></i>' +
                         '</span></td>';
                 } else {
                     col5Content = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="' + failureReason + '">' +
-                        '<i class="fa fa-question-circle"></i>' +
-                        '</span></td>';
+                        '<i class="fa fa-exclamation-triangle red-font">' +
+                        '</i></span></td>';
                 }
 
                 created = new Date(localData[i].created_on['$date']);
