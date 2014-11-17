@@ -176,7 +176,7 @@ function createBisectScriptURI(badCommit, goodCommit) {
 
 function createBootBisectTable(data) {
     'use strict';
-    $('#loading-content').empty().append("loading bisect data&hellip;");
+    $('#loading-content').empty().append('loading bisect data&hellip;');
 
     var localResult = data.result[0],
         localData = localResult.bisect_data,
@@ -214,7 +214,7 @@ function createBootBisectTable(data) {
             '&nbsp;&dash;&nbsp;' + gitDescribeVal;
 
         gitDescribeCell = '<td><span class="bisect-tooltip">' +
-            '<span rel="tooltip" data-toggle="tooltip" '+
+            '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="' + tooltipTitle + '">' +
             '<span class="bisect-text">' + tooltipLink +
             '</span></span></span></td>';
@@ -274,7 +274,7 @@ function createBootBisectTable(data) {
         $('#dl-bisect-script').remove();
     }
     $('#boot-bisect-table-body').empty().append(tableRows);
-    $('#bisect-content').fadeIn("slow", "linear");
+    $('#bisect-content').fadeIn('slow', 'linear');
 }
 
 function bisectAjaxCallFailed(data) {
@@ -294,9 +294,9 @@ function getBisectData(data) {
         bisectAjaxCall,
         errorReason;
 
-    errorReason = "Bisect data call failed.";
+    errorReason = 'Bisect data call failed.';
 
-    if (status === "FAIL") {
+    if (status === 'FAIL') {
         $('#bisect-div').removeClass('hidden');
         docId = boardId + '-' + jobId + '-' + kernelId + '-' + defconfId;
 
@@ -320,7 +320,7 @@ function getBisectData(data) {
                     setErrorAlert('bisect-404-error', 404, errorReason);
                 },
                 408: function() {
-                    errorReason = "Bisect data call failed: timeout".
+                    errorReason = 'Bisect data call failed: timeout'.
                     setErrorAlert('bisect-408-error', 408, errorReason);
                 },
                 500: function() {
