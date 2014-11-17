@@ -1,4 +1,4 @@
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('#li-job').addClass('active');
@@ -13,17 +13,17 @@ $(document).ready(function () {
     var errorReason = '',
         getDataAjax = null;
 
-    function failedAjaxCall () {
-        $("#table-loading").remove();
+    function failedAjaxCall() {
+        $('#table-loading').remove();
     }
 
-    function countFailCallback () {
-        $('.count-badge').each(function () {
+    function countFailCallback() {
+        $('.count-badge').each(function() {
             $(this).empty().append('&infin;');
         });
     }
 
-    function batchCountElements (data) {
+    function batchCountElements(data) {
         var localData = data.result,
             i = 0,
             j = 0,
@@ -101,27 +101,27 @@ $(document).ready(function () {
                     countFailCallback();
                 },
                 'statusCode': {
-                    403: function () {
+                    403: function() {
                         setErrorAlert('batch-403-error', 403, errorReason);
                     },
-                    404: function () {
+                    404: function() {
                         setErrorAlert('batch-404-error', 404, errorReason);
                     },
-                    408: function () {
+                    408: function() {
                         errorReason = 'Batch count failed: timeout.';
                         setErrorAlert('batch-408-error', 408, errorReason);
                     },
-                    500: function () {
+                    500: function() {
                         setErrorAlert('batch-500-error', 500, errorReason);
                     }
                 }
-            }).done(function (data) {
+            }).done(function(data) {
                 var batchData = data.result,
                     batchLen = batchData.length,
                     batchResult = null,
                     idx = 0;
 
-                if (batchLen > 0) {                
+                if (batchLen > 0) {
                     for (idx; idx < batchLen; idx++) {
                         batchResult = batchData[idx].result[0];
                         $(batchData[idx].operation_id).empty().append(
@@ -135,7 +135,8 @@ $(document).ready(function () {
     function createJobsTable(data) {
         var localData = data.result,
             table = $('#jobstable').dataTable({
-            'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
+            'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"' +
+                '<"length-menu"l>>' +
                 '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
                 '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
                 '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"i>' +
@@ -143,9 +144,11 @@ $(document).ready(function () {
             'language': {
                 'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
                 'zeroRecords': '<h4>No jobs to display.</h4>',
-                'search': '<div id="search-area" class="input-group"><span class="input-group-addon"><i class="fa fa-search"></i></span>_INPUT_</div>'
+                'search': '<div id="search-area" class="input-group">' +
+                    '<span class="input-group-addon">' +
+                    '<i class="fa fa-search"></i></span>_INPUT_</div>'
             },
-            'initComplete': function () {
+            'initComplete': function() {
                 $('#table-loading').remove();
                 $('#table-div').fadeIn('slow', 'linear');
 
@@ -173,10 +176,10 @@ $(document).ready(function () {
                     'data': 'job',
                     'title': 'Tree &dash; Branch',
                     'type': 'string',
-                    'render': function (data, type, object) {
-                        return '<a class="table-link" href="/job/' + data + '/">' +
-                            data + '&nbsp;&dash;&nbsp;<small>' +
-                            object.metadata.git_branch + '</small></a>';
+                    'render': function(data, type, object) {
+                        return '<a class="table-link" href="/job/' + data +
+                            '/">' + data + '&nbsp;&dash;&nbsp;<small>' +
+                            object.git_branch + '</small></a>';
                     }
                 },
                 {
@@ -188,7 +191,7 @@ $(document).ready(function () {
                     'searchable': false,
                     'orderable': false,
                     'className': 'pull-center',
-                    'render': function (data) {
+                    'render': function(data) {
                         return '<a class="clean-link" href="/job/' + data +
                             '"><span class="badge alert-success ' +
                             'extra-margin">' +
@@ -212,7 +215,7 @@ $(document).ready(function () {
                     'searchable': false,
                     'orderable': false,
                     'className': 'pull-center',
-                    'render': function (data) {
+                    'render': function(data) {
                         return '<a class="clean-link" href="/boot/all/job/' +
                             data + '"><span class="badge alert-success ' +
                             'extra-margin">' +
@@ -231,7 +234,7 @@ $(document).ready(function () {
                     'data': 'created_on',
                     'title': 'Date',
                     'type': 'date',
-                    'render': function (data) {
+                    'render': function(data) {
                         var created = new Date(data['$date']);
                         return created.getCustomISODate();
                     }
@@ -241,7 +244,7 @@ $(document).ready(function () {
                     'title': 'Status',
                     'type': 'string',
                     'className': 'pull-center',
-                    'render': function (data) {
+                    'render': function(data) {
                         var displ;
                         switch (data) {
                             case 'BUILD':
@@ -285,7 +288,7 @@ $(document).ready(function () {
                     'orderable': false,
                     'width': '30px',
                     'className': 'pull-center',
-                    'render': function (data) {
+                    'render': function(data) {
                         return '<span rel="tooltip" data-toggle="tooltip"' +
                             'title="Details for&nbsp;' + data + '">' +
                             '<a href="/job/' + data + '">' +
@@ -295,7 +298,7 @@ $(document).ready(function () {
             ]
         });
 
-        $(document).on("click", "#jobstable tbody tr", function () {
+        $(document).on('click', '#jobstable tbody tr', function() {
             var tableData = table.fnGetData(this);
             if (tableData) {
                 window.location = '/job/' + tableData.job + '/';
@@ -303,7 +306,7 @@ $(document).ready(function () {
         });
 
         $('#search-area > .input-sm').attr('placeholder', 'Filter the results');
-        $('.input-sm').keyup(function (key) {
+        $('.input-sm').keyup(function(key) {
             // Remove focus from input when Esc is pressed.
             if (key.keyCode === 27) {
                 $(this).blur();
@@ -313,7 +316,7 @@ $(document).ready(function () {
         return data;
     }
 
-    function updateJobsPage (data) {
+    function updateJobsPage(data) {
         // Simple function needed to wrap another deferred call.
         // Create the table, then update it with the batch count operation.
         $.when(createJobsTable(data)).done(batchCountElements);
@@ -335,7 +338,7 @@ $(document).ready(function () {
             'sort_order': -1,
             'date_range': $('#date-range').val(),
             'field': [
-                'job', 'created_on', 'status', 'metadata'
+                'job', 'created_on', 'status', 'git_branch'
             ]
         },
         'error': function() {
@@ -343,17 +346,17 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('job-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('job-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Job data call failed: timeout.';
                 setErrorAlert('job-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('job-500-error', 500, errorReason);
             }
         }
