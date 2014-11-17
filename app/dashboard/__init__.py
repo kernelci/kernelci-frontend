@@ -39,6 +39,7 @@ from dashboard.views.boot import (
     BootIdView,
     BootJobKernelView,
     BootJobView,
+    BootLabView,
     BootsView,
 )
 from dashboard.views.index import IndexView
@@ -131,6 +132,14 @@ app.add_url_rule(
     (
         '/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/'
         'defconfig/<string:defconfig>/'
+    ),
+    view_func=BootLabView.as_view('boot-lab'),
+    methods=['GET'],
+)
+app.add_url_rule(
+    (
+        '/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/'
+        'defconfig/<string:defconfig>/lab/<string:lab_name>'
     ),
     view_func=BootIdView.as_view('boot-id'),
     methods=['GET'],
