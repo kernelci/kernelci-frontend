@@ -1,6 +1,7 @@
+var jobName = $('#job-name').val();
 var jobId = $('#job-id').val();
 
-function showHideDefconfs (element) {
+function showHideDefconfs(element) {
     'use strict';
 
     switch (element.id) {
@@ -9,7 +10,8 @@ function showHideDefconfs (element) {
                 $('.df-failed').hide();
                 $('.df-success').show();
                 $('.df-unknown').hide();
-                $('#success-btn').addClass('active').siblings().removeClass('active');
+                $('#success-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'success-btn':
@@ -22,7 +24,8 @@ function showHideDefconfs (element) {
                 $('.df-failed').show();
                 $('.df-success').hide();
                 $('.df-unknown').hide();
-                $('#fail-btn').addClass('active').siblings().removeClass('active');
+                $('#fail-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'fail-btn':
@@ -35,7 +38,8 @@ function showHideDefconfs (element) {
                 $('.df-failed').hide();
                 $('.df-success').hide();
                 $('.df-unknown').show();
-                $('#unknown-btn').addClass('active').siblings().removeClass('active');
+                $('#unknown-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'unknown-btn':
@@ -51,7 +55,7 @@ function showHideDefconfs (element) {
     }
 }
 
-function createPieChart (data) {
+function createPieChart(data) {
     'use strict';
 
     var success = 0,
@@ -120,66 +124,69 @@ function createPieChart (data) {
         ).css('border-bottom-color', color[2]);
 }
 
-function createBuildsPage (data) {
+function createBuildsPage(data) {
     'use strict';
 
-    var file_server = $('#file-server').val(),
+    var fileServer = $('#file-server').val(),
         panel = '',
         cls,
-        data_url,
+        dataUrl,
         defconfig,
-        metadata,
+        metadata = {},
+        localData,
         label,
         i = 0,
         len = data.length,
         hasFailed = false,
         hasSuccess = false,
         hasUnknown = false,
-        fail_label = '<span class="pull-right label label-danger">' +
+        failLabel = '<span class="pull-right label label-danger">' +
             '<li class="fa fa-exclamation-triangle"></li></span>',
-        success_label = '<span class="pull-right label label-success">' +
+        successLabel = '<span class="pull-right label label-success">' +
             '<li class="fa fa-check"></li></span>',
-        unknown_label = '<span class="pull-right label label-warning">' +
+        unknownLabel = '<span class="pull-right label label-warning">' +
             '<li class="fa fa-question"></li></span>',
-        architecture_label = '';
+        archLabel = '';
 
     for (i; i < len; i++) {
-        metadata = data[i].metadata;
-        data_url = file_server + data[i].job + '/' + data[i].kernel +
-            '/' + data[i].dirname + '/';
+        localData = data[i];
+        if (localData.hasOwnProperty('metadata') &&
+                !$.isEmptyObject(localData.metadata)) {
+            metadata = localData.metadata;
+        }
+
+        dataUrl = fileServer + localData.job + '/' + localData.kernel +
+            '/' + localData.dirname + '/';
 
         switch (data[i].status) {
             case 'FAIL':
                 hasFailed = true;
-                label = fail_label;
+                label = failLabel;
                 cls = 'df-failed';
                 break;
             case 'PASS':
                 hasSuccess = true;
-                label = success_label;
+                label = successLabel;
                 cls = 'df-success';
                 break;
             default:
                 hasUnknown = true;
-                label = unknown_label;
+                label = unknownLabel;
                 cls = 'df-unknown';
                 break;
         }
 
-        defconfig = data[i].defconfig;
-        if (!$.isEmptyObject(metadata)) {
-            if (metadata.hasOwnProperty('kconfig_fragments') &&
+        defconfig = localData.defconfig;
+        if (metadata.hasOwnProperty('kconfig_fragments') &&
                 metadata.kconfig_fragments !== null) {
-                    defconfig = data[i].defconfig + '&nbsp;<small>' +
-                    metadata.kconfig_fragments + '</small>';
-            }
+            defconfig = defconfig + '&nbsp;<small>' +
+                metadata.kconfig_fragments + '</small>';
+        }
 
-            if (metadata.hasOwnProperty('arch') &&
-                metadata.arch !== null) {
-                    architecture_label = '<small>' +
-                        '<span class="pull-right" style="padding: 3px">' +
-                        metadata.arch + '</span></small>';
-            }
+        if (localData.arch !== null) {
+            archLabel = '<small>' +
+                '<span class="pull-right" style="padding: 3px">' +
+                localData.arch + '</span></small>';
         }
 
         panel += '<div class="panel panel-default ' + cls + '">' +
@@ -188,111 +195,93 @@ function createBuildsPage (data) {
                 'data-parent="accordion" data-target="#collapse-defconf' +
                 i + '">' +
                 '<h4 class="panel-title">' +
-                '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-defconf' + i + '">' +
-                defconfig +
-                '</a>' + label + architecture_label + '</h4></div>' +
-                '<div id="collapse-defconf' + i + '" class="panel-collapse collapse">' +
-                '<div class="panel-body">';
+                '<a data-toggle="collapse" data-parent="#accordion" ' +
+                'href="#collapse-defconf' + i + '">' + defconfig +
+                '</a>' + label + archLabel + '</h4></div>' +
+                '<div id="collapse-defconf' + i +
+                '" class="panel-collapse collapse"><div class="panel-body">';
 
         panel += '<div class="row">';
+        panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+        panel += '<dl class="dl-horizontal">';
 
-        if ($.isEmptyObject(metadata)) {
-            panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                '<div class="pull-center">' +
-                '<strong>No data to show.</strong>' +
-                '</div></div>\n';
-        } else {
-            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-            panel += '<dl class="dl-horizontal">';
-
-            if (metadata.hasOwnProperty('dtb_dir') &&
-                    metadata.dtb_dir !== null) {
-                panel += '<dt>Dtb directory</dt>' +
-                    '<dd><a href="' +
-                        data_url + metadata.dtb_dir + '/' + '">' +
-                        metadata.dtb_dir +
-                        '&nbsp;<i class="fa fa-external-link">' +
-                        '</i></a></dd>';
-            }
-
-            if (metadata.hasOwnProperty('modules_dir') &&
-                    metadata.modules_dir !== null) {
-                panel += '<dt>Modules directory</dt>' +
-                    '<dd><a href="' +
-                        data_url + metadata.modules_dir + '/' + '">' +
-                        metadata.modules_dir +
-                        '&nbsp;<i class="fa fa-external-link">' +
-                        '</i></a></dd>';
-            }
-
-            if (metadata.hasOwnProperty('text_offset') &&
-                    metadata.text_offset !== null) {
-                panel += '<dt>Text offset</dt>' +
-                    '<dd>' + metadata.text_offset + '</dd>';
-            }
-
-            if (metadata.hasOwnProperty('kernel_image') &&
-                    metadata.kernel_image !== null) {
-                panel += '<dt>Kernel image</dt>' +
-                    '<dd><a href="' +
-                        data_url + metadata.kernel_image + '">' +
-                        metadata.kernel_image +
-                        '&nbsp;<i class="fa fa-external-link">' +
-                        '</i></a></dd>';
-            }
-
-            if (metadata.hasOwnProperty('kernel_config') &&
-                    metadata.kernel_config !== null) {
-                panel += '<dt>Kernel config</dt>' +
-                    '<dd><a href="' +
-                        data_url + metadata.kernel_config + '">' +
-                        metadata.kernel_config +
-                        '&nbsp;<i class="fa fa-external-link">' +
-                        '</i></a></dd>';
-            }
-
-            if (metadata.hasOwnProperty('build_log') &&
-                    metadata.build_log !== null) {
-                panel += '<dt>Build log</dt>' +
-                    '<dd><a href="' +
-                        data_url + metadata.build_log + '">' +
-                        metadata.build_log +
-                        '&nbsp;<i class="fa fa-external-link">' +
-                        '</i></a></dd>';
-            }
-
-            panel += '</dl></div>';
-
-            panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-            panel += '<dl class="dl-horizontal">';
-
-            if (metadata.hasOwnProperty('build_errors') &&
-                    metadata.build_errors !== null) {
-                panel += '<dt>Build errors</dt>';
-                panel += '<dd>' + metadata.build_errors + '</dd>';
-            }
-
-            if (metadata.hasOwnProperty('build_warnings') &&
-                    metadata.build_warnings !== null) {
-                panel += '<dt>Build warnings</dt>';
-                panel += '<dd>' + metadata.build_warnings + '</dd>';
-            }
-
-            if (metadata.hasOwnProperty('build_time') &&
-                    metadata.build_time !== null) {
-                panel += '<dt>Build time</dt>';
-                panel += '<dd>' + metadata.build_time + '&nbsp;sec.</dd>';
-            }
-
-            panel += '</dl></div>';
+        if (localData.dtb_dir !== null) {
+            panel += '<dt>Dtb directory</dt>' +
+                '<dd><a href="' +
+                    dataUrl + metadata.dtb_dir + '/' + '">' +
+                    metadata.dtb_dir +
+                    '&nbsp;<i class="fa fa-external-link">' +
+                    '</i></a></dd>';
         }
+
+        if (localData.modules !== null) {
+            panel += '<dt>Modules</dt>' +
+                '<dd><a href="' +
+                    dataUrl + localData.modules + '/' + '">' +
+                    localData.modules +
+                    '&nbsp;<i class="fa fa-external-link">' +
+                    '</i></a></dd>';
+        }
+
+        if (localData.text_offset !== null) {
+            panel += '<dt>Text offset</dt>' +
+                '<dd>' + localData.text_offset + '</dd>';
+        }
+
+        if (localData.kernel_image !== null) {
+            panel += '<dt>Kernel image</dt>' +
+                '<dd><a href="' +
+                    dataUrl + localData.kernel_image + '">' +
+                    localData.kernel_image +
+                    '&nbsp;<i class="fa fa-external-link">' +
+                    '</i></a></dd>';
+        }
+
+        if (localData.kernel_config !== null) {
+            panel += '<dt>Kernel config</dt>' +
+                '<dd><a href="' +
+                    dataUrl + localData.kernel_config + '">' +
+                    localData.kernel_config +
+                    '&nbsp;<i class="fa fa-external-link">' +
+                    '</i></a></dd>';
+        }
+
+        if (metadata.hasOwnProperty('build_log') &&
+                metadata.build_log !== null) {
+            panel += '<dt>Build log</dt>' +
+                '<dd><a href="' +
+                    dataUrl + metadata.build_log + '">' +
+                    metadata.build_log +
+                    '&nbsp;<i class="fa fa-external-link">' +
+                    '</i></a></dd>';
+        }
+
+        panel += '</dl></div>';
+
+        panel += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
+        panel += '<dl class="dl-horizontal">';
+
+        panel += '<dt>Build errors</dt>';
+        panel += '<dd>' + localData.errors + '</dd>';
+
+        panel += '<dt>Build warnings</dt>';
+        panel += '<dd>' + localData.warnings + '</dd>';
+
+        if (localData.build_time !== null) {
+            panel += '<dt>Build time</dt>';
+            panel += '<dd>' + localData.build_time + '&nbsp;sec.</dd>';
+        }
+
+        panel += '</dl></div>';
 
         panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
         panel += '<div class="pull-center">' +
-            '<span rel="tooltip" data-toggle="tooltip" title="Details for&nbsp;' +
-            'build with defconfig&nbsp;' + data[i].defconfig + '">' +
-            '<a href="/build/' + data[i].job + '/kernel/' + data[i].kernel +
-            '/defconfig/' + data[i].dirname + '/' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Details for build with defconfig&nbsp;' +
+            localData.defconfig + '">' +
+            '<a href="/build/' + localData.job +
+            '/kernel/' + localData.kernel +
+            '/defconfig/' + localData.dirname + '/' +
             '">More info&nbsp;<i class="fa fa-search"></i>' +
             '</a></span>';
         panel += '</div></div>';
@@ -300,6 +289,7 @@ function createBuildsPage (data) {
         panel += '</div>';
         panel += '</div></div></div>\n';
     }
+
     $('#accordion').empty().append(panel);
 
     if (hasFailed) {
@@ -328,7 +318,7 @@ function createBuildsPage (data) {
     }
 }
 
-function ajaxCallFailed () {
+function ajaxCallFailed() {
     'use strict';
 
     $('#accordion-container').empty().append(
@@ -338,7 +328,7 @@ function ajaxCallFailed () {
     );
 }
 
-function parseData (data) {
+function parseData(data) {
     'use strict';
 
     // Just a wrapper function calling jQuery 'when' with multiple functions.
@@ -346,7 +336,7 @@ function parseData (data) {
     $.when(createBuildsPage(localData), createPieChart(localData));
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('body').tooltip({
@@ -356,7 +346,7 @@ $(document).ready(function () {
 
     $('#li-build').addClass('active');
 
-    $('.btn-group > .btn').click(function () {
+    $('.btn-group > .btn').click(function() {
         $(this).addClass('active').siblings().removeClass('active');
     });
 
@@ -381,17 +371,17 @@ $(document).ready(function () {
             ajaxCallFailed();
         },
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('defconfs-403-error', 403, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('defconfs-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Defconfig data call failed: timeout.';
                 setErrorAlert('defconfs-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('defconfs-500-error', 500, errorReason);
             }
         }
@@ -401,15 +391,15 @@ $(document).ready(function () {
 
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     // No use strict here, or onbeforeunload is not recognized.
     var session_state = new SessionState(jobId);
-    onbeforeunload = function () {
+    onbeforeunload = function() {
 
         var panel_state = {},
             page_state;
 
-        $('[id^="panel-defconf"]').each(function (id) {
+        $('[id^="panel-defconf"]').each(function(id) {
             panel_state['#panel-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
@@ -417,7 +407,7 @@ $(document).ready(function () {
             };
         });
 
-        $('[id^="collapse-defconf"]').each(function (id) {
+        $('[id^="collapse-defconf"]').each(function(id) {
             panel_state['#collapse-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
