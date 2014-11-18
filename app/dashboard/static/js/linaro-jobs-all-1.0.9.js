@@ -96,7 +96,7 @@ $(document).ready(function() {
                 'data': JSON.stringify({
                     'batch': batchQueries
                 }),
-                'timeout': 10000,
+                'timeout': 20000,
                 'error': function() {
                     countFailCallback();
                 },
