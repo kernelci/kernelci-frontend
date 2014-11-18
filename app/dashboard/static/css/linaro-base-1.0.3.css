@@ -102,3 +102,7 @@
 .red-font {
     color: #d9534f;
 }
+
+div.tooltip-inner {
+    max-width: 350px;
+}
