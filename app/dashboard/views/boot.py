@@ -76,12 +76,12 @@ class BootIdView(View):
     def dispatch_request(self, *args, **kwargs):
         page_title = (
             PAGE_TITLE +
-            '&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)'
-            % kwargs
+            '&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)' %
+            kwargs
         )
         body_title = (
-            'Boot details for board&nbsp;%(board)s&nbsp;' +
-            '<small>%(lab_name)s)</small>' % kwargs
+            'Boot details for board&nbsp;%(board)s&nbsp;'
+            '<small>(%(lab_name)s)</small>' % kwargs
         )
 
         boot_id = request.args.get("_id", None)
