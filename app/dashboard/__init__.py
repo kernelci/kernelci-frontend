@@ -139,7 +139,7 @@ app.add_url_rule(
 app.add_url_rule(
     (
         '/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/'
-        'defconfig/<string:defconfig>/lab/<string:lab_name>'
+        'defconfig/<string:defconfig>/lab/<string:lab_name>/'
     ),
     view_func=BootIdView.as_view('boot-id'),
     methods=['GET'],
