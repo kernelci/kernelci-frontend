@@ -2,6 +2,8 @@ var boardId = $('#board-id').val();
 var jobId = $('#job-id').val();
 var kernelId = $('#kernel-id').val();
 var defconfId = $('#defconfig-id').val();
+var labName = $('#lab-name').val();
+var bootId = $('#boot-id').val();
 
 function populatePage(data) {
     'use strict';
@@ -95,12 +97,14 @@ function populatePage(data) {
         case 'PASS':
             displ = '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Boot completed"><span class="label ' +
-                    'label-success"><i class="fa fa-check"></i></span></span>';
+                    'label-success"><i class="fa fa-check">' +
+                    '</i></span></span>';
             break;
         case 'FAIL':
             displ = '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Boot failed"><span class="label label-danger">' +
-                    '<i class="fa fa-exclamation-triangle"></i></span></span>';
+                    '<i class="fa fa-exclamation-triangle"></i>' +
+                    '</span></span>';
             break;
         case 'OFFLINE':
             displ = '<span rel="tooltip" data-toggle="tooltip"' +
@@ -115,14 +119,8 @@ function populatePage(data) {
             break;
     }
 
-    // Do we have a description for the boot result?
-    // We might have it directly in the json or in the metadata property.
-    if (localData.hasOwnProperty('boot_result_description')) {
+    if (localData.boot_result_description !== null) {
         displ += '&nbsp;<small>' + localData.boot_result_description +
-            '</small>';
-    } else if (! $.isEmptyObject(metadata) &&
-            metadata.hasOwnProperty('boot_result_description')) {
-        displ += '&nbsp;<small>' + metadata.boot_result_description +
             '</small>';
     }
 
@@ -346,16 +344,25 @@ $(document).ready(function() {
     $('#li-boot').addClass('active');
     $('#bisect-content').hide();
 
-    var errorReason = 'Data call failed.';
+    var errorReason = 'Data call failed.',
+        data = {};
+
+    if (bootId !== 'None') {
+        data.id = bootId;
+    } else {
+        data.kernel = kernelId;
+        data.job = jobId;
+        data.defconfig = defconfId;
+        data.lab = labName;
+        data.board = boardId;
+    }
 
     $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
         'dataType': 'json',
-        'data': {
-            'id': boardId + '-' + jobId + '-' + kernelId + '-' + defconfId
-        },
+        'data': data,
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
