@@ -354,7 +354,7 @@ $(document).ready(function() {
     'use strict';
 
     var errorReason = 'Boot data call failed.',
-        colSpan = 7;
+        colSpan = 8;
 
     $.ajax({
         'url': '/_ajax/boot',
@@ -370,7 +370,7 @@ $(document).ready(function() {
             'date_range': $('#date-range').val(),
             'field': [
                 'board', 'job', 'kernel', 'defconfig', 'created_on',
-                'boot_result_description'
+                'boot_result_description', 'lab_name', '_id'
             ]
         },
         'beforeSend': function(jqXHR) {
@@ -403,6 +403,8 @@ $(document).ready(function() {
             job,
             kernel,
             defconfig,
+            labName,
+            bootId,
             col1,
             col2,
             col3,
@@ -410,9 +412,10 @@ $(document).ready(function() {
             col5,
             col6,
             col7,
+            col8,
             href,
             len = localData.length,
-            col5Content,
+            col6Content,
             failureReason = null,
             i = 0;
 
@@ -425,13 +428,13 @@ $(document).ready(function() {
             for (i; i < len; i++) {
                 failureReason = localData[i].boot_result_description;
                 if (failureReason === null) {
-                    col5Content = '<td class="pull-center">' +
+                    col6Content = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Failure reason unknown">' +
                         '<i class="fa fa-question-circle"></i>' +
                         '</span></td>';
                 } else {
-                    col5Content = '<td class="pull-center">' +
+                    col6Content = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="' + failureReason + '">' +
                         '<i class="fa fa-exclamation-triangle red-font">' +
@@ -443,25 +446,30 @@ $(document).ready(function() {
                 kernel = localData[i].kernel;
                 board = localData[i].board;
                 defconfig = localData[i].defconfig;
+                labName = localData[i].lab_name;
+                bootId = localData[i]._id;
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
-                    kernel + '/defconfig/' + defconfig + '/';
+                    kernel + '/defconfig/' + defconfig + '/lab/' + labName +
+                    '/?_id=' + bootId['$oid'];
 
                 col1 = '<td><a class="table-link" href="/job/' + job + '/">' +
                     job + '</a></td>';
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
-                col5 = col5Content;
-                col6 = '<td class="pull-center">' +
-                    created.getCustomISODate() + '</td>';
+                col5 = '<td><small>' + labName + '</small></td>';
+                col6 = col6Content;
                 col7 = '<td class="pull-center">' +
+                    created.getCustomISODate() + '</td>';
+                col8 = '<td class="pull-center">' +
                     '<span rel="tooltip" data-toggle="tooltip" ' +
                     'title="Details for board&nbsp;' + board + '">' +
                     '<a href="' + href + '">' +
                     '<i class="fa fa-search"></i></a>' +
                     '</span></td>';
                 row += '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + col5 + col6 + col7 + '</tr>';
+                    col1 + col2 + col3 + col4 + col5 + col6 + col7 + col8 +
+                    '</tr>';
             }
 
             $(this).empty().append(row);
