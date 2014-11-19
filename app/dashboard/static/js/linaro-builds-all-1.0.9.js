@@ -70,20 +70,13 @@ function createBuildsTable(data) {
                 'data': 'defconfig',
                 'title': 'Defconfig',
                 'render': function(data, type, object) {
-                    var display = data,
-                        metadata = object.metadata;
-
-                    if (!$.isEmptyObject(metadata) &&
-                            metadata.hasOwnProperty('kconfig_fragments') &&
-                            metadata.kconfig_fragments !== null) {
-                        if (metadata.kconfig_fragments.length > 45) {
-                            display = data + '&nbsp<small>' +
-                                metadata.kconfig_fragments.slice(0, 39) +
-                                '&nbsp;&hellip;</small>';
-                        } else {
-                            display = data + '&nbsp<small>' +
-                                metadata.kconfig_fragments + '</small>';
-                        }
+                    var display = data;
+                    if (data.length > 33) {
+                        display = '<span rel="tooltip" ' +
+                            'data-toggle="tooltip" ' +
+                            'title="' + data + '">' +
+                            data.slice(0, 33) + '&hellip;' +
+                            '</span>';
                     }
                     return display;
                 }
