@@ -6,7 +6,7 @@
 {%- block content %}
 <div class="row">
 <div class="page-header">
-    <h3>{{ body_title|safe }}&nbsp;<small>{{ result.defconfig }}</small></h3>
+    <h3>{{ body_title|safe }}&nbsp;<small>({{ result.defconfig }})</small></h3>
 </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
@@ -195,18 +195,28 @@
             </dd>
             {%- endif %}
             <dt>Modules</dt>
-            {%- if result.modules_dir %}
+            {%- if result.modules %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.modules }}/">
-                {{ result.modules_dir }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.defconfig }}/{{ result.modules }}">
+                {{ result.modules }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
             {%- else %}
             <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
+                <span rel="tooltip" data-toggle="tooltip"
+                    title="Not available">
                     <i class="fa fa-ban"></i>
                 </span>
+            </dd>
+            {%- endif %}
+            {%- if result.modules_dir %}
+            <dt>Modules directory</dt>
+            <dd>
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.defconfig }}/{{ result.modules_dir }}/">
+                {{ result.modules_dir }}
+                &nbsp;<i class="fa fa-external-link"></i>
+                </a>
             </dd>
             {%- endif %}
             <dt>Text offset</dt>
@@ -243,7 +253,7 @@
             <dt>Kernel image</dt>
             {%- if result.kernel_image %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.kernel_image }}">
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.defconfig }}/{{ result.kernel_image }}">
                 {{ result.kernel_image }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
@@ -258,7 +268,7 @@
             <dt>Kernel config</dt>
             {%- if result.kernel_config %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ result.kernel_config }}">
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.defconfig }}/{{ result.kernel_config }}">
                 {{ result.kernel_config }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
@@ -271,10 +281,10 @@
             </dd>
             {%- endif %}
             <dt>Build log</dt>
-            {%- if metadata and metadata.build_log %}
+            {%- if result.build_log %}
             <dd>
-                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.dirname }}/{{ metadata.build_log }}">
-                {{ metadata.build_log }}
+                <a href="{{ config['FILE_SERVER_URL'] }}/{{ job }}/{{ result.kernel }}/{{ result.defconfig }}/{{ result.build_log }}">
+                {{ result.build_log }}
                 &nbsp;<i class="fa fa-external-link"></i>
                 </a>
             </dd>
@@ -343,5 +353,5 @@
 {%- block scripts %}
 {{ super() }}
 <script type="text/javascript"
-    src="/static/js/linaro-builds-job-kernel-defconfig-1.0.1.js"></script>
+    src="/static/js/linaro-builds-job-kernel-defconfig-1.0.2.js"></script>
 {%- endblock %}
