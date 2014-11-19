@@ -201,8 +201,7 @@ function createBootBisectTable(data) {
     for (i; i < localLen; i++) {
         bisectData = localData[i];
         bootStatus = bisectData.boot_status;
-        bisectDefMetadata = bisectData.defconfig_metadata;
-        gitDescribeVal = bisectDefMetadata.git_describe;
+        gitDescribeVal = bisectData.git_describe;
 
         tooltipLink = '<a href="/boot/all/job/' + jobId +
             '/kernel/' + gitDescribeVal + '">' +
@@ -218,12 +217,12 @@ function createBootBisectTable(data) {
             '</span></span></span></td>';
 
         gitURLs = translateCommitURL(
-            bisectDefMetadata.git_url, bisectDefMetadata.git_commit);
+            bisectData.git_url, bisectData.git_commit);
 
         switch (bootStatus) {
             case 'PASS':
                 goodCommitCell = '<td class="bg-success"><a href="' +
-                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    gitURLs[1] + '">' + bisectData.git_commit +
                     '&nbsp;<i class="fa fa-external-link"></i></a></td>';
                 badCommitCell = '<td class="bg-danger"></td>';
                 unknownCommitCell = '<td class="bg-warning"></td>';
@@ -231,7 +230,7 @@ function createBootBisectTable(data) {
             case 'FAIL':
                 goodCommitCell = '<td class="bg-success"></td>';
                 badCommitCell = '<td class="bg-danger"><a href="' +
-                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    gitURLs[1] + '">' + bisectData.git_commit +
                     '&nbsp;<i class="fa fa-external-link"></i></a></td>';
                 unknownCommitCell = '<td class="bg-warning"></td>';
                 break;
@@ -239,7 +238,7 @@ function createBootBisectTable(data) {
                 goodCommitCell = '<td class="bg-success"></td>';
                 badCommitCell = '<td class="bg-danger"></td>';
                 unknownCommitCell = '<td class="bg-warning"><a href="' +
-                    gitURLs[1] + '">' + bisectDefMetadata.git_commit +
+                    gitURLs[1] + '">' + bisectData.git_commit +
                     '&nbsp;<i class="fa fa-external-link"></i></a></td>';
                 break;
         }
@@ -296,10 +295,12 @@ function getBisectData(data) {
 
     if (status === 'FAIL') {
         $('#bisect-div').removeClass('hidden');
-        docId = boardId + '-' + jobId + '-' + kernelId + '-' + defconfId;
+        if (bootId === 'None') {
+            bootId = data.result[0]._id['$oid'];
+        }
 
         bisectAjaxCall = $.ajax({
-            'url': '/_ajax/bisect/boot/' + docId,
+            'url': '/_ajax/bisect/boot/' + bootId,
             'traditional': true,
             'cache': true,
             'dataType': 'json',
