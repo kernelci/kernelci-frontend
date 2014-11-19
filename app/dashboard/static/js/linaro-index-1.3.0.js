@@ -462,7 +462,8 @@ $(document).ready(function() {
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
                 col4 = '<td>' + defconfig + '</td>';
-                col5 = '<td><small>' + labName + '</small></td>';
+                col5 = '<td class="pull-center"><small>' +
+                    labName + '</small></td>';
                 col6 = col6Content;
                 col7 = '<td class="pull-center">' +
                     created.getCustomISODate() + '</td>';
