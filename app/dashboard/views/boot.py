@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from flask import (
     abort,
     current_app as app,
@@ -23,9 +28,9 @@ from flask import (
 from flask.views import View
 
 from dashboard.utils.backend import (
-    extract_response_metadata,
     get_job,
     today_date,
+    translate_git_url,
 )
 
 PAGE_TITLE = 'Kernel CI Dashboard &mdash; Boot Reports'
@@ -104,40 +109,49 @@ class BootIdView(View):
 class BootJobKernelView(View):
 
     def dispatch_request(self, **kwargs):
-
         job = kwargs['job']
         kernel = kwargs['kernel']
-        job_id = '%s-%s' % (job, kernel)
-        storage_id = 'boot-' + job_id
 
         body_title = body_title = (
             'Boot details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (job, kernel)
         )
 
-        params = {'id': job_id}
+        params = {'job': job, 'kernel': kernel}
         response = get_job(**params)
 
-        metadata = {}
         base_url = ''
         commit_url = ''
 
         if response.status_code == 200:
-            metadata, base_url, commit_url, result = extract_response_metadata(
-                response
-            )
+            document = json.loads(response.content, encoding="utf_8")
+            result = document.get("result", None)
 
-            return render_template(
-                'boots-job-kernel.html',
-                page_title=PAGE_TITLE,
-                body_title=body_title,
-                base_url=base_url,
-                commit_url=commit_url,
-                job_id=job_id,
-                job=job,
-                kernel=kernel,
-                metadata=metadata,
-                storage_id=storage_id,
-            )
+            if result and len(result) == 1:
+                result = result[0]
+                res_get = result.get
+
+                job_id = (res_get("_id")).get("$oid")
+                storage_id = 'boot-' + job_id
+
+                base_url, commit_url = translate_git_url(
+                    res_get("git_url", None),
+                    res_get("git_commit", None)
+                )
+
+                return render_template(
+                    'boots-job-kernel.html',
+                    page_title=PAGE_TITLE,
+                    body_title=body_title,
+                    base_url=base_url,
+                    commit_url=commit_url,
+                    job_id=job_id,
+                    job=job,
+                    kernel=kernel,
+                    result=result,
+                    storage_id=storage_id,
+                )
+            else:
+                abort(400)
         else:
             abort(response.status_code)
 
