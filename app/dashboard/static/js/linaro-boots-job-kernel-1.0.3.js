@@ -1,4 +1,4 @@
-function showHideBoots (element) {
+function showHideBoots(element) {
     'use strict';
 
     switch (element.id) {
@@ -7,7 +7,8 @@ function showHideBoots (element) {
                 $('.df-failed').hide();
                 $('.df-success').show();
                 $('.df-unknown').hide();
-                $('#success-btn').addClass('active').siblings().removeClass('active');
+                $('#success-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'success-btn':
@@ -20,7 +21,8 @@ function showHideBoots (element) {
                 $('.df-failed').show();
                 $('.df-success').hide();
                 $('.df-unknown').hide();
-                $('#fail-btn').addClass('active').siblings().removeClass('active');
+                $('#fail-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'fail-btn':
@@ -33,7 +35,8 @@ function showHideBoots (element) {
                 $('.df-failed').hide();
                 $('.df-success').hide();
                 $('.df-unknown').show();
-                $('#unknown-btn').addClass('active').siblings().removeClass('active');
+                $('#unknown-btn').addClass('active').siblings()
+                    .removeClass('active');
             }
             break;
         case 'unknown-btn':
@@ -49,7 +52,7 @@ function showHideBoots (element) {
     }
 }
 
-function createPieChart (data) {
+function createPieChart(data) {
     'use strict';
 
     var success = 0,
@@ -118,72 +121,85 @@ function createPieChart (data) {
         ).css('border-bottom-color', color[2]);
 }
 
-function populateBootsPage (data) {
+function populateBootsPage(data) {
     'use strict';
 
-    var file_server = $('#file-server').val(),
+    var fileServer = $('#file-server').val(),
         panel = '',
         cls,
         dataUrl,
-        defconfig, job, kernel, board,
+        defconfig,
+        job,
+        kernel,
+        board,
         metadata,
         label,
         i = 0,
         len = data.length,
-        boot_obj = null,
+        bootObj = null,
+        bootObjId,
         hasFailed = false,
         hasSuccess = false,
         hasUnknown = false,
-        boot_time = null,
-        non_avail = '<span rel="tooltip" data-toggle="tooltip"' +
+        bootTime = null,
+        labName,
+        allLabs = {},
+        lab,
+        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>',
-        fail_label = '<span class="pull-right label label-danger">' +
+        failLabel = '<span class="pull-right label label-danger">' +
             '<li class="fa fa-exclamation-triangle"></li></span>',
-        success_label = '<span class="pull-right label label-success">' +
+        successLabel = '<span class="pull-right label label-success">' +
             '<li class="fa fa-check"></li></span>',
-        unknown_label = '<span class="pull-right label label-warning">' +
-            '<li class="fa fa-question"></li></span>';
+        unknownLabel = '<span class="pull-right label label-warning">' +
+            '<li class="fa fa-question"></li></span>',
+        toAppend;
 
     if (len > 0) {
         for (i; i < len; i++) {
-            boot_obj = data[i];
-            defconfig = boot_obj.defconfig;
-            metadata = boot_obj.metadata;
-            job = boot_obj.job;
-            kernel = boot_obj.kernel;
-            board = boot_obj.board;
+            bootObj = data[i];
+            defconfig = bootObj.defconfig;
+            metadata = bootObj.metadata;
+            job = bootObj.job;
+            kernel = bootObj.kernel;
+            board = bootObj.board;
+            labName = bootObj.lab_name;
+            bootObjId = bootObj._id;
 
-            dataUrl = file_server + job + '/' + kernel + '/' + defconfig + '/';
+            dataUrl = fileServer + job + '/' + kernel + '/' + defconfig + '/';
 
-            switch (boot_obj.status) {
+            switch (bootObj.status) {
                 case 'FAIL':
                     hasFailed = true;
-                    label = fail_label;
+                    label = failLabel;
                     cls = 'df-failed';
                     break;
                 case 'PASS':
                     hasSuccess = true;
-                    label = success_label;
+                    label = successLabel;
                     cls = 'df-success';
                     break;
                 default:
                     hasUnknown = true;
-                    label = unknown_label;
+                    label = unknownLabel;
                     cls = 'df-unknown';
                     break;
             }
 
-            panel += '<div class="panel panel-default ' + cls + '">' +
+            panel = '<div class="panel panel-default ' + cls + '">' +
                 '<div class="panel-heading" data-toggle="collapse" ' +
-                    'id="panel-boots' + i + '"' +
-                    'data-parent="accordion" data-target="#collapse-boots' +
-                    i + '">' +
+                    'id="panel-boots' + i + '" ' +
+                    'data-parent="accordion' + labName + '" ' +
+                    'data-target="#collapse-boots' + i + '">' +
                     '<h4 class="panel-title">' +
-                    '<a data-toggle="collapse" data-parent="#accordion" href="#collapse-boots' + i + '">' +
+                    '<a data-toggle="collapse" ' +
+                    'data-parent="#accordion' + labName + '" ' +
+                    'href="#collapse-boots' + i + '">' +
                     board + '&nbsp;<small>' + defconfig + '</small>' +
                     '</a>' + label + '</h4></div>' +
-                    '<div id="collapse-boots' + i + '" class="panel-collapse collapse">' +
+                    '<div id="collapse-boots' + i +
+                    '" class="panel-collapse collapse">' +
                     '<div class="panel-body">';
 
             panel += '<div class="row">';
@@ -191,17 +207,17 @@ function populateBootsPage (data) {
             panel += '<dl class="dl-horizontal">';
 
             panel += '<dt>Endianness</dt>';
-            if (boot_obj.endian !== null) {
-                panel += '<dd>' + boot_obj.endian + '</dd>';
+            if (bootObj.endian !== null) {
+                panel += '<dd>' + bootObj.endian + '</dd>';
             } else {
-                panel += '<dd>' + non_avail + '</dd>';
+                panel += '<dd>' + nonAvail + '</dd>';
             }
 
             panel += '<dt>Kernel image</dt>';
-            if (boot_obj.kernel_image !== null) {
-                panel += '<dd>' + boot_obj.kernel_image + '</dd>';
+            if (bootObj.kernel_image !== null) {
+                panel += '<dd>' + bootObj.kernel_image + '</dd>';
             } else {
-                panel += '<dd>' + non_avail + '</dd>';
+                panel += '<dd>' + nonAvail + '</dd>';
             }
 
             panel += '</dl></div>';
@@ -209,37 +225,63 @@ function populateBootsPage (data) {
             panel += '<dl class="dl-horizontal">';
 
             panel += '<dt>Warnings</dt>';
-            if (boot_obj.warnings !== null) {
-                panel += '<dd>' + boot_obj.warnings + '</dd>';
+            if (bootObj.warnings !== null) {
+                panel += '<dd>' + bootObj.warnings + '</dd>';
             } else {
-                panel += '<dd>' + non_avail + '</dd>';
+                panel += '<dd>' + nonAvail + '</dd>';
             }
 
             panel += '<dt>Boot time</dt>';
-            if (boot_obj.time !== null) {
-                boot_time = new Date(boot_obj.time['$date'])
-                panel += '<dd>' + boot_time.getCustomTime() + '</dd>';
+            if (bootObj.time !== null) {
+                bootTime = new Date(bootObj.time['$date']);
+                panel += '<dd>' + bootTime.getCustomTime() + '</dd>';
             } else {
-                panel += '<dd>' + non_avail + '</dd>';
+                panel += '<dd>' + nonAvail + '</dd>';
             }
 
             panel += '</dl></div>';
 
             panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
             panel += '<div class="pull-center">' +
-                '<span rel="tooltip" data-toggle="tooltip" title="Details for ' +
-                'this boot report">' +
-                '<a href="/boot/' + board + '/job/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfig + '/' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Details for this boot report">' +
+                '<a href="/boot/' + board +
+                '/job/' + job +
+                '/kernel/' + kernel +
+                '/defconfig/' + defconfig +
+                '/lab/' + labName + '/' +
+                '?_id=' + bootObjId['$oid'] +
                 '">More info&nbsp;<i class="fa fa-search"></i>' +
                 '</a></span>';
             panel += '</div></div>';
 
             panel += '</div>';
             panel += '</div></div></div>\n';
+
+            if (allLabs.hasOwnProperty(labName)) {
+                allLabs[labName].push(panel);
+            } else {
+                allLabs[labName] = new Array();
+                allLabs[labName].push(panel);
+            }
         }
 
-        $('#accordion').empty().append(panel);
+        Object.keys(allLabs).sort().forEach(function(element, index, array) {
+            lab = allLabs[element];
+            len = lab.length;
+
+            toAppend = '<div id="' + element + '">' +
+                '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
+                '<div class="panel-group" id="accordion' + element + '">';
+
+            for (i = 0; i < len; i++) {
+                toAppend += lab[i];
+            }
+
+            toAppend += '</div></div>';
+        });
+
+        $('#accordion-container').empty().append(toAppend);
 
         if (hasFailed) {
             $('#fail-btn').removeAttr('disabled');
@@ -260,20 +302,21 @@ function populateBootsPage (data) {
                 $('.df-failed').show();
                 $('.df-success').hide();
                 $('.df-unknown').hide();
-                $('#fail-btn').addClass('active').siblings().removeClass('active');
+                $('#fail-btn').addClass('active').siblings()
+                    .removeClass('active');
             } else {
                 $('#all-btn').addClass('active');
             }
         }
     } else {
-        $('#accordion').empty().append(
+        $('#accordion-container').empty().append(
             '<div class="pull-center"><strong>No boards tested.' +
             '<strong></div>'
         );
     }
 }
 
-function ajaxCallFailed () {
+function ajaxCallFailed() {
     'use strict';
 
     $('#accordion-container').empty().append(
@@ -283,7 +326,7 @@ function ajaxCallFailed () {
     );
 }
 
-function parseData (data) {
+function parseData(data) {
     // Just a wrapper function calling jQuery 'when' with multiple functions.
     'use strict';
 
@@ -291,7 +334,7 @@ function parseData (data) {
     $.when(populateBootsPage(localData), createPieChart(localData));
 }
 
-$(document).ready(function () {
+$(document).ready(function() {
     'use strict';
 
     $('body').tooltip({
@@ -301,23 +344,33 @@ $(document).ready(function () {
 
     $('#li-boot').addClass('active');
 
-    $('.btn-group > .btn').click(function () {
+    $('.btn-group > .btn').click(function() {
         $(this).addClass('active').siblings().removeClass('active');
     });
 
     var errorReason = 'Boot data call failed.',
-        ajaxCall;
+        ajaxCall,
+        data = {
+            'sort': ['status', '_id'],
+            'sort_order': 1
+        },
+        jobId = $('#job-id').val(),
+        kernelName = $('#kernel-name').val(),
+        jobName = $('#job-name').val();
+
+    if (jobId !== 'None') {
+        data.job_id = jobId;
+    } else {
+        data.job = jobName;
+        data.kernel = kernelName;
+    }
 
     ajaxCall = $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
         'dataType': 'json',
-        'data': {
-            'job_id': $('#job-id').val(),
-            'sort': ['status', '_id'],
-            'sort_order': 1
-        },
+        'data': data,
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
@@ -326,20 +379,20 @@ $(document).ready(function () {
         },
         'timeout': 6000,
         'statusCode': {
-            403: function () {
+            403: function() {
                 setErrorAlert('boots-403-error', 403, errorReason);
             },
-            400: function () {
+            400: function() {
                 setErrorAlert('boots-400-error', 400, errorReason);
             },
-            404: function () {
+            404: function() {
                 setErrorAlert('boots-404-error', 404, errorReason);
             },
-            408: function () {
+            408: function() {
                 errorReason = 'Boot data call failed:  timeout.';
                 setErrorAlert('boots-408-error', 408, errorReason);
             },
-            500: function () {
+            500: function() {
                 setErrorAlert('boots-500-error', 500, errorReason);
             }
         }
@@ -348,15 +401,15 @@ $(document).ready(function () {
     $.when(ajaxCall).then(parseData, ajaxCallFailed);
 });
 
-$(document).ready(function () {
+$(document).ready(function() {
     // No use strict here, or onbeforeunload is not recognized.
     var session_state = new SessionState($('#storage-id').val());
-    onbeforeunload = function () {
+    onbeforeunload = function() {
 
         var panel_state = {},
             page_state;
 
-        $('[id^="panel-boots"]').each(function (id) {
+        $('[id^="panel-boots"]').each(function(id) {
             panel_state['#panel-boots' + id] = {
                 'type': 'class',
                 'name': 'class',
@@ -364,7 +417,7 @@ $(document).ready(function () {
             };
         });
 
-        $('[id^="collapse-boots"]').each(function (id) {
+        $('[id^="collapse-boots"]').each(function(id) {
             panel_state['#collapse-boots' + id] = {
                 'type': 'class',
                 'name': 'class',
