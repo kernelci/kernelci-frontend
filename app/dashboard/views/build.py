@@ -27,7 +27,6 @@ from flask import (
 from flask.views import View
 
 from dashboard.utils.backend import (
-    extract_response_metadata,
     get_defconfig,
     get_job,
     today_date,
