@@ -71,7 +71,6 @@ $(document).ready(function() {
             deferredCall = null,
             batchQueries = new Array(len);
 
-
         if (len > 0) {
             if (len === 1) {
                 errorReason = 'Defconfig data call failed.';
@@ -451,6 +450,12 @@ $(document).ready(function() {
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
                     kernel + '/defconfig/' + defconfig + '/lab/' + labName +
                     '/?_id=' + bootId['$oid'];
+
+                if (defconfig.length > 33) {
+                    defconfig = '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="' + defconfig + '">' +
+                        defconfig.slice(0, 33) + '&hellip;</span>';
+                }
 
                 col1 = '<td><a class="table-link" href="/job/' + job + '/">' +
                     job + '</a></td>';
