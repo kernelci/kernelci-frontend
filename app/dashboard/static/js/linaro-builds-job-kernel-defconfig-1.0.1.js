@@ -2,6 +2,7 @@ function populateBootSection(data) {
     'use strict';
     var localData = data.result,
         len = localData.length,
+        colData,
         i = 0,
         totalColumns = 3,
         columnIndex = 1,
@@ -16,15 +17,17 @@ function populateBootSection(data) {
 
     if (len > 0) {
         for (i; i < len; i++) {
-            columnIndex = (i + 1) % totalColumns;
+            columnIndex = (i % totalColumns) + 1;
+            colData = localData[i];
+
             columns['col' + columnIndex] += '<li>' +
-                '<a href="/boot/' + localData[i].board +
-                '/job/' + localData[i].job + '/kernel/' +
-                localData[i].kernel +
-                '/defconfig/' + localData[i].defconfig +
-                '/lab/' + localData[i].lab_name +
-                '?_id=' + localData[i]._id['$oid'] + '">' +
-                localData[i].board +
+                '<a href="/boot/' + colData.board +
+                '/job/' + colData.job + '/kernel/' +
+                colData.kernel +
+                '/defconfig/' + colData.defconfig +
+                '/lab/' + colData.lab_name +
+                '?_id=' + colData._id['$oid'] + '">' +
+                colData.board +
                 '&nbsp;<i class="fa fa-search"></i></a></li>';
         }
 
