@@ -33,20 +33,20 @@ from dashboard.utils.backend import (
     translate_git_url,
 )
 
-PAGE_TITLE = 'Kernel CI Dashboard &mdash; Builds'
+PAGE_TITLE = "Kernel CI Dashboard &mdash; Builds"
 
 
 class BuildsAllView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        results_title = 'Available Builds'
+        results_title = "Available Builds"
 
         search_filter = ""
         if request.args:
             search_filter = " ".join([arg for arg in request.args])
 
         return render_template(
-            'builds-all.html',
+            "builds-all.html",
             page_title=PAGE_TITLE,
             server_date=today_date(),
             results_title=results_title,
@@ -57,16 +57,16 @@ class BuildsAllView(View):
 class BuildsJobKernelView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        job = kwargs['job']
-        kernel = kwargs['kernel']
+        job = kwargs["job"]
+        kernel = kwargs["kernel"]
 
-        job_name = '%s-%s' % (job, kernel)
+        job_name = "%s-%s" % (job, kernel)
 
-        body_title = 'Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
+        body_title = "Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (
             job, kernel
         )
 
-        params = {'name': job_name}
+        params = {"name": job_name}
         response = get_job(**params)
 
         if response.status_code == 200:
@@ -84,7 +84,7 @@ class BuildsJobKernelView(View):
                 )
 
                 return render_template(
-                    'builds-job-kernel.html',
+                    "builds-job-kernel.html",
                     page_title=PAGE_TITLE,
                     body_title=body_title,
                     base_url=base_url,
@@ -104,18 +104,20 @@ class BuildsJobKernelView(View):
 class BuildsJobKernelDefconfigView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        job = kwargs['job']
-        kernel = kwargs['kernel']
-        defconfig = kwargs['defconfig']
+        job = kwargs["job"]
+        kernel = kwargs["kernel"]
+        defconfig = kwargs["defconfig"]
         defconfig_id = request.args.get("_id", None)
 
-        body_title = 'Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (
+        body_title = "Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (
             job, kernel)
 
         if defconfig_id:
             params = {"_id": defconfig_id}
         else:
-            params = {'job': job, 'kernel': kernel, 'dirname': defconfig}
+            params = {
+                "job": job, "kernel": kernel, "defconfig_full": defconfig
+            }
 
         response = get_defconfig(**params)
 
@@ -132,7 +134,7 @@ class BuildsJobKernelDefconfigView(View):
                 metadata = result.get("metadata", None)
 
                 return render_template(
-                    'builds-job-kernel-defconf.html',
+                    "builds-job-kernel-defconf.html",
                     page_title=PAGE_TITLE,
                     body_title=body_title,
                     base_url=base_url,
