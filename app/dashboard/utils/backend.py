@@ -46,12 +46,12 @@ def translate_git_url(git_url, commit_id):
     :return The base URL to create URLs, and the real commit URL.
     """
 
-    base_url = ''
-    commit_url = ''
+    base_url = ""
+    commit_url = ""
 
     if git_url and commit_id:
         t_url = urlparse.urlparse(git_url)
-        known_git_urls = app.config.get('KNOWN_GIT_URLS')
+        known_git_urls = app.config.get("KNOWN_GIT_URLS")
 
         if t_url.netloc in known_git_urls.keys():
             known_git = known_git_urls.get(t_url.netloc)
@@ -62,12 +62,12 @@ def translate_git_url(git_url, commit_id):
 
             base_url = urlparse.urlunparse((
                 known_git[0], t_url.netloc, known_git[1] % path,
-                '', '', ''
+                "", "", ""
             ))
             commit_url = urlparse.urlunparse((
                 known_git[0], t_url.netloc,
                 (known_git[2] % path) + commit_id,
-                '', '', ''
+                "", "", ""
             ))
     else:
         abort(400)
@@ -84,27 +84,27 @@ def extract_response_metadata(response):
 
     :param response: A response object as returned by a requests.
     :return A tuple with the metadata from the response, the base_url, the
-        commit_url and the response's result.
+        commit_url and the response"s result.
     """
     metadata = {}
-    base_url = ''
-    commit_url = ''
+    base_url = ""
+    commit_url = ""
     result = {}
 
     document = json_util.loads(response.content)
-    result = document.get('result', None)
+    result = document.get("result", None)
 
     if result and len(result) == 1:
         result = result[0]
-        metadata = result.get('metadata', None)
+        metadata = result.get("metadata", None)
 
         if metadata:
-            git_url = metadata.get('git_url', None)
-            commit_id = metadata.get('git_commit', None)
+            git_url = metadata.get("git_url", None)
+            commit_id = metadata.get("git_commit", None)
 
             if git_url and commit_id:
                 t_url = urlparse.urlparse(git_url)
-                known_git_urls = app.config.get('KNOWN_GIT_URLS')
+                known_git_urls = app.config.get("KNOWN_GIT_URLS")
 
                 if t_url.netloc in known_git_urls.keys():
                     known_git = known_git_urls.get(t_url.netloc)
@@ -115,12 +115,12 @@ def extract_response_metadata(response):
 
                     base_url = urlparse.urlunparse((
                         known_git[0], t_url.netloc, known_git[1] % path,
-                        '', '', ''
+                        "", "", ""
                     ))
                     commit_url = urlparse.urlunparse((
                         known_git[0], t_url.netloc,
                         (known_git[2] % path) + commit_id,
-                        '', '', ''
+                        "", "", ""
                     ))
     else:
         abort(404)
@@ -135,7 +135,7 @@ def today_date():
 
     :return The date string.
     """
-    return date.today().strftime('%a, %d %b %Y')
+    return date.today().strftime("%a, %d %b %Y")
 
 
 def _create_url_headers(api_path):
@@ -146,9 +146,9 @@ def _create_url_headers(api_path):
     :param api_path: The API path.
     :return A tuple with the full URL, and the headers set.
     """
-    backend_token = app.config.get('BACKEND_TOKEN')
-    backend_url = app.config.get('BACKEND_URL')
-    backend_token_header = app.config.get('BACKEND_TOKEN_HEADER')
+    backend_token = app.config.get("BACKEND_TOKEN")
+    backend_url = app.config.get("BACKEND_URL")
+    backend_token_header = app.config.get("BACKEND_TOKEN_HEADER")
 
     backend_url = urljoin(backend_url, api_path)
 
@@ -170,12 +170,12 @@ def _create_api_path(api_path, other_path=None):
     :type other_path: list or str
     """
     def _check_and_add_trailing_slash(path):
-        if path[-1] != '/':
-            path += '/'
+        if path[-1] != "/":
+            path += "/"
         return path
 
     def _check_and_remove_trailing_slash(path):
-        if path[-1] == '/':
+        if path[-1] == "/":
             path = path[:-1]
         return path
 
@@ -199,11 +199,11 @@ def get_job(**kwargs):
 
     :return A `requests.Response` object.
     """
-    api_path = app.config.get('JOB_API_ENDPOINT')
+    api_path = app.config.get("JOB_API_ENDPOINT")
 
-    if kwargs.get('id', None):
-        api_path = _create_api_path(api_path, kwargs['id'])
-        kwargs.pop('id')
+    if kwargs.get("id", None):
+        api_path = _create_api_path(api_path, kwargs["id"])
+        kwargs.pop("id")
 
     url, headers = _create_url_headers(api_path)
 
@@ -225,11 +225,11 @@ def get_defconfig(**kwargs):
 
     :return A `requests.Response` object.
     """
-    api_path = app.config.get('DEFCONFIG_API_ENDPOINT')
+    api_path = app.config.get("DEFCONFIG_API_ENDPOINT")
 
-    if kwargs.get('id', None):
-        api_path = _create_api_path(api_path, kwargs['id'])
-        kwargs.pop('id')
+    if kwargs.get("id", None):
+        api_path = _create_api_path(api_path, kwargs["id"])
+        kwargs.pop("id")
 
     url, headers = _create_url_headers(api_path)
 
@@ -285,11 +285,11 @@ def ajax_get(request, api_path):
     """
     params_list = request.args.lists()
 
-    if 'id' in request.args:
-        boot_id = request.args['id']
+    if "id" in request.args:
+        boot_id = request.args["id"]
         api_path = _create_api_path(api_path, boot_id)
 
-        params_list.remove(('id', [boot_id]))
+        params_list.remove(("id", [boot_id]))
 
     url, headers = _create_url_headers(api_path)
     try:
@@ -315,7 +315,7 @@ def ajax_batch_post(request, api_path):
 
     url, headers = _create_url_headers(api_path)
     # Make sure we send JSON.
-    headers['Content-Type'] = "application/json"
+    headers["Content-Type"] = "application/json"
     try:
         r = requests.post(
             url, data=request.data, headers=headers, stream=True,
