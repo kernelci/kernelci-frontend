@@ -1,32 +1,28 @@
-{%- extends 'base.html' %}
-{%- block meta -%}
-    <meta name="csrf-token" content="{{ csrf_token_r() }}">
-{%- endblock %}
-{%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block content %}
+{%- extends 'base.html' %} {%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block content %}
 <div class="row">
     <div class="page-header">
-    <h2>{{ page_title|safe }}</h2>
+        <h2>{{ page_title|safe }}</h2>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-    <ul class="list-group">
-        <li class="list-group-item">
-            Total builds
-            <span class="badge">
+        <ul class="list-group">
+            <li class="list-group-item">
+                Total builds
+                <span class="badge">
                 <span id="builds-count" class="count-list-badge">
                     <i class="fa fa-cog fa-spin"></i>
                 </span>
-            </span>
-        </li>
-        <li class="list-group-item">
-            Total defconfig
-            <span class="badge">
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total defconfig
+                <span class="badge">
                 <span id="defconfs-count" class="count-list-badge">
                     <i class="fa fa-cog fa-spin"></i>
                 </span>
-            </span>
-        </li>
-    </ul>
+                </span>
+            </li>
+        </ul>
     </div>
 </div>
 <div class="row">
@@ -48,7 +44,7 @@
                 </thead>
                 <tbody id="builds-body">
                     <tr>
-                        <td colspan="6" align="center" valign="middle">
+                        <td colspan="6" class="pull-center">
                             <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
                         </td>
                     </tr>
@@ -57,9 +53,6 @@
         </div>
     </div>
 </div>
-<input type="hidden" id="job-id" value="{{ job }}">
-{%- endblock %}
-{%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="/static/js/linaro-jobs-job-1.0.8.js"></script>
+<input type="hidden" id="job-id" value="{{ job }}"> {%- endblock %} {%- block scripts %} {{ super() }}
+<script type="text/javascript" async src="/static/js/linaro-jobs-job-1.0.8.js"></script>
 {%- endblock %}
