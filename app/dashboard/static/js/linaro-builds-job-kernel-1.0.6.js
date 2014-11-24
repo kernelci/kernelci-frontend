@@ -131,10 +131,12 @@ function createBuildsPage(data) {
         panel = '',
         cls,
         dataUrl,
-        defconfig,
-        metadata = {},
+        job,
+        kernel,
+        defconfigFull,
         localData,
         label,
+        arch,
         i = 0,
         len = data.length,
         hasFailed = false,
@@ -150,13 +152,14 @@ function createBuildsPage(data) {
 
     for (i; i < len; i++) {
         localData = data[i];
-        if (localData.hasOwnProperty('metadata') &&
-                !$.isEmptyObject(localData.metadata)) {
-            metadata = localData.metadata;
-        }
 
-        dataUrl = fileServer + localData.job + '/' + localData.kernel +
-            '/' + localData.dirname + '/';
+        defconfigFull = localData.defconfig_full;
+        job = localData.job;
+        kernel = localData.kernel;
+        arch = localData.arch;
+
+        dataUrl = fileServer + job + '/' + kernel + '/' + arch + '-' +
+            defconfigFull + '/';
 
         switch (data[i].status) {
             case 'FAIL':
@@ -176,13 +179,6 @@ function createBuildsPage(data) {
                 break;
         }
 
-        defconfig = localData.defconfig;
-        if (metadata.hasOwnProperty('kconfig_fragments') &&
-                metadata.kconfig_fragments !== null) {
-            defconfig = defconfig + '&nbsp;<small>' +
-                metadata.kconfig_fragments + '</small>';
-        }
-
         if (localData.arch !== null) {
             archLabel = '<small>' +
                 '<span class="pull-right" style="padding: 3px">' +
@@ -196,7 +192,7 @@ function createBuildsPage(data) {
                 i + '">' +
                 '<h4 class="panel-title">' +
                 '<a data-toggle="collapse" data-parent="#accordion" ' +
-                'href="#collapse-defconf' + i + '">' + defconfig +
+                'href="#collapse-defconf' + i + '">' + defconfigFull +
                 '</a>' + label + archLabel + '</h4></div>' +
                 '<div id="collapse-defconf' + i +
                 '" class="panel-collapse collapse"><div class="panel-body">';
@@ -208,8 +204,8 @@ function createBuildsPage(data) {
         if (localData.dtb_dir !== null) {
             panel += '<dt>Dtb directory</dt>' +
                 '<dd><a href="' +
-                    dataUrl + metadata.dtb_dir + '/' + '">' +
-                    metadata.dtb_dir +
+                    dataUrl + localData.dtb_dir + '/' + '">' +
+                    localData.dtb_dir +
                     '&nbsp;<i class="fa fa-external-link">' +
                     '</i></a></dd>';
         }
@@ -246,12 +242,11 @@ function createBuildsPage(data) {
                     '</i></a></dd>';
         }
 
-        if (metadata.hasOwnProperty('build_log') &&
-                metadata.build_log !== null) {
+        if (localData.build_log !== null) {
             panel += '<dt>Build log</dt>' +
                 '<dd><a href="' +
-                    dataUrl + metadata.build_log + '">' +
-                    metadata.build_log +
+                    dataUrl + localData.build_log + '">' +
+                    localData.build_log +
                     '&nbsp;<i class="fa fa-external-link">' +
                     '</i></a></dd>';
         }
@@ -278,10 +273,10 @@ function createBuildsPage(data) {
         panel += '<div class="pull-center">' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Details for build with defconfig&nbsp;' +
-            localData.defconfig + '">' +
-            '<a href="/build/' + localData.job +
-            '/kernel/' + localData.kernel +
-            '/defconfig/' + localData.dirname + '/' +
+            defconfigFull + '">' +
+            '<a href="/build/' + job +
+            '/kernel/' + kernel +
+            '/defconfig/' + defconfigFull + '/' +
             '">More info&nbsp;<i class="fa fa-search"></i>' +
             '</a></span>';
         panel += '</div></div>';

@@ -53,11 +53,9 @@ function createBuildsTable(data) {
                     var display = '<a class="table-link" href="/job/' +
                         data + '/">' + data;
 
-                    if (!$.isEmptyObject(object.metadata) &&
-                            object.metadata.hasOwnProperty('git_branch') &&
-                            object.metadata.git_branch !== null) {
+                    if (object.git_branch !== null) {
                         display += '&nbsp;&dash;&nbsp;<small>' +
-                            object.metadata.git_branch + '</small>';
+                            object.git_branch + '</small>';
                     }
                     return display + '</a>';
                 }
@@ -67,7 +65,7 @@ function createBuildsTable(data) {
                 'title': 'Kernel'
             },
             {
-                'data': 'defconfig',
+                'data': 'defconfig_full',
                 'title': 'Defconfig',
                 'render': function(data, type, object) {
                     var display = data;
@@ -140,11 +138,11 @@ function createBuildsTable(data) {
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for&nbsp;' + data +
                         '&nbsp;&dash;&nbsp;' + object.kernel +
-                        '&nbsp;&dash;&nbsp;' + object.defconfig +
+                        '&nbsp;&dash;&nbsp;' + object.defconfig_full +
                         '">' +
                         '<a href="/build/' + data +
                         '/kernel/' + object.kernel + '/defconfig/' +
-                        object.dirname + '/">' +
+                        object.defconfig_full + '/">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
             }
@@ -157,7 +155,7 @@ function createBuildsTable(data) {
         if (tableData) {
             location = '/build/' + tableData.job +
                 '/kernel/' + tableData.kernel + '/defconfig/' +
-                tableData.dirname;
+                tableData.defconfig_full;
             if (tableData._id !== null) {
                 location += '?_id=' + tableData._id['$oid'];
             }
@@ -206,8 +204,8 @@ $(document).ready(function() {
             'sort_order': -1,
             'date_range': $('#date-range').val(),
             'field': [
-                '_id', 'job', 'kernel', 'defconfig', 'status',
-                'metadata', 'arch', 'created_on', 'dirname'
+                '_id', 'job', 'kernel', 'status',
+                'arch', 'created_on', 'git_branch', 'defconfig_full'
             ]
         },
         'timeout': 6000,

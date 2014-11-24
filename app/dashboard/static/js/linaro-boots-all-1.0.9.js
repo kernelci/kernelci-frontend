@@ -1,4 +1,5 @@
 var searchFilter = $('#search-filter').val();
+var pageLen = $('#page-len').val();
 
 function createBootsTable(data) {
     'use strict';
@@ -23,8 +24,16 @@ function createBootsTable(data) {
             $('#table-loading').remove();
             $('#table-div').fadeIn('slow', 'linear');
 
+            var api = this.api();
+
+            pageLen = Number(pageLen);
+            if (isNaN(pageLen)) {
+                pageLen = 25;
+            }
+
+            api.page.len(pageLen).draw();
+
             if (searchFilter !== null && searchFilter.length > 0) {
-                var api = this.api();
                 api.search(searchFilter, true).draw();
             }
         },
@@ -70,7 +79,7 @@ function createBootsTable(data) {
                 'title': 'Board Model'
             },
             {
-                'data': 'defconfig',
+                'data': 'defconfig_full',
                 'title': 'Defconfig',
                 'render': function(data, type, object) {
                     var display = data;
@@ -87,7 +96,6 @@ function createBootsTable(data) {
             {
                 'data': 'lab_name',
                 'title': 'Lab',
-                'className': 'pull-center',
                 'render': function(data, type, object) {
                     return '<small>' + data + '</small>';
                 }
@@ -98,7 +106,7 @@ function createBootsTable(data) {
                 'type': 'date',
                 'className': 'pull-center',
                 'render': function(data) {
-                    var created = new Date(data['$date']);
+                    var created = new Date(data.$date);
                     return created.getCustomISODate();
                 }
             },
@@ -152,18 +160,18 @@ function createBootsTable(data) {
                 'searchable': false,
                 'className': 'pull-center',
                 'render': function(data, type, object) {
-                    var defconfig = object.defconfig,
+                    var defconfigFull = object.defconfig_full,
                         kernel = object.kernel,
                         job = object.job,
                         lab = object.lab_name;
 
                     return '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="Details for board&nbsp;' + data + 'with&nbsp;' +
-                        job + '&dash;' + kernel + '&dash;' + defconfig +
+                        job + '&dash;' + kernel + '&dash;' + defconfigFull +
                         '&nbsp;&dash;&nbsp;(' + lab + ')' +
                         '"><a href="/boot/' + data + '/job/' + job +
-                        '/kernel/' + kernel + '/defconfig/' + defconfig +
-                        '/lab/' + lab + '/?_id=' + object._id['$oid'] + '">' +
+                        '/kernel/' + kernel + '/defconfig/' + defconfigFull +
+                        '/lab/' + lab + '/?_id=' + object._id.$oid + '">' +
                         '<i class="fa fa-search"></i></a></span>';
                 }
             }
@@ -176,10 +184,10 @@ function createBootsTable(data) {
         if (localTable) {
             location = '/boot/' + localTable.board + '/job/' +
                 localTable.job + '/kernel/' + localTable.kernel +
-                '/defconfig/' + localTable.defconfig + '/lab/' +
+                '/defconfig/' + localTable.defconfig_full + '/lab/' +
                 localTable.lab_name + '/';
             if (localTable._id !== null) {
-                location += '?_id=' + localTable._id['$oid'];
+                location += '?_id=' + localTable._id.$oid;
             }
             window.location = location;
         }
@@ -226,8 +234,8 @@ $(document).ready(function() {
             'sort_order': -1,
             'date_range': $('#date-range').val(),
             'field': [
-                '_id', 'job', 'kernel', 'defconfig', 'board', 'created_on',
-                'status', 'lab_name'
+                '_id', 'job', 'kernel', 'board', 'created_on',
+                'status', 'lab_name', 'defconfig_full'
             ]
         },
         'beforeSend': function(jqXHR) {

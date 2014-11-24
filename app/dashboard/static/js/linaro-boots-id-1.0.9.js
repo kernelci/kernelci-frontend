@@ -1,7 +1,7 @@
-var boardId = $('#board-id').val();
-var jobId = $('#job-id').val();
-var kernelId = $('#kernel-id').val();
-var defconfId = $('#defconfig-id').val();
+var boardName = $('#board-name').val();
+var jobName = $('#job-name').val();
+var kernelName = $('#kernel-name').val();
+var defconfName = $('#defconfig-name').val();
 var labName = $('#lab-name').val();
 var bootId = $('#boot-id').val();
 
@@ -11,50 +11,61 @@ function populatePage(data) {
     var localData = data.result[0],
         bootTime,
         displ = '',
+        job,
+        kernel,
+        defconfig,
+        arch,
+        defconfigFull,
         fileServer = $('#file-server').val(),
-        metadata,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
 
-    bootTime = new Date(localData.time['$date']);
-    metadata = localData.metadata;
+    bootTime = new Date(localData.time.$date);
+
+    job = localData.job;
+    kernel = localData.kernel;
+    defconfig = localData.defconfig;
+    defconfigFull = localData.defconfig_full;
+    arch = localData.arch;
 
     $('#dd-board-board').empty().append(localData.board);
+    $('#dd-board-arch').empty().append(arch);
+
     $('#dd-board-defconfig').empty().append(
-        localData.defconfig + '&nbsp;&mdash;&nbsp;' +
+        defconfigFull + '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for build&nbsp;' + localData.job +
-            '&nbsp;&dash;&nbsp;' + localData.kernel +
-            '&nbsp;&dash;&nbsp;' + localData.defconfig +
-            '"><a href="/build/' + localData.job + '/kernel/' +
-            localData.kernel + '/defconfig/' + localData.defconfig +
+            'title="Details for build&nbsp;' + job +
+            '&nbsp;&dash;&nbsp;' + kernel +
+            '&nbsp;&dash;&nbsp;' + defconfigFull +
+            '"><a href="/build/' + job + '/kernel/' +
+            kernel + '/defconfig/' + defconfigFull +
             '"><i class="fa fa-cube"></i></a></span>'
     );
     $('#dd-board-kernel').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot report details for&nbsp;' + localData.job +
+            'title="Boot report details for&nbsp;' + job +
             '&nbsp;&dash;&nbsp;' +
-            localData.kernel + '"><a href="/boot/all/job/' + localData.job +
-            '/kernel/' + localData.kernel + '">' + localData.kernel +
+            kernel + '"><a href="/boot/all/job/' + job +
+            '/kernel/' + kernel + '">' + kernel +
             '</a></span>' +
             '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for build&nbsp;' + localData.job +
+            'title="Details for build&nbsp;' + job +
             '&nbsp;&dash;&nbsp;' +
-            localData.kernel + '"><a href="/build/' + localData.job +
-            '/kernel/' + localData.kernel +
+            kernel + '"><a href="/build/' + job +
+            '/kernel/' + kernel +
             '"><i class="fa fa-cube"></i></a></span>'
     );
     $('#dd-board-tree').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot details for&nbsp;' + localData.job + '">' +
-            '<a href="/boot/all/job/' + localData.job + '">' + localData.job +
+            'title="Boot details for&nbsp;' + job + '">' +
+            '<a href="/boot/all/job/' + job + '">' + job +
             '</a></span>' +
             '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for job&nbsp;' + localData.job +
-            '"><a href="/job/' + localData.job +
+            'title="Details for job&nbsp;' + job +
+            '"><a href="/job/' + job +
             '"><i class="fa fa-sitemap"></i></a></span>'
     );
 
@@ -71,8 +82,8 @@ function populatePage(data) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View raw text boot log"><a href="' + fileServer +
-                localData.job + '/' + localData.kernel + '/' +
-                localData.defconfig + '/' + localData.boot_log + '">txt' +
+                job + '/' + kernel + '/' + arch + '-' +
+                defconfigFull + '/' + localData.boot_log + '">txt' +
                 '&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
@@ -84,8 +95,8 @@ function populatePage(data) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View HTML boot log"><a href="' + fileServer +
-                localData.job + '/' + localData.kernel + '/' +
-                localData.defconfig + '/' + localData.boot_log_html +
+                job + '/' + kernel + '/' + arch + '-' +
+                defconfigFull + '/' + localData.boot_log_html +
                 '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
@@ -203,11 +214,11 @@ function createBootBisectTable(data) {
         bootStatus = bisectData.boot_status;
         gitDescribeVal = bisectData.git_describe;
 
-        tooltipLink = '<a href="/boot/all/job/' + jobId +
+        tooltipLink = '<a href="/boot/all/job/' + jobName +
             '/kernel/' + gitDescribeVal + '">' +
             gitDescribeVal + '</a>';
 
-        tooltipTitle = 'Boot report details for&nbsp;' + jobId +
+        tooltipTitle = 'Boot report details for&nbsp;' + jobName +
             '&nbsp;&dash;&nbsp;' + gitDescribeVal;
 
         gitDescribeCell = '<td><span class="bisect-tooltip">' +
@@ -296,7 +307,7 @@ function getBisectData(data) {
     if (status === 'FAIL') {
         $('#bisect-div').removeClass('hidden');
         if (bootId === 'None') {
-            bootId = data.result[0]._id['$oid'];
+            bootId = data.result[0]._id.$oid;
         }
 
         bisectAjaxCall = $.ajax({
@@ -351,11 +362,11 @@ $(document).ready(function() {
     if (bootId !== 'None') {
         data.id = bootId;
     } else {
-        data.kernel = kernelId;
-        data.job = jobId;
-        data.defconfig = defconfId;
+        data.kernel = kernelName;
+        data.job = jobName;
+        data.defconfig = defconfName;
         data.lab = labName;
-        data.board = boardId;
+        data.board = boardName;
     }
 
     $.ajax({

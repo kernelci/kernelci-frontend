@@ -128,12 +128,13 @@ function populateBootsPage(data) {
         panel = '',
         cls,
         dataUrl,
-        defconfig,
+        defconfigFull,
         job,
         kernel,
         board,
         metadata,
         label,
+        arch,
         i = 0,
         len = data.length,
         bootObj = null,
@@ -159,15 +160,17 @@ function populateBootsPage(data) {
     if (len > 0) {
         for (i; i < len; i++) {
             bootObj = data[i];
-            defconfig = bootObj.defconfig;
+            defconfigFull = bootObj.defconfig_full;
             metadata = bootObj.metadata;
             job = bootObj.job;
             kernel = bootObj.kernel;
             board = bootObj.board;
             labName = bootObj.lab_name;
             bootObjId = bootObj._id;
+            arch = bootObj.arch;
 
-            dataUrl = fileServer + job + '/' + kernel + '/' + defconfig + '/';
+            dataUrl = fileServer + job + '/' + kernel + '/' + arch + '-' +
+                defconfigFull + '/';
 
             switch (bootObj.status) {
                 case 'FAIL':
@@ -196,7 +199,7 @@ function populateBootsPage(data) {
                     '<a data-toggle="collapse" ' +
                     'data-parent="#accordion' + labName + '" ' +
                     'href="#collapse-boots' + i + '">' +
-                    board + '&nbsp;<small>' + defconfig + '</small>' +
+                    board + '&nbsp;<small>' + defconfigFull + '</small>' +
                     '</a>' + label + '</h4></div>' +
                     '<div id="collapse-boots' + i +
                     '" class="panel-collapse collapse">' +
@@ -233,7 +236,7 @@ function populateBootsPage(data) {
 
             panel += '<dt>Boot time</dt>';
             if (bootObj.time !== null) {
-                bootTime = new Date(bootObj.time['$date']);
+                bootTime = new Date(bootObj.time.$date);
                 panel += '<dd>' + bootTime.getCustomTime() + '</dd>';
             } else {
                 panel += '<dd>' + nonAvail + '</dd>';
@@ -248,9 +251,9 @@ function populateBootsPage(data) {
                 '<a href="/boot/' + board +
                 '/job/' + job +
                 '/kernel/' + kernel +
-                '/defconfig/' + defconfig +
+                '/defconfig/' + defconfigFull +
                 '/lab/' + labName + '/' +
-                '?_id=' + bootObjId['$oid'] +
+                '?_id=' + bootObjId.$oid +
                 '">More info&nbsp;<i class="fa fa-search"></i>' +
                 '</a></span>';
             panel += '</div></div>';
@@ -261,7 +264,7 @@ function populateBootsPage(data) {
             if (allLabs.hasOwnProperty(labName)) {
                 allLabs[labName].push(panel);
             } else {
-                allLabs[labName] = new Array();
+                allLabs[labName] = [];
                 allLabs[labName].push(panel);
             }
         }

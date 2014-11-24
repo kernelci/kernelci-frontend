@@ -175,7 +175,7 @@ $(document).ready(function() {
             col5,
             href,
             kernel,
-            git_branch,
+            gitBranch,
             i = 0,
             len = localData.length;
 
@@ -187,13 +187,13 @@ $(document).ready(function() {
             for (i; i < len; i++) {
                 job = localData[i].job;
                 kernel = localData[i].kernel;
-                git_branch = localData[i].git_branch;
-                created = new Date(localData[i].created_on['$date']);
+                gitBranch = localData[i].git_branch;
+                created = new Date(localData[i].created_on.$date);
                 href = '/build/' + job + '/kernel/' + kernel + '/';
 
                 col1 = '<td><a class="table-link" href="/job/' + job +
                     '/">' + job + '&nbsp;&dash;&nbsp;<small>' +
-                    git_branch + '</small></td>';
+                    gitBranch + '</small></td>';
                 col2 = '<td>' + kernel + '</a></td>';
                 col3 = '<td class="pull-center">' +
                     '<span class="badge alert-danger">' +
@@ -275,7 +275,7 @@ $(document).ready(function() {
             col3,
             href,
             job,
-            git_branch,
+            gitBranch,
             i = 0,
             len = localData.length;
 
@@ -285,14 +285,14 @@ $(document).ready(function() {
             $('#failed-jobs-body').empty().append(row);
         } else {
             for (i; i < len; i++) {
-                created = new Date(localData[i].created_on['$date']);
+                created = new Date(localData[i].created_on.$date);
                 job = localData[i].job;
-                git_branch = localData[i].git_branch;
+                gitBranch = localData[i].git_branch;
                 href = '/job/' + job + '/';
 
                 col1 = '<td><a class="table-link" href="' + href + '">' +
                     job + '&nbsp;&dash;&nbsp;<small>' +
-                    git_branch + '</small>' + '</a></td>';
+                    gitBranch + '</small>' + '</a></td>';
                 col2 = '<td class="pull-center">' +
                     created.getCustomISODate() + '</td>';
                 col3 = '<td class="pull-center">' +
@@ -325,7 +325,7 @@ $(document).ready(function() {
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
-        'error': function(jqXHR,  textStatus, errorThrown) {
+        'error': function(jqXHR, textStatus, errorThrown) {
             emptyTableOnError('#failed-jobs-body', 3);
         },
         'timeout': 6000,
@@ -369,7 +369,8 @@ $(document).ready(function() {
             'date_range': $('#date-range').val(),
             'field': [
                 'board', 'job', 'kernel', 'defconfig', 'created_on',
-                'boot_result_description', 'lab_name', '_id'
+                'boot_result_description', 'lab_name', '_id',
+                'defconfig_full'
             ]
         },
         'beforeSend': function(jqXHR) {
@@ -402,6 +403,7 @@ $(document).ready(function() {
             job,
             kernel,
             defconfig,
+            defconfigFull,
             labName,
             bootId,
             col1,
@@ -440,30 +442,32 @@ $(document).ready(function() {
                         '</i></span></td>';
                 }
 
-                created = new Date(localData[i].created_on['$date']);
+                created = new Date(localData[i].created_on.$date);
                 job = localData[i].job;
                 kernel = localData[i].kernel;
                 board = localData[i].board;
                 defconfig = localData[i].defconfig;
+                defconfigFull = localData[i].defconfig_full;
                 labName = localData[i].lab_name;
                 bootId = localData[i]._id;
                 href = '/boot/' + board + '/job/' + job + '/kernel/' +
-                    kernel + '/defconfig/' + defconfig + '/lab/' + labName +
-                    '/?_id=' + bootId['$oid'];
+                    kernel + '/defconfig/' + defconfigFull +
+                    '/lab/' + labName +
+                    '/?_id=' + bootId.$oid;
 
-                if (defconfig.length > 33) {
-                    defconfig = '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="' + defconfig + '">' +
-                        defconfig.slice(0, 33) + '&hellip;</span>';
+                if (defconfigFull.length > 33) {
+                    defconfigFull = '<span rel="tooltip" ' +
+                        'data-toggle="tooltip" ' +
+                        'title="' + defconfigFull + '">' +
+                        defconfigFull.slice(0, 33) + '&hellip;</span>';
                 }
 
                 col1 = '<td><a class="table-link" href="/job/' + job + '/">' +
                     job + '</a></td>';
                 col2 = '<td>' + kernel + '</td>';
                 col3 = '<td>' + board + '</td>';
-                col4 = '<td>' + defconfig + '</td>';
-                col5 = '<td class="pull-center"><small>' +
-                    labName + '</small></td>';
+                col4 = '<td>' + defconfigFull + '</td>';
+                col5 = '<td><small>' + labName + '</small></td>';
                 col6 = col6Content;
                 col7 = '<td class="pull-center">' +
                     created.getCustomISODate() + '</td>';

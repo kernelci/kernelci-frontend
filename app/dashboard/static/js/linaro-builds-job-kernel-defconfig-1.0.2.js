@@ -24,7 +24,7 @@ function populateBootSection(data) {
                 '<a href="/boot/' + colData.board +
                 '/job/' + colData.job + '/kernel/' +
                 colData.kernel +
-                '/defconfig/' + colData.defconfig +
+                '/defconfig/' + colData.defconfig_full +
                 '/lab/' + colData.lab_name +
                 '?_id=' + colData._id['$oid'] + '">' +
                 colData.board +
@@ -70,9 +70,10 @@ $(document).ready(function() {
         kernel = $('#kernel').val(),
         defconfig = $('#defconfig').val(),
         defconfigId = $('#defconfig-id').val(),
+        defconfigFull = $('#defconfig-full-name').val(),
         data = {
             'field': [
-                '_id', 'board', 'job', 'kernel', 'defconfig', 'lab_name'
+                '_id', 'board', 'job', 'kernel', 'lab_name', 'defconfig_full'
             ]
         };
 
@@ -81,6 +82,7 @@ $(document).ready(function() {
     } else {
         data.job = job;
         data.kernel = kernel;
+        data.defconfig_full = defconfigFull;
         data.defconfig = defconfig;
     }
 
