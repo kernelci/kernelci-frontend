@@ -33,45 +33,50 @@ from dashboard.utils.backend import (
     translate_git_url,
 )
 
-PAGE_TITLE = 'Kernel CI Dashboard &mdash; Boot Reports'
+PAGE_TITLE = "Kernel CI Dashboard &mdash; Boot Reports"
 
 
 class BootsView(View):
 
     def dispatch_request(self):
 
-        results_title = 'Available Boot Reports'
+        results_title = "Available Boot Reports"
 
         search_filter = ""
+        page_len = 25
         if request.args:
-            search_filter = " ".join([arg for arg in request.args])
+            page_len = request.args.get("show", 25)
+            search_filter = " ".join(
+                [arg for arg in request.args if arg != "show"]
+            )
 
         return render_template(
-            'boots-all.html',
+            "boots-all.html",
             page_title=PAGE_TITLE,
             server_date=today_date(),
             results_title=results_title,
-            search_filter=search_filter
+            search_filter=search_filter,
+            page_len=page_len
         )
 
 
-class BootLabView(View):
+class BootDefconfigView(View):
 
     def dispatch_request(self, **kwargs):
 
-        page_title = PAGE_TITLE + '&nbsp;&dash;Board&nbsp;%(board)s' % kwargs
-        body_title = 'Boot details for board&nbsp;%(board)s' % kwargs
+        page_title = PAGE_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" % kwargs
+        body_title = "Boot details for board&nbsp;%(board)s" % kwargs
 
-        url_translation = app.config.get('KNOWN_GIT_URLS')
+        url_translation = app.config.get("KNOWN_GIT_URLS")
 
         return render_template(
-            'boots-id.html',
+            "boots-job-kernel-defconfig.html",
             page_title=page_title,
             body_title=body_title,
-            board=kwargs['board'],
-            job=kwargs['job'],
-            kernel=kwargs['kernel'],
-            defconfig=kwargs['defconfig'],
+            board=kwargs["board"],
+            job=kwargs["job"],
+            kernel=kwargs["kernel"],
+            defconfig=kwargs["defconfig"],
             url_translation=url_translation,
         )
 
@@ -81,12 +86,12 @@ class BootIdView(View):
     def dispatch_request(self, *args, **kwargs):
         page_title = (
             PAGE_TITLE +
-            '&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)' %
+            "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
             kwargs
         )
         body_title = (
-            'Boot details for board&nbsp;%(board)s&nbsp;'
-            '<small>(%(lab_name)s)</small>' % kwargs
+            "Boot details for board&nbsp;%(board)s&nbsp;"
+            "<small>(%(lab_name)s)</small>" % kwargs
         )
 
         boot_id = request.args.get("_id", None)
@@ -96,10 +101,10 @@ class BootIdView(View):
             "boots-id.html",
             page_title=page_title,
             body_title=body_title,
-            board=kwargs['board'],
-            job=kwargs['job'],
-            kernel=kwargs['kernel'],
-            defconfig=kwargs['defconfig'],
+            board=kwargs["board"],
+            job=kwargs["job"],
+            kernel=kwargs["kernel"],
+            defconfig=kwargs["defconfig"],
             url_translation=url_translation,
             lab_name=kwargs["lab_name"],
             boot_id=boot_id,
@@ -109,18 +114,18 @@ class BootIdView(View):
 class BootJobKernelView(View):
 
     def dispatch_request(self, **kwargs):
-        job = kwargs['job']
-        kernel = kwargs['kernel']
+        job = kwargs["job"]
+        kernel = kwargs["kernel"]
 
         body_title = body_title = (
-            'Boot details for&nbsp;%s&nbsp;&dash;&nbsp;%s' % (job, kernel)
+            "Boot details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (job, kernel)
         )
 
-        params = {'job': job, 'kernel': kernel}
+        params = {"job": job, "kernel": kernel}
         response = get_job(**params)
 
-        base_url = ''
-        commit_url = ''
+        base_url = ""
+        commit_url = ""
 
         if response.status_code == 200:
             document = json.loads(response.content, encoding="utf_8")
@@ -131,7 +136,7 @@ class BootJobKernelView(View):
                 res_get = result.get
 
                 job_id = (res_get("_id")).get("$oid")
-                storage_id = 'boot-' + job_id
+                storage_id = "boot-" + job_id
 
                 base_url, commit_url = translate_git_url(
                     res_get("git_url", None),
@@ -139,7 +144,7 @@ class BootJobKernelView(View):
                 )
 
                 return render_template(
-                    'boots-job-kernel.html',
+                    "boots-job-kernel.html",
                     page_title=PAGE_TITLE,
                     body_title=body_title,
                     base_url=base_url,
@@ -160,11 +165,11 @@ class BootJobView(View):
 
     def dispatch_request(self, **kwargs):
 
-        job = kwargs['job']
-        body_title = 'Boot details for&nbsp;%s' % job
+        job = kwargs["job"]
+        body_title = "Boot details for&nbsp;%s" % job
 
         return render_template(
-            'boots-job.html',
+            "boots-job.html",
             page_title=PAGE_TITLE,
             body_title=body_title,
             job=job,
