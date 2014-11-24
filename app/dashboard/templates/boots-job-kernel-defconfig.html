@@ -1,0 +1,21 @@
+{%- extends 'base.html' %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+    <h3>{{ body_title|safe }}</h3>
+    </div>
+</div>
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+<input type="hidden" id="board-name" value="{{ board }}">
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="defconfig-name" value="{{ defconfig }}">
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-defconfig-0.0.1.js"></script>
+{%- endblock %}

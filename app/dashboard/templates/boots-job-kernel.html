@@ -1,134 +1,122 @@
-{% extends 'base.html' %}
-{%- block meta -%}
-    <meta name="csrf-token" content="{{ csrf_token_r() }}">
-{%- endblock %}
-{%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-{%- endblock %}
-{%- block content %}
+{% extends 'base.html' %} {%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block head %} {{ super() }} {%- endblock %} {%- block content %}
 <div class="row">
     <div class="page-header">
         <h3>{{ body_title|safe }}</h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
-    <dl class="dl-horizontal">
-        <dt>Tree</dt>
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="All boot reports for job&nbsp;{{ job }}"> 
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="All boot reports for job&nbsp;{{ job }}"> 
             <a href="/boot/all/job/{{ job }}">
                 {{ job }}
             </a>
-            </span>
-            &nbsp;&mdash;&nbsp;
-            <span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp; {{ job }}"> 
+            </span> &nbsp;&mdash;&nbsp;
+                <span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp; {{ job }}"> 
             <a href="/job/{{ job }}"><i class="fa fa-sitemap"></i></a>
             </span>
-        </dd>
-        <dt>Git branch</dt>
-        {%- if result.git_branch %}
-        <dd>
-            {{ result.git_branch }}
-        </dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+            </dd>
+            <dt>Git branch</dt>
+            {%- if result.git_branch %}
+            <dd>
+                {{ result.git_branch }}
+            </dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
                 <i class="fa fa-ban"></i>
             </span>
-        </dd>
-        {%- endif %}
-        <dt>Git describe</dt>
-        <dd>
-            {{ kernel }}
-            &nbsp;&mdash;&nbsp;
-            <span rel="tooltip" data-toggle="tooltip" title="Details for build&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
+            </dd>
+            {%- endif %}
+            <dt>Git describe</dt>
+            <dd>
+                {{ kernel }} &nbsp;&mdash;&nbsp;
+                <span rel="tooltip" data-toggle="tooltip" title="Details for build&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
                 <a href="/build/{{ job }}/kernel/{{ kernel }}/">
                 <i class="fa fa-cube"></i>
                 </a>
             </span>
-        </dd>
-        <dt>Git URL</dt>
-        {%- if result.git_url and base_url %}
-        <dd>
-            <a href="{{ base_url }}">
+            </dd>
+            <dt>Git URL</dt>
+            {%- if result.git_url and base_url %}
+            <dd>
+                <a href="{{ base_url }}">
             {{ result.git_url }}
             <i class="fa fa-external-link"></i>
             </a>
-        </dd>
-        {%- elif result.git_url %}
-        <dd>{{ result.git_url }}</dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+            </dd>
+            {%- elif result.git_url %}
+            <dd>{{ result.git_url }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
                 <i class="fa fa-ban"></i>
             </span>
-        </dd>
-        {%- endif %}
-        <dt>Git commit</dt>
-        {%- if result.git_commit and commit_url %}
-        <dd>
-            <a href="{{ commit_url }}">
+            </dd>
+            {%- endif %}
+            <dt>Git commit</dt>
+            {%- if result.git_commit and commit_url %}
+            <dd>
+                <a href="{{ commit_url }}">
                 {{ result.git_commit }}
                 <i class="fa fa-external-link"></i>
             </a>
-        </dd>
-        {%- elif result.git_commit %}
-        <dd>{{ result.git_commit }}</dd>
-        {%- else %}
-        <dd>
-            <span rel="tooltip" data-toggle="tooltip" title="Not available">
+            </dd>
+            {%- elif result.git_commit %}
+            <dd>{{ result.git_commit }}</dd>
+            {%- else %}
+            <dd>
+                <span rel="tooltip" data-toggle="tooltip" title="Not available">
                 <i class="fa fa-ban"></i>
             </span>
-        </dd>
-        {%- endif %}
-    </dl>
+            </dd>
+            {%- endif %}
+        </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
         <div id="pie-chart" class="chart-div">
             <div id="pie-chart-heading">
-            <table id="pie-chart-legend">
-                <tbody>
-                <tr>
-                    <td id="success-cell" onclick="showHideBoots(this)">0</td>
-                    <td>&nbsp;/&nbsp;</td>
-                    <td id="fail-cell" onclick="showHideBoots(this)">0</td>
-                    <td>&nbsp;/&nbsp;</td>
-                    <td id="unknown-cell" onclick="showHideBoots(this)">0</td>
-                </tr>
-                </tbody>
-            </table>
+                <table id="pie-chart-legend">
+                    <tbody>
+                        <tr>
+                            <td id="success-cell" onclick="showHideBoots(this)">0</td>
+                            <td>&nbsp;/&nbsp;</td>
+                            <td id="fail-cell" onclick="showHideBoots(this)">0</td>
+                            <td>&nbsp;/&nbsp;</td>
+                            <td id="unknown-cell" onclick="showHideBoots(this)">0</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 <div class="row">
-<div class="page-header">
-    <h3>Boards Tested</h3>
-</div>
-<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div class="btn-group">
-        <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>All</button>
-        <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Successful</button>
-        <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Failed</button>
-        <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Unknown</button>
+    <div class="page-header">
+        <h3>Boards Tested</h3>
     </div>
-</div>
-<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div id="accordion-container">
-        <div class="pull-center">
-            <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="btn-group">
+            <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>All</button>
+            <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Successful</button>
+            <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Failed</button>
+            <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Unknown</button>
         </div>
     </div>
-</div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="accordion-container">
+            <div class="pull-center">
+                <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+            </div>
+        </div>
+    </div>
 </div>
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
 <input type="hidden" id="job-id" value="{{ job_id }}">
 <input type="hidden" id="storage-id" value="boot-{{ job_id }}">
-<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
-{%- endblock %}
-{%- block scripts %}
-{{ super() }}
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}"> {%- endblock %} {%- block scripts %} {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-boots-job-kernel-1.0.4.js"></script>

@@ -14,6 +14,10 @@
         <dd id="dd-board-board">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
+        <dt>Architecture</dt>
+        <dd id="dd-board-arch">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
         <dt>Endianness</dt>
         <dd id="dd-board-endianness">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
@@ -124,10 +128,10 @@
     </div>
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
-<input type="hidden" id="board-id" value="{{ board }}">
-<input type="hidden" id="job-id" value="{{ job }}">
-<input type="hidden" id="kernel-id" value="{{ kernel }}">
-<input type="hidden" id="defconfig-id" value="{{ defconfig }}">
+<input type="hidden" id="board-name" value="{{ board }}">
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="defconfig-name" value="{{ defconfig }}">
 <input type="hidden" id="lab-name" value="{{ lab_name }}">
 <input type="hidden" id="boot-id" value="{{ boot_id }}">
 {%- endblock %}
