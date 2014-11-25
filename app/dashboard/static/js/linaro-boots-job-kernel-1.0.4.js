@@ -269,18 +269,19 @@ function populateBootsPage(data) {
             }
         }
 
+        // Make sure it is clean.
+        toAppend = '';
         Object.keys(allLabs).sort().forEach(function(element, index, array) {
             lab = allLabs[element];
             len = lab.length;
 
-            toAppend = '<div id="' + element + '">' +
+            toAppend += '<div id="' + element + '">' +
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
                 '<div class="panel-group" id="accordion' + element + '">';
 
             for (i = 0; i < len; i++) {
                 toAppend += lab[i];
             }
-
             toAppend += '</div></div>';
         });
 
