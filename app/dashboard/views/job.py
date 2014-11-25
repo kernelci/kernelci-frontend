@@ -19,7 +19,11 @@ from flask import (
 )
 from flask.views import View
 
-from dashboard.utils.backend import today_date
+from dashboard.utils.backend import (
+    get_search_parameters,
+    is_mobile_browser,
+    today_date,
+)
 
 
 class JobsAllView(View):
@@ -29,16 +33,17 @@ class JobsAllView(View):
         page_title = 'Kernel CI Dashboard &mdash; Jobs'
         body_title = 'Available Jobs'
 
-        search_filter = ""
-        if request.args:
-            search_filter = " ".join([arg for arg in request.args])
+        is_mobile = is_mobile_browser(request)
+        search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             'jobs-all.html',
-            page_title=page_title,
-            server_date=today_date(),
             body_title=body_title,
-            search_filter=search_filter
+            is_mobile=is_mobile,
+            page_len=page_len,
+            page_title=page_title,
+            search_filter=search_filter,
+            server_date=today_date(),
         )
 
 

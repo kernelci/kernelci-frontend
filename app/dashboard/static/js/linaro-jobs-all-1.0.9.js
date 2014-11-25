@@ -1,3 +1,6 @@
+var searchFilter = $('#search-filter').val();
+var pageLen = $('#page-len').val();
+
 $(document).ready(function() {
     'use strict';
 
@@ -135,9 +138,10 @@ $(document).ready(function() {
     function createJobsTable(data) {
         var localData = data.result,
             table = $('#jobstable').dataTable({
-            'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"' +
+            'dom': '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
                 '<"length-menu"l>>' +
-                '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
+                '<"col-xs-12 col-sm-12 col-md-4 col-lg-4 col-lg-offset-2"f>' +
+                'r' +
                 '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
                 '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"i>' +
                 '<"col-xs-6 col-sm-6 col-md-6 col-lg-6"p>>',
@@ -152,11 +156,16 @@ $(document).ready(function() {
                 $('#table-loading').remove();
                 $('#table-div').fadeIn('slow', 'linear');
 
-                var searchFilter = $('#search-filter').val(),
-                    api;
+                var api = this.api();
+
+                pageLen = Number(pageLen);
+                if (isNaN(pageLen)) {
+                    pageLen = 25;
+                }
+
+                api.page.len(pageLen).draw();
 
                 if (searchFilter !== null && searchFilter.length > 0) {
-                    api = this.api();
                     api.search(searchFilter, true).draw();
                 }
             },
