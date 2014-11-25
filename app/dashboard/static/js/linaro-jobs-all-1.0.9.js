@@ -143,8 +143,8 @@ $(document).ready(function() {
                 '<"col-xs-12 col-sm-12 col-md-4 col-lg-4 col-lg-offset-2"f>' +
                 'r' +
                 '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
-                '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"i>' +
-                '<"col-xs-6 col-sm-6 col-md-6 col-lg-6"p>>',
+                '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
+                '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>',
             'language': {
                 'lengthMenu': '_MENU_&nbsp;<strong>jobs per page</strong>',
                 'zeroRecords': '<h4>No jobs to display.</h4>',
