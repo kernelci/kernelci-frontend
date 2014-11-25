@@ -36,10 +36,10 @@ from dashboard.views.build import (
     BuildsJobKernelDefconfigView,
 )
 from dashboard.views.boot import (
+    BootDefconfigView,
     BootIdView,
     BootJobKernelView,
     BootJobView,
-    BootDefconfigView,
     BootsView,
 )
 from dashboard.views.index import IndexView
