@@ -10,7 +10,11 @@
         <div class="page-header">
         <h3>Failed Builds <small>(last 25 results)</small></h3>
         </div>
+    {%- if is_mobile %}
         <div class="table-responsive">
+    {%- else %}
+        <div class="table">
+    {%- endif %}
         <table id="failed-builds" class="table table-striped table-condensed table-hover clickable-table">
             <thead>
                 <tr>
@@ -46,7 +50,11 @@
         <div class="page-header">
         <h3>Failed Boot Reports <small>(last 25 results)</small></h3>
         </div>
+    {%- if is_mobile %}
         <div class="table-responsive">
+    {%- else %}
+        <div class="table">
+    {%- endif %}
         <table id="failed-boots" class="table table-striped tabled-condensed table-hover clickable-table">
             <thead>
                 <tr>
@@ -85,7 +93,11 @@
         <div class="page-header">
         <h3>Failed Jobs <small>(last 25 results)</small></h3>
         </div>
+    {%- if is_mobile %}
         <div class="table-responsive">
+    {%- else %}
+        <div class="table">
+    {%- endif %}
         <table id="failed-jobs" class="table table-striped table-condensed table-hover clickable-table">
             <thead>
                 <tr>

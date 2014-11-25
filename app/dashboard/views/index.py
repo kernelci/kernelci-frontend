@@ -13,19 +13,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import render_template
+from flask import (
+    render_template,
+    request,
+)
 from flask.views import View
 
-from dashboard.utils.backend import today_date
+from dashboard.utils.backend import (
+    is_mobile_browser,
+    today_date,
+)
 
 
 class IndexView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        page_title = 'Kernel CI Dashboard &mdash; Home'
+        page_title = "Kernel CI Dashboard &mdash; Home"
+        is_mobile = is_mobile_browser(request)
 
         return render_template(
-            'index.html',
+            "index.html",
+            is_mobile=is_mobile,
             page_title=page_title,
             server_date=today_date(),
         )
