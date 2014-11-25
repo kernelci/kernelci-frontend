@@ -106,3 +106,7 @@
 div.tooltip-inner {
     max-width: 350px;
 }
+
+div.dataTables_filter input {
+    margin-left: 0 !important;
+}
