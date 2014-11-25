@@ -13,11 +13,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+import re
 import requests
+import types
 import urlparse
 
-from bson import json_util
-from datetime import date
 from flask import (
     abort,
     current_app as app,
@@ -27,11 +28,6 @@ from requests.exceptions import (
     ConnectTimeout,
     ReadTimeout,
 )
-from types import (
-    ListType,
-    StringTypes,
-)
-from urlparse import urljoin
 
 # Timeout seconds to connect and read from the remote server.
 CONNECT_TIMEOUT = 6.0
@@ -75,57 +71,46 @@ def translate_git_url(git_url, commit_id):
     return base_url, commit_url
 
 
-def extract_response_metadata(response):
-    """Extract data from a response object.
+def is_mobile_browser(request):
+    """Verify if the request is made from a mobile browser.
 
-    It is used to extract metadata from a backend response, in order to
-    translate URLs into real clickable URLs based on the KNOWN_GIT_URLS
-    translation rules.
-
-    :param response: A response object as returned by a requests.
-    :return A tuple with the metadata from the response, the base_url, the
-        commit_url and the response"s result.
+    :param request: The request to analyze.
+    :return True or False.
     """
-    metadata = {}
-    base_url = ""
-    commit_url = ""
-    result = {}
+    platform = request.user_agent.platform
+    user_agent = request.user_agent.string
 
-    document = json_util.loads(response.content)
-    result = document.get("result", None)
+    is_mobile = False
+    if any([platform == "android", platform == "iphone"]):
+        is_mobile = True
+    elif all([
+            platform == "windows",
+            re.search("Windows Phone", user_agent)]):
+        is_mobile = True
+    elif re.search("BlackBerry|BB", user_agent):
+        is_mobile = True
+    elif re.search("Mobile", user_agent):
+        is_mobile = True
 
-    if result and len(result) == 1:
-        result = result[0]
-        metadata = result.get("metadata", None)
+    return is_mobile
 
-        if metadata:
-            git_url = metadata.get("git_url", None)
-            commit_id = metadata.get("git_commit", None)
 
-            if git_url and commit_id:
-                t_url = urlparse.urlparse(git_url)
-                known_git_urls = app.config.get("KNOWN_GIT_URLS")
+def get_search_parameters(request):
+    """Get the request parameters for the search box.
 
-                if t_url.netloc in known_git_urls.keys():
-                    known_git = known_git_urls.get(t_url.netloc)
+    :param request: The request to analyze.
+    :return The search filter to apply and the page length.
+    """
+    search_filter = ""
+    page_len = 25
 
-                    path = t_url.path
-                    for replace_rule in known_git[3]:
-                        path = path.replace(*replace_rule)
+    if request.args:
+        page_len = request.args.get("show", 25)
+        search_filter = " ".join(
+            [arg for arg in request.args if arg != "show"]
+        )
 
-                    base_url = urlparse.urlunparse((
-                        known_git[0], t_url.netloc, known_git[1] % path,
-                        "", "", ""
-                    ))
-                    commit_url = urlparse.urlunparse((
-                        known_git[0], t_url.netloc,
-                        (known_git[2] % path) + commit_id,
-                        "", "", ""
-                    ))
-    else:
-        abort(404)
-
-    return metadata, base_url, commit_url, result
+    return search_filter, page_len
 
 
 def today_date():
@@ -135,7 +120,7 @@ def today_date():
 
     :return The date string.
     """
-    return date.today().strftime("%a, %d %b %Y")
+    return datetime.date.today().strftime("%a, %d %b %Y")
 
 
 def _create_url_headers(api_path):
@@ -150,7 +135,7 @@ def _create_url_headers(api_path):
     backend_url = app.config.get("BACKEND_URL")
     backend_token_header = app.config.get("BACKEND_TOKEN_HEADER")
 
-    backend_url = urljoin(backend_url, api_path)
+    backend_url = urlparse.urljoin(backend_url, api_path)
 
     headers = {}
     if backend_token:
@@ -182,9 +167,9 @@ def _create_api_path(api_path, other_path=None):
     api_path = _check_and_add_trailing_slash(api_path)
 
     if other_path:
-        if isinstance(other_path, StringTypes):
+        if isinstance(other_path, types.StringTypes):
             api_path += _check_and_remove_trailing_slash(other_path)
-        elif isinstance(other_path, ListType):
+        elif isinstance(other_path, types.ListType):
             for path in other_path:
                 api_path += _check_and_add_trailing_slash(path)
             api_path = _check_and_remove_trailing_slash(api_path)
