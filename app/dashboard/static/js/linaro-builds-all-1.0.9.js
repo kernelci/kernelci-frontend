@@ -1,4 +1,5 @@
 var searchFilter = $('#search-filter').val();
+var pageLen = $('#page-len').val();
 
 function createBuildsTable(data) {
     'use strict';
@@ -7,8 +8,9 @@ function createBuildsTable(data) {
         table = null;
 
     table = $('#defconfstable').dataTable({
-        'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
-            '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
+        'dom': '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
+            '<"length-menu"l>>' +
+            '<"col-xs-12 col-sm-12 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
             '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"i>' +
             '<"col-xs-6 col-sm-6 col-md-6 col-lg-6"p>>',
@@ -23,8 +25,16 @@ function createBuildsTable(data) {
             $('#table-loading').remove();
             $('#table-div').fadeIn('slow', 'linear');
 
+            var api = this.api();
+
+            pageLen = Number(pageLen);
+            if (isNaN(pageLen)) {
+                pageLen = 25;
+            }
+
+            api.page.len(pageLen).draw();
+
             if (searchFilter !== null && searchFilter.length > 0) {
-                var api = this.api();
                 api.search(searchFilter, true).draw();
             }
         },

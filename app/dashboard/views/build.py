@@ -29,6 +29,8 @@ from flask.views import View
 from dashboard.utils.backend import (
     get_defconfig,
     get_job,
+    get_search_parameters,
+    is_mobile_browser,
     today_date,
     translate_git_url,
 )
@@ -41,16 +43,17 @@ class BuildsAllView(View):
     def dispatch_request(self, *args, **kwargs):
         results_title = "Available Builds"
 
-        search_filter = ""
-        if request.args:
-            search_filter = " ".join([arg for arg in request.args])
+        is_mobile = is_mobile_browser(request)
+        search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "builds-all.html",
+            is_mobile=is_mobile,
+            page_len=page_len,
             page_title=PAGE_TITLE,
-            server_date=today_date(),
             results_title=results_title,
-            search_filter=search_filter
+            search_filter=search_filter,
+            server_date=today_date(),
         )
 
 
