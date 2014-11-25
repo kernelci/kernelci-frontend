@@ -29,6 +29,8 @@ from flask.views import View
 
 from dashboard.utils.backend import (
     get_job,
+    get_search_parameters,
+    is_mobile_browser,
     today_date,
     translate_git_url,
 )
@@ -42,21 +44,17 @@ class BootsView(View):
 
         results_title = "Available Boot Reports"
 
-        search_filter = ""
-        page_len = 25
-        if request.args:
-            page_len = request.args.get("show", 25)
-            search_filter = " ".join(
-                [arg for arg in request.args if arg != "show"]
-            )
+        is_mobile = is_mobile_browser(request)
+        search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "boots-all.html",
+            is_mobile=is_mobile,
+            page_len=page_len,
             page_title=PAGE_TITLE,
-            server_date=today_date(),
             results_title=results_title,
             search_filter=search_filter,
-            page_len=page_len
+            server_date=today_date(),
         )
 
 
@@ -84,6 +82,7 @@ class BootDefconfigView(View):
 class BootIdView(View):
 
     def dispatch_request(self, *args, **kwargs):
+
         page_title = (
             PAGE_TITLE +
             "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %

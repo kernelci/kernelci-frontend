@@ -8,8 +8,9 @@ function createBootsTable(data) {
         table = null;
 
     table = $('#bootstable').dataTable({
-        'dom': '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"<"length-menu"l>>' +
-            '<"col-xs-4 col-sm-4 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
+        'dom': '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
+            '<"length-menu"l>>' +
+            '<"col-xs-12 col-sm-12 col-md-4 col-lg-4 col-lg-offset-2"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
             '<"row"<"col-xs-6 col-sm-6 col-md-6 col-lg-6"i>' +
             '<"col-xs-6 col-sm-6 col-md-6 col-lg-6"p>>',
