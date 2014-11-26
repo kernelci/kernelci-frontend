@@ -13,8 +13,8 @@
     <link rel="stylesheet" type="text/css" href="/static/css/linaro-base-1.0.3.css"> {%- endblock %}
 </head>
 
-<body>
-    <div class="navbar navbar-default navbar-static-top" role="navigation">
+<body data-spy="scroll" data-target="#sidebar-nav">
+    <div class="navbar navbar-default navbar-static-top" id="top" role="navigation">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -55,6 +55,12 @@
             </div>
         </div>
     </div>
+    <div class="row-offcanvas row-offcanvas-left">
+        <div id="sidebar" class="sidebar-offcanvas">
+            <div id="sidebar-nav" class="sidebar nav col-md-3 col-lg-3 hidden-sx hidden-sm" data-spy="affix">
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div id="errors-container"></div>
         <div id="container-content">
@@ -65,10 +71,10 @@
     <input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}"> {%- block scripts %}
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript" async src="/static/js/linaro-jslib-1.0.2.min.js"></script>
-    <script type="text/javascript" async src="/static/js/jquery.hotkeys-1.0.min.js"></script>
-    <script type="text/javascript" async src="/static/js/jquery.hotkeymap-1.0.min.js"></script>
-    <script type="text/javascript" async src="/static/js/linaro-hotkeys-1.0.min.js"></script>
+    <script type="text/javascript" src="/static/js/linaro-jslib-1.0.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.hotkeys-1.0.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.hotkeymap-1.0.min.js"></script>
+    <script type="text/javascript" src="/static/js/linaro-hotkeys-1.0.min.js"></script>
     <script type="text/javascript" src="/static/js/linaro-base-1.0.0.js"></script>
     {%- block analytics %} {%- if analytics %}
     <script type="text/javascript">
