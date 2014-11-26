@@ -89,10 +89,16 @@ div.dataTables_filter input {
     margin-left: 0 !important;
 }
 ul.affix-top {
+    position: static;
+}
+ul.affix-bottom {
+    position: absolute;
+}
+ul.affix {
     position: fixed;
 }
-ul.affix-bottom, ul.affix {
-    position: fixed;
+.affix {
+    margin-top: -60px;
 }
 .sidenav {
     margin-top: 7px;
@@ -119,7 +125,6 @@ ul.affix-bottom, ul.affix {
     display: block;
 }
 /* Nav: second level */
-
 .sidebar .nav .nav {
     display: none;
     margin-bottom: 9px;
@@ -140,6 +145,7 @@ ul.affix-bottom, ul.affix {
 #sidebar {
     width: inherit;
     height: 100%;
+    min-width: 175px;
     max-width: 220px;
     float: left;
     position: relative;
@@ -162,6 +168,6 @@ ul.affix-bottom, ul.affix {
     }
     .sidebar-offcanvas {
         position: absolute;
-        /*top: 0;*/
+        top: 0;
     }
 }
