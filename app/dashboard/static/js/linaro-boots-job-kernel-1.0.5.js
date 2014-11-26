@@ -146,6 +146,8 @@ function populateBootsPage(data) {
         labName,
         allLabs = {},
         lab,
+        labLinks,
+        sidebarNav,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>',
@@ -270,10 +272,14 @@ function populateBootsPage(data) {
         }
 
         // Make sure it is clean.
+        labLinks = '';
         toAppend = '';
         Object.keys(allLabs).sort().forEach(function(element, index, array) {
             lab = allLabs[element];
             len = lab.length;
+
+            labLinks += '<li><a href="#' +
+                element + '">' + element + '</a></li>';
 
             toAppend += '<div id="' + element + '">' +
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
@@ -285,7 +291,21 @@ function populateBootsPage(data) {
             toAppend += '</div></div>';
         });
 
+        sidebarNav = '<ul class="nav sidenav">' +
+            '<li class="active"><a href="#top">Top</a></li>' +
+            '<li><a href="#details">Details</a></li>' +
+            '<li><a href="#tested-boards">Boards</a></li>' +
+            '<li><a href="#labs">Labs</a><ul class="nav">' +
+            labLinks +
+            '</ul></li>' +
+            '</ul>';
+
         $('#accordion-container').empty().append(toAppend);
+        $('#sidebar-nav').empty().append(sidebarNav);
+
+        $('[data-spy="scroll"]').each(function() {
+          var $spy = $(this).scrollspy('refresh');
+        });
 
         if (hasFailed) {
             $('#fail-btn').removeAttr('disabled');
@@ -340,6 +360,10 @@ function parseData(data) {
 
 $(document).ready(function() {
     'use strict';
+
+    $('body').scrollspy({
+        target: '#sidebar-nav'
+    });
 
     $('body').tooltip({
         'selector': '[rel=tooltip]',

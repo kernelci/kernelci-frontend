@@ -2,7 +2,7 @@
 <meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block head %} {{ super() }} {%- endblock %} {%- block content %}
 <div class="row">
     <div class="page-header">
-        <h3>{{ body_title|safe }}</h3>
+        <h3 id="details">{{ body_title|safe }}</h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
@@ -94,7 +94,7 @@
 </div>
 <div class="row">
     <div class="page-header">
-        <h3>Boards Tested</h3>
+        <h3 id="tested-boards">Boards Tested</h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="btn-group">
@@ -105,9 +105,11 @@
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div id="accordion-container">
-            <div class="pull-center">
-                <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+        <div id="labs">
+            <div id="accordion-container">
+                <div class="pull-center">
+                    <i class="fa fa-cog fa-spin fa-2x"></i> &nbsp;loading&hellip;
+                </div>
             </div>
         </div>
     </div>
@@ -119,5 +121,5 @@
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}"> {%- endblock %} {%- block scripts %} {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-1.0.4.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-1.0.5.js"></script>
 {%- endblock %}
