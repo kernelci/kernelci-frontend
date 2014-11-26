@@ -291,17 +291,20 @@ function populateBootsPage(data) {
             toAppend += '</div></div>';
         });
 
-        sidebarNav = '<ul class="nav sidenav">' +
-            '<li class="active"><a href="#top">Top</a></li>' +
-            '<li><a href="#details">Details</a></li>' +
-            '<li><a href="#tested-boards">Boards</a></li>' +
-            '<li><a href="#labs">Labs</a><ul class="nav">' +
-            labLinks +
-            '</ul></li>' +
-            '</ul>';
-
         $('#accordion-container').empty().append(toAppend);
-        $('#sidebar-nav').empty().append(sidebarNav);
+        // Append the stuff only if we have the element.
+        // On mobile platform the element is not available.
+        if ($('#sidebar-nav').length !== 0) {
+            sidebarNav = '<ul class="nav sidenav">' +
+                '<li class="active"><a href="#top">Top</a></li>' +
+                '<li><a href="#details">Details</a></li>' +
+                '<li><a href="#tested-boards">Boards</a></li>' +
+                '<li><a href="#labs">Labs</a><ul class="nav">' +
+                labLinks +
+                '</ul></li>' +
+                '</ul>';
+            $('#sidebar-nav').empty().append(sidebarNav);
+        }
 
         $('[data-spy="scroll"]').each(function() {
           var $spy = $(this).scrollspy('refresh');
