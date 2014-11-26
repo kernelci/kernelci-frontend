@@ -13,7 +13,11 @@
     <link rel="stylesheet" type="text/css" href="/static/css/linaro-base-1.0.4.css"> {%- endblock %}
 </head>
 
+{%- if is_mobile %}
+<body>
+{%- else %}
 <body data-spy="scroll" data-target="#sidebar-nav">
+{%- endif %}
     <div class="navbar navbar-default navbar-static-top" id="top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -55,12 +59,14 @@
             </div>
         </div>
     </div>
+{%- if not is_mobile %}
     <div class="row-offcanvas row-offcanvas-left">
         <div id="sidebar" class="sidebar-offcanvas">
-            <div id="sidebar-nav" class="sidebar nav col-md-3 col-lg-3 hidden-sx hidden-sm" data-spy="affix">
+            <div id="sidebar-nav" class="sidebar nav col-md-2 col-lg-2 hidden-sx hidden-sm" data-spy="affix" data-offset="60">
             </div>
         </div>
     </div>
+{%- endif %}
     <div class="container">
         <div id="errors-container"></div>
         <div id="container-content">
