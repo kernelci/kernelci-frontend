@@ -1,112 +1,167 @@
+body {
+    position: relative;
+}
 .clickable-table tbody tr {
     cursor: pointer;
 }
-
 .pull-center {
     text-align: center !important;
     vertical-align: middle !important;
 }
-
 .table tbody td a.table-link {
     color: inherit;
 }
-
 .panel-heading {
     cursor: pointer;
 }
-
 #success-cell, #fail-cell, #unknown-cell {
     cursor: pointer;
 }
-
 #builds-chart-legend td {
     text-align: center;
     width: 25px;
     border-bottom: 3px solid;
 }
-
 #builds-chart-legend td:nth-child(even) {
     border: none;
 }
-
 .chart-div {
     text-align: -webkit-center;
 }
-
 .btn-group {
     padding-bottom: 1em;
 }
-
 .big-table td {
     border: 0;
     border-spacing: 0;
     padding: 0;
 }
-
 .bisect-table {
     table-layout: fixed;
 }
-
 .bisect-table thead tr th {
     text-align: center;
     vertical-align: middle;
 }
-
 .bisect-table tbody tr td:first-child, tbody tr td:nth-child(0) {
     text-align: left;
     vertical-align: middle;
 }
-
 .bisect-table tbody tr td {
     text-align: center;
     vertical-align: middle;
-
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
-
 .bisect-tooltip {
     text-overflow: clip !important;
     white-space: normal !important;
     overflow: visible !important;
 }
-
 .bisect-text {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
 }
-
 .bisect-table thead tr th:first-child, thead tr th:nth-child(0) {
     border: none;
 }
-
 .bisect-table tbody tr td:first-child, tbody tr td:nth-child(0) {
     border: none;
 }
-
-.bisect-table tbody tr:hover td:first-child .bisect-text,
-.bisect-table tbody tr:hover th:first-child .bisect-text  {
+.bisect-table tbody tr:hover td:first-child .bisect-text, .bisect-table tbody tr:hover th:first-child .bisect-text {
     font-weight: bold;
 }
-
 .clean-link a:link a:visited a:hover a:active a:focus {
     text-decoration: none;
 }
-
 .extra-margin {
     margin-right: 5px;
 }
-
 .red-font {
     color: #d9534f;
 }
-
 div.tooltip-inner {
     max-width: 350px;
 }
-
 div.dataTables_filter input {
     margin-left: 0 !important;
+}
+ul.affix-top {
+    position: fixed;
+}
+ul.affix-bottom, ul.affix {
+    position: fixed;
+}
+.sidenav {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    margin-left: 21px;
+}
+.sidebar .nav > li > a {
+    display: block;
+    padding: 5px 20px;
+    font-size: 95%;
+}
+.sidebar .nav > li > a:hover, .sidebar .nav > li > a:focus {
+    text-decoration: none;
+    font-weight: bold;
+    background-color: transparent;
+    border-left: 1px solid #428bca;
+}
+.sidebar .nav > .active > a, .sidebar .nav > .active:hover > a, .sidebar .nav > .active:focus > a {
+    font-weight: bold;
+    background-color: transparent;
+    border-left: 2px solid #428bca;
+}
+.sidebar .nav > li.active .nav {
+    display: block;
+}
+/* Nav: second level */
+
+.sidebar .nav .nav {
+    display: none;
+    margin-bottom: 9px;
+}
+.sidebar .nav .nav > li > a {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 35px;
+    font-size: 85%;
+}
+.sidebar .nav .nav {
+    display: none;
+}
+.sidebar .nav .nav > .active > a {
+    display: block;
+    border: none;
+}
+#sidebar {
+    width: inherit;
+    height: 100%;
+    max-width: 220px;
+    float: left;
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+@media screen and (max-width: 768px) {
+    .row-offcanvas {
+        position: relative;
+        -webkit-transition: all 0.25s ease-out;
+        -moz-transition: all 0.25s ease-out;
+        transition: all 0.25s ease-out;
+        width: calc(100% + 220px);
+    }
+    .row-offcanvas-left {
+        left: -220px;
+    }
+    .row-offcanvas-left.active {
+        left: 0;
+    }
+    .sidebar-offcanvas {
+        position: absolute;
+        /*top: 0;*/
+    }
 }
