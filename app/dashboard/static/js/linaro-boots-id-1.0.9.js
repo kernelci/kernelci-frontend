@@ -16,7 +16,13 @@ function populatePage(data) {
         defconfig,
         arch,
         defconfigFull,
+        labName,
         fileServer = $('#file-server').val(),
+        fileServerUri = null,
+        fileServerUrl = null,
+        fileServerResource = null,
+        pathUrl = null,
+        uriPath = null,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
@@ -28,6 +34,9 @@ function populatePage(data) {
     defconfig = localData.defconfig;
     defconfigFull = localData.defconfig_full;
     arch = localData.arch;
+    labName = localData.lab_name;
+    fileServerUrl = localData.file_server_url;
+    fileServerResource = localData.file_server_resource;
 
     $('#dd-board-board').empty().append(localData.board);
     $('#dd-board-arch').empty().append(arch);
@@ -76,14 +85,31 @@ function populatePage(data) {
     }
 
     if (localData.boot_log !== null || localData.boot_log_html !== null) {
+        if (fileServerUrl !== null &&
+                typeof(fileServerUrl) !== 'undefined') {
+            fileServer = fileServerUrl;
+        }
+
+        if (fileServerResource !== null &&
+                typeof(fileServerResource) !== 'undefined') {
+            pathUrl = fileServerResource;
+        } else {
+            pathUrl = job + '/' + kernel + '/' +
+                arch + '-' + defconfigFull + '/' + labName + '/';
+        }
+
+        fileServerUri = new URI(fileServer);
+        uriPath = fileServerUri.path() + '/' + pathUrl;
+
         $('#dd-board-boot-log').empty();
 
         if (localData.boot_log !== null) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="View raw text boot log"><a href="' + fileServer +
-                job + '/' + kernel + '/' + arch + '-' +
-                defconfigFull + '/' + localData.boot_log + '">txt' +
+                'title="View raw text boot log"><a href="' +
+                fileServerUri.path(uriPath + '/' + localData.boot_log)
+                    .normalizePath().href() +
+                '">txt' +
                 '&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
@@ -94,9 +120,9 @@ function populatePage(data) {
             }
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="View HTML boot log"><a href="' + fileServer +
-                job + '/' + kernel + '/' + arch + '-' +
-                defconfigFull + '/' + localData.boot_log_html +
+                'title="View HTML boot log"><a href="' +
+                fileServerUri.path(uriPath + '/' + localData.boot_log_html)
+                    .normalizePath().href() +
                 '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
