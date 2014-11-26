@@ -271,10 +271,10 @@ def ajax_get(request, api_path):
     params_list = request.args.lists()
 
     if "id" in request.args:
-        boot_id = request.args["id"]
-        api_path = _create_api_path(api_path, boot_id)
+        doc_id = request.args["id"]
+        api_path = _create_api_path(api_path, doc_id)
 
-        params_list.remove(("id", [boot_id]))
+        params_list.remove(("id", [doc_id]))
 
     url, headers = _create_url_headers(api_path)
     try:
