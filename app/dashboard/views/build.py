@@ -20,6 +20,7 @@ except ImportError:
 
 from flask import (
     abort,
+    current_app as app,
     render_template,
     request,
 )
@@ -27,7 +28,6 @@ from flask import (
 from flask.views import View
 
 from dashboard.utils.backend import (
-    get_defconfig,
     get_job,
     get_search_parameters,
     today_date,
@@ -110,41 +110,15 @@ class BuildsJobKernelDefconfigView(View):
 
         body_title = "Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (
             job, kernel)
+        url_translation = app.config.get("KNOWN_GIT_URLS")
 
-        if defconfig_id:
-            params = {"_id": defconfig_id}
-        else:
-            params = {
-                "job": job, "kernel": kernel, "defconfig_full": defconfig
-            }
-
-        response = get_defconfig(**params)
-
-        if response.status_code == 200:
-            document = json.loads(response.content, encoding="utf_8")
-            if document.get("count", 0) > 0:
-                result = document.get("result", None)
-                result = result[0]
-
-                base_url, commit_url = translate_git_url(
-                    result.get("git_url", None),
-                    result.get("git_commit", None)
-                )
-                metadata = result.get("metadata", None)
-
-                return render_template(
-                    "builds-job-kernel-defconf.html",
-                    page_title=PAGE_TITLE,
-                    body_title=body_title,
-                    base_url=base_url,
-                    commit_url=commit_url,
-                    kernel=kernel,
-                    job=job,
-                    result=result,
-                    metadata=metadata,
-                    defconfig_id=defconfig_id,
-                )
-            else:
-                abort(404)
-        else:
-            abort(response.status_code)
+        return render_template(
+            "builds-job-kernel-defconf.html",
+            body_title=body_title,
+            defconfig_full=defconfig,
+            defconfig_id=defconfig_id,
+            job_name=job,
+            kernel_name=kernel,
+            page_title=PAGE_TITLE,
+            url_translation=url_translation
+        )
