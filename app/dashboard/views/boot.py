@@ -30,7 +30,6 @@ from flask.views import View
 from dashboard.utils.backend import (
     get_job,
     get_search_parameters,
-    is_mobile_browser,
     today_date,
     translate_git_url,
 )
@@ -43,13 +42,10 @@ class BootsView(View):
     def dispatch_request(self):
 
         results_title = "Available Boot Reports"
-
-        is_mobile = is_mobile_browser(request)
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "boots-all.html",
-            is_mobile=is_mobile,
             page_len=page_len,
             page_title=PAGE_TITLE,
             results_title=results_title,

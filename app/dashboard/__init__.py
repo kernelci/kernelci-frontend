@@ -52,6 +52,7 @@ from utils.backend import (
     ajax_bisect,
     ajax_count_get,
     ajax_get,
+    is_mobile_browser,
 )
 
 
@@ -64,6 +65,7 @@ def generate_csrf_token():
     :return A random CSRF token.
     """
     return generate_csrf(time_limit=random.randint(20, 50))
+
 
 DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-frontend.cfg'
 
@@ -157,8 +159,11 @@ app.add_url_rule(
 
 
 @app.context_processor
-def inject_analytics():
-    return dict(analytics=app.config.get('GOOGLE_ANALYTICS_ID'))
+def inject_variables():
+    return dict(
+        analytics=app.config.get('GOOGLE_ANALYTICS_ID'),
+        is_mobile=is_mobile_browser(request)
+    )
 
 
 @app.errorhandler(404)

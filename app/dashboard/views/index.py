@@ -15,12 +15,10 @@
 
 from flask import (
     render_template,
-    request,
 )
 from flask.views import View
 
 from dashboard.utils.backend import (
-    is_mobile_browser,
     today_date,
 )
 
@@ -29,11 +27,9 @@ class IndexView(View):
 
     def dispatch_request(self, *args, **kwargs):
         page_title = "Kernel CI Dashboard &mdash; Home"
-        is_mobile = is_mobile_browser(request)
 
         return render_template(
             "index.html",
-            is_mobile=is_mobile,
             page_title=page_title,
             server_date=today_date(),
         )
