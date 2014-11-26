@@ -148,6 +148,13 @@ function populateBootsPage(data) {
         lab,
         labLinks,
         sidebarNav,
+        fileServerUrl = null,
+        fileServerResource = null,
+        fileServerUri = null,
+        uriPath = null,
+        pathUrl = null,
+        bootLog,
+        bootLogHtml,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>',
@@ -170,9 +177,26 @@ function populateBootsPage(data) {
             labName = bootObj.lab_name;
             bootObjId = bootObj._id;
             arch = bootObj.arch;
+            fileServerUrl = bootObj.file_server_url;
+            fileServerResource = bootObj.file_server_resource;
+            bootLog = bootObj.boot_log;
+            bootLogHtml = bootObj.boot_log_html;
 
-            dataUrl = fileServer + job + '/' + kernel + '/' + arch + '-' +
-                defconfigFull + '/';
+            if (fileServerUrl !== null &&
+                    typeof(fileServerUrl) !== 'undefined') {
+                fileServer = fileServerUrl;
+            }
+
+            if (fileServerResource !== null &&
+                    typeof(fileServerResource) !== 'undefined') {
+                pathUrl = fileServerResource;
+            } else {
+                pathUrl = job + '/' + kernel + '/' +
+                    arch + '-' + defconfigFull + '/' + labName + '/';
+            }
+
+            fileServerUri = new URI(fileServer);
+            uriPath = fileServerUri.path() + '/' + pathUrl;
 
             switch (bootObj.status) {
                 case 'FAIL':
@@ -242,6 +266,34 @@ function populateBootsPage(data) {
                 panel += '<dd>' + bootTime.getCustomTime() + '</dd>';
             } else {
                 panel += '<dd>' + nonAvail + '</dd>';
+            }
+
+            if (bootLog !== null || bootLogHtml !== null) {
+                panel += '<dt>Boot log</dt>';
+                panel += '<dd>';
+
+                if (bootLog !== null) {
+                    panel += '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="View raw text boot log"><a href="' +
+                        fileServerUri.path(uriPath + '/' + bootLog)
+                            .normalizePath().href() +
+                        '">txt&nbsp;<i class="fa fa-external-link"></i></a>' +
+                        '</span>';
+                }
+
+                if (bootLogHtml !== null) {
+                    if (bootLog !== null) {
+                        panel += '&nbsp;&mdash;&nbsp;';
+                    }
+                    panel += '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="View HTML boot log"><a href="' +
+                        fileServerUri.path(uriPath + '/' + bootLogHtml)
+                            .normalizePath().href() +
+                        '">html&nbsp;<i class="fa fa-external-link"></i>' +
+                        '</a></span>';
+                }
+
+                panel += '</dd>';
             }
 
             panel += '</dl></div>';
