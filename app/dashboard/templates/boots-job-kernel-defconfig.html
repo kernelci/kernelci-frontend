@@ -8,14 +8,107 @@
     <div class="page-header">
     <h3>{{ body_title|safe }}</h3>
     </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd id="dd-tree">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git describe</dt>
+            <dd id="dd-git-describe">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Defconfig</dt>
+            <dd id="dd-defconfig">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+        <table class="table table-striped table-condensed table-hover clickable-table" id="bootstable">
+            <thead>
+                <tr>
+                    <th>Lab Name</th>
+                    <th>Failure Reason</th>
+                    <th class="pull-center">Boot Log</th>
+                    <th class="pull-center">Date</th>
+                    <th class="pull-center">Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr class="pull-center">
+                    <td colspan="6">
+                        <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 <input type="hidden" id="board-name" value="{{ board }}">
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
-<input type="hidden" id="defconfig-name" value="{{ defconfig }}">
+<input type="hidden" id="defconfig-full" value="{{ defconfig }}">
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
+<script type="text/javascript">
+function translateCommitURL(commitURL, commitId) {
+    'use strict';
+
+    var uriParser,
+        hostName,
+        knownGit,
+        baseURL = '',
+        urlPath,
+        newCommitURL = '',
+        translateRule,
+        lenTranslate,
+        i,
+        urlTranslation = {{ url_translation|tojson|safe }};
+
+    if (commitURL !== null && commitId !== null) {
+        uriParser = new URI(commitURL);
+        hostName = uriParser.hostname();
+        urlPath = uriParser.path();
+
+        if (urlTranslation.hasOwnProperty(hostName)) {
+            knownGit = urlTranslation[hostName];
+            translateRule = knownGit[3];
+            lenTranslate = translateRule.length;
+
+            for (i = 0; i < lenTranslate; i++) {
+                urlPath = urlPath.replace(
+                    translateRule[i][0], translateRule[i][1]);
+            }
+
+            baseURL = new URI({
+                protocol: knownGit[0],
+                hostname: hostName,
+                path: knownGit[1].replace('%s', urlPath)
+            });
+
+            newCommitURL = new URI({
+                protocol: knownGit[0],
+                hostname: hostName,
+                path: knownGit[2].replace('%s', urlPath) + commitId
+            });
+
+            baseURL = baseURL.href();
+            newCommitURL = newCommitURL.href();
+        }
+    }
+    return [baseURL, newCommitURL];
+}
+</script>
 <script type="text/javascript" src="/static/js/linaro-boots-job-kernel-defconfig-0.0.1.js"></script>
 {%- endblock %}

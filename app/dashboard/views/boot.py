@@ -58,8 +58,10 @@ class BootDefconfigView(View):
 
     def dispatch_request(self, **kwargs):
 
-        page_title = PAGE_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" % kwargs
-        body_title = "Boot details for board&nbsp;%(board)s" % kwargs
+        page_title = (
+            PAGE_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" % kwargs)
+        body_title = (
+            "Boot reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
 
         url_translation = app.config.get("KNOWN_GIT_URLS")
 
@@ -85,7 +87,7 @@ class BootIdView(View):
             kwargs
         )
         body_title = (
-            "Boot details for board&nbsp;%(board)s&nbsp;"
+            "Boot details for board&nbsp;&#171;%(board)s&#187;&nbsp;"
             "<small>(%(lab_name)s)</small>" % kwargs
         )
 
