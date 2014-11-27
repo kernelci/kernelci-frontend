@@ -162,16 +162,12 @@ function populateBootPage(data) {
             '</td></tr>'
         );
     }
-
-    $('#table-div').fadeIn('slow', 'linear');
 }
 
 $(document).ready(function() {
     'use strict';
 
     $('#li-boot').addClass('active');
-    $('#table-div').hide();
-
     $('body').tooltip({
         'selector': '[rel=tooltip]',
         'placement': 'auto top'
