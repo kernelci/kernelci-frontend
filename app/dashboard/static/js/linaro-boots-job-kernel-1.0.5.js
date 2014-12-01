@@ -244,7 +244,13 @@ function populateBootsPage(data) {
 
             panel += '<dt>Kernel image</dt>';
             if (bootObj.kernel_image !== null) {
-                panel += '<dd>' + bootObj.kernel_image + '</dd>';
+                panel += '<dd>' +
+                    '<a href="' +
+                    fileServerUri.path(uriPath + '/' + bootObj.kernel_image)
+                        .normalizePath().href() +
+                    '">' + bootObj.kernel_image +
+                    '&nbsp;<i class="fa fa-external-link"></i></a>' +
+                    '</dd>';
             } else {
                 panel += '<dd>' + nonAvail + '</dd>';
             }
