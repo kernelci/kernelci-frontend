@@ -17,12 +17,12 @@ body {
 #success-cell, #fail-cell, #unknown-cell {
     cursor: pointer;
 }
-#builds-chart-legend td {
+.pie-chart td {
     text-align: center;
     width: 25px;
     border-bottom: 3px solid;
 }
-#builds-chart-legend td:nth-child(even) {
+.pie-chart td:nth-child(even) {
     border: none;
 }
 .chart-div {

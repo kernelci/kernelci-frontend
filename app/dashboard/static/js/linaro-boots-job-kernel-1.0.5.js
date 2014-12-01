@@ -62,9 +62,9 @@ function createPieChart(data) {
         len = data.length,
         width = 200,
         height = 200,
+        radius = Math.min(width, height) / 2,
         dataset = null,
         svg = null,
-        radius = Math.min(width, height) / 2,
         // success, fail and unknown status colors.
         color = ['#5cb85c', '#d9534f', '#f0ad4e'],
         pie = d3.layout.pie().sort(null),
