@@ -61,8 +61,9 @@ class BuildsJobKernelView(View):
 
         job_name = "%s-%s" % (job, kernel)
 
-        body_title = "Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (
-            job, kernel
+        body_title = (
+            "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
+            (job, kernel)
         )
 
         params = {"name": job_name}
@@ -108,8 +109,10 @@ class BuildsJobKernelDefconfigView(View):
         defconfig = kwargs["defconfig"]
         defconfig_id = request.args.get("_id", None)
 
-        body_title = "Build details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (
-            job, kernel)
+        body_title = (
+            "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
+            (job, kernel)
+        )
         url_translation = app.config.get("KNOWN_GIT_URLS")
 
         return render_template(

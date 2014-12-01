@@ -29,12 +29,12 @@ class JobsAllView(View):
 
     def dispatch_request(self):
 
-        page_title = 'Kernel CI Dashboard &mdash; Jobs'
-        body_title = 'Available Jobs'
+        page_title = "Kernel CI Dashboard &mdash; Jobs"
+        body_title = "Available Jobs"
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            'jobs-all.html',
+            "jobs-all.html",
             body_title=body_title,
             page_len=page_len,
             page_title=page_title,
@@ -47,7 +47,7 @@ class JobsJobView(View):
 
     def dispatch_request(self, **kwargs):
 
-        title = 'Details for&nbsp;' + kwargs['job']
+        title = "Details for&nbsp;&#171;%s&#187;" % kwargs["job"]
         return render_template(
-            'jobs-job.html', page_title=title, job=kwargs['job']
+            "jobs-job.html", page_title=title, job=kwargs["job"]
         )

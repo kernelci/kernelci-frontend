@@ -115,7 +115,8 @@ class BootJobKernelView(View):
         kernel = kwargs["kernel"]
 
         body_title = body_title = (
-            "Boot details for&nbsp;%s&nbsp;&dash;&nbsp;%s" % (job, kernel)
+            "Boot details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
+            (job, kernel)
         )
 
         params = {"job": job, "kernel": kernel}
@@ -163,7 +164,7 @@ class BootJobView(View):
     def dispatch_request(self, **kwargs):
 
         job = kwargs["job"]
-        body_title = "Boot details for&nbsp;%s" % job
+        body_title = "Boot details for&nbsp;&#171;%s&#187;" % job
 
         return render_template(
             "boots-job.html",
