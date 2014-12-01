@@ -171,7 +171,12 @@ function populatePage(data) {
     }
 
     if (localData.dtb !== null && localData.dtb !== '') {
-        $('#dd-board-dtb').empty().append(localData.dtb);
+        $('#dd-board-dtb').empty().append(
+            '<a href="' +
+            fileServerUri.path(uriPath + '/' + localData.dtb)
+                .normalizePath().href() +
+            '">' + localData.dtb +
+            '&nbsp;<i class="fa fa-external-link"></i></a>');
     } else {
         $('#dd-board-dtb').empty().append(nonAvail);
     }
@@ -195,7 +200,12 @@ function populatePage(data) {
     }
 
     if (localData.kernel_image !== null && localData.kernel_image !== '') {
-        $('#dd-board-kernel-image').empty().append(localData.kernel_image);
+        $('#dd-board-kernel-image').empty().append(
+            '<a href="' +
+            fileServerUri.path(uriPath + '/' + localData.kernel_image)
+                .normalizePath().href() +
+            '">' + localData.kernel_image +
+            '&nbsp;<i class="fa fa-external-link"></i></a>');
     } else {
         $('#dd-board-kernel-image').empty().append(nonAvail);
     }
