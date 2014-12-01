@@ -164,6 +164,24 @@ function populateBootPage(data) {
     }
 }
 
+function ajaxCallFailed() {
+    'use strict';
+
+    $('.loading-content').each(function() {
+        $(this).empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Not available"><i class="fa fa-ban"></i>' +
+            '</span>'
+        );
+    });
+
+    $('#table-body').empty().append(
+        '<tr class="pull-center"><td colspan="6">' +
+        '<strong>Error loading data.</strong>' +
+        '</td></tr>'
+    );
+}
+
 $(document).ready(function() {
     'use strict';
 
@@ -218,13 +236,17 @@ $(document).ready(function() {
         '"><i class="fa fa-cube"></i></a></span>'
     );
 
-    var ajaxCall = $.ajax({
+    var errorReason = 'Boot reports data call failed.',
+        ajaxCall = $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
         'dataType': 'json',
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            ajaxCallFailed();
         },
         'data': {
             'board': boardName,
@@ -236,6 +258,22 @@ $(document).ready(function() {
                 'file_server_resource', 'boot_log', 'boot_log_html',
                 'boot_result_description', 'arch'
             ]
+        },
+        'timeout': 7000,
+        'statusCode': {
+            403: function() {
+                setErrorAlert('boot-403-error', 403, errorReason);
+            },
+            404: function() {
+                setErrorAlert('boot-404-error', 404, errorReason);
+            },
+            408: function() {
+                errorReason = 'Boot reports data call failed: timeout.';
+                setErrorAlert('boot-408-error', 408, errorReason);
+            },
+            500: function() {
+                setErrorAlert('boot-500-error', 500, errorReason);
+            }
         }
     });
 
