@@ -1,3 +1,16 @@
+var jobName = $('#job-name').val();
+var kernelName = $('#kernel-name').val();
+var defconfigId = $('#defconfig-id').val();
+var defconfigFull = $('#defconfig-full').val();
+
+function createBisectScriptURI(badCommit, goodCommit) {
+    'use strict';
+    var bisectScript = '#!/bin/bash\n' +
+        'git bisect start ' + badCommit + ' ' + goodCommit + '\n';
+
+    return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(bisectScript);
+}
+
 function populateDefconfigData(data) {
     'use strict';
 
@@ -31,7 +44,7 @@ function populateDefconfigData(data) {
         'title="Not available"><i class="fa fa-ban"></i>' +
         '</span>';
 
-    $('#body-title').append('&nbsp<small>(' + defconfig + ')</small>');
+    $('#details').append('&nbsp<small>(' + defconfig + ')</small>');
 
     if (fileServerUrl !== null && typeof(fileServerUrl) !== 'undefined') {
         fileServer = fileServerUrl;
@@ -320,9 +333,10 @@ function ajaxDefconfigCallFailed() {
         );
     });
     ajaxBootCallFailed();
+    $('#bisect-div').remove();
 }
 
-function ajaxBootCall(data) {
+function getBootReports(data) {
     'use strict';
 
     var errorReason = 'Boot data call failed.',
@@ -373,12 +387,184 @@ function ajaxBootCall(data) {
     }).done(populateBootSection);
 }
 
+function bisectAjaxCallFailed(data) {
+    'use strict';
+    $('#loading-div').remove();
+    $('#bisect-content').empty()
+        .append('<strong>Error loading bisect data from server.</strong>')
+        .addClass('pull-center');
+}
+
+function createBisectTable(data) {
+    'use strict';
+    $('#loading-content').empty().append('loading bisect data&hellip;');
+
+    var localResult = data.result[0],
+        localData = localResult.bisect_data,
+        localLen = localData.length,
+        i = 0,
+        bisectData,
+        gitDescribeCell,
+        badCommitCell,
+        unknownCommitCell,
+        goodCommitCell,
+        buildStatus,
+        tableRows = '',
+        tooltipLink,
+        tooltipTitle,
+        defconfig,
+        gitURLs,
+        gitDescribeVal,
+        gitCommit,
+        gitURL,
+        docId,
+        badCommit = null,
+        goodCommit = null;
+
+    badCommit = localResult.bad_commit;
+    goodCommit = localResult.good_commit;
+
+    for (i; i < localLen; i++) {
+        bisectData = localData[i];
+        buildStatus = bisectData.status;
+        gitDescribeVal = bisectData.git_describe;
+        gitURL = bisectData.git_url;
+        gitCommit = bisectData.git_commit;
+        defconfig = bisectData.defconfig_full;
+        docId = bisectData._id.$oid;
+
+        tooltipLink = '<a href="/build/' + jobName +
+            '/kernel/' + gitDescribeVal + '">' +
+            gitDescribeVal + '</a>';
+
+        tooltipTitle = 'Build details for&nbsp;' + jobName +
+            '&nbsp;&dash;&nbsp;' + gitDescribeVal;
+
+        gitDescribeCell = '<td><span class="bisect-tooltip">' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="' + tooltipTitle + '">' +
+            '<span class="bisect-text">' + tooltipLink +
+            '</span></span></span></td>';
+
+        gitURLs = translateCommitURL(gitURL, gitCommit);
+
+        switch (buildStatus) {
+            case 'PASS':
+                goodCommitCell = '<td class="bg-success"><a href="' +
+                    gitURLs[1] + '">' + gitCommit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                badCommitCell = '<td class="bg-danger"></td>';
+                unknownCommitCell = '<td class="bg-warning"></td>';
+                break;
+            case 'FAIL':
+                goodCommitCell = '<td class="bg-success"></td>';
+                badCommitCell = '<td class="bg-danger"><a href="' +
+                    gitURLs[1] + '">' + gitCommit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                unknownCommitCell = '<td class="bg-warning"></td>';
+                break;
+            default:
+                goodCommitCell = '<td class="bg-success"></td>';
+                badCommitCell = '<td class="bg-danger"></td>';
+                unknownCommitCell = '<td class="bg-warning"><a href="' +
+                    gitURLs[1] + '">' + gitCommit +
+                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
+                break;
+        }
+
+        tableRows += '<tr>' + gitDescribeCell + badCommitCell +
+            unknownCommitCell + goodCommitCell + '</tr>';
+    }
+
+    $('#loading-div').remove();
+    $('#bad-commit').empty().append(
+        '<span class="text-danger">' + badCommit + '</span>');
+    if (goodCommit !== null) {
+        $('#good-commit').empty().append(
+            '<span class="text-success">' + goodCommit + '</span>');
+    } else {
+        $('#good-commit').empty().append(
+            '<span class="text-warning">No good commit found</span>');
+    }
+
+    if (badCommit !== null && goodCommit !== null) {
+        $('#dl-bisect-script').removeClass('hidden');
+        $('#bisect-script').append(
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Download defconfig bisect script">' +
+            '<a download="bisect.sh" href="' +
+            createBisectScriptURI(badCommit, goodCommit) +
+            '"><i class="fa fa-download"></i></a></span>'
+        );
+    } else {
+        $('#dl-bisect-script').remove();
+    }
+
+    $('#build-bisect-table-body').empty().append(tableRows);
+    $('#bisect-content').fadeIn('slow', 'linear');
+}
+
+function getBisectData(data) {
+    'use strict';
+
+    var status = data.status,
+        bisectAjaxCall,
+        errorReason;
+
+    errorReason = 'Bisect data call failed.';
+
+    if (status === 'FAIL') {
+        $('#bisect-div').removeClass('hidden');
+        if (defconfigId === 'None') {
+            defconfigId = data._id.$oid;
+        }
+
+        bisectAjaxCall = $.ajax({
+            'url': '/_ajax/bisect/defconfig/' + defconfigId,
+            'traditional': true,
+            'cache': true,
+            'dataType': 'json',
+            'beforeSend': function(jqXHR) {
+                setXhrHeader(jqXHR);
+            },
+            'timeout': 8000,
+            'error': function() {
+                bisectAjaxCallFailed();
+            },
+            'statusCode': {
+                400: function() {
+                    setErrorAlert('bisect-400-error', 400, errorReason);
+                },
+                404: function() {
+                    setErrorAlert('bisect-404-error', 404, errorReason);
+                },
+                408: function() {
+                    errorReason = 'Bisect data call failed: timeout'.
+                    setErrorAlert('bisect-408-error', 408, errorReason);
+                },
+                500: function() {
+                    setErrorAlert('bisect-500-error', 500, errorReason);
+                }
+            }
+        });
+
+        $.when(bisectAjaxCall).done(createBisectTable);
+    } else {
+        $('#bisect-div').remove();
+    }
+}
+
 function populateDefconfigAndBoot(data) {
     // Just a wrapper function calling jQuery 'when' with multiple functions.
     'use strict';
 
     var result = data.result[0];
-    $.when(populateDefconfigData(result), ajaxBootCall(result));
+
+    $.when(
+        populateDefconfigData(result),
+        getBootReports(result),
+        getBisectData(result)
+    );
 }
 
 $(document).ready(function() {
@@ -390,19 +576,16 @@ $(document).ready(function() {
     });
 
     $('#li-build').addClass('active');
+    $('#bisect-content').hide();
 
     var errorReason = 'Defconfig data call failed.',
-        job = $('#job-name').val(),
-        kernel = $('#kernel-name').val(),
-        defconfigId = $('#defconfig-id').val(),
-        defconfigFull = $('#defconfig-full').val(),
         defconfigData = {};
 
     if (defconfigId !== 'None') {
         defconfigData.id = defconfigId;
     } else {
-        defconfigData.job = job;
-        defconfigData.kernel = kernel;
+        defconfigData.job = jobName;
+        defconfigData.kernel = kernelName;
         defconfigData.defconfig_full = defconfigFull;
     }
 
