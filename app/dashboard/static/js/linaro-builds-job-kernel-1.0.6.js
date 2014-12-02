@@ -277,6 +277,7 @@ function createBuildsPage(data) {
             '<a href="/build/' + job +
             '/kernel/' + kernel +
             '/defconfig/' + defconfigFull + '/' +
+            '?_id=' + localData._id.$oid +
             '">More info&nbsp;<i class="fa fa-search"></i>' +
             '</a></span>';
         panel += '</div></div>';
