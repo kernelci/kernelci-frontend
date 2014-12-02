@@ -27,7 +27,6 @@ Date.prototype.getCustomISOFormat = function() {
     month = month[1] ? month : '0' + month[0];
     day = day[1] ? day : '0' + day[0];
 
-
     hour = hour[1] ? hour : '0' + hour[0];
     minute = minute[1] ? minute : '0' + minute[0];
     seconds = seconds[1] ? seconds : '0' + seconds[0];
