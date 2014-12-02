@@ -330,14 +330,14 @@ function populateBootsPage(data) {
         }
 
         // Make sure it is clean.
-        labLinks = '';
+        labLinks = null;
         toAppend = '';
         Object.keys(allLabs).sort().forEach(function(element, index, array) {
             lab = allLabs[element];
             len = lab.length;
 
-            labLinks += '<li><a href="#' +
-                element + '">' + element + '</a></li>';
+            labLinks = [];
+            labLinks.push({'href': element, 'name': element});
 
             toAppend += '<div id="' + element + '">' +
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
@@ -350,23 +350,12 @@ function populateBootsPage(data) {
         });
 
         $('#accordion-container').empty().append(toAppend);
-        // Append the stuff only if we have the element.
-        // On mobile platform the element is not available.
-        if ($('#sidebar-nav').length !== 0) {
-            sidebarNav = '<ul class="nav sidenav">' +
-                '<li class="active"><a href="#top">Top</a></li>' +
-                '<li><a href="#details">Details</a></li>' +
-                '<li><a href="#tested-boards">Boards</a></li>' +
-                '<li><a href="#labs">Labs</a><ul class="nav">' +
-                labLinks +
-                '</ul></li>' +
-                '</ul>';
-            $('#sidebar-nav').empty().append(sidebarNav);
-        }
-
-        $('[data-spy="scroll"]').each(function() {
-          var $spy = $(this).scrollspy('refresh');
-        });
+        // Add sidebar navigation links.
+        populateSideBarNav([
+            {'href': '#details', 'name': 'Details'},
+            {'href': '#tested-boards', 'name': 'Boards'},
+            {'href': '#labs', 'name': 'Labs', 'subnav': labLinks}
+        ]);
 
         if (hasFailed) {
             $('#fail-btn').removeAttr('disabled');
