@@ -233,7 +233,6 @@ function createBootBisectTable(data) {
         unknownCommitCell,
         goodCommitCell,
         bootStatus,
-        bisectDefMetadata,
         tableRows,
         tooltipLink,
         tooltipTitle,
@@ -324,9 +323,9 @@ function createBootBisectTable(data) {
 function bisectAjaxCallFailed(data) {
     'use strict';
     $('#loading-div').remove();
-    $('#loading-content').empty().append(
-        '<h4>Error loading bisect data from server.</h4>'
-    );
+    $('#bisect-content').empty()
+        .append('<strong>Error loading bisect data from server.</strong>')
+        .addClass('pull-center');
 }
 
 function getBisectData(data) {
