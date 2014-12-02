@@ -527,7 +527,7 @@ function getBisectData(data) {
             'beforeSend': function(jqXHR) {
                 setXhrHeader(jqXHR);
             },
-            'timeout': 8000,
+            'timeout': 12000,
             'error': function() {
                 bisectAjaxCallFailed();
             },
