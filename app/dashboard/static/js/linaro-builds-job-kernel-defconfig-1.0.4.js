@@ -389,15 +389,17 @@ function getBootReports(data) {
 
 function bisectAjaxCallFailed(data) {
     'use strict';
-    $('#loading-div').remove();
-    $('#bisect-content').empty()
+    $('#bisect-loading-div').remove();
+    $('#bisect-content')
+        .removeClass('hidden')
+        .empty()
         .append('<strong>Error loading bisect data from server.</strong>')
         .addClass('pull-center');
 }
 
 function createBisectTable(data) {
     'use strict';
-    $('#loading-content').empty().append('loading bisect data&hellip;');
+    $('#bisect-loading-content').empty().append('loading bisect data&hellip;');
 
     var localResult = data.result[0],
         localData = localResult.bisect_data,
@@ -476,7 +478,7 @@ function createBisectTable(data) {
             unknownCommitCell + goodCommitCell + '</tr>';
     }
 
-    $('#loading-div').remove();
+    $('#bisect-loading-div').remove();
     $('#bad-commit').empty().append(
         '<span class="text-danger">' + badCommit + '</span>');
     if (goodCommit !== null) {
@@ -500,8 +502,10 @@ function createBisectTable(data) {
         $('#dl-bisect-script').remove();
     }
 
-    $('#build-bisect-table-body').empty().append(tableRows);
-    $('#bisect-content').fadeIn('slow', 'linear');
+    $('#bisect-table-body').empty().append(tableRows);
+    $('#bisect-content')
+        .removeClass('hidden')
+        .fadeIn('slow', 'linear');
 }
 
 function getBisectData(data) {
@@ -576,7 +580,7 @@ $(document).ready(function() {
     });
 
     $('#li-build').addClass('active');
-    $('#bisect-content').hide();
+    // $('#bisect-content').hide();
 
     var errorReason = 'Defconfig data call failed.',
         defconfigData = {};
