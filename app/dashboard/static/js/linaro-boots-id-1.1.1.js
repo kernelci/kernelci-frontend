@@ -4,6 +4,195 @@ var kernelName = $('#kernel-name').val();
 var defconfName = $('#defconfig-name').val();
 var labName = $('#lab-name').val();
 var bootId = $('#boot-id').val();
+var fileServer = $('#file-server').val();
+
+function populateOtherBootTable(data) {
+    'use strict';
+
+    var localData = data.result,
+        localDataLen = localData.length,
+        validReports = 0,
+        i = 0,
+        localReport = null,
+        localLabName,
+        createdOn,
+        resultDescription,
+        fileServerUrl,
+        fileServerUri,
+        fileServerResource,
+        statusDisplay,
+        pathUrl = '',
+        uriPath = '',
+        rowHref = '',
+        defconfigFull,
+        arch,
+        bootLog,
+        bootLogHtml,
+        allRows = '',
+        row = '',
+        col0,
+        col1,
+        col2,
+        col3,
+        col4,
+        col5;
+
+    $('#boot-reports-loading-content')
+        .empty()
+        .append('analyzing boot reports data&hellip;');
+
+    if (localDataLen > 0) {
+        for (i; i < localDataLen; i = i + 1) {
+            localReport = localData[i];
+            localLabName = localReport.lab_name;
+
+            if (localLabName !== labName) {
+                validReports = validReports + 1;
+
+                createdOn = new Date(localReport.created_on.$date);
+                resultDescription = localReport.boot_result_description;
+                fileServerUrl = localReport.file_server_url;
+                fileServerResource = localReport.file_server_resource;
+                arch = localReport.arch;
+                bootLog = localReport.boot_log;
+                bootLogHtml = localReport.boot_log_html;
+                defconfigFull = localReport.defconfig_full;
+
+                if (fileServerUrl !== null &&
+                        typeof(fileServerUrl) !== 'undefined') {
+                    fileServer = fileServerUrl;
+                }
+
+                if (fileServerResource !== null &&
+                        typeof(fileServerResource) !== 'undefined') {
+                    pathUrl = fileServerResource;
+                } else {
+                    pathUrl = jobName + '/' + kernelName + '/' + arch + '-' +
+                        defconfigFull + '/' + localLabName + '/';
+                }
+
+                fileServerUri = new URI(fileServer);
+                uriPath = fileServerUri.path() + '/' + pathUrl;
+
+                switch (localReport.status) {
+                    case 'PASS':
+                        statusDisplay = '<span rel="tooltip" ' +
+                            'data-toggle="tooltip"' +
+                            'title="Boot completed"><span class="label ' +
+                            'label-success"><i class="fa fa-check">' +
+                            '</i></span></span>';
+                        break;
+                    case 'FAIL':
+                        statusDisplay = '<span rel="tooltip" ' +
+                            'data-toggle="tooltip"' +
+                            'title="Boot failed">' +
+                            '<span class="label label-danger">' +
+                            '<i class="fa fa-exclamation-triangle"></i>' +
+                            '</span></span>';
+                        break;
+                    case 'OFFLINE':
+                        statusDisplay = '<span rel="tooltip" ' +
+                            'data-toggle="tooltip"' +
+                            'title="Board offline" ' +
+                            '<span class="label label-info">' +
+                            '<i class="fa fa-power-off"></i></span></span>';
+                        break;
+                    default:
+                        statusDisplay = '<span rel="tooltip" ' +
+                            'data-toggle="tooltip"' +
+                            'title="Unknown status"><span class="label ' +
+                            'label-warning"><i class="fa fa-question"></i>' +
+                            '</span></span>';
+                        break;
+                }
+
+                col0 = '<td>' + localLabName + '</td>';
+                if (resultDescription !== null) {
+                    if (resultDescription.length > 64) {
+                        col1 = '<td>' +
+                            '<span rel="tooltip" data-toggle="tooltip"' +
+                            'title="' + resultDescription + '">' +
+                            resultDescription.slice(0, 65) + '&hellip;' +
+                            '</span></td>';
+                    } else {
+                        col1 = '<td>' + resultDescription + '</td>';
+                    }
+                } else {
+                    col1 = '<td>&nbsp;</td>';
+                }
+
+                col2 = '<td class="pull-center">';
+                if (bootLog !== null || bootLogHtml !== null) {
+                    if (bootLog !== null) {
+                        col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="View raw text boot log"><a href="' +
+                            fileServerUri.path(uriPath + '/' + bootLog)
+                                .normalizePath().href() +
+                            '">txt' +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></span>';
+                    }
+
+                    if (bootLogHtml !== null) {
+                        if (bootLog !== null) {
+                            col2 += '&nbsp;&mdash;&nbsp;';
+                        }
+                        col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="View HTML boot log"><a href="' +
+                            fileServerUri.path(
+                                    uriPath + '/' + bootLogHtml)
+                                .normalizePath().href() +
+                            '">html&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></span>';
+                    }
+                } else {
+                    col2 += '&nbsp;';
+                }
+                col2 += '</td>';
+
+                col3 = '<td class="pull-center">' +
+                    createdOn.getCustomISODate() + '</td>';
+                col4 = '<td class="pull-center">' + statusDisplay + '</td>';
+
+                rowHref = '/boot/' + boardName + '/job/' + jobName +
+                    '/kernel/' + kernelName + '/defconfig/' + defconfigFull +
+                    '/lab/' + localLabName + '/?_id=' + localReport._id.$oid;
+
+                col5 = '<td><span rel="tooltip" data-toggle="tooltip"' +
+                    'title="Details for board&nbsp;' + boardName +
+                    'with&nbsp;' +
+                    jobName + '&dash;' + kernelName + '&dash;' +
+                    defconfigFull +
+                    '&nbsp;&dash;&nbsp;(' + localLabName + ')' +
+                    '"><a href="' + rowHref + '">' +
+                    '<i class="fa fa-search"></i></a></span></td>';
+
+                allRows += '<tr data-url="' + rowHref + '">' +
+                    col0 + col1 + col2 + col3 + col4 + col5 + '</tr>';
+            }
+        }
+
+        if (validReports === 0) {
+            $('#other-reports-table-div')
+                .empty()
+                .addClass('pull-center')
+                .append(
+                    '<strong>No similar boot reports found.</strong>'
+                );
+        } else {
+            $('#boot-reports-loading-div').remove();
+            $('#boot-reports-table-body').empty().append(allRows);
+            $('#multiple-labs-table')
+                .removeClass('hidden')
+                .fadeIn('slow', 'linear');
+        }
+    } else {
+        $('#other-reports-table-div')
+            .empty()
+            .addClass('pull-center')
+            .append('<strong>No data available.</strong>');
+    }
+}
 
 function populatePage(data) {
     'use strict';
@@ -16,7 +205,7 @@ function populatePage(data) {
         defconfig,
         arch,
         defconfigFull,
-        labName,
+        localLabName,
         fileServer = $('#file-server').val(),
         fileServerUri = null,
         fileServerUrl = null,
@@ -34,7 +223,7 @@ function populatePage(data) {
     defconfig = localData.defconfig;
     defconfigFull = localData.defconfig_full;
     arch = localData.arch;
-    labName = localData.lab_name;
+    localLabName = localData.lab_name;
     fileServerUrl = localData.file_server_url;
     fileServerResource = localData.file_server_resource;
 
@@ -116,7 +305,7 @@ function populatePage(data) {
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View raw text boot log"><a href="' +
                 fileServerUri.path(uriPath + '/' +
-                    labName + '/' + localData.boot_log)
+                    localLabName + '/' + localData.boot_log)
                     .normalizePath().href() +
                 '">txt' +
                 '&nbsp;<i class="fa fa-external-link"></i></a></span>'
@@ -131,7 +320,7 @@ function populatePage(data) {
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View HTML boot log"><a href="' +
                 fileServerUri.path(uriPath + '/' +
-                    labName + '/' + localData.boot_log_html)
+                    localLabName + '/' + localData.boot_log_html)
                     .normalizePath().href() +
                 '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
@@ -221,17 +410,9 @@ function populatePage(data) {
     }
 }
 
-function createBisectScriptURI(badCommit, goodCommit) {
-    'use strict';
-    var bisectScript = '#!/bin/bash\n' +
-        'git bisect start ' + badCommit + ' ' + goodCommit + '\n';
-
-    return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(bisectScript);
-}
-
 function createBootBisectTable(data) {
     'use strict';
-    $('#loading-content').empty().append('loading bisect data&hellip;');
+    $('#bisect-loading-content').empty().append('loading bisect data&hellip;');
 
     var localResult = data.result[0],
         localData = localResult.bisect_data,
@@ -303,7 +484,7 @@ function createBootBisectTable(data) {
             unknownCommitCell + goodCommitCell + '</tr>';
     }
 
-    $('#loading-div').remove();
+    $('#bisect-loading-div').remove();
     $('#bad-commit').empty().append(
         '<span class="text-danger">' + badCommit + '</span>');
     if (goodCommit !== null) {
@@ -326,14 +507,19 @@ function createBootBisectTable(data) {
     } else {
         $('#dl-bisect-script').remove();
     }
-    $('#boot-bisect-table-body').empty().append(tableRows);
-    $('#bisect-content').fadeIn('slow', 'linear');
+
+    $('#bisect-table-body').empty().append(tableRows);
+    $('#bisect-content')
+        .removeClass('hidden')
+        .fadeIn('slow', 'linear');
 }
 
 function bisectAjaxCallFailed(data) {
     'use strict';
-    $('#loading-div').remove();
-    $('#bisect-content').empty()
+    $('#bisect-loading-div').remove();
+    $('#bisect-content')
+        .removeClass('hidden')
+        .empty()
         .append('<strong>Error loading bisect data from server.</strong>')
         .addClass('pull-center');
 }
@@ -390,6 +576,26 @@ function getBisectData(data) {
     }
 }
 
+function multipleBootReportsFailed() {
+    'use strict';
+    $('#other-reports-table-div')
+        .empty()
+        .addClass('pull-center')
+        .append('<strong>Error loading data.</strong>');
+}
+
+function bootIdAjaxFailed() {
+    'use strict';
+
+    $('.loading-content').each(function() {
+        $(this).empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Not available"><i class="fa fa-ban"></i>' +
+            '</span>'
+        );
+    });
+}
+
 $(document).ready(function() {
     'use strict';
 
@@ -399,22 +605,35 @@ $(document).ready(function() {
     });
 
     $('#li-boot').addClass('active');
-    $('#bisect-content').hide();
+    // $('#bisect-content').hide();
 
     var errorReason = 'Data call failed.',
-        data = {};
+        data = {},
+        multiLabData = {},
+        bootIdAjaxCall,
+        multipleReportsAjaxCall;
 
     if (bootId !== 'None') {
         data.id = bootId;
     } else {
         data.kernel = kernelName;
         data.job = jobName;
-        data.defconfig = defconfName;
+        data.defconfig_full = defconfName;
         data.lab = labName;
         data.board = boardName;
     }
 
-    $.ajax({
+    multiLabData.kernel = kernelName;
+    multiLabData.job = jobName;
+    multiLabData.defconfig_full = defconfName;
+    multiLabData.board = boardName;
+    multiLabData.field = [
+        '_id', 'lab_name', 'boot_log', 'boot_log_html',
+        'boot_result_description', 'defconfig', 'defconfig_full',
+        'created_on', 'status', 'arch'
+    ];
+
+    bootIdAjaxCall = $.ajax({
         'url': '/_ajax/boot',
         'traditional': true,
         'cache': true,
@@ -423,34 +642,57 @@ $(document).ready(function() {
         'beforeSend': function(jqXHR) {
             setXhrHeader(jqXHR);
         },
+        'error': function() {
+            bootIdAjaxFailed();
+        },
+        'timeout': 7000,
         'statusCode': {
             400: function() {
-                loadContent(
-                    '#container-content', '/static/html/400-content.html'
-                );
                 setErrorAlert('data-400-error', 400, errorReason);
             },
             404: function() {
-                loadContent(
-                    '#container-content', '/static/html/404-content.html'
-                );
                 setErrorAlert('data-404-error', 404, errorReason);
             },
             408: function() {
-                loadContent(
-                    '#container-content', '/static/html/408-content.html'
-                );
+                errorReason = 'Data call failed: timeout';
                 setErrorAlert('data-408-error', 408, errorReason);
             },
             500: function() {
-                loadContent(
-                    '#container-content', '/static/html/500-content.html'
-                );
                 setErrorAlert('data-500-error', 500, errorReason);
             }
         }
-    }).done(function(data) {
-        populatePage(data);
-        getBisectData(data);
     });
+
+    multipleReportsAjaxCall = $.ajax({
+        'url': '/_ajax/boot',
+        'traditional': true,
+        'cache': true,
+        'dataType': 'json',
+        'data': multiLabData,
+        'beforeSend': function(jqXHR) {
+            setXhrHeader(jqXHR);
+        },
+        'error': function() {
+            multipleBootReportsFailed();
+        },
+        'timeout': 7000,
+        'statusCode': {
+            400: function() {
+                setErrorAlert('boot-400-error', 400, errorReason);
+            },
+            404: function() {
+                setErrorAlert('boot-404-error', 404, errorReason);
+            },
+            408: function() {
+                errorReason = 'Data call failed: timeout';
+                setErrorAlert('boot-408-error', 408, errorReason);
+            },
+            500: function() {
+                setErrorAlert('boot-500-error', 500, errorReason);
+            }
+        }
+    });
+
+    $.when(bootIdAjaxCall).done(populatePage, getBisectData);
+    $.when(multipleReportsAjaxCall).done(populateOtherBootTable);
 });
