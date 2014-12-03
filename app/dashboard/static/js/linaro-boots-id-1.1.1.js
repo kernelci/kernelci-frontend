@@ -42,18 +42,26 @@ function populatePage(data) {
     $('#dd-board-arch').empty().append(arch);
 
     $('#dd-board-defconfig').empty().append(
-        defconfigFull + '&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for build&nbsp;' + job +
-            '&nbsp;&dash;&nbsp;' + kernel +
-            '&nbsp;&dash;&nbsp;' + defconfigFull +
-            '"><a href="/build/' + job + '/kernel/' +
-            kernel + '/defconfig/' + defconfigFull +
-            '"><i class="fa fa-cube"></i></a></span>'
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Boot reports for&nbsp;' + boardName +
+        '&nbsp;&dash;&nbsp;' + jobName +
+        '&nbsp;&dash;&nbsp;' + kernelName +
+        '&nbsp;&dash;&nbsp;' + defconfigFull + '">' +
+        '<a href="/boot/' + boardName + '/job/' + jobName + '/kernel/' +
+        kernelName + '/defconfig/' + defconfigFull + '">' +
+        defconfigFull + '</a></span>' +
+        '&nbsp;&mdash;&nbsp;' +
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Details for build&nbsp;' + job +
+        '&nbsp;&dash;&nbsp;' + kernel +
+        '&nbsp;&dash;&nbsp;' + defconfigFull +
+        '"><a href="/build/' + job + '/kernel/' +
+        kernel + '/defconfig/' + defconfigFull +
+        '"><i class="fa fa-cube"></i></a></span>'
     );
     $('#dd-board-kernel').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot report details for&nbsp;' + job +
+            'title="Boot reports for&nbsp;' + job +
             '&nbsp;&dash;&nbsp;' +
             kernel + '"><a href="/boot/all/job/' + job +
             '/kernel/' + kernel + '">' + kernel +
