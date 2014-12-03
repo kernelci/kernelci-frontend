@@ -11,23 +11,23 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
     <dl class="dl-horizontal" id="dl-right">
         <dt>Board</dt>
-        <dd id="dd-board-board">
+        <dd id="dd-board-board" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Endianness</dt>
-        <dd id="dd-board-endianness">
+        <dd id="dd-board-endianness" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Tree</dt>
-        <dd id="dd-board-tree">
+        <dd id="dd-board-tree" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Git describe</dt>
-        <dd id="dd-board-kernel">
+        <dd id="dd-board-kernel" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Defconfig</dt>
-        <dd id="dd-board-defconfig">
+        <dd id="dd-board-defconfig" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
     </dl>
@@ -35,23 +35,23 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
     <dl class="dl-horizontal" id="dl-left">
         <dt>Status</dt>
-        <dd id="dd-board-status">
+        <dd id="dd-board-status" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Architecture</dt>
-        <dd id="dd-board-arch">
+        <dd id="dd-board-arch" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Warnings</dt>
-        <dd id="dd-board-warnings">
+        <dd id="dd-board-warnings" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Boot time</dt>
-        <dd id="dd-board-boot-time">
+        <dd id="dd-board-boot-time" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Boot log</dt>
-        <dd id="dd-board-boot-log">
+        <dd id="dd-board-boot-log" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
     </dl>
@@ -61,71 +61,39 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
         <dl class="dl-horizontal" id="dl-right-other">
             <dt>Dtb</dt>
-            <dd id="dd-board-dtb">
+            <dd id="dd-board-dtb" class="loading-content">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Dtb address</dt>
-            <dd id="dd-board-dtb-address">
+            <dd id="dd-board-dtb-address" class="loading-content">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Load address</dt>
-            <dd id="dd-board-load-address">
+            <dd id="dd-board-load-address" class="loading-content">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Initrd address</dt>
-            <dd id="dd-board-initrd-address">
+            <dd id="dd-board-initrd-address" class="loading-content">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Kernel image</dt>
-            <dd id="dd-board-kernel-image">
+            <dd id="dd-board-kernel-image" class="loading-content">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
         </dl>
     </div>
 </div>
+<div class="row" id="multiple-labs">
+    <div class="page-header">
+        <h4>Other boot reports</h4>
+    </div>
+    {%- include "other-multiple-boot-reports.html" %}
+</div>
 <div class="row hidden" id="bisect-div">
     <div class="page-header">
-        <h3>Boot bisect for board &#171;{{ board }}&#187;</h3>
+        <h4>Boot bisect for board &#171;{{ board }}&#187;</h4>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div id="loading-div" class="pull-center">
-            <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;
-            <span id="loading-content">retrieving bisect data&hellip;</span>
-        </div>
-        <div id="bisect-content">
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Bisect summary</h3>
-              </div>
-              <div class="panel-body" id="bisect-summary">
-                <dl class="dl-horizontal">
-                    <dt>Bad commit</dt>
-                    <dd id="bad-commit"></dd>
-                    <dt>Good commit</dt>
-                    <dd id="good-commit"></dd>
-                </dl>
-                <dl class="dl-horizontal hidden" id="dl-bisect-script">
-                    <dt>Bisect script</dt>
-                    <dd id="bisect-script"></dd>
-                </dl>
-              </div>
-            </div>
-            <div class="table-responsive" id="table-div">
-                <table id="boot-bisect-table" class="bisect-table table">
-                    <thead>
-                        <tr>
-                            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Bad</th>
-                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Unknown</th>
-                            <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Good</th>
-                        </tr>
-                    </thead>
-                    <tbody id="boot-bisect-table-body">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    {%- include "other-bisect-content.html" %}
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 <input type="hidden" id="board-name" value="{{ board }}">
