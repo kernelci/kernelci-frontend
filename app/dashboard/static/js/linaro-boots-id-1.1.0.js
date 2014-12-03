@@ -84,30 +84,31 @@ function populatePage(data) {
         $('#dd-board-endianness').empty().append(nonAvail);
     }
 
+    if (fileServerUrl !== null &&
+            typeof(fileServerUrl) !== 'undefined') {
+        fileServer = fileServerUrl;
+    }
+
+    if (fileServerResource !== null &&
+            typeof(fileServerResource) !== 'undefined') {
+        pathUrl = fileServerResource;
+    } else {
+        pathUrl = job + '/' + kernel + '/' +
+            arch + '-' + defconfigFull + '/';
+    }
+
+    fileServerUri = new URI(fileServer);
+    uriPath = fileServerUri.path() + '/' + pathUrl;
+
     if (localData.boot_log !== null || localData.boot_log_html !== null) {
-        if (fileServerUrl !== null &&
-                typeof(fileServerUrl) !== 'undefined') {
-            fileServer = fileServerUrl;
-        }
-
-        if (fileServerResource !== null &&
-                typeof(fileServerResource) !== 'undefined') {
-            pathUrl = fileServerResource;
-        } else {
-            pathUrl = job + '/' + kernel + '/' +
-                arch + '-' + defconfigFull + '/' + labName + '/';
-        }
-
-        fileServerUri = new URI(fileServer);
-        uriPath = fileServerUri.path() + '/' + pathUrl;
-
         $('#dd-board-boot-log').empty();
 
         if (localData.boot_log !== null) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View raw text boot log"><a href="' +
-                fileServerUri.path(uriPath + '/' + localData.boot_log)
+                fileServerUri.path(uriPath + '/' +
+                    labName + '/' + localData.boot_log)
                     .normalizePath().href() +
                 '">txt' +
                 '&nbsp;<i class="fa fa-external-link"></i></a></span>'
@@ -121,7 +122,8 @@ function populatePage(data) {
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View HTML boot log"><a href="' +
-                fileServerUri.path(uriPath + '/' + localData.boot_log_html)
+                fileServerUri.path(uriPath + '/' +
+                    labName + '/' + localData.boot_log_html)
                     .normalizePath().href() +
                 '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
