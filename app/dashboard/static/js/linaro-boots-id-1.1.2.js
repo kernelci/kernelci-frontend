@@ -605,7 +605,13 @@ $(document).ready(function() {
     });
 
     $('#li-boot').addClass('active');
-    // $('#bisect-content').hide();
+
+    $('.clickable-table tbody').on('click', 'tr', function() {
+        var url = $(this).data('url');
+        if (url) {
+            window.location = url;
+        }
+    });
 
     var errorReason = 'Data call failed.',
         data = {},
