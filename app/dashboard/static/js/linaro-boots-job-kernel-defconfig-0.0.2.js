@@ -10,7 +10,7 @@ function populateBootPage(data) {
     var localData = data.result,
         dataLen = localData.length,
         i = 0,
-        rows = '',
+        allRows = '',
         col0,
         col1,
         col2,
@@ -150,17 +150,20 @@ function populateBootPage(data) {
                 '"><a href="' + rowHref + '">' +
                 '<i class="fa fa-search"></i></a></span></td>';
 
-            rows += '<tr data-url="' + rowHref + '">' +
+            allRows += '<tr data-url="' + rowHref + '">' +
                 col0 + col1 + col2 + col3 + col4 + col5 + '</tr>';
         }
 
-        $('#table-body').empty().append(rows);
+        $('#boot-reports-loading-div').remove();
+        $('#boot-reports-table-body').empty().append(allRows);
+        $('#multiple-labs-table')
+            .removeClass('hidden')
+            .fadeIn('slow', 'linear');
     } else {
-        $('#table-body').empty().append(
-            '<tr class="pull-center"><td colspan="' + colSpan + '">' +
-            '<strong>No data available.</strong>' +
-            '</td></tr>'
-        );
+        $('#other-reports-table-div')
+            .empty()
+            .addClass('pull-center')
+            .append('<strong>No data available.</strong>');
     }
 }
 
@@ -175,11 +178,10 @@ function ajaxCallFailed() {
         );
     });
 
-    $('#table-body').empty().append(
-        '<tr class="pull-center"><td colspan="6">' +
-        '<strong>Error loading data.</strong>' +
-        '</td></tr>'
-    );
+    $('#other-reports-table-div')
+        .empty()
+        .addClass('pull-center')
+        .append('<strong>Error loading data.</strong>');
 }
 
 $(document).ready(function() {
