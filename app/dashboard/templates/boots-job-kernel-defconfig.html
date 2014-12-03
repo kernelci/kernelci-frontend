@@ -24,33 +24,9 @@
             </dd>
         </dl>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    {%- if is_mobile %}
-        <div class="table-responsive" id="table-div">
-    {%- else %}
-        <div class="table" id="table-div">
-    {%- endif %}
-        <table class="table table-striped table-condensed table-hover clickable-table" id="bootstable">
-            <thead>
-                <tr>
-                    <th>Lab Name</th>
-                    <th>Failure Reason</th>
-                    <th class="pull-center">Boot Log</th>
-                    <th class="pull-center">Date</th>
-                    <th class="pull-center">Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                <tr class="pull-center">
-                    <td colspan="6">
-                        <i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;loading&hellip;
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-    </div>
+</div>
+<div class="row" id="multiple-labs">
+    {%- include "other-multiple-boot-reports.html" %}
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 <input type="hidden" id="board-name" value="{{ board }}">
