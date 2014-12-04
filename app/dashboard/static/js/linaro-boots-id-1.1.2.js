@@ -533,7 +533,7 @@ function getBisectData(data) {
         bisectAjaxCall,
         errorReason;
 
-    errorReason = 'Bisect data call failed.';
+    errorReason = 'Bisect data call failed';
 
     if (status === 'FAIL') {
         $('#bisect-div').removeClass('hidden');
@@ -541,34 +541,16 @@ function getBisectData(data) {
             bootId = data.result[0]._id.$oid;
         }
 
-        bisectAjaxCall = $.ajax({
-            'url': '/_ajax/bisect/boot/' + bootId,
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'beforeSend': function(jqXHR) {
-                setXhrHeader(jqXHR);
-            },
-            'timeout': 8000,
-            'error': function() {
-                bisectAjaxCallFailed();
-            },
-            'statusCode': {
-                400: function() {
-                    setErrorAlert('bisect-400-error', 400, errorReason);
-                },
-                404: function() {
-                    setErrorAlert('bisect-404-error', 404, errorReason);
-                },
-                408: function() {
-                    errorReason = 'Bisect data call failed: timeout'.
-                    setErrorAlert('bisect-408-error', 408, errorReason);
-                },
-                500: function() {
-                    setErrorAlert('bisect-500-error', 500, errorReason);
-                }
-            }
-        });
+        bisectAjaxCall = JSBase.createDeferredCall(
+            '/_ajax/bisect/boot/' + bootId,
+            'GET',
+            null,
+            null,
+            bisectAjaxCallFailed,
+            errorReason,
+            null,
+            'bisect-call'
+        );
 
         $.when(bisectAjaxCall).done(createBootBisectTable);
     } else {
@@ -599,25 +581,12 @@ function bootIdAjaxFailed() {
 $(document).ready(function() {
     'use strict';
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto top'
-    });
-
     $('#li-boot').addClass('active');
 
-    $('.clickable-table tbody').on('click', 'tr', function() {
-        var url = $(this).data('url');
-        if (url) {
-            window.location = url;
-        }
-    });
-
-    var errorReason = 'Data call failed.',
+    var errorReason = 'Boot data call failed',
         data = {},
         multiLabData = {},
-        bootIdAjaxCall,
-        multipleReportsAjaxCall;
+        deferredAjaxCall;
 
     if (bootId !== 'None') {
         data.id = bootId;
@@ -639,66 +608,27 @@ $(document).ready(function() {
         'created_on', 'status', 'arch'
     ];
 
-    bootIdAjaxCall = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': data,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            bootIdAjaxFailed();
-        },
-        'timeout': 7000,
-        'statusCode': {
-            400: function() {
-                setErrorAlert('data-400-error', 400, errorReason);
-            },
-            404: function() {
-                setErrorAlert('data-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Data call failed: timeout';
-                setErrorAlert('data-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('data-500-error', 500, errorReason);
-            }
-        }
-    });
+    deferredAjaxCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        data,
+        null,
+        bootIdAjaxFailed,
+        errorReason
+    );
 
-    multipleReportsAjaxCall = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': multiLabData,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            multipleBootReportsFailed();
-        },
-        'timeout': 7000,
-        'statusCode': {
-            400: function() {
-                setErrorAlert('boot-400-error', 400, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boot-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Data call failed: timeout';
-                setErrorAlert('boot-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boot-500-error', 500, errorReason);
-            }
-        }
-    });
+    $.when(deferredAjaxCall).done(populatePage, getBisectData);
 
-    $.when(bootIdAjaxCall).done(populatePage, getBisectData);
-    $.when(multipleReportsAjaxCall).done(populateOtherBootTable);
+    deferredAjaxCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        multiLabData,
+        null,
+        multipleBootReportsFailed,
+        errorReason,
+        null,
+        'multilab'
+    );
+
+    $.when(deferredAjaxCall).done(populateOtherBootTable);
 });
