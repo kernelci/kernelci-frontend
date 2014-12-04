@@ -212,56 +212,29 @@ $(document).ready(function() {
     'use strict';
 
     $('#li-boot').addClass('active');
-
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto'
-    });
-
     $('#table-div').hide();
 
-    var ajaxCall = null,
-        errorReason = '';
+    var deferredAjaxCall = null,
+        ajaxData = null,
+        errorReason = 'Boot data call failed';
 
-    errorReason = 'Boot data call failed.';
-    ajaxCall = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'dataSrc': 'result',
-        'data': {
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': $('#date-range').val(),
-            'field': [
-                '_id', 'job', 'kernel', 'board', 'created_on',
-                'status', 'lab_name', 'defconfig_full'
-            ]
-        },
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'timeout': 6000,
-        'error': function() {
-            failedAjaxCall();
-        },
-        'statusCode': {
-            403: function() {
-                setErrorAlert('boot-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boot-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Boot data call failed: timeout.';
-                setErrorAlert('boot-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boot-500-error', 500, errorReason);
-            }
-        }
-    });
+    ajaxData = {
+        'sort': 'created_on',
+        'sort_order': -1,
+        'date_range': $('#date-range').val(),
+        'field': [
+            '_id', 'job', 'kernel', 'board', 'created_on',
+            'status', 'lab_name', 'defconfig_full'
+        ]
+    };
+    deferredAjaxCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        ajaxData,
+        null,
+        failedAjaxCall,
+        errorReason
+    );
 
-    $.when(ajaxCall).then(createBootsTable, failedAjaxCall);
+    $.when(deferredAjaxCall).then(createBootsTable, failedAjaxCall);
 });
