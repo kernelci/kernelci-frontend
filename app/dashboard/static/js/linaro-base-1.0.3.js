@@ -150,6 +150,9 @@ var JSBase = (function() {
             },
             'timeout': defaultTimeout,
             'statusCode': {
+                400: function() {
+                    setErrorAlert(errorId + '-400', 404, errorReason);
+                },
                 403: function() {
                     setErrorAlert(errorId + '-403', 403, errorReason);
                 },
