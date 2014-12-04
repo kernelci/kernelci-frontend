@@ -83,7 +83,9 @@ function countFailedDefconfigs(data) {
                 ajaxData,
                 null,
                 countErrorFunction,
-                errorReason
+                errorReason,
+                null,
+                'failed-count'
             );
         } else {
             // Perform POST on batch API.
@@ -343,7 +345,10 @@ $(document).ready(function() {
         ajaxData,
         populateDefconfigsTable,
         tableErrorDefconfigFunction,
-        errorReason);
+        errorReason,
+        null,
+        'failed-defconf'
+    );
 
     $.when(ajaxDeferredCall)
         .then(countFailedDefconfigs, countErrorFunction);
@@ -368,7 +373,9 @@ $(document).ready(function() {
         ajaxData,
         null,
         tableErrorBootFunction,
-        errorReason
+        errorReason,
+        null,
+        'failed-boot'
     );
 
     $.when(ajaxDeferredCall).done(populateBootsTable);
@@ -389,7 +396,9 @@ $(document).ready(function() {
         ajaxData,
         null,
         tableErrorJobFunction,
-        errorReason
+        errorReason,
+        null,
+        'failed-job'
     );
 
     $.when(ajaxDeferredCall).done(populateJobsTalbe);
