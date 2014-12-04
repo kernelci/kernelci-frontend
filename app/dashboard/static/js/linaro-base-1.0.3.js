@@ -145,7 +145,6 @@ var JSBase = (function() {
             'traditional': true,
             'cache': true,
             'dataType': 'json',
-            'data': data,
             'beforeSend': function(jqXHR) {
                 jqXHR.setRequestHeader('X-CSRFToken', csrftoken);
             },
@@ -166,6 +165,10 @@ var JSBase = (function() {
                 }
             }
         };
+
+        if (data !== null || typeof data !== 'undefined') {
+            ajaxSettings.data = data;
+        }
 
         if (successFunction !== null || successFunction !== undefined) {
             ajaxSettings.success = successFunction;
