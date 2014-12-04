@@ -54,7 +54,7 @@ var JSBase = (function() {
             '<button type="button" class="close" ' +
             'data-dismiss="alert" aria-hidden="true">&times;</button>';
 
-        if (reason !== null || reason !== undefined) {
+        if (reason !== null || typeof reason !== 'undefined') {
             text = text + reason + '<br/>';
         }
 
@@ -120,8 +120,9 @@ var JSBase = (function() {
     // `errorFunction`: Optional function to be call on error.
     // `errorReason`: Error message to be displayed.
     // `headers`: Optional headers to set for the ajax call.
+    // `errorId`: ID to use for the error message div element.
     function createDeferredCall(url, method, data, successFunction,
-        errorFunction, errorReason, headers) {
+        errorFunction, errorReason, headers, errorId) {
 
         var ajaxSettings, ajaxCall;
 
@@ -131,6 +132,12 @@ var JSBase = (function() {
 
         if (errorReason === null || errorReason === undefined) {
             errorReason = defaultErrorReason;
+        }
+
+        if (errorId === null || errorId === undefined) {
+            errorId = '#error';
+        } else {
+            errorId = checkIfID(errorId);
         }
 
         ajaxSettings = {
@@ -145,17 +152,17 @@ var JSBase = (function() {
             'timeout': defaultTimeout,
             'statusCode': {
                 403: function() {
-                    setErrorAlert('error-403', 403, errorReason);
+                    setErrorAlert(errorId + '-403', 403, errorReason);
                 },
                 404: function() {
-                    setErrorAlert('error-404', 404, errorReason);
+                    setErrorAlert(errorId + '-404', 404, errorReason);
                 },
                 408: function() {
                     errorReason = errorReason + 'nbsp;(timeout)';
-                    setErrorAlert('error-408', 408, errorReason);
+                    setErrorAlert(errorId + '-408', 408, errorReason);
                 },
                 500: function() {
-                    setErrorAlert('error-500', 500, errorReason);
+                    setErrorAlert(errorId + '-500', 500, errorReason);
                 }
             }
         };
@@ -168,7 +175,7 @@ var JSBase = (function() {
             ajaxSettings.error = errorFunction;
         }
 
-        if (headers !== null || headers !== undefined) {
+        if (headers !== null || typeof headers !== undefined) {
             ajaxSettings.headers = headers;
         }
 
