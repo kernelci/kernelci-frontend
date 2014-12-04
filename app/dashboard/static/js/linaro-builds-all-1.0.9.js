@@ -99,7 +99,7 @@ function createBuildsTable(data) {
                 'type': 'date',
                 'className': 'pull-center',
                 'render': function(data) {
-                    var created = new Date(data['$date']);
+                    var created = new Date(data.$date);
                     return created.getCustomISODate();
                 }
             },
@@ -167,7 +167,7 @@ function createBuildsTable(data) {
                 '/kernel/' + tableData.kernel + '/defconfig/' +
                 tableData.defconfig_full;
             if (tableData._id !== null) {
-                location += '?_id=' + tableData._id['$oid'];
+                location += '?_id=' + tableData._id.$oid;
             }
 
             window.location = location;
@@ -192,55 +192,30 @@ $(document).ready(function() {
     'use strict';
 
     $('#li-build').addClass('active');
-
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto'
-    });
-
     $('#table-div').hide();
 
-    var ajaxCall = null,
+    var ajaxDeferredCall = null,
+        ajaxData = null,
         errorReason = '';
 
-    errorReason = 'Defconfig data call failed.';
-    ajaxCall = $.ajax({
-        'url': '/_ajax/defconf',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': {
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': $('#date-range').val(),
-            'field': [
-                '_id', 'job', 'kernel', 'status',
-                'arch', 'created_on', 'git_branch', 'defconfig_full'
-            ]
-        },
-        'timeout': 6000,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            failedAjaxCall();
-        },
-        'statusCode': {
-            403: function() {
-                setErrorAlert('build-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('build-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Defconfig data call failed: timeout.';
-                setErrorAlert('build-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('build-500-error', 500, errorReason);
-            }
-        }
-    });
+    errorReason = 'Defconfig data call failed';
+    ajaxData = {
+        'sort': 'created_on',
+        'sort_order': -1,
+        'date_range': $('#date-range').val(),
+        'field': [
+            '_id', 'job', 'kernel', 'status',
+            'arch', 'created_on', 'git_branch', 'defconfig_full'
+        ]
+    };
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/defconf',
+        'GET',
+        ajaxData,
+        null,
+        failedAjaxCall,
+        errorReason
+    );
 
-    $.when(ajaxCall).then(createBuildsTable, failedAjaxCall);
+    $.when(ajaxDeferredCall).done(createBuildsTable);
 });
