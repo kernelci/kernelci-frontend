@@ -170,13 +170,10 @@ function populateBootPage(data) {
 function ajaxCallFailed() {
     'use strict';
 
-    $('.loading-content').each(function() {
-        $(this).empty().append(
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Not available"><i class="fa fa-ban"></i>' +
-            '</span>'
-        );
-    });
+    var staticContent = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>';
+    JSBase.replaceContentByClass('.loading-content', staticContent);
 
     $('#other-reports-table-div')
         .empty()
@@ -188,17 +185,6 @@ $(document).ready(function() {
     'use strict';
 
     $('#li-boot').addClass('active');
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto top'
-    });
-
-    $('.clickable-table tbody').on('click', 'tr', function() {
-        var url = $(this).data('url');
-        if (url) {
-            window.location = url;
-        }
-    });
 
     $('#dd-tree').empty().append(
         '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -238,46 +224,29 @@ $(document).ready(function() {
         '"><i class="fa fa-cube"></i></a></span>'
     );
 
-    var errorReason = 'Boot reports data call failed.',
-        ajaxCall = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            ajaxCallFailed();
-        },
-        'data': {
-            'board': boardName,
-            'job': jobName,
-            'kernel': kernelName,
-            'defconfig_full': defconfigFull,
-            'field': [
-                '_id', 'status', 'created_on', 'lab_name', 'file_server_url',
-                'file_server_resource', 'boot_log', 'boot_log_html',
-                'boot_result_description', 'arch'
-            ]
-        },
-        'timeout': 7000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('boot-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boot-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Boot reports data call failed: timeout.';
-                setErrorAlert('boot-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boot-500-error', 500, errorReason);
-            }
-        }
-    });
+    var errorReason = 'Boot reports data call failed',
+        ajaxData,
+        ajaxDeferredCall = null;
 
-    $.when(ajaxCall).done(populateBootPage);
+    ajaxData = {
+        'board': boardName,
+        'job': jobName,
+        'kernel': kernelName,
+        'defconfig_full': defconfigFull,
+        'field': [
+            '_id', 'status', 'created_on', 'lab_name', 'file_server_url',
+            'file_server_resource', 'boot_log', 'boot_log_html',
+            'boot_result_description', 'arch'
+        ]
+    };
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        ajaxData,
+        null,
+        ajaxCallFailed,
+        errorReason
+    );
+
+    $.when(ajaxDeferredCall).done(populateBootPage);
 });
