@@ -3,14 +3,6 @@ var kernelName = $('#kernel-name').val();
 var defconfigId = $('#defconfig-id').val();
 var defconfigFull = $('#defconfig-full').val();
 
-function createBisectScriptURI(badCommit, goodCommit) {
-    'use strict';
-    var bisectScript = '#!/bin/bash\n' +
-        'git bisect start ' + badCommit + ' ' + goodCommit + '\n';
-
-    return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(bisectScript);
-}
-
 function populateDefconfigData(data) {
     'use strict';
 
@@ -88,7 +80,7 @@ function populateDefconfigData(data) {
         '<i class="fa fa-hdd-o"></i></a></span>'
     );
 
-    gitUrls = translateCommitURL(gitUrl, gitCommit);
+    gitUrls = JSBase.translateCommitURL(gitUrl, gitCommit);
 
     if (gitUrls[0] !== null) {
         $('#git-url').empty().append(
@@ -339,8 +331,8 @@ function ajaxDefconfigCallFailed() {
 function getBootReports(data) {
     'use strict';
 
-    var errorReason = 'Boot data call failed.',
-        ajaxBoot,
+    var errorReason = 'Boot data call failed',
+        ajaxDeferredCall,
         bootData = {
             'field': [
                 '_id', 'board', 'job', 'kernel', 'lab_name', 'defconfig_full'
@@ -356,35 +348,18 @@ function getBootReports(data) {
         bootData.kernel = data.kernel;
     }
 
-    ajaxBoot = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': bootData,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            ajaxBootCallFailed();
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('boot-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boot-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Boot data call failed: timeout.';
-                setErrorAlert('boot-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boot-500-error', 500, errorReason);
-            }
-        }
-    }).done(populateBootSection);
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        bootData,
+        null,
+        ajaxBootCallFailed,
+        errorReason,
+        null,
+        'boot-reports-fail'
+    );
+
+    $.when(ajaxDeferredCall).done(populateBootSection);
 }
 
 function bisectAjaxCallFailed(data) {
@@ -448,7 +423,7 @@ function createBisectTable(data) {
             '<span class="bisect-text">' + tooltipLink +
             '</span></span></span></td>';
 
-        gitURLs = translateCommitURL(gitURL, gitCommit);
+        gitURLs = JSBase.translateCommitURL(gitURL, gitCommit);
 
         switch (buildStatus) {
             case 'PASS':
@@ -495,7 +470,7 @@ function createBisectTable(data) {
             '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Download defconfig bisect script">' +
             '<a download="bisect.sh" href="' +
-            createBisectScriptURI(badCommit, goodCommit) +
+            JSBase.createBisectShellScript(badCommit, goodCommit) +
             '"><i class="fa fa-download"></i></a></span>'
         );
     } else {
@@ -512,10 +487,8 @@ function getBisectData(data) {
     'use strict';
 
     var status = data.status,
-        bisectAjaxCall,
-        errorReason;
-
-    errorReason = 'Bisect data call failed.';
+        deferredAjaxCall,
+        errorReason = 'Bisect data call failed';
 
     if (status === 'FAIL') {
         $('#bisect-div').removeClass('hidden');
@@ -523,36 +496,18 @@ function getBisectData(data) {
             defconfigId = data._id.$oid;
         }
 
-        bisectAjaxCall = $.ajax({
-            'url': '/_ajax/bisect/defconfig/' + defconfigId,
-            'traditional': true,
-            'cache': true,
-            'dataType': 'json',
-            'beforeSend': function(jqXHR) {
-                setXhrHeader(jqXHR);
-            },
-            'timeout': 12000,
-            'error': function() {
-                bisectAjaxCallFailed();
-            },
-            'statusCode': {
-                400: function() {
-                    setErrorAlert('bisect-400-error', 400, errorReason);
-                },
-                404: function() {
-                    setErrorAlert('bisect-404-error', 404, errorReason);
-                },
-                408: function() {
-                    errorReason = 'Bisect data call failed: timeout'.
-                    setErrorAlert('bisect-408-error', 408, errorReason);
-                },
-                500: function() {
-                    setErrorAlert('bisect-500-error', 500, errorReason);
-                }
-            }
-        });
+        deferredAjaxCall = JSBase.createDeferredCall(
+            '/_ajax/bisect/defconfig/' + defconfigId,
+            'GET',
+            null,
+            null,
+            bisectAjaxCallFailed,
+            errorReason,
+            null,
+            'bisect-failed'
+        );
 
-        $.when(bisectAjaxCall).done(createBisectTable);
+        $.when(deferredAjaxCall).done(createBisectTable);
     } else {
         $('#bisect-div').remove();
     }
@@ -574,52 +529,30 @@ function populateDefconfigAndBoot(data) {
 $(document).ready(function() {
     'use strict';
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto top'
-    });
-
     $('#li-build').addClass('active');
-    // $('#bisect-content').hide();
 
     var errorReason = 'Defconfig data call failed.',
-        defconfigData = {};
+        ajaxData = {},
+        deferredAjaxCall = null;
 
     if (defconfigId !== 'None') {
-        defconfigData.id = defconfigId;
+        ajaxData.id = defconfigId;
     } else {
-        defconfigData.job = jobName;
-        defconfigData.kernel = kernelName;
-        defconfigData.defconfig_full = defconfigFull;
+        ajaxData.job = jobName;
+        ajaxData.kernel = kernelName;
+        ajaxData.defconfig_full = defconfigFull;
     }
 
-    $.ajax({
-        'url': '/_ajax/defconf',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': defconfigData,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            ajaxDefconfigCallFailed();
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('boot-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boot-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Defconfing data call failed: timeout.';
-                setErrorAlert('boot-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boot-500-error', 500, errorReason);
-            }
-        }
-    }).done(populateDefconfigAndBoot);
+    deferredAjaxCall = JSBase.createDeferredCall(
+        '/_ajax/defconf',
+        'GET',
+        ajaxData,
+        null,
+        ajaxDefconfigCallFailed,
+        errorReason,
+        null,
+        'defconfig-failed'
+    );
+
+    $.when(deferredAjaxCall).done(populateDefconfigAndBoot);
 });
