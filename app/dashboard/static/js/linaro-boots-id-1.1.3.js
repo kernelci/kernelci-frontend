@@ -501,7 +501,7 @@ function createBootBisectTable(data) {
             '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Download boot bisect script">' +
             '<a download="bisect.sh" href="' +
-            createBisectScriptURI(badCommit, goodCommit) +
+            JSBase.createBisectShellScript(badCommit, goodCommit) +
             '"><i class="fa fa-download"></i></a></span>'
         );
     } else {
