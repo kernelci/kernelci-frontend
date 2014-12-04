@@ -55,11 +55,12 @@ function showHideBoots(element) {
 function createPieChart(data) {
     'use strict';
 
-    var success = 0,
+    var localData = data.result,
+        len = localData.length,
+        success = 0,
         fail = 0,
         unknown = 0,
         i = 0,
-        len = data.length,
         width = 200,
         height = 200,
         radius = Math.min(width, height) / 2,
@@ -71,7 +72,7 @@ function createPieChart(data) {
         arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
 
     for (i; i < len; i++) {
-        switch (data[i].status) {
+        switch (localData[i].status) {
             case 'FAIL':
                 fail++;
                 break;
@@ -124,7 +125,9 @@ function createPieChart(data) {
 function populateBootsPage(data) {
     'use strict';
 
-    var fileServer = $('#file-server').val(),
+    var localData = data.result,
+        len = localData.length,
+        fileServer = $('#file-server').val(),
         panel = '',
         cls,
         dataUrl,
@@ -136,7 +139,6 @@ function populateBootsPage(data) {
         label,
         arch,
         i = 0,
-        len = data.length,
         bootObj = null,
         bootObjId,
         hasFailed = false,
@@ -168,7 +170,7 @@ function populateBootsPage(data) {
 
     if (len > 0) {
         for (i; i < len; i++) {
-            bootObj = data[i];
+            bootObj = localData[i];
             defconfigFull = bootObj.defconfig_full;
             metadata = bootObj.metadata;
             job = bootObj.job;
@@ -351,7 +353,7 @@ function populateBootsPage(data) {
 
         $('#accordion-container').empty().append(toAppend);
         // Add sidebar navigation links.
-        populateSideBarNav([
+        JSBase.populateSideBarNav([
             {'href': '#details', 'name': 'Details'},
             {'href': '#tested-boards', 'name': 'Boards'},
             {'href': '#labs', 'name': 'Labs', 'subnav': labLinks}
@@ -392,43 +394,26 @@ function populateBootsPage(data) {
 
 function ajaxCallFailed() {
     'use strict';
-
-    $('#accordion-container').empty().append(
-        '<div class="text-center">' +
+    var staticContent = '<div class="text-center">' +
         '<h3>Error loading data.</h3>' +
-        '</div>'
-    );
+        '</div>';
+    JSBase.replaceContentByID('#accordion-container', staticContent);
 }
 
 function parseData(data) {
     // Just a wrapper function calling jQuery 'when' with multiple functions.
     'use strict';
-
-    var localData = data.result;
-    $.when(populateBootsPage(localData), createPieChart(localData));
+    $.when(populateBootsPage(data), createPieChart(data));
 }
 
 $(document).ready(function() {
     'use strict';
 
-    $('body').scrollspy({
-        target: '#sidebar-nav'
-    });
-
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto top'
-    });
-
     $('#li-boot').addClass('active');
 
-    $('.btn-group > .btn').click(function() {
-        $(this).addClass('active').siblings().removeClass('active');
-    });
-
-    var errorReason = 'Boot data call failed.',
-        ajaxCall,
-        data = {
+    var errorReason = 'Boot data call failed',
+        ajaxDeferredCall,
+        ajaxData = {
             'sort': ['status', '_id'],
             'sort_order': 1
         },
@@ -437,46 +422,24 @@ $(document).ready(function() {
         jobName = $('#job-name').val();
 
     if (jobId !== 'None') {
-        data.job_id = jobId;
+        ajaxData.job_id = jobId;
     } else {
-        data.job = jobName;
-        data.kernel = kernelName;
+        ajaxData.job = jobName;
+        ajaxData.kernel = kernelName;
     }
 
-    ajaxCall = $.ajax({
-        'url': '/_ajax/boot',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': data,
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            ajaxCallFailed();
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('boots-403-error', 403, errorReason);
-            },
-            400: function() {
-                setErrorAlert('boots-400-error', 400, errorReason);
-            },
-            404: function() {
-                setErrorAlert('boots-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Boot data call failed:  timeout.';
-                setErrorAlert('boots-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('boots-500-error', 500, errorReason);
-            }
-        }
-    });
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/boot',
+        'GET',
+        ajaxData,
+        null,
+        ajaxCallFailed,
+        errorReason,
+        null,
+        'boot-call'
+    );
 
-    $.when(ajaxCall).then(parseData, ajaxCallFailed);
+    $.when(ajaxDeferredCall).then(parseData, ajaxCallFailed);
 });
 
 $(document).ready(function() {
