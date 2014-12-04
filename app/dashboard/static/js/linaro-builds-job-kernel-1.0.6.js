@@ -335,55 +335,27 @@ function parseData(data) {
 $(document).ready(function() {
     'use strict';
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto top'
-    });
-
     $('#li-build').addClass('active');
 
-    $('.btn-group > .btn').click(function() {
-        $(this).addClass('active').siblings().removeClass('active');
-    });
+    var ajaxDeferredCall = null,
+        ajaxData = null,
+        errorReason = 'Defconfig data call failed';
 
-    var deferredCall,
-        errorReason;
+    ajaxData = {
+        'job_id': jobId,
+        'sort': ['status', '_id'],
+        'sort_order': 1
+    };
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/defconf',
+        'GET',
+        ajaxData,
+        null,
+        ajaxCallFailed,
+        errorReason
+    );
 
-    errorReason = 'Defconfig data call failed.';
-    deferredCall = $.ajax({
-        'url': '/_ajax/defconf',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'data': {
-            'job_id': jobId,
-            'sort': ['status', '_id'],
-            'sort_order': 1
-        },
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            ajaxCallFailed();
-        },
-        'statusCode': {
-            403: function() {
-                setErrorAlert('defconfs-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('defconfs-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Defconfig data call failed: timeout.';
-                setErrorAlert('defconfs-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('defconfs-500-error', 500, errorReason);
-            }
-        }
-    });
-
-    $.when(deferredCall).then(parseData, ajaxCallFailed);
+    $.when(ajaxDeferredCall).done(parseData);
 
 });
 
