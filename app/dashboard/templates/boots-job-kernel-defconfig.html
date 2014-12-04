@@ -36,7 +36,6 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
 <script type="text/javascript">
 function translateCommitURL(commitURL, commitId) {
     'use strict';
@@ -86,5 +85,5 @@ function translateCommitURL(commitURL, commitId) {
     return [baseURL, newCommitURL];
 }
 </script>
-<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-defconfig-0.0.3.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-defconfig-0.0.4.js"></script>
 {%- endblock %}
