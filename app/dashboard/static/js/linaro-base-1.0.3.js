@@ -322,6 +322,57 @@ var JSBase = (function() {
         );
     }
 
+    function translateCommitURL(commitURL, commitId) {
+        var uriParser,
+            hostName,
+            knownGit,
+            baseURL = '',
+            urlPath,
+            newCommitURL = '',
+            translateRule,
+            lenTranslate,
+            i,
+            urlTranslation = $('#url-translation').val();
+
+        if ((commitURL !== null || typeof commitURL !== 'undefined') &&
+                (commitId !== null || typeof commitId !== 'undefined') &&
+                urlTranslation !== 'None') {
+
+            urlTranslation = JSON.parse(urlTranslation);
+
+            uriParser = new URI(commitURL);
+            hostName = uriParser.hostname();
+            urlPath = uriParser.path();
+
+            if (urlTranslation.hasOwnProperty(hostName)) {
+                knownGit = urlTranslation[hostName];
+                translateRule = knownGit[3];
+                lenTranslate = translateRule.length;
+
+                for (i = 0; i < lenTranslate; i++) {
+                    urlPath = urlPath.replace(
+                        translateRule[i][0], translateRule[i][1]);
+                }
+
+                baseURL = new URI({
+                    protocol: knownGit[0],
+                    hostname: hostName,
+                    path: knownGit[1].replace('%s', urlPath)
+                });
+
+                newCommitURL = new URI({
+                    protocol: knownGit[0],
+                    hostname: hostName,
+                    path: knownGit[2].replace('%s', urlPath) + commitId
+                });
+
+                baseURL = baseURL.href();
+                newCommitURL = newCommitURL.href();
+            }
+        }
+        return [baseURL, newCommitURL];
+    }
+
     // Set up the base functionalities common to (almost) all pages.
     function init() {
         setHotKeys();
@@ -358,7 +409,8 @@ var JSBase = (function() {
         populateSideBarNav: populateSideBarNav,
         replaceContentByClass: replaceContentByClass,
         replaceContentByID: replaceContentByID,
-        setErrorAlert: setErrorAlert
+        setErrorAlert: setErrorAlert,
+        translateCommitURL: translateCommitURL
     };
 })();
 
