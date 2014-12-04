@@ -36,54 +36,5 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript">
-function translateCommitURL(commitURL, commitId) {
-    'use strict';
-
-    var uriParser,
-        hostName,
-        knownGit,
-        baseURL = '',
-        urlPath,
-        newCommitURL = '',
-        translateRule,
-        lenTranslate,
-        i,
-        urlTranslation = {{ url_translation|tojson|safe }};
-
-    if (commitURL !== null && commitId !== null) {
-        uriParser = new URI(commitURL);
-        hostName = uriParser.hostname();
-        urlPath = uriParser.path();
-
-        if (urlTranslation.hasOwnProperty(hostName)) {
-            knownGit = urlTranslation[hostName];
-            translateRule = knownGit[3];
-            lenTranslate = translateRule.length;
-
-            for (i = 0; i < lenTranslate; i++) {
-                urlPath = urlPath.replace(
-                    translateRule[i][0], translateRule[i][1]);
-            }
-
-            baseURL = new URI({
-                protocol: knownGit[0],
-                hostname: hostName,
-                path: knownGit[1].replace('%s', urlPath)
-            });
-
-            newCommitURL = new URI({
-                protocol: knownGit[0],
-                hostname: hostName,
-                path: knownGit[2].replace('%s', urlPath) + commitId
-            });
-
-            baseURL = baseURL.href();
-            newCommitURL = newCommitURL.href();
-        }
-    }
-    return [baseURL, newCommitURL];
-}
-</script>
 <script type="text/javascript" src="/static/js/linaro-boots-job-kernel-defconfig-0.0.4.js"></script>
 {%- endblock %}
