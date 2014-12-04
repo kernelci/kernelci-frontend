@@ -453,7 +453,7 @@ function createBootBisectTable(data) {
             '<span class="bisect-text">' + tooltipLink +
             '</span></span></span></td>';
 
-        gitURLs = translateCommitURL(
+        gitURLs = JSBase.translateCommitURL(
             bisectData.git_url, bisectData.git_commit);
 
         switch (bootStatus) {
