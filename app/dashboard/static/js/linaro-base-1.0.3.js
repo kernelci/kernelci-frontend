@@ -415,7 +415,6 @@ var JSBase = (function() {
 })();
 
 var setErrorAlert = JSBase.setErrorAlert;
-var createBisectScriptURI = JSBase.createBisectShellScript;
 var loadContent = JSBase.loadContent;
 var populateSideBarNav = JSBase.populateSideBarNav;
 var collectObjects = JSBase.collectObjects;
