@@ -35,7 +35,7 @@ function populateBootReports(data) {
             'No boot reports available.</h4></td></tr>';
         JSBase.replaceContentByID('#boot-reports-body', row);
     } else {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             kernel = localData[i].kernel;
             created = new Date(localData[i].created_on.$date);
             href = '/boot/all/job/' + job + '/kernel/' + kernel + '/';
@@ -84,7 +84,7 @@ function countFailedDoneCallback(data) {
                 $('#span-id0').addClass('alert-danger');
             }
         } else {
-            for (i; i < len; i++) {
+            for (i; i < len; i = i + 1) {
                 batchResult = localData[i].result[0];
                 count = batchResult.count;
 
@@ -136,7 +136,7 @@ function countFailedBootReports(data) {
             );
         } else {
             // Perform POST on batch API.
-            for (i; i < len; i++) {
+            for (i; i < len; i = i + 1) {
                 batchQueris[i] = {
                     'method': 'GET',
                     'operation_id': '#fail-count' + i,
