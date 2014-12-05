@@ -5,7 +5,6 @@ var defconfigFull = $('#defconfig-full').val();
 
 function populateDefconfigData(data) {
     'use strict';
-
     var job = data.job,
         kernel = data.kernel,
         gitUrl = data.git_url,
@@ -38,12 +37,11 @@ function populateDefconfigData(data) {
 
     $('#details').append('&nbsp<small>(' + defconfig + ')</small>');
 
-    if (fileServerUrl !== null && typeof(fileServerUrl) !== 'undefined') {
+    if (fileServerUrl !== null && fileServerUrl !== undefined) {
         fileServer = fileServerUrl;
     }
 
-    if (fileServerResource !== null &&
-        typeof(fileServerResource) !== 'undefined') {
+    if (fileServerResource !== null && fileServerResource !== undefined) {
         pathUrl = fileServerResource;
     } else {
         pathUrl = job + '/' + kernel + '/' + arch + '-' + defconfigFull + '/';
@@ -276,7 +274,7 @@ function populateBootSection(data) {
         };
 
     if (len > 0) {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             columnIndex = (i % totalColumns) + 1;
             colData = localData[i];
 
@@ -330,7 +328,6 @@ function ajaxDefconfigCallFailed() {
 
 function getBootReports(data) {
     'use strict';
-
     var errorReason = 'Boot data call failed',
         ajaxDeferredCall,
         bootData = {
@@ -389,26 +386,22 @@ function createBisectTable(data) {
         tableRows = '',
         tooltipLink,
         tooltipTitle,
-        defconfig,
         gitURLs,
         gitDescribeVal,
         gitCommit,
         gitURL,
-        docId,
         badCommit = null,
         goodCommit = null;
 
     badCommit = localResult.bad_commit;
     goodCommit = localResult.good_commit;
 
-    for (i; i < localLen; i++) {
+    for (i; i < localLen; i = i + 1) {
         bisectData = localData[i];
         buildStatus = bisectData.status;
         gitDescribeVal = bisectData.git_describe;
         gitURL = bisectData.git_url;
         gitCommit = bisectData.git_commit;
-        defconfig = bisectData.defconfig_full;
-        docId = bisectData._id.$oid;
 
         tooltipLink = '<a href="/build/' + jobName +
             '/kernel/' + gitDescribeVal + '">' +
@@ -485,7 +478,6 @@ function createBisectTable(data) {
 
 function getBisectData(data) {
     'use strict';
-
     var status = data.status,
         deferredAjaxCall,
         errorReason = 'Bisect data call failed';
@@ -516,7 +508,6 @@ function getBisectData(data) {
 function populateDefconfigAndBoot(data) {
     // Just a wrapper function calling jQuery 'when' with multiple functions.
     'use strict';
-
     var result = data.result[0];
 
     $.when(
@@ -528,7 +519,6 @@ function populateDefconfigAndBoot(data) {
 
 $(document).ready(function() {
     'use strict';
-
     $('#li-build').addClass('active');
 
     var errorReason = 'Defconfig data call failed.',
