@@ -45,7 +45,7 @@ function countDoneCallback(data) {
         if (len === 1) {
             $('#fail-count0').empty().append(localData[0].count);
         } else {
-            for (i; i < len; i++) {
+            for (i; i < len; i = i + 1) {
                 batchResult = localData[i].result[0];
                 $(localData[i].operation_id).empty().append(
                     batchResult.count
@@ -59,13 +59,13 @@ function countDoneCallback(data) {
 
 // Count all the failed defconfigs we have in the page.
 function countFailedDefconfigs(data) {
+    'use strict';
     var localData = data.result,
         i = 0,
         len = localData.length,
-        deferredCall = null,
-        errorReason = '',
         ajaxDeferredCall = null,
         ajaxData = null,
+        errorReason = '',
         batchQueries = new Array(len);
 
     if (len > 0) {
@@ -89,7 +89,7 @@ function countFailedDefconfigs(data) {
             );
         } else {
             // Perform POST on batch API.
-            for (i; i < len; i++) {
+            for (i; i < len; i = i + 1) {
                 batchQueries[i] = {
                     'method': 'GET',
                     'operation_id': '#fail-count' + i,
@@ -144,7 +144,7 @@ function populateDefconfigsTable(data) {
             '<h4>No failed builds.</h4></td></tr>';
         $('#failed-builds-body').empty().append(row);
     } else {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             failedDefconf = localData[i];
             job = failedDefconf.job;
             kernel = failedDefconf.kernel;
@@ -200,7 +200,7 @@ function populateJobsTalbe(data) {
             'No failed jobs.</h4></td></tr>';
         $('#failed-jobs-body').empty().append(row);
     } else {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             failedJob = localData[i];
             created = new Date(failedJob.created_on.$date);
             job = failedJob.job;
@@ -227,13 +227,13 @@ function populateJobsTalbe(data) {
 }
 
 function populateBootsTable(data) {
+    'use strict';
     var localData = data.result,
         row = '',
         created,
         board,
         job,
         kernel,
-        defconfig,
         defconfigFull,
         labName,
         bootId,
@@ -257,7 +257,7 @@ function populateBootsTable(data) {
             'No failed boot reports.</h4></td></tr>';
         $('#failed-boots-body').empty().append(row);
     } else {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             failedBoot = localData[i];
             failureReason = failedBoot.boot_result_description;
             if (failureReason === null) {
@@ -278,7 +278,6 @@ function populateBootsTable(data) {
             job = failedBoot.job;
             kernel = failedBoot.kernel;
             board = failedBoot.board;
-            defconfig = failedBoot.defconfig;
             defconfigFull = failedBoot.defconfig_full;
             labName = failedBoot.lab_name;
             bootId = failedBoot._id;
