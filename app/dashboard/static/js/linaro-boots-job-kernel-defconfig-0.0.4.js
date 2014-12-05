@@ -28,6 +28,7 @@ function populateBootPage(data) {
         fileServerUrl,
         fileServerResource,
         pathUrl = '',
+        logPath = '',
         fileServerUri = null,
         uriPath = '';
 
@@ -51,7 +52,7 @@ function populateBootPage(data) {
                 pathUrl = fileServerResource;
             } else {
                 pathUrl = jobName + '/' + kernelName + '/' + arch + '-' +
-                    defconfigFull + '/' + labName + '/';
+                    defconfigFull + '/';
             }
 
             fileServerUri = new URI(fileServer);
@@ -107,10 +108,14 @@ function populateBootPage(data) {
             col2 = '<td class="pull-center">';
             if (bootLog !== null || bootLogHtml !== null) {
                 if (bootLog !== null) {
+                    if (bootLog.search(labName) == -1) {
+                        logPath = uriPath + '/' + labName + '/' + bootLog;
+                    } else {
+                        logPath = uriPath + '/' + bootLog;
+                    }
                     col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="View raw text boot log"><a href="' +
-                        fileServerUri.path(uriPath + '/' + bootLog)
-                            .normalizePath().href() +
+                        fileServerUri.path(logPath).normalizePath().href() +
                         '">txt' +
                         '&nbsp;<i class="fa fa-external-link">' +
                         '</i></a></span>';
@@ -120,11 +125,14 @@ function populateBootPage(data) {
                     if (bootLog !== null) {
                         col2 += '&nbsp;&mdash;&nbsp;';
                     }
+                    if (bootLogHtml.search(labName) == -1) {
+                        logPath = uriPath + '/' + labName + '/' + bootLogHtml;
+                    } else {
+                        logPath = uriPath + '/' + bootLogHtml;
+                    }
                     col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="View HTML boot log"><a href="' +
-                        fileServerUri.path(
-                                uriPath + '/' + bootLogHtml)
-                            .normalizePath().href() +
+                        fileServerUri.path(logPath).normalizePath().href() +
                         '">html&nbsp;<i class="fa fa-external-link">' +
                         '</i></a></span>';
                 }
