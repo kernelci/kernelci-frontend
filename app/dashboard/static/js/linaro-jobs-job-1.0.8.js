@@ -1,60 +1,215 @@
 var jobId = $('#job-id').val();
 var dateRange = $('#date-range').val();
 
+function emptyTableOnError() {
+    'use strict';
+    var staticContent = '<tr>' +
+        '<td colspan="6" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>';
+    $('#builds-body').empty().append(staticContent);
+}
+
+function countFailBatchCallback() {
+    'use strict';
+    JSBase.replaceContentByClass('.count-list-badge', '&infin;');
+}
+
+function countFailDefconfigCallback() {
+    'use strict';
+    JSBase.replaceContentByClass('.count-badge', '&infin;');
+}
+
+function countDoneBatchCallback(data) {
+    'use strict';
+    var localData = data.result,
+        dataLen = localData.length,
+        firstResult = null,
+        secondResult = null,
+        firstCount = 0,
+        secondCount = 0;
+
+    if (dataLen === 2) {
+        firstResult = localData[0];
+        secondResult = localData[1];
+
+        firstCount = firstResult.result[0].count;
+        secondCount = secondResult.result[0].count;
+
+        $(firstResult.operation_id).empty().append(firstCount);
+        $(secondResult.operation_id).empty().append(secondCount);
+    } else {
+        JSBase.replaceContentByClass('.count-list-badge', '?');
+    }
+}
+
+function countDoneDefconfigCallback(data) {
+    'use strict';
+    var localData = data.result,
+        len = localData.length,
+        i = 0,
+        batchResult = null,
+        count = 0;
+
+    if (len > 0) {
+        if (len === 1) {
+            count = localData[0].count;
+            $('#fail-count0').empty().append(count);
+
+            if (count === 0) {
+                $('#span-id0').addClass('alert-success');
+            } else {
+                $('#span-id0').addClass('alert-danger');
+            }
+        } else {
+            for (i; i < len; i = i + 1) {
+                batchResult = localData[i].result[0];
+                count = batchResult.count;
+                $(localData[i].operation_id).empty().append(count);
+
+                if (count === 0) {
+                    $('#span-id' + i).addClass('alert-success');
+                } else {
+                    $('#span-id' + i).addClass('alert-danger');
+                }
+            }
+        }
+    } else {
+        JSBase.replaceContentByClass('.count-badge', '?');
+    }
+}
+
+function countFailedDefconfigs(data) {
+    'use strict';
+    var localData = data.result,
+        len = localData.length,
+        ajaxDeferredCall = null,
+        ajaxData = null,
+        errorReason = '',
+        i = 0,
+        batchQueries = new Array(len);
+
+    if (len > 0) {
+        if (len === 1) {
+            // Peform normal GET.
+            errorReason = 'Defconfig count failed';
+            ajaxData = {
+                'status': 'FAIL',
+                'job': jobId,
+                'kernel': localData[0].kernel
+            };
+            ajaxDeferredCall = JSBase.createDeferredCall(
+                '/_ajax/count/defconfig',
+                'GET',
+                ajaxData,
+                null,
+                countFailDefconfigCallback,
+                errorReason,
+                null,
+                'defconfig-count'
+            );
+        } else {
+            // Perform POST on batch API.
+            for (i; i < len; i = i + 1) {
+                batchQueries[i] = {
+                    'method': 'GET',
+                    'operation_id': '#fail-count' + i,
+                    'collection': 'count',
+                    'document_id': 'defconfig',
+                    'query': 'status=FAIL&job=' + jobId +
+                        '&kernel=' + localData[i].kernel
+                };
+            }
+
+            errorReason = 'Batch build count failed';
+            ajaxData = JSON.stringify({
+                'batch': batchQueries
+            });
+            ajaxDeferredCall = JSBase.createDeferredCall(
+                '/_ajax/batch',
+                'POST',
+                ajaxData,
+                null,
+                countFailDefconfigCallback,
+                errorReason,
+                {'Content-Type': 'application/json'},
+                'batch-defconfig-count'
+            );
+        }
+
+        $.when(ajaxDeferredCall).done(countDoneDefconfigCallback);
+    } else {
+        JSBase.replaceContentByClass('.count-badge', '?');
+    }
+}
+
+function defconfigAggregateDone(data) {
+    'use strict';
+    var localData = data.result,
+        len = localData.length,
+        row = '',
+        created,
+        col1,
+        col2,
+        col3,
+        col4,
+        col5,
+        col6,
+        href,
+        kernel,
+        gitBranch,
+        gitCommit,
+        localDefconf,
+        i = 0,
+        htmlElement = $('#builds-body');
+
+    if (len === 0) {
+        row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
+            'No builds available.</h4></td></tr>';
+        htmlElement.empty().append(row);
+    } else {
+        for (i; i < len; i = i + 1) {
+            localDefconf = localData[i];
+            kernel = localDefconf.kernel;
+            gitBranch = localDefconf.git_branch;
+            gitCommit = localDefconf.git_commit;
+            created = new Date(localDefconf.created_on.$date);
+            href = '/build/' + jobId + '/kernel/' + kernel + '/';
+
+            col1 = '<td>' + kernel + '</td>';
+            col2 = '<td>' + gitBranch + '</td>';
+            col3 = '<td>' + gitCommit + '</td>';
+            col4 = '<td><div class="pull-center">' +
+                '<span id="span-id' + i + '" ' +
+                'class="badge">' +
+                '<span id="fail-count' + i + '" class="count-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                '<div></td>';
+            col5 = '<td><div class="pull-center">' +
+                created.getCustomISODate() +
+                '</div></td>';
+            col6 = '<td class="pull-center">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Details for build&nbsp;' + jobId +
+                '&nbsp;&dash;&nbsp;' + kernel + '">' +
+                '<a href="' + href + '">' +
+                '<i class="fa fa-search"></i></a>' +
+                '</span></td>';
+            row += '<tr data-url="' + href + '">' +
+                col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
+        }
+
+        htmlElement.empty().append(row);
+    }
+}
+
 $(document).ready(function() {
     'use strict';
-
     $('#li-job').addClass('active');
 
-    $('body').tooltip({
-        'selector': '[rel=tooltip]',
-        'placement': 'auto'
-    });
-
-    $('.clickable-table tbody').on('click', 'tr', function() {
-        var url = $(this).data('url');
-        if (url) {
-            window.location = url;
-        }
-    });
-});
-
-$(document).ready(function() {
-    'use strict';
-
-    var deferredCall = null,
+    var ajaxDeferredCall = null,
+        ajaxData = null,
         batchQueries = new Array(2),
         errorReason = '';
-
-    function countFailCallback() {
-        $('.count-list-badge').each(function() {
-            $(this).empty().append('&infin;');
-        });
-    }
-
-    function countDoneCallback(data) {
-        var localData = data.result,
-            dataLen = localData.length,
-            firstResult = null,
-            secondResult = null,
-            firstCount = 0,
-            secondCount = 0;
-
-        if (dataLen === 2) {
-            firstResult = localData[0];
-            secondResult = localData[1];
-
-            firstCount = firstResult.result[0].count;
-            secondCount = secondResult.result[0].count;
-
-            $(firstResult.operation_id).empty().append(firstCount);
-            $(secondResult.operation_id).empty().append(secondCount);
-        } else {
-            $('.count-list-badge').each(function() {
-                $(this).empty().append('?');
-            });
-        }
-    }
 
     batchQueries[0] = {
         'operation_id': '#builds-count',
@@ -72,282 +227,42 @@ $(document).ready(function() {
         'query': 'job=' + jobId + '&date_range=' + dateRange
     };
 
-    errorReason = 'Batch count failed.';
-    deferredCall = $.ajax({
-        'url': '/_ajax/batch',
-        'type': 'POST',
-        'traditional': true,
-        'dataType': 'json',
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'data': JSON.stringify({
-            'batch': batchQueries
-        }),
-        'error': function() {
-            countFailCallback();
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('counts-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('counts-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Batch count failed: timeout.';
-                setErrorAlert('counts-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('counts-500-error', 500, errorReason);
-            }
-        }
+    errorReason = 'Batch count failed';
+    ajaxData = JSON.stringify({
+        'batch': batchQueries
     });
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/batch',
+        'POST',
+        ajaxData,
+        null,
+        countFailBatchCallback,
+        errorReason,
+        {'Content-Type': 'application/json'},
+        'batch-failed'
+    );
 
-    $.when(deferredCall).then(countDoneCallback, countFailCallback);
-});
+    $.when(ajaxDeferredCall).done(countDoneBatchCallback);
 
-$(document).ready(function() {
-    'use strict';
+    errorReason = 'Defconfig data call failed';
+    ajaxData = {
+        'aggregate': 'kernel',
+        'job': jobId,
+        'sort': 'created_on',
+        'sort_order': -1,
+        'date_range': dateRange,
+        'field': ['kernel', 'created_on', 'git_branch', 'git_commit']
+    };
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/defconf',
+        'GET',
+        ajaxData,
+        defconfigAggregateDone,
+        emptyTableOnError,
+        errorReason,
+        null,
+        'aggregate-defconfig'
+    );
 
-    var errorReason = '',
-        ajaxDefconCall = null;
-
-    function countFailCallback() {
-        $('.count-badge').each(function() {
-            $(this).empty().append('&infin;');
-        });
-    }
-
-    function countDoneCallback(data) {
-        var localData = data.result,
-            len = localData.length,
-            i = 0,
-            batchResult = null,
-            count = 0;
-
-        if (len > 0) {
-            if (len === 1) {
-                count = localData[0].count;
-                $('#fail-count0').empty().append(count);
-
-                if (count === 0) {
-                    $('#span-id0').addClass('alert-success');
-                } else {
-                    $('#span-id0').addClass('alert-danger');
-                }
-            } else {
-                for (i; i < len; i++) {
-                    batchResult = localData[i].result[0];
-                    count = batchResult.count;
-                    $(localData[i].operation_id).empty().append(count);
-
-                    if (count === 0) {
-                        $('#span-id' + i).addClass('alert-success');
-                    } else {
-                        $('#span-id' + i).addClass('alert-danger');
-                    }
-                }
-            }
-        } else {
-            countFailCallback();
-        }
-    }
-
-    function countFailedDefconfigs(data) {
-        var i = 0,
-            localData = data.result,
-            len = localData.length,
-            deferredCall = null,
-            batchQueries = new Array(len);
-
-        if (len > 0) {
-            if (len === 1) {
-                // Peform normal GET.
-                errorReason = 'Defconfig count failed.';
-                deferredCall = $.ajax({
-                    'url': '/_ajax/count/defconfig',
-                    'traditional': true,
-                    'cache': true,
-                    'dataType': 'json',
-                    'data': {
-                        'status': 'FAIL',
-                        'job': jobId,
-                        'kernel': localData[0].kernel
-                    },
-                    'beforeSend': function(jqXHR) {
-                        setXhrHeader(jqXHR);
-                    },
-                    'error': function() {
-                        countFailCallback();
-                    },
-                    'timeout': 6000,
-                    'statusCode': {
-                        403: function() {
-                            setErrorAlert('batch-403-error', 403, errorReason);
-                        },
-                        404: function() {
-                            setErrorAlert('batch-404-error', 404, errorReason);
-                        },
-                        408: function() {
-                            errorReason = 'Defconfig count failed: timeout.';
-                            setErrorAlert('batch-408-error', 408, errorReason);
-                        },
-                        500: function() {
-                            setErrorAlert('batch-500-error', 500, errorReason);
-                        }
-                    }
-                });
-            } else {
-                // Perform POST on batch API.
-                for (i; i < len; i++) {
-                    batchQueries[i] = {
-                        'method': 'GET',
-                        'operation_id': '#fail-count' + i,
-                        'collection': 'count',
-                        'document_id': 'defconfig',
-                        'query': 'status=FAIL&job=' + jobId +
-                            '&kernel=' + localData[i].kernel
-                    };
-                }
-
-                errorReason = 'Batch build count failed.';
-                deferredCall = $.ajax({
-                    'url': '/_ajax/batch',
-                    'type': 'POST',
-                    'traditional': true,
-                    'dataType': 'json',
-                    'headers': {
-                        'Content-Type': 'application/json'
-                    },
-                    'beforeSend': function(jqXHR) {
-                        setXhrHeader(jqXHR);
-                    },
-                    'data': JSON.stringify({
-                        'batch': batchQueries
-                    }),
-                    'error': function() {
-                        countFailCallback();
-                    },
-                    'timeout': 10000,
-                    'statusCode': {
-                        403: function() {
-                            setErrorAlert('batch-403-error', 403, errorReason);
-                        },
-                        404: function() {
-                            setErrorAlert('batch-404-error', 404, errorReason);
-                        },
-                        408: function() {
-                            errorReason = 'Batch build count failed: timeout.';
-                            setErrorAlert('batch-408-error', 408, errorReason);
-                        },
-                        500: function() {
-                            setErrorAlert('batch-500-error', 500, errorReason);
-                        }
-                    }
-                });
-            }
-
-            $.when(deferredCall).then(countDoneCallback, countFailCallback);
-        } else {
-            countFailCallback();
-        }
-    }
-
-    function emptyTableOnError() {
-        $('#builds-body').empty().append(
-            '<tr><td colspan="6" align="center" valign="middle">' +
-            '<h4>Error loading data.</h4></td></tr>'
-        );
-    }
-
-    errorReason = 'Defconfig data call failed.';
-    ajaxDefconCall = $.ajax({
-        'url': '/_ajax/defconf',
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'context': $('#builds-body'),
-        'data': {
-            'aggregate': 'kernel',
-            'job': jobId,
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': dateRange,
-            'field': ['kernel', 'created_on', 'git_branch', 'git_commit']
-        },
-        'beforeSend': function(jqXHR) {
-            setXhrHeader(jqXHR);
-        },
-        'error': function() {
-            emptyTableOnError();
-        },
-        'timeout': 6000,
-        'statusCode': {
-            403: function() {
-                setErrorAlert('defconfs-403-error', 403, errorReason);
-            },
-            404: function() {
-                setErrorAlert('defconfs-404-error', 404, errorReason);
-            },
-            408: function() {
-                errorReason = 'Defconfig data call failed: timeout.';
-                setErrorAlert('defconfs-408-error', 408, errorReason);
-            },
-            500: function() {
-                setErrorAlert('defconfs-500-error', 500, errorReason);
-            }
-        }
-    }).done(function(data) {
-        var localData = data.result,
-            row = '',
-            created, col1, col2, col3, col4, col5, col6, href,
-            kernel, git_branch, git_commit,
-            i = 0,
-            len = localData.length;
-
-        if (len === 0) {
-            row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
-                'No builds available.</h4></td></tr>';
-            $(this).empty().append(row);
-        } else {
-            for (i; i < len; i++) {
-                kernel = localData[i].kernel;
-                git_branch = localData[i].git_branch;
-                git_commit = localData[i].git_commit;
-                created = new Date(localData[i].created_on['$date']);
-                href = '/build/' + jobId + '/kernel/' + kernel + '/';
-
-                col1 = '<td>' + kernel + '</td>';
-                col2 = '<td>' + git_branch + '</td>';
-                col3 = '<td>' + git_commit + '</td>';
-                col4 = '<td><div class="pull-center">' +
-                    '<span id="span-id' + i + '" ' +
-                    'class="badge">' +
-                    '<span id="fail-count' + i + '" class="count-badge">' +
-                    '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                    '<div></td>';
-                col5 = '<td><div class="pull-center">' +
-                    created.getCustomISODate() +
-                    '</div></td>';
-                col6 = '<td class="pull-center">' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for build&nbsp;' + jobId +
-                    '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                    '<a href="' + href + '">' +
-                    '<i class="fa fa-search"></i></a>' +
-                    '</span></td>';
-                row += '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
-            }
-
-            $(this).empty().append(row);
-        }
-    });
-
-    $.when(ajaxDefconCall).then(countFailedDefconfigs, countFailCallback);
+    $.when(ajaxDeferredCall).done(countFailedDefconfigs);
 });
