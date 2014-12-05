@@ -54,7 +54,7 @@ var JSBase = (function() {
             '<button type="button" class="close" ' +
             'data-dismiss="alert" aria-hidden="true">&times;</button>';
 
-        if (reason !== null || typeof reason !== 'undefined') {
+        if (reason !== null && reason !== undefined) {
             text = text + reason + '<br/>';
         }
 
@@ -169,19 +169,19 @@ var JSBase = (function() {
             }
         };
 
-        if (data !== null || typeof data !== 'undefined') {
+        if (data !== null && data !== undefined) {
             ajaxSettings.data = data;
         }
 
-        if (successFunction !== null || successFunction !== undefined) {
+        if (successFunction !== null && successFunction !== undefined) {
             ajaxSettings.success = successFunction;
         }
 
-        if (errorFunction !== null || errorFunction !== undefined) {
+        if (errorFunction !== null && errorFunction !== undefined) {
             ajaxSettings.error = errorFunction;
         }
 
-        if (headers !== null || typeof headers !== undefined) {
+        if (headers !== null && headers !== undefined) {
             ajaxSettings.headers = headers;
         }
 
@@ -262,7 +262,7 @@ var JSBase = (function() {
             i = 0,
             key;
 
-        for (i = 0; i < len; i++) {
+        for (i = 0; i < len; i = i + 1) {
             arg = arguments[i];
 
             if (typeof arg === 'object') {
@@ -334,8 +334,8 @@ var JSBase = (function() {
             i,
             urlTranslation = $('#url-translation').val();
 
-        if ((commitURL !== null || typeof commitURL !== 'undefined') &&
-                (commitId !== null || typeof commitId !== 'undefined') &&
+        if ((commitURL !== null && commitURL !== undefined) &&
+                (commitId !== null && commitId !== undefined) &&
                 urlTranslation !== 'None') {
 
             urlTranslation = JSON.parse(urlTranslation);
@@ -349,7 +349,7 @@ var JSBase = (function() {
                 translateRule = knownGit[3];
                 lenTranslate = translateRule.length;
 
-                for (i = 0; i < lenTranslate; i++) {
+                for (i = 0; i < lenTranslate; i = i + 1) {
                     urlPath = urlPath.replace(
                         translateRule[i][0], translateRule[i][1]);
                 }
@@ -412,7 +412,7 @@ var JSBase = (function() {
         setErrorAlert: setErrorAlert,
         translateCommitURL: translateCommitURL
     };
-})();
+}());
 
 var setErrorAlert = JSBase.setErrorAlert;
 var loadContent = JSBase.loadContent;
