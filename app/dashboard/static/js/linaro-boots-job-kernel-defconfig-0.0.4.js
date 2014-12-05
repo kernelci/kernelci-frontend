@@ -29,11 +29,10 @@ function populateBootPage(data) {
         fileServerResource,
         pathUrl = '',
         fileServerUri = null,
-        uriPath = '',
-        colSpan = 6;
+        uriPath = '';
 
     if (dataLen > 0) {
-        for (i; i < dataLen; i++) {
+        for (i; i < dataLen; i = i + 1) {
             labName = localData[i].lab_name;
             createdOn = new Date(localData[i].created_on.$date);
             resultDescription = localData[i].boot_result_description;
@@ -43,13 +42,12 @@ function populateBootPage(data) {
             bootLog = localData[i].boot_log;
             bootLogHtml = localData[i].boot_log_html;
 
-            if (fileServerUrl !== null &&
-                    typeof(fileServerUrl) !== 'undefined') {
+            if (fileServerUrl !== null && fileServerUrl !== undefined) {
                 fileServer = fileServerUrl;
             }
 
             if (fileServerResource !== null &&
-                    typeof(fileServerResource) !== 'undefined') {
+                    fileServerResource !== undefined) {
                 pathUrl = fileServerResource;
             } else {
                 pathUrl = jobName + '/' + kernelName + '/' + arch + '-' +
