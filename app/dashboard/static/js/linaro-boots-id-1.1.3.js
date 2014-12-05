@@ -28,6 +28,7 @@ function populateOtherBootTable(data) {
         arch,
         bootLog,
         bootLogHtml,
+        logPath = null,
         allRows = '',
         col0,
         col1,
@@ -66,7 +67,8 @@ function populateOtherBootTable(data) {
                     pathUrl = fileServerResource;
                 } else {
                     pathUrl = jobName + '/' + kernelName + '/' + arch + '-' +
-                        defconfigFull + '/' + localLabName + '/';
+                        defconfigFull + '/';
+                    fileServerResource = null;
                 }
 
                 fileServerUri = new URI(fileServer);
@@ -122,9 +124,15 @@ function populateOtherBootTable(data) {
                 col2 = '<td class="pull-center">';
                 if (bootLog !== null || bootLogHtml !== null) {
                     if (bootLog !== null) {
+                        if (bootLog.search(localLabName) == -1) {
+                            logPath = uriPath + '/' + localLabName + '/' +
+                                bootLog;
+                        } else {
+                            logPath = uriPath + '/' + bootLog;
+                        }
                         col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
                             'title="View raw text boot log"><a href="' +
-                            fileServerUri.path(uriPath + '/' + bootLog)
+                            fileServerUri.path(logPath)
                                 .normalizePath().href() +
                             '">txt' +
                             '&nbsp;<i class="fa fa-external-link">' +
@@ -135,10 +143,14 @@ function populateOtherBootTable(data) {
                         if (bootLog !== null) {
                             col2 += '&nbsp;&mdash;&nbsp;';
                         }
+                        if (bootLogHtml.search(localLabName) == -1) {
+                            logPath = uriPath + '/' + localLabName + '/' + bootLogHtml;
+                        } else {
+                            logPath = uriPath + '/' + bootLogHtml;
+                        }
                         col2 += '<span rel="tooltip" data-toggle="tooltip" ' +
                             'title="View HTML boot log"><a href="' +
-                            fileServerUri.path(
-                                    uriPath + '/' + bootLogHtml)
+                            fileServerUri.path(logPath)
                                 .normalizePath().href() +
                             '">html&nbsp;<i class="fa fa-external-link">' +
                             '</i></a></span>';
@@ -209,6 +221,9 @@ function populatePage(data) {
         fileServerResource = null,
         pathUrl = null,
         uriPath = null,
+        logPath = null,
+        bootLog,
+        bootLogHtml,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
@@ -222,6 +237,8 @@ function populatePage(data) {
     localLabName = localData.lab_name;
     fileServerUrl = localData.file_server_url;
     fileServerResource = localData.file_server_resource;
+    bootLog = localData.boot_log;
+    bootLogHtml = localData.boot_log_html;
 
     $('#dd-board-board').empty().append(localData.board);
     $('#dd-board-arch').empty().append(arch);
@@ -284,38 +301,45 @@ function populatePage(data) {
     if (fileServerResource !== null && fileServerResource !== undefined) {
         pathUrl = fileServerResource;
     } else {
-        pathUrl = job + '/' + kernel + '/' +
-            arch + '-' + defconfigFull + '/';
+        pathUrl = job + '/' + kernel + '/' + arch + '-' +
+            defconfigFull + '/';
+        fileServerResource = null;
     }
 
     fileServerUri = new URI(fileServer);
     uriPath = fileServerUri.path() + '/' + pathUrl;
 
-    if (localData.boot_log !== null || localData.boot_log_html !== null) {
+    if (bootLog !== null || bootLogHtml !== null) {
         $('#dd-board-boot-log').empty();
 
-        if (localData.boot_log !== null) {
+        if (bootLog !== null) {
+            if (bootLog.search(localLabName) == -1) {
+                logPath = uriPath + '/' + localLabName + '/' + bootLog;
+            } else {
+                logPath = uriPath + '/' + bootLog;
+            }
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View raw text boot log"><a href="' +
-                fileServerUri.path(uriPath + '/' +
-                    localLabName + '/' + localData.boot_log)
-                    .normalizePath().href() +
+                fileServerUri.path(logPath).normalizePath().href() +
                 '">txt' +
                 '&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }
 
-        if (localData.boot_log_html !== null) {
-            if (localData.boot_log !== null) {
+        if (bootLogHtml !== null) {
+            if (bootLog !== null) {
                 $('#dd-board-boot-log').append('&nbsp;&mdash;&nbsp;');
+            }
+            if (bootLogHtml.search(localLabName) == -1) {
+                logPath = uriPath + '/' + localLabName + '/' + bootLogHtml;
+            } else {
+                logPath = uriPath + '/' + bootLogHtml;
             }
             $('#dd-board-boot-log').append(
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="View HTML boot log"><a href="' +
-                fileServerUri.path(uriPath + '/' +
-                    localLabName + '/' + localData.boot_log_html)
-                    .normalizePath().href() +
+                fileServerUri.path(logPath).normalizePath().href() +
                 '">html&nbsp;<i class="fa fa-external-link"></i></a></span>'
             );
         }

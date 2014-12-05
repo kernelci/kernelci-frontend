@@ -154,6 +154,7 @@ function populateBootsPage(data) {
         fileServerUri = null,
         uriPath = null,
         pathUrl = null,
+        logPath = null,
         bootLog,
         bootLogHtml,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
@@ -191,7 +192,8 @@ function populateBootsPage(data) {
                 pathUrl = fileServerResource;
             } else {
                 pathUrl = job + '/' + kernel + '/' +
-                    arch + '-' + defconfigFull + '/' + labName + '/';
+                    arch + '-' + defconfigFull + '/';
+                fileServerResource = null;
             }
 
             fileServerUri = new URI(fileServer);
@@ -278,10 +280,14 @@ function populateBootsPage(data) {
                 panel += '<dd>';
 
                 if (bootLog !== null) {
+                    if (bootLog.search(labName) == -1) {
+                        logPath = uriPath + '/' + labName + '/' + bootLog;
+                    } else {
+                        logPath = uriPath + '/' + bootLog;
+                    }
                     panel += '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="View raw text boot log"><a href="' +
-                        fileServerUri.path(uriPath + '/' + bootLog)
-                            .normalizePath().href() +
+                        fileServerUri.path(logPath).normalizePath().href() +
                         '">txt&nbsp;<i class="fa fa-external-link"></i></a>' +
                         '</span>';
                 }
@@ -290,10 +296,14 @@ function populateBootsPage(data) {
                     if (bootLog !== null) {
                         panel += '&nbsp;&mdash;&nbsp;';
                     }
+                    if (bootLogHtml.search(labName) == -1) {
+                        logPath = uriPath + '/' + labName + '/' + bootLogHtml;
+                    } else {
+                        logPath = uriPath + '/' + bootLogHtml;
+                    }
                     panel += '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="View HTML boot log"><a href="' +
-                        fileServerUri.path(uriPath + '/' + bootLogHtml)
-                            .normalizePath().href() +
+                        fileServerUri.path(logPath).normalizePath().href() +
                         '">html&nbsp;<i class="fa fa-external-link"></i>' +
                         '</a></span>';
                 }
