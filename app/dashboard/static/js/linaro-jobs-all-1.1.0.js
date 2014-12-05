@@ -93,7 +93,7 @@ function batchCountElements(data) {
                 idx = 0;
 
             if (batchLen > 0) {
-                for (idx; idx < batchLen; idx++) {
+                for (idx; idx < batchLen; idx = idx + 1) {
                     batchResult = batchData[idx].result[0];
                     $(batchData[idx].operation_id).empty().append(
                         batchResult.count);
