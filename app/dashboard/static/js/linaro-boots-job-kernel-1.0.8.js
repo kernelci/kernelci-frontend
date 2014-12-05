@@ -54,7 +54,6 @@ function showHideBoots(element) {
 
 function createPieChart(data) {
     'use strict';
-
     var localData = data.result,
         len = localData.length,
         success = 0,
@@ -71,36 +70,39 @@ function createPieChart(data) {
         pie = d3.layout.pie().sort(null),
         arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
 
-    for (i; i < len; i++) {
-        switch (localData[i].status) {
-            case 'FAIL':
-                fail++;
-                break;
-            case 'PASS':
-                success++;
-                break;
-            default:
-                unknown++;
-                break;
+    if (len > 0) {
+        for (i; i < len; i = i + 1) {
+            switch (localData[i].status) {
+                case 'FAIL':
+                    fail = fail + 1;
+                    break;
+                case 'PASS':
+                    success = success + 1;
+                    break;
+                default:
+                    unknown = unknown + 1;
+                    break;
+            }
         }
+
+        dataset = [success, fail, unknown];
+        svg = d3.select('#pie-chart').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', 'translate(' + width / 2 + ',' +
+                height / 2 + ')'
+            );
+
+        svg.selectAll('path')
+            .data(pie(dataset))
+            .enter().append('path')
+            .attr('fill', function(d, i) {
+                return color[i];
+            })
+            .attr('d', arc);
+
     }
-
-    dataset = [success, fail, unknown];
-    svg = d3.select('#pie-chart').append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', 'translate(' + width / 2 + ',' +
-            height / 2 + ')'
-        );
-
-    svg.selectAll('path')
-        .data(pie(dataset))
-        .enter().append('path')
-        .attr('fill', function(d, i) {
-            return color[i];
-        })
-        .attr('d', arc);
 
     $('#success-cell')
         .empty()
@@ -130,12 +132,10 @@ function populateBootsPage(data) {
         fileServer = $('#file-server').val(),
         panel = '',
         cls,
-        dataUrl,
         defconfigFull,
         job,
         kernel,
         board,
-        metadata,
         label,
         arch,
         i = 0,
@@ -149,7 +149,6 @@ function populateBootsPage(data) {
         allLabs = {},
         lab,
         labLinks,
-        sidebarNav,
         fileServerUrl = null,
         fileServerResource = null,
         fileServerUri = null,
@@ -169,10 +168,9 @@ function populateBootsPage(data) {
         toAppend;
 
     if (len > 0) {
-        for (i; i < len; i++) {
+        for (i; i < len; i = i + 1) {
             bootObj = localData[i];
             defconfigFull = bootObj.defconfig_full;
-            metadata = bootObj.metadata;
             job = bootObj.job;
             kernel = bootObj.kernel;
             board = bootObj.board;
@@ -184,13 +182,12 @@ function populateBootsPage(data) {
             bootLog = bootObj.boot_log;
             bootLogHtml = bootObj.boot_log_html;
 
-            if (fileServerUrl !== null &&
-                    typeof(fileServerUrl) !== 'undefined') {
+            if (fileServerUrl !== null && fileServerUrl !== undefined) {
                 fileServer = fileServerUrl;
             }
 
             if (fileServerResource !== null &&
-                    typeof(fileServerResource) !== 'undefined') {
+                    fileServerResource !== undefined) {
                 pathUrl = fileServerResource;
             } else {
                 pathUrl = job + '/' + kernel + '/' +
@@ -345,7 +342,7 @@ function populateBootsPage(data) {
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
                 '<div class="panel-group" id="accordion' + element + '">';
 
-            for (i = 0; i < len; i++) {
+            for (i = 0; i < len; i = i + 1) {
                 toAppend += lab[i];
             }
             toAppend += '</div></div>';
@@ -443,15 +440,15 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    // No use strict here, or onbeforeunload is not recognized.
-    var session_state = new SessionState($('#storage-id').val());
+    // No use strict here or onbeforeunload is not recognized.
+    var sessionState = new SessionState($('#storage-id').val());
     onbeforeunload = function() {
 
-        var panel_state = {},
-            page_state;
+        var panelState = {},
+            pageState;
 
         $('[id^="panel-boots"]').each(function(id) {
-            panel_state['#panel-boots' + id] = {
+            panelState['#panel-boots' + id] = {
                 'type': 'class',
                 'name': 'class',
                 'value': $('#panel-boots' + id).attr('class')
@@ -459,14 +456,14 @@ $(document).ready(function() {
         });
 
         $('[id^="collapse-boots"]').each(function(id) {
-            panel_state['#collapse-boots' + id] = {
+            panelState['#collapse-boots' + id] = {
                 'type': 'class',
                 'name': 'class',
                 'value': $('#collapse-boots' + id).attr('class')
             };
         });
 
-        page_state = {
+        pageState = {
             '.df-success': {
                 'type': 'attr',
                 'name': 'style',
@@ -504,7 +501,7 @@ $(document).ready(function() {
             }
         };
 
-        session_state.objects = collectObjects(panel_state, page_state);
-        saveToSessionStorage(session_state);
+        sessionState.objects = collectObjects(panelState, pageState);
+        saveToSessionStorage(sessionState);
     };
 });
