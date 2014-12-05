@@ -29,7 +29,6 @@ function populateOtherBootTable(data) {
         bootLog,
         bootLogHtml,
         allRows = '',
-        row = '',
         col0,
         col1,
         col2,
@@ -58,13 +57,12 @@ function populateOtherBootTable(data) {
                 bootLogHtml = localReport.boot_log_html;
                 defconfigFull = localReport.defconfig_full;
 
-                if (fileServerUrl !== null &&
-                        typeof(fileServerUrl) !== 'undefined') {
+                if (fileServerUrl !== null && fileServerUrl !== undefined) {
                     fileServer = fileServerUrl;
                 }
 
                 if (fileServerResource !== null &&
-                        typeof(fileServerResource) !== 'undefined') {
+                        fileServerResource !== undefined) {
                     pathUrl = fileServerResource;
                 } else {
                     pathUrl = jobName + '/' + kernelName + '/' + arch + '-' +
@@ -202,7 +200,6 @@ function populatePage(data) {
         displ = '',
         job,
         kernel,
-        defconfig,
         arch,
         defconfigFull,
         localLabName,
@@ -220,7 +217,6 @@ function populatePage(data) {
 
     job = localData.job;
     kernel = localData.kernel;
-    defconfig = localData.defconfig;
     defconfigFull = localData.defconfig_full;
     arch = localData.arch;
     localLabName = localData.lab_name;
@@ -281,13 +277,11 @@ function populatePage(data) {
         $('#dd-board-endianness').empty().append(nonAvail);
     }
 
-    if (fileServerUrl !== null &&
-            typeof(fileServerUrl) !== 'undefined') {
+    if (fileServerUrl !== null && fileServerUrl !== undefined) {
         fileServer = fileServerUrl;
     }
 
-    if (fileServerResource !== null &&
-            typeof(fileServerResource) !== 'undefined') {
+    if (fileServerResource !== null && fileServerResource !== undefined) {
         pathUrl = fileServerResource;
     } else {
         pathUrl = job + '/' + kernel + '/' +
@@ -424,7 +418,7 @@ function createBootBisectTable(data) {
         unknownCommitCell,
         goodCommitCell,
         bootStatus,
-        tableRows,
+        tableRows = '',
         tooltipLink,
         tooltipTitle,
         gitURLs,
@@ -435,7 +429,7 @@ function createBootBisectTable(data) {
     badCommit = localResult.bad_commit;
     goodCommit = localResult.good_commit;
 
-    for (i; i < localLen; i++) {
+    for (i; i < localLen; i = i + 1) {
         bisectData = localData[i];
         bootStatus = bisectData.boot_status;
         gitDescribeVal = bisectData.git_describe;
@@ -529,7 +523,6 @@ function getBisectData(data) {
 
     var localData = data.result[0],
         status = localData.status,
-        docId,
         bisectAjaxCall,
         errorReason;
 
