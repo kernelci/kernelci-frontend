@@ -73,36 +73,38 @@ function createPieChart(data) {
         pie = d3.layout.pie().sort(null),
         arc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
 
-    for (i; i < len; i++) {
-        switch (data[i].status) {
-            case 'FAIL':
-                fail++;
-                break;
-            case 'PASS':
-                success++;
-                break;
-            default:
-                unknown++;
-                break;
+    if (len > 0) {
+        for (i; i < len; i = i + 1) {
+            switch (data[i].status) {
+                case 'FAIL':
+                    fail = fail + 1;
+                    break;
+                case 'PASS':
+                    success = success + 1;
+                    break;
+                default:
+                    unknown = unknown + 1;
+                    break;
+            }
         }
+
+        dataset = [success, fail, unknown];
+        svg = d3.select('#builds-chart').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .append('g')
+            .attr('transform', 'translate(' + width / 2 + ',' +
+                height / 2 + ')'
+            );
+
+        svg.selectAll('path')
+            .data(pie(dataset))
+            .enter().append('path')
+            .attr('fill', function(d, i) {
+                return color[i];
+            })
+            .attr('d', arc);
     }
-
-    dataset = [success, fail, unknown];
-    svg = d3.select('#builds-chart').append('svg')
-        .attr('width', width)
-        .attr('height', height)
-        .append('g')
-        .attr('transform', 'translate(' + width / 2 + ',' +
-            height / 2 + ')'
-        );
-
-    svg.selectAll('path')
-        .data(pie(dataset))
-        .enter().append('path')
-        .attr('fill', function(d, i) {
-            return color[i];
-        })
-        .attr('d', arc);
 
     $('#success-cell')
         .empty()
@@ -150,7 +152,7 @@ function createBuildsPage(data) {
             '<li class="fa fa-question"></li></span>',
         archLabel = '';
 
-    for (i; i < len; i++) {
+    for (i; i < len; i = i + 1) {
         localData = data[i];
 
         defconfigFull = localData.defconfig_full;
@@ -361,14 +363,14 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     // No use strict here, or onbeforeunload is not recognized.
-    var session_state = new SessionState(jobId);
+    var sessionState = new SessionState(jobId);
     onbeforeunload = function() {
 
-        var panel_state = {},
-            page_state;
+        var panelState = {},
+            pageState;
 
         $('[id^="panel-defconf"]').each(function(id) {
-            panel_state['#panel-defconf' + id] = {
+            panelState['#panel-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
                 'value': $('#panel-defconf' + id).attr('class')
@@ -376,14 +378,14 @@ $(document).ready(function() {
         });
 
         $('[id^="collapse-defconf"]').each(function(id) {
-            panel_state['#collapse-defconf' + id] = {
+            panelState['#collapse-defconf' + id] = {
                 'type': 'class',
                 'name': 'class',
                 'value': $('#collapse-defconf' + id).attr('class')
             };
         });
 
-        page_state = {
+        pageState = {
             '.df-success': {
                 'type': 'attr',
                 'name': 'style',
@@ -421,7 +423,7 @@ $(document).ready(function() {
             }
         };
 
-        session_state.objects = collectObjects(panel_state, page_state);
-        saveToSessionStorage(session_state);
+        sessionState.objects = collectObjects(panelState, pageState);
+        saveToSessionStorage(sessionState);
     };
 });
