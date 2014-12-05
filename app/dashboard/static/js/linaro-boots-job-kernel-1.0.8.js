@@ -369,7 +369,7 @@ function populateBootsPage(data) {
         }
 
         $('#all-btn').removeAttr('disabled');
-        if (!loadFromSessionStorage($('#storage-id').val())) {
+        if (!WebStorage.load($('#storage-id').val())) {
             if (hasFailed) {
                 // If there is no saved session, show only the failed ones.
                 $('.df-failed').show();
@@ -441,7 +441,7 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     // No use strict here or onbeforeunload is not recognized.
-    var sessionState = new SessionState($('#storage-id').val());
+    var sessionState = new WebStorage.SessionState($('#storage-id').val());
     onbeforeunload = function() {
 
         var panelState = {},
@@ -501,7 +501,7 @@ $(document).ready(function() {
             }
         };
 
-        sessionState.objects = collectObjects(panelState, pageState);
-        saveToSessionStorage(sessionState);
+        sessionState.objects = JSBase.collectObjects(panelState, pageState);
+        WebStorage.save(sessionState);
     };
 });

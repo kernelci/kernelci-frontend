@@ -303,7 +303,7 @@ function createBuildsPage(data) {
     }
 
     $('#all-btn').removeAttr('disabled');
-    if (!loadFromSessionStorage(jobId)) {
+    if (!WebStorage.load(jobId)) {
         if (hasFailed) {
             // If there is no saved session, show only the failed ones.
             $('.df-failed').show();
@@ -362,8 +362,8 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-    // No use strict here, or onbeforeunload is not recognized.
-    var sessionState = new SessionState(jobId);
+    // No use strict here or onbeforeunload is not recognized.
+    var sessionState = new WebStorage.SessionState(jobId);
     onbeforeunload = function() {
 
         var panelState = {},
@@ -423,7 +423,7 @@ $(document).ready(function() {
             }
         };
 
-        sessionState.objects = collectObjects(panelState, pageState);
-        saveToSessionStorage(sessionState);
+        sessionState.objects = JSBase.collectObjects(panelState, pageState);
+        WebStorage.save(sessionState);
     };
 });
