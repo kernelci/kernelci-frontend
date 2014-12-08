@@ -42,8 +42,8 @@ def translate_git_url(git_url, commit_id):
     :return The base URL to create URLs, and the real commit URL.
     """
 
-    base_url = ""
-    commit_url = ""
+    base_url = None
+    commit_url = None
 
     if git_url and commit_id:
         t_url = urlparse.urlparse(git_url)
@@ -65,8 +65,6 @@ def translate_git_url(git_url, commit_id):
                 (known_git[2] % path) + commit_id,
                 "", "", ""
             ))
-    else:
-        abort(400)
 
     return base_url, commit_url
 
