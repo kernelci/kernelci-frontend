@@ -539,8 +539,15 @@ function createBootBisectTable(data) {
         }
 
         $('#bisect-loading-div').remove();
-        $('#bad-commit').empty().append(
-            '<span class="text-danger">' + badCommit + '</span>');
+        if (badCommit !== null) {
+            $('#bad-commit').empty().append(
+                '<span class="text-danger">' + badCommit + '</span>');
+        } else {
+            $('#bad-commit').empty().append(
+                '<span class="text-warning">' +
+                'No corresponding bad commit found</span>'
+            );
+        }
         if (goodCommit !== null) {
             $('#good-commit').empty().append(
                 '<span class="text-success">' + goodCommit + '</span>');
