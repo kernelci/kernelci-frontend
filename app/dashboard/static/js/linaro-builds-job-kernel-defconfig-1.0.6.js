@@ -396,84 +396,116 @@ function createBisectTable(data) {
     badCommit = localResult.bad_commit;
     goodCommit = localResult.good_commit;
 
-    for (i; i < localLen; i = i + 1) {
-        bisectData = localData[i];
-        buildStatus = bisectData.status;
-        gitDescribeVal = bisectData.git_describe;
-        gitURL = bisectData.git_url;
-        gitCommit = bisectData.git_commit;
+    if (badCommit === '' || badCommit === undefined) {
+        badCommit = null;
+    }
 
-        tooltipLink = '<a href="/build/' + jobName +
-            '/kernel/' + gitDescribeVal + '">' +
-            gitDescribeVal + '</a>';
+    if (goodCommit === '' || goodCommit === undefined) {
+        goodCommit = null;
+    }
 
-        tooltipTitle = 'Build details for&nbsp;' + jobName +
-            '&nbsp;&dash;&nbsp;' + gitDescribeVal;
+    if (badCommit === null && goodCommit === null) {
+        $('#bisect-loading-div').remove();
+        $('#table-div').remove();
 
-        gitDescribeCell = '<td><span class="bisect-tooltip">' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="' + tooltipTitle + '">' +
-            '<span class="bisect-text">' + tooltipLink +
-            '</span></span></span></td>';
+        $('#bisect-content')
+            .empty()
+            .addClass('pull-center')
+            .append('<strong>No valid bisect data found.</strong>');
 
-        gitURLs = JSBase.translateCommitURL(gitURL, gitCommit);
+        $('#bisect-content')
+            .removeClass('hidden')
+            .fadeIn('slow', 'linear');
+    } else {
+        for (i; i < localLen; i = i + 1) {
+            bisectData = localData[i];
+            buildStatus = bisectData.status;
+            gitDescribeVal = bisectData.git_describe;
+            gitURL = bisectData.git_url;
+            gitCommit = bisectData.git_commit;
 
-        switch (buildStatus) {
-            case 'PASS':
-                goodCommitCell = '<td class="bg-success"><a href="' +
-                    gitURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
-                badCommitCell = '<td class="bg-danger"></td>';
-                unknownCommitCell = '<td class="bg-warning"></td>';
-                break;
-            case 'FAIL':
-                goodCommitCell = '<td class="bg-success"></td>';
-                badCommitCell = '<td class="bg-danger"><a href="' +
-                    gitURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
-                unknownCommitCell = '<td class="bg-warning"></td>';
-                break;
-            default:
-                goodCommitCell = '<td class="bg-success"></td>';
-                badCommitCell = '<td class="bg-danger"></td>';
-                unknownCommitCell = '<td class="bg-warning"><a href="' +
-                    gitURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></td>';
-                break;
+            if (gitCommit === '' || gitCommit === undefined) {
+                gitCommit = null;
+            }
+
+            if (gitCommit !== null) {
+                tooltipLink = '<a href="/build/' + jobName +
+                    '/kernel/' + gitDescribeVal + '">' +
+                    gitDescribeVal + '</a>';
+
+                tooltipTitle = 'Build details for&nbsp;' + jobName +
+                    '&nbsp;&dash;&nbsp;' + gitDescribeVal;
+
+                gitDescribeCell = '<td><span class="bisect-tooltip">' +
+                    '<span rel="tooltip" data-toggle="tooltip" ' +
+                    'title="' + tooltipTitle + '">' +
+                    '<span class="bisect-text">' + tooltipLink +
+                    '</span></span></span></td>';
+
+                gitURLs = JSBase.translateCommitURL(gitURL, gitCommit);
+
+                switch (buildStatus) {
+                    case 'PASS':
+                        goodCommitCell = '<td class="bg-success"><a href="' +
+                            gitURLs[1] + '">' + gitCommit +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></td>';
+                        badCommitCell = '<td class="bg-danger"></td>';
+                        unknownCommitCell = '<td class="bg-warning"></td>';
+                        break;
+                    case 'FAIL':
+                        goodCommitCell = '<td class="bg-success"></td>';
+                        badCommitCell = '<td class="bg-danger"><a href="' +
+                            gitURLs[1] + '">' + gitCommit +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></td>';
+                        unknownCommitCell = '<td class="bg-warning"></td>';
+                        break;
+                    default:
+                        goodCommitCell = '<td class="bg-success"></td>';
+                        badCommitCell = '<td class="bg-danger"></td>';
+                        unknownCommitCell = '<td class="bg-warning">' +
+                            '<a href="' +
+                            gitURLs[1] + '">' + gitCommit +
+                            '&nbsp;<i class="fa fa-external-link">' +
+                            '</i></a></td>';
+                        break;
+                }
+
+                tableRows += '<tr>' + gitDescribeCell + badCommitCell +
+                    unknownCommitCell + goodCommitCell + '</tr>';
+            }
         }
 
-        tableRows += '<tr>' + gitDescribeCell + badCommitCell +
-            unknownCommitCell + goodCommitCell + '</tr>';
-    }
+        $('#bisect-loading-div').remove();
+        $('#bad-commit').empty().append(
+            '<span class="text-danger">' + badCommit + '</span>');
+        if (goodCommit !== null) {
+            $('#good-commit').empty().append(
+                '<span class="text-success">' + goodCommit + '</span>');
+        } else {
+            $('#good-commit').empty().append(
+                '<span class="text-warning">No good commit found</span>');
+        }
 
-    $('#bisect-loading-div').remove();
-    $('#bad-commit').empty().append(
-        '<span class="text-danger">' + badCommit + '</span>');
-    if (goodCommit !== null) {
-        $('#good-commit').empty().append(
-            '<span class="text-success">' + goodCommit + '</span>');
-    } else {
-        $('#good-commit').empty().append(
-            '<span class="text-warning">No good commit found</span>');
-    }
+        if (badCommit !== null && goodCommit !== null) {
+            $('#dl-bisect-script').removeClass('hidden');
+            $('#bisect-script').append(
+                '<span rel="tooltip" data-toggle="tooltip"' +
+                'title="Download defconfig bisect script">' +
+                '<a download="bisect.sh" href="' +
+                JSBase.createBisectShellScript(badCommit, goodCommit) +
+                '"><i class="fa fa-download"></i></a></span>'
+            );
+        } else {
+            $('#dl-bisect-script').remove();
+        }
 
-    if (badCommit !== null && goodCommit !== null) {
-        $('#dl-bisect-script').removeClass('hidden');
-        $('#bisect-script').append(
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Download defconfig bisect script">' +
-            '<a download="bisect.sh" href="' +
-            JSBase.createBisectShellScript(badCommit, goodCommit) +
-            '"><i class="fa fa-download"></i></a></span>'
-        );
-    } else {
-        $('#dl-bisect-script').remove();
+        $('#bisect-table-body').empty().append(tableRows);
+        $('#bisect-content')
+            .removeClass('hidden')
+            .fadeIn('slow', 'linear');
     }
-
-    $('#bisect-table-body').empty().append(tableRows);
-    $('#bisect-content')
-        .removeClass('hidden')
-        .fadeIn('slow', 'linear');
 }
 
 function getBisectData(data) {
