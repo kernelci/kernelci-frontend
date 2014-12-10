@@ -77,7 +77,13 @@ function createBootsTable(data) {
             },
             {
                 'data': 'board',
-                'title': 'Board Model'
+                'title': 'Board Model',
+                'type': 'string',
+                'render': function(data, type, object) {
+                    return '<a class="table-link" href="/boot/' + data +
+                        '/job/' + object.job + '/kernel/' +
+                        object.kernel + '/">' + data + '</a>';
+                }
             },
             {
                 'data': 'defconfig_full',
