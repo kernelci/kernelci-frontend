@@ -171,7 +171,7 @@ function populateLabTable(data) {
         ]
     });
 
-    $(document).on('click', '#bootstable tbody tr', function() {
+    $(document).on('click', '#labtable tbody tr', function() {
         var localTable = table.fnGetData(this),
             location = '#';
         if (localTable) {
