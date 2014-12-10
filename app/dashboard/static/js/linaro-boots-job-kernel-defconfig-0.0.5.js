@@ -217,7 +217,6 @@ $(document).ready(function() {
         kernelName + '"><a href="/build/' + jobName +
         '/kernel/' + kernelName +
         '"><i class="fa fa-cube"></i></a></span>'
-
     );
     $('#dd-defconfig').empty().append(
         defconfigFull + '&nbsp;&mdash;&nbsp;' +
