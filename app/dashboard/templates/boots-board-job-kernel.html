@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+      <h3>{{ body_title|safe }}</h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd id="dd-tree">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git describe</dt>
+            <dd id="dd-git-describe">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Board</dt>
+            <dd id="dd-board">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="table-loading" class="pull-center">
+            <i class="fa fa-cog fa-2x fa-spin"></i>&nbsp;loading&hellip;
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="labtable">
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
+<input type="hidden" id="page-len" value="{{ page_len }}">
+<input type="hidden" id="search-filter" value="{{ search_filter }}">
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="board-name" value="{{ board }}">
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.3/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-board-job-kernel-0.0.1.js"></script>
+{%- endblock %}
