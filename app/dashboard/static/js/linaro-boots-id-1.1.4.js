@@ -241,6 +241,15 @@ function populatePage(data) {
     bootLog = localData.boot_log;
     bootLogHtml = localData.boot_log_html;
 
+    $('#dd-lab-name').empty().append(
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="All boot reports for lab&nbsp;&#171;' + localLabName +
+        '&#187;">' +
+        '<a href="/boot/all/lab/' + localLabName + '/">' +
+        localLabName +
+        '&nbsp;<i class="fa fa-search"></i>' +
+        '</a></span>');
+
     $('#dd-board-board').empty().append(localData.board);
     $('#dd-board-arch').empty().append(arch);
 
