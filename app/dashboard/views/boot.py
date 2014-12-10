@@ -34,10 +34,14 @@ from dashboard.utils.backend import (
     translate_git_url,
 )
 
-PAGE_TITLE = "Kernel CI Dashboard &mdash; Boot Reports"
+
+class BootGeneralView(View):
+
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    BOOT_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Boot Reports")
 
 
-class BootsView(View):
+class BootAllView(BootGeneralView):
 
     def dispatch_request(self):
 
@@ -47,19 +51,21 @@ class BootsView(View):
         return render_template(
             "boots-all.html",
             page_len=page_len,
-            page_title=PAGE_TITLE,
+            page_title=self.BOOT_PAGES_TITLE,
             results_title=results_title,
             search_filter=search_filter,
             server_date=today_date(),
         )
 
 
-class BootDefconfigView(View):
+class BootDefconfigView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
 
         page_title = (
-            PAGE_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" % kwargs)
+            self.BOOT_PAGES_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" %
+            kwargs
+        )
         body_title = (
             "Boot reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
 
@@ -77,12 +83,12 @@ class BootDefconfigView(View):
         )
 
 
-class BootIdView(View):
+class BootIdView(BootGeneralView):
 
     def dispatch_request(self, *args, **kwargs):
 
         page_title = (
-            PAGE_TITLE +
+            self.BOOT_PAGES_TITLE +
             "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
             kwargs
         )
@@ -108,7 +114,7 @@ class BootIdView(View):
         )
 
 
-class BootJobKernelView(View):
+class BootJobKernelView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
         job = kwargs["job"]
@@ -143,7 +149,7 @@ class BootJobKernelView(View):
 
                 return render_template(
                     "boots-job-kernel.html",
-                    page_title=PAGE_TITLE,
+                    page_title=self.BOOT_PAGES_TITLE,
                     body_title=body_title,
                     base_url=base_url,
                     commit_url=commit_url,
@@ -159,7 +165,7 @@ class BootJobKernelView(View):
             abort(response.status_code)
 
 
-class BootJobView(View):
+class BootJobView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
 
@@ -168,7 +174,28 @@ class BootJobView(View):
 
         return render_template(
             "boots-job.html",
-            page_title=PAGE_TITLE,
+            page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
             job=job,
+        )
+
+
+class BootLab(BootGeneralView):
+
+    def dispatch_request(self, **kwargs):
+
+        lab_name = kwargs["lab_name"]
+        results_title = (
+            "Boot reports for lab&nbsp;&#171;%s&#187;" % lab_name)
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, results_title)
+
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "boots-lab.html",
+            page_title=page_title,
+            results_title=results_title,
+            lab_name=lab_name,
+            page_len=page_len,
+            search_filter=search_filter
         )
