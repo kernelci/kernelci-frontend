@@ -199,3 +199,26 @@ class BootLab(BootGeneralView):
             page_len=page_len,
             search_filter=search_filter
         )
+
+
+class BootBoardJobKernelView(BootGeneralView):
+    def dispatch_request(self, **kwargs):
+        page_title = self.PAGE_TITLE
+        body_title = (
+            "Boot reports for&nbsp;&#171;%(job)s &dash; %(kernel)s&#187;"
+            "&nbsp;<small>(%(board)s)</small>" %
+            kwargs
+        )
+
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "boots-board-job-kernel.html",
+            page_title=page_title,
+            body_title=body_title,
+            job=kwargs["job"],
+            kernel=kwargs["kernel"],
+            board=kwargs["board"],
+            page_len=page_len,
+            search_filter=search_filter
+        )

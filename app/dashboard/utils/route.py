@@ -116,3 +116,9 @@ def init(app):
         view_func=vboot.BootLab.as_view("boot-lab"),
         methods=["GET"]
     )
+    app.add_url_rule(
+        "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/",
+        view_func=vboot.BootBoardJobKernelView.as_view(
+            "boot-board-job-kernel"),
+        methods=["GET"]
+    )
