@@ -27,30 +27,14 @@ from flask_wtf.csrf import (
     validate_csrf,
 )
 
-from dashboard.views.about import AboutView
-from dashboard.views.build import (
-    BuildsAllView,
-    BuildsJobKernelView,
-    BuildsJobKernelDefconfigView,
-)
-from dashboard.views.boot import (
-    BootDefconfigView,
-    BootIdView,
-    BootJobKernelView,
-    BootJobView,
-    BootsView,
-)
-from dashboard.views.index import IndexView
-from dashboard.views.job import (
-    JobsAllView,
-    JobsJobView,
-)
 from utils.backend import (
     ajax_batch_post,
     ajax_bisect,
     ajax_count_get,
     ajax_get,
     is_mobile_browser,
+    is_old_browser,
+    today_date,
 )
 
 
@@ -87,84 +71,21 @@ CsrfProtect(app)
 # Use the custom CSRF token generation.
 app.jinja_env.globals["csrf_token_r"] = generate_csrf_token
 
-# General URLs.
-app.add_url_rule("/", view_func=IndexView.as_view("index"), methods=["GET"])
-app.add_url_rule(
-    "/info/", view_func=AboutView.as_view("about"), methods=["GET"],
-)
-
-# Builds related URLs.
-app.add_url_rule(
-    "/build/", view_func=BuildsAllView.as_view("builds"), methods=["GET"],
-)
-app.add_url_rule(
-    "/build/all/",
-    view_func=BuildsAllView.as_view("all-builds"),
-    methods=["GET"]
-)
-app.add_url_rule(
-    "/build/<string:job>/kernel/<string:kernel>/",
-    view_func=BuildsJobKernelView.as_view("job-kernel-builds"),
-    methods=["GET"]
-)
-app.add_url_rule(
-    "/build/<string:job>/kernel/<string:kernel>/defconfig/<string:defconfig>/",
-    view_func=BuildsJobKernelDefconfigView.as_view("job-kernel-defconf"),
-    methods=["GET"]
-)
-app.add_url_rule(
-    "/build/<string:job>/", view_func=JobsJobView.as_view("build-job"),
-    methods=["GET"]
-)
-
-# Jobs related URLs
-app.add_url_rule(
-    "/job/", view_func=JobsAllView.as_view("jobs"), methods=["GET"]
-)
-app.add_url_rule(
-    "/job/<string:job>/", view_func=JobsJobView.as_view("job"), methods=["GET"],
-)
-
-# Boots related URLs.
-app.add_url_rule(
-    "/boot/", view_func=BootsView.as_view("boots"), methods=["GET"],
-)
-app.add_url_rule(
-    "/boot/all/", view_func=BootsView.as_view("all-boots"), methods=["GET"],
-)
-app.add_url_rule(
-    (
-        "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
-        "defconfig/<string:defconfig>/"
-    ),
-    view_func=BootDefconfigView.as_view("boot-defconfig"),
-    methods=["GET"],
-)
-app.add_url_rule(
-    (
-        "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
-        "defconfig/<string:defconfig>/lab/<string:lab_name>/"
-    ),
-    view_func=BootIdView.as_view("boot-id"),
-    methods=["GET"],
-)
-app.add_url_rule(
-    "/boot/all/job/<string:job>/kernel/<string:kernel>/",
-    view_func=BootJobKernelView.as_view("boot-job-kernel"),
-    methods=["GET"],
-)
-app.add_url_rule(
-    "/boot/all/job/<string:job>/",
-    view_func=BootJobView.as_view("boot-job"),
-    methods=["GET"],
-)
+# Initialize the app routes.
+# The app context here is needed since we are using variables defined in the
+# config files and we need to access them.
+with app.app_context():
+    import dashboard.utils.route as route
+    route.init(app)
 
 
 @app.context_processor
 def inject_variables():
     return dict(
         analytics=app.config.get("GOOGLE_ANALYTICS_ID"),
-        is_mobile=is_mobile_browser(request)
+        is_mobile=is_mobile_browser(request),
+        is_old_browser=is_old_browser(request),
+        server_date=today_date()
     )
 
 

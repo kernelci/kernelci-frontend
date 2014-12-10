@@ -29,6 +29,9 @@ SECRET_KEY = 'bar'
 # Add the trailing slash!
 FILE_SERVER_URL = 'http://127.0.0.1/'
 
+# This is the default page title common to all HTML pages.
+DEFAULT_PAGE_TITLE = "Kernel CI Dashboard"
+
 # The following structure is used to give translation rules to know
 # git:// URLs.
 # Parameters are as follows:
