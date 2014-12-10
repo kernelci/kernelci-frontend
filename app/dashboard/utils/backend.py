@@ -93,6 +93,29 @@ def is_mobile_browser(request):
     return is_mobile
 
 
+def is_old_browser(request):
+    """Define if a browser is an older version.
+
+    An older browser might not support all features. Right now we check only
+    if IE is < 9.
+
+    :param request: The request to analyze.
+    :return True or False.
+    """
+    is_old = False
+
+    browser = request.user_agent.browser
+    version = (
+        request.user_agent.version and
+        int(request.user_agent.version.split('.')[0])
+    )
+
+    if (browser == "msie" and version < 9):
+        is_old = True
+
+    return is_old
+
+
 def get_search_parameters(request):
     """Get the request parameters for the search box.
 
