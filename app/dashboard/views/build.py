@@ -40,14 +40,14 @@ PAGE_TITLE = "Kernel CI Dashboard &mdash; Builds"
 class BuildsAllView(View):
 
     def dispatch_request(self, *args, **kwargs):
-        results_title = "Available Builds"
+        body_title = "Available Builds"
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "builds-all.html",
             page_len=page_len,
             page_title=PAGE_TITLE,
-            results_title=results_title,
+            body_title=body_title,
             search_filter=search_filter,
             server_date=today_date(),
         )
