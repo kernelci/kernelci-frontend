@@ -336,7 +336,12 @@ $(document).ready(function() {
         '/kernel/' + kernelName +
         '"><i class="fa fa-cube"></i></a></span>'
     );
-    JSBase.replaceContentByID('#dd-board', boardName);
+    JSBase.replaceContentByID(
+        '#dd-board',
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="All boot reports for board&nbsp;&#171;' + boardName +
+        '&#187;"><a href="/boot/' + boardName + '/">' + boardName +
+        '&nbsp;<i class="fa fa-search"></i></a></span>');
 
     ajaxData = {
         'board': boardName,
