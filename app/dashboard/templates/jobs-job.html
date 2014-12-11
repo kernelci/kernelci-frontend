@@ -1,9 +1,11 @@
-{%- extends 'base.html' %} {%- block meta -%}
-<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block content %}
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+{%- include "date-range.html" %}
 <div class="row">
-    <div class="page-header">
-        <h3>{{ page_title|safe }}</h3>
-    </div>
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <ul class="list-group">
             <li class="list-group-item">
@@ -26,10 +28,10 @@
     </div>
 </div>
 <div class="row">
-    <div class="page-header">
-        <h3>Available Builds</h3>
-    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h4>Available Builds</h4>
+        </div>
     {%- if is_mobile %}
         <div class="table-responsive" id="table-div">
     {%- else %}
