@@ -4,37 +4,39 @@
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
+{%- include "date-range.html" %}
 <div class="row">
-    <div class="page-header">
-    <h2>{{ body_title|safe }}</h2>
-    </div>
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-    <ul class="list-group">
-        <li class="list-group-item">
-            Total boot reports
-            <span class="badge">
-                <span id="boot-reports-count">
-                    <i class="fa fa-cog fa-spin"></i>
+        <ul class="list-group">
+            <li class="list-group-item">
+                Total boot reports
+                <span class="badge">
+                    <span id="boot-reports-count">
+                        <i class="fa fa-cog fa-spin"></i>
+                    </span>
                 </span>
-            </span>
-        </li>
-        <li class="list-group-item">
-            Total unique boards
-            <span class="badge">
-                <span id="boot-boards-count">
-                    <i class="fa fa-cog fa-spin"></i>
+            </li>
+            <li class="list-group-item">
+                Total unique boards
+                <span class="badge">
+                    <span id="boot-boards-count">
+                        <i class="fa fa-cog fa-spin"></i>
+                    </span>
                 </span>
-            </span>
-        </li>
-    </ul>
+            </li>
+        </ul>
     </div>
 </div>
 <div class="row">
-    <div class="page-header">
-        <h3>Kernels Tested</h3>
-    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="table-responsive">
+        <div class="page-header">
+            <h4>Kernels Tested</h4>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
             <table class="table table-striped table-hover table-condensed clickable-table" id="boot-reports-table">
                 <thead>
                     <tr>
