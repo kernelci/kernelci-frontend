@@ -384,27 +384,4 @@ $(document).ready(function() {
     );
 
     $.when(ajaxDeferredCall).done(populateBootsTable);
-
-    // Get failed jobs.
-    errorReason = 'Job data call failed';
-    ajaxData = {
-        'status': 'FAIL',
-        'sort': 'created_on',
-        'sort_order': -1,
-        'limit': 25,
-        'date_range': dateRange,
-        'field': ['job', 'git_branch', 'created_on']
-    };
-    ajaxDeferredCall = JSBase.createDeferredCall(
-        '/_ajax/job',
-        'GET',
-        ajaxData,
-        null,
-        tableErrorJobFunction,
-        errorReason,
-        null,
-        'failed-job'
-    );
-
-    $.when(ajaxDeferredCall).done(populateJobsTalbe);
 });
