@@ -1,28 +1,25 @@
 function tableErrorDefconfigFunction() {
     'use strict';
-
-    var staticContent = '<tr>' +
-        '<td colspan="5" align="center" valign="middle">' +
-        '<h4>Error loading data.</h4></td></tr>';
-    JSBase.replaceContentByID('#failed-builds-body', staticContent);
+    JSBase.replaceContentByID(
+        '#failed-builds-body',
+        '<tr><td colspan="5" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>');
 }
 
 function tableErrorJobFunction() {
     'use strict';
-
-    var staticContent = '<tr>' +
-        '<td colspan="3" align="center" valign="middle">' +
-        '<h4>Error loading data.</h4></td></tr>';
-    JSBase.replaceContentByID('#failed-jobs-body', staticContent);
+    JSBase.replaceContentByID(
+        '#failed-jobs-body',
+        '<tr><td colspan="3" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>');
 }
 
 function tableErrorBootFunction() {
     'use strict';
-
-    var staticContent = '<tr>' +
-        '<td colspan="8" align="center" valign="middle">' +
-        '<h4>Error loading data.</h4></td></tr>';
-    JSBase.replaceContentByID('#failed-boots-body', staticContent);
+    JSBase.replaceContentByID(
+        '#failed-boots-body',
+        '<tr><td colspan="8" align="center" valign="middle">' +
+        '<h4>Error loading data.</h4></td></tr>');
 }
 
 // Just a wrapper around the real function.
@@ -35,7 +32,6 @@ function countErrorFunction() {
 // Function to be called after countig all the failed defconfigs.
 function countDoneCallback(data) {
     'use strict';
-
     var localData = data.result,
         len = localData.length,
         i = 0,
@@ -290,13 +286,24 @@ function populateBootsTable(data) {
                 defconfigFull = '<span rel="tooltip" ' +
                     'data-toggle="tooltip" ' +
                     'title="' + defconfigFull + '">' +
-                    defconfigFull.slice(0, 33) + '&hellip;</span>';
+                    '<a class="table-link" href="/boot/' + board +
+                    '/job/' + job + '/kernel/' + kernel + '/defconfig/' +
+                    defconfigFull + '/">' +
+                    defconfigFull.slice(0, 33) + '&hellip;</a></span>';
+            } else {
+                defconfigFull = '<a class="table-link" href="/boot/' +
+                    board + '/job/' + job + '/kernel/' + kernel +
+                    '/defconfig/' + defconfigFull + '/">' +
+                    defconfigFull + '</a>';
             }
 
-            col1 = '<td><a class="table-link" href="/job/' + job + '/">' +
-                job + '</a></td>';
-            col2 = '<td>' + kernel + '</td>';
-            col3 = '<td>' + board + '</td>';
+            col1 = '<td><a class="table-link" href="/boot/all/job/' +
+                job + '/">' + job + '</a></td>';
+            col2 = '<td><a class="table-link" href="/boot/all/job/' + job +
+                '/kernel/' + kernel + '/">' + kernel + '</a></td>';
+            col3 = '<td><a class="table-link" href="/boot/' + board +
+                '/job/' + job + '/kernel/' + kernel + '/">' +
+                board + '</a></td>';
             col4 = '<td>' + defconfigFull + '</td>';
             col5 = '<td><small>' + labName + '</small></td>';
             col6 = col6Content;
@@ -319,7 +326,6 @@ function populateBootsTable(data) {
 
 $(document).ready(function() {
     'use strict';
-
     $('#li-home').addClass('active');
 
     var errorReason = '',
