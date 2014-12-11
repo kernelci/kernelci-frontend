@@ -91,6 +91,25 @@ function populateBootTable(data) {
                 }
             },
             {
+                'data': 'boot_result_description',
+                'title': 'Failure Reason',
+                'type': 'string',
+                'render': function(data) {
+                    var display = '';
+                    if (data !== null) {
+                        if (data.length > 45) {
+                            display = '<span rel="tooltip" ' +
+                                'data-toggle="tooltip"' +
+                                'title="' + data + '">' +
+                                data.slice(0, 46) + '&hellip;</span>';
+                        } else {
+                            display = data;
+                        }
+                    }
+                    return display;
+                }
+            },
+            {
                 'data': 'boot_log',
                 'title': 'Boot Log',
                 'type': 'string',
@@ -163,10 +182,6 @@ function populateBootTable(data) {
 
                     return display;
                 }
-            },
-            {
-                'data': 'arch',
-                'title': 'Arch.'
             },
             {
                 'data': 'created_on',
