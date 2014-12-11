@@ -223,6 +223,7 @@ function populateLabTable(data) {
 }
 
 $(document).ready(function() {
+    'use strict';
     $('#li-boot').addClass('active');
     $('#table-div').hide();
 
