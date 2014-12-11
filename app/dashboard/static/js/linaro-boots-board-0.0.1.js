@@ -72,8 +72,9 @@ function populateBoardTable(data) {
                     'title': 'Tree',
                     'type': 'string',
                     'render': function(data) {
-                        return '<a class="table-link" href="/boot/all/job/' +
-                            data + '/">' + data + '</a>';
+                        return '<a class="table-link" href="/boot/' +
+                            boardName + '/job/' + data + '/">' +
+                            data + '</a>';
                     }
                 },
                 {
