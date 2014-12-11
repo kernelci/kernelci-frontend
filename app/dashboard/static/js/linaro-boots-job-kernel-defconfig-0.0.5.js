@@ -90,7 +90,9 @@ function populateBootPage(data) {
                     break;
             }
 
-            col0 = '<td>' + labName + '</td>';
+            col0 = '<td><a class="table-link" ' +
+                'href="/boot/all/lab/' + labName + '/">' + labName +
+                '</a></td>';
             if (resultDescription !== null) {
                 if (resultDescription.length > 64) {
                     col1 = '<td>' +
