@@ -67,28 +67,55 @@ function populateLabTable(data) {
             {
                 'data': 'job',
                 'title': 'Tree',
-                'type': 'string'
+                'type': 'string',
+                'render': function(data) {
+                    return '<a class="table-link" href="/boot/all/job/' +
+                        data + '/">' + data + '</a>';
+                }
             },
             {
                 'data': 'kernel',
                 'title': 'Kernel',
-                'type': 'string'
+                'type': 'string',
+                'render': function(data, type, object) {
+                    return '<a class="table-link" href="/boot/all/job/' +
+                        object.job + '/kernel/' + data + '/">' + data +
+                        '</a>';
+                }
             },
             {
                 'data': 'board',
-                'title': 'Board Model'
+                'title': 'Board Model',
+                'render': function(data, type, object) {
+                    return '<a class="table-link" href="/boot/' + data +
+                        '/job/' + object.job + '/kernel/' +
+                        object.kernel + '/">' + data + '</a>';
+                }
             },
             {
                 'data': 'defconfig_full',
                 'title': 'Defconfig',
                 'render': function(data, type, object) {
-                    var display = data;
+                    var display = null,
+                        href = null,
+                        linkEl = null,
+                        board = object.board,
+                        job = object.job,
+                        kernel = object.kernel;
+
+                    href = '/boot/' + board + '/job/' + job + '/kernel/' +
+                        kernel + '/defconfig/' + data + '/';
+                    linkEl = '<a class="table-link" href="' + href + '">' +
+                        data + '</a>';
+
                     if (data.length > 33) {
                         display = '<span rel="tooltip" ' +
                             'data-toggle="tooltip" ' +
                             'title="' + data + '">' +
-                            data.slice(0, 33) + '&hellip;' +
-                            '</span>';
+                            '<a class="table-link" href="' + href + '">' +
+                            data.slice(0, 33) + '&hellip;</a></span>';
+                    } else {
+                        display = linkEl;
                     }
                     return display;
                 }
