@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from flask import (
+    current_app as app,
     render_template,
     request,
 )
@@ -25,11 +26,14 @@ from dashboard.utils.backend import (
 )
 
 
-class JobsAllView(View):
+class GeneralJobsView(View):
 
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    JOB_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Job Reports")
+
+
+class JobsAllView(GeneralJobsView):
     def dispatch_request(self):
-
-        page_title = "Kernel CI Dashboard &mdash; Jobs"
         body_title = "Available Jobs"
         search_filter, page_len = get_search_parameters(request)
 
@@ -37,17 +41,18 @@ class JobsAllView(View):
             "jobs-all.html",
             body_title=body_title,
             page_len=page_len,
-            page_title=page_title,
+            page_title=self.JOB_PAGES_TITLE,
             search_filter=search_filter,
             server_date=today_date(),
         )
 
 
-class JobsJobView(View):
-
+class JobsJobView(GeneralJobsView):
     def dispatch_request(self, **kwargs):
-
-        title = "Details for&nbsp;&#171;%s&#187;" % kwargs["job"]
+        body_title = "Details for&nbsp;&#171;%s&#187;" % kwargs["job"]
         return render_template(
-            "jobs-job.html", page_title=title, job=kwargs["job"]
+            "jobs-job.html",
+            page_title=self.PAGE_TITLE,
+            body_title=body_title,
+            job=kwargs["job"]
         )
