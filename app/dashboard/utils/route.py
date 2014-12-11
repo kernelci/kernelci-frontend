@@ -122,3 +122,8 @@ def init(app):
             "boot-board-job-kernel"),
         methods=["GET"]
     )
+    app.add_url_rule(
+        "/boot/<string:board>/",
+        view_func=vboot.BootBoardView.as_view("boot-board"),
+        methods=["GET"]
+    )
