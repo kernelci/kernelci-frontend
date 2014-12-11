@@ -288,7 +288,6 @@ function populateBootTable(data) {
 function ajaxDeferredFailed() {
     'use strict';
     $('#table-loading').remove();
-    $('#table-div').remove();
     JSBase.replaceContentByClass(
         '.loading-content',
         '<span rel="tooltip" data-toggle="tooltip" ' +
