@@ -265,8 +265,8 @@ function populateBootTable(data) {
         var localTable = table.fnGetData(this),
             location = '#';
         if (localTable) {
-            location = '/boot/' + localTable.board + '/job/' +
-                localTable.job + '/kernel/' + localTable.kernel +
+            location = '/boot/' + boardName + '/job/' +
+                jobName + '/kernel/' + kernelName +
                 '/defconfig/' + localTable.defconfig_full + '/lab/' +
                 localTable.lab_name + '/';
             if (localTable._id !== null) {
