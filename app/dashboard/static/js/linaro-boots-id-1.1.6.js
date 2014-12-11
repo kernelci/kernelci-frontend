@@ -216,6 +216,7 @@ function populatePage(data) {
         arch,
         defconfigFull,
         localLabName,
+        localBoard,
         fileServer = $('#file-server').val(),
         fileServerUri = null,
         fileServerUrl = null,
@@ -231,6 +232,7 @@ function populatePage(data) {
 
     bootTime = new Date(localData.time.$date);
 
+    localBoard = localData.board;
     job = localData.job;
     kernel = localData.kernel;
     defconfigFull = localData.defconfig_full;
@@ -245,12 +247,15 @@ function populatePage(data) {
         '<span rel="tooltip" data-toggle="tooltip"' +
         'title="All boot reports for lab&nbsp;&#171;' + localLabName +
         '&#187;">' +
-        '<a href="/boot/all/lab/' + localLabName + '/">' +
-        localLabName +
-        '&nbsp;<i class="fa fa-search"></i>' +
-        '</a></span>');
+        '<a href="/boot/all/lab/' + localLabName + '/">' + localLabName +
+        '&nbsp;<i class="fa fa-search"></i></a></span>');
 
-    $('#dd-board-board').empty().append(localData.board);
+    $('#dd-board-board').empty().append(
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="All boot reports for board&nbsp;&#171;' + localBoard +
+        '&#187;"><a href="/boot/' + localBoard + '/">' + localBoard +
+        '&nbsp;<i class="fa fa-search"></i></a></span>');
+
     $('#dd-board-arch').empty().append(arch);
 
     $('#dd-board-defconfig').empty().append(
