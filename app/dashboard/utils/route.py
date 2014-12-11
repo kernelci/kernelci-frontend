@@ -127,3 +127,8 @@ def init(app):
         view_func=vboot.BootBoardView.as_view("boot-board"),
         methods=["GET"]
     )
+    app.add_url_rule(
+        "/boot/<string:board>/job/<string:job>/",
+        view_func=vboot.BootBoardJobView.as_view("boot-board-job"),
+        methods=["GET"]
+    )
