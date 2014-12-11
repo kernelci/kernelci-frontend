@@ -144,7 +144,7 @@ function populateBootTable(data) {
                     uriPath = fileServerUri.path() + '/' + pathUrl;
 
                     if (bootLog !== null) {
-                        if (bootLog.search(labName) == -1) {
+                        if (bootLog.search(labName) === -1) {
                             logPath = uriPath + '/' + labName + '/' + bootLog;
                         } else {
                             logPath = uriPath + '/' + bootLog;
@@ -164,7 +164,7 @@ function populateBootTable(data) {
                         if (bootLog !== null) {
                             display += '&nbsp;&mdash;&nbsp;';
                         }
-                        if (bootLogHtml.search(labName) == -1) {
+                        if (bootLogHtml.search(labName) === -1) {
                             logPath = uriPath + '/' + labName + '/' +
                                 bootLogHtml;
                         } else {
@@ -287,6 +287,16 @@ function populateBootTable(data) {
 
 function ajaxDeferredFailed() {
     'use strict';
+    $('#table-loading').remove();
+    $('#table-div').remove();
+    JSBase.replaceContentByClass(
+        '.loading-content',
+        '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>');
+    JSBase.replaceContentByID(
+        '#table-div',
+        '<strong>Error loading data.</strong>');
 }
 
 $(document).ready(function() {
