@@ -124,7 +124,7 @@ function populateOtherBootTable(data) {
                 col2 = '<td class="pull-center">';
                 if (bootLog !== null || bootLogHtml !== null) {
                     if (bootLog !== null) {
-                        if (bootLog.search(localLabName) == -1) {
+                        if (bootLog.search(localLabName) === -1) {
                             logPath = uriPath + '/' + localLabName + '/' +
                                 bootLog;
                         } else {
@@ -143,7 +143,7 @@ function populateOtherBootTable(data) {
                         if (bootLog !== null) {
                             col2 += '&nbsp;&mdash;&nbsp;';
                         }
-                        if (bootLogHtml.search(localLabName) == -1) {
+                        if (bootLogHtml.search(localLabName) === -1) {
                             logPath = uriPath + '/' + localLabName + '/' +
                                 bootLogHtml;
                         } else {
@@ -323,7 +323,7 @@ function populatePage(data) {
         $('#dd-board-boot-log').empty();
 
         if (bootLog !== null) {
-            if (bootLog.search(localLabName) == -1) {
+            if (bootLog.search(localLabName) === -1) {
                 logPath = uriPath + '/' + localLabName + '/' + bootLog;
             } else {
                 logPath = uriPath + '/' + bootLog;
@@ -341,7 +341,7 @@ function populatePage(data) {
             if (bootLog !== null) {
                 $('#dd-board-boot-log').append('&nbsp;&mdash;&nbsp;');
             }
-            if (bootLogHtml.search(localLabName) == -1) {
+            if (bootLogHtml.search(localLabName) === -1) {
                 logPath = uriPath + '/' + localLabName + '/' + bootLogHtml;
             } else {
                 logPath = uriPath + '/' + bootLogHtml;
@@ -639,13 +639,12 @@ function multipleBootReportsFailed() {
 function bootIdAjaxFailed() {
     'use strict';
 
-    $('.loading-content').each(function() {
-        $(this).empty().append(
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Not available"><i class="fa fa-ban"></i>' +
-            '</span>'
-        );
-    });
+    JSBase.replaceContentByClass(
+        '.loading-content',
+        '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>'
+    );
 }
 
 $(document).ready(function() {
