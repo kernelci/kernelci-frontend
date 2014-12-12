@@ -122,7 +122,7 @@ function createBootsTable(data) {
             },
             {
                 'data': 'lab_name',
-                'title': 'Lab',
+                'title': 'Lab Name',
                 'render': function(data, type, object) {
                     return '<small>' + data + '</small>';
                 }
