@@ -57,7 +57,8 @@ function populateBoardTable(data) {
             'stateSave': true,
             'order': [5, 'desc'],
             'search': {
-                'regex': true
+                'regex': true,
+                'smart': false
             },
             'data': localData,
             'columns': [
