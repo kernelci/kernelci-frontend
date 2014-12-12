@@ -128,15 +128,21 @@ function createJobsTable(data) {
 
             var api = this.api();
 
-            pageLen = Number(pageLen);
-            if (isNaN(pageLen)) {
-                pageLen = 25;
+            if (pageLen !== undefined && pageLen !== null) {
+                if (pageLen.length > 0) {
+                    pageLen = Number(pageLen);
+                    if (isNaN(pageLen)) {
+                        pageLen = 25;
+                    }
+
+                    api.page.len(pageLen).draw();
+                }
             }
 
-            api.page.len(pageLen).draw();
-
-            if (searchFilter !== null && searchFilter.length > 0) {
-                api.search(searchFilter, true).draw();
+            if (searchFilter !== null && searchFilter !== undefined) {
+                if (searchFilter.length > 0) {
+                    api.search(searchFilter, true).draw();
+                }
             }
         },
         'lengthMenu': [25, 50, 75, 100],
@@ -147,7 +153,8 @@ function createJobsTable(data) {
         'stateSave': true,
         'order': [3, 'desc'],
         'search': {
-            'regex': true
+            'regex': true,
+            'smart': false
         },
         'data': localData,
         'columns': [
