@@ -13,8 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from dashboard import app
+from dashboard.app import app
 
 
-if __name__ == '__main__':
-    app.run(threaded=app.config['THREADED'], debug=app.debug)
+if __name__ == "__main__":
+    app.run(threaded=app.config["THREADED"], debug=app.debug)
