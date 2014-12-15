@@ -1,5 +1,12 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
 body {
-    position: relative;
+    margin-bottom: 60px;
+}
+#container-content {
+    margin-bottom: 25px;
 }
 .clickable-table tbody tr {
     cursor: pointer;
@@ -173,4 +180,15 @@ ul.affix {
 }
 .date-range {
     margin-bottom: 27px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    background-color: #f5f5f5;
+}
+.footer .text-muted {
+    margin: 21px 0;
 }
