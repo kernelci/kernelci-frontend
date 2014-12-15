@@ -50,7 +50,7 @@ function createBootsTable(data) {
         'processing': true,
         'stateDuration': -1,
         'stateSave': true,
-        'order': [6, 'desc'],
+        'order': [7, 'desc'],
         'search': {
             'regex': true,
             'smart': false
@@ -119,6 +119,11 @@ function createBootsTable(data) {
                     }
                     return display;
                 }
+            },
+            {
+                'data': 'arch',
+                'title': 'Arch.',
+                'type': 'string'
             },
             {
                 'data': 'lab_name',
@@ -250,7 +255,7 @@ $(document).ready(function() {
         'date_range': $('#date-range').val(),
         'field': [
             '_id', 'job', 'kernel', 'board', 'created_on',
-            'status', 'lab_name', 'defconfig_full'
+            'status', 'lab_name', 'defconfig_full', 'arch'
         ]
     };
     deferredAjaxCall = JSBase.createDeferredCall(
