@@ -66,6 +66,7 @@ COUNT_API_ENDPOINT = '/count'
 BATCH_API_ENDPOINT = '/batch'
 BISECT_API_ENDPOINT = '/bisect'
 LAB_API_ENDPOINT = '/lab'
+VERSION_API_ENDPOINT = '/version'
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
