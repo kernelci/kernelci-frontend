@@ -286,17 +286,10 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
     :return The server response.
     """
     return_data = status_code = r_headers = None
-    print "POST"
-    print url
-    print type(data), data
-    print type(params), params
-
     cache_key = hashlib.md5("%s%s%s" % (url, data, str(params))).digest()
-    print cache_key
 
     cached = app.cache.get(cache_key)
     if cached:
-        print "WE HAVE CACHED POST DATA"
         return_data, status_code, r_headers = cached
     else:
         try:
