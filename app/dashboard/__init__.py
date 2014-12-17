@@ -31,7 +31,7 @@ from flask.ext.cache import Cache
 __version__ = "2014.12.3"
 __versionfull__ = __version__
 
-CRSF_TOKEN_H = "X-Csrftoken"
+CSRF_TOKEN_H = "X-Csrftoken"
 
 DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-frontend.cfg"
 # Name of the environment variable that will be lookep up for app
@@ -136,7 +136,7 @@ def static_html_proxy(path):
 
 @app.route("/_ajax/job")
 def ajax_job():
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get("JOB_API_ENDPOINT"))
     else:
         abort(400)
@@ -144,7 +144,7 @@ def ajax_job():
 
 @app.route("/_ajax/defconf")
 def ajax_defconf():
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(
             request, app_conf_get("DEFCONFIG_API_ENDPOINT"))
     else:
@@ -153,7 +153,7 @@ def ajax_defconf():
 
 @app.route("/_ajax/boot")
 def ajax_boot():
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get("BOOT_API_ENDPOINT"))
     else:
         abort(400)
@@ -162,7 +162,7 @@ def ajax_boot():
 @app.route("/_ajax/count")
 @app.route("/_ajax/count/<string:collection>")
 def ajax_count(collection=None):
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_count_get(
             request, app_conf_get("COUNT_API_ENDPOINT"),
             collection
@@ -173,7 +173,7 @@ def ajax_count(collection=None):
 
 @app.route("/_ajax/batch", methods=("POST", "OPTIONS"))
 def ajax_batch():
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         if request.data:
             return backend.ajax_batch_post(
                 request, app_conf_get("BATCH_API_ENDPOINT")
@@ -186,7 +186,7 @@ def ajax_batch():
 
 @app.route("/_ajax/bisect/<string:collection>/<string:doc_id>")
 def ajax_bisect_call(collection=None, doc_id=None):
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         if all([collection, doc_id]):
             return backend.ajax_bisect(
                 request, collection, doc_id,
@@ -200,7 +200,7 @@ def ajax_bisect_call(collection=None, doc_id=None):
 
 @app.route("/_ajax/version", methods=["GET"])
 def ajax_version():
-    if validate_csrf(request.headers.get(CRSF_TOKEN_H, None)):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         # Cache the version for two days, hard for it to change that often.
         return backend.ajax_get(
             request,
