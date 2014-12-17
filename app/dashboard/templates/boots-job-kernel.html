@@ -7,71 +7,25 @@
     <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
             <dt>Tree</dt>
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="All boot reports for job&nbsp;{{ job }}"> 
-            <a href="/boot/all/job/{{ job }}">
-                {{ job }}
-            </a>
-            </span> &nbsp;&mdash;&nbsp;
-                <span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp; {{ job }}"> 
-            <a href="/job/{{ job }}"><i class="fa fa-sitemap"></i></a>
-            </span>
+            <dd class="loading-content" id="tree">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Git branch</dt>
-            {%- if result.git_branch %}
-            <dd>
-                {{ result.git_branch }}
+            <dd class="loading-content" id="git-branch">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
             <dt>Git describe</dt>
-            <dd>
-                {{ kernel }} &nbsp;&mdash;&nbsp;
-                <span rel="tooltip" data-toggle="tooltip" title="Details for build&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
-                <a href="/build/{{ job }}/kernel/{{ kernel }}/">
-                <i class="fa fa-cube"></i>
-                </a>
-            </span>
+            <dd class="loading-content" id="git-describe">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Git URL</dt>
-            {%- if result.git_url and base_url %}
-            <dd>
-                <a href="{{ base_url }}">
-            {{ result.git_url }}
-            <i class="fa fa-external-link"></i>
-            </a>
+            <dd class="loading-content" id="git-url">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- elif result.git_url %}
-            <dd>{{ result.git_url }}</dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
             <dt>Git commit</dt>
-            {%- if result.git_commit and commit_url %}
-            <dd>
-                <a href="{{ commit_url }}">
-                {{ result.git_commit }}
-                <i class="fa fa-external-link"></i>
-            </a>
+            <dd class="loading-content" id="git-commit">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- elif result.git_commit %}
-            <dd>{{ result.git_commit }}</dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
         </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
@@ -116,9 +70,12 @@
 </div>
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
-<input type="hidden" id="job-id" value="{{ job_id }}">
-<input type="hidden" id="storage-id" value="boot-{{ job_id }}">
-<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}"> {%- endblock %} {%- block scripts %} {{ super() }}
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+{# Beware the single quotes on this variable! #}
+<input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.1.js"></script>

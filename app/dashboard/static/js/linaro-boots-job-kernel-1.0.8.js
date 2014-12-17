@@ -1,3 +1,6 @@
+var kernelName = $('#kernel-name').val();
+var jobName = $('#job-name').val();
+
 function showHideBoots(element) {
     'use strict';
 
@@ -148,7 +151,6 @@ function populateBootsPage(data) {
         labName,
         allLabs = {},
         lab,
-        labLinks,
         fileServerUrl = null,
         fileServerResource = null,
         fileServerUri = null,
@@ -166,12 +168,14 @@ function populateBootsPage(data) {
             '<li class="fa fa-check"></li></span>',
         unknownLabel = '<span class="pull-right label label-warning">' +
             '<li class="fa fa-question"></li></span>',
-        toAppend;
+        toAppend = '',
+        archLabel = '';
 
     if (len > 0) {
         for (i; i < len; i = i + 1) {
             bootObj = localData[i];
             defconfigFull = bootObj.defconfig_full;
+            arch = bootObj.arch;
             job = bootObj.job;
             kernel = bootObj.kernel;
             board = bootObj.board;
@@ -217,6 +221,12 @@ function populateBootsPage(data) {
                     break;
             }
 
+            if (arch !== null) {
+                archLabel = '<small>' +
+                    '<span class="pull-right" style="padding: 3px">' +
+                    arch + '</span></small>';
+            }
+
             panel = '<div class="panel panel-default ' + cls + '">' +
                 '<div class="panel-heading" data-toggle="collapse" ' +
                     'id="panel-boots' + i + '" ' +
@@ -227,7 +237,7 @@ function populateBootsPage(data) {
                     'data-parent="#accordion' + labName + '" ' +
                     'href="#collapse-boots' + i + '">' +
                     board + '&nbsp;<small>' + defconfigFull + '</small>' +
-                    '</a>' + label + '</h4></div>' +
+                    '</a>' + label + archLabel + '</h4></div>' +
                     '<div id="collapse-boots' + i +
                     '" class="panel-collapse collapse">' +
                     '<div class="panel-body">';
@@ -280,7 +290,7 @@ function populateBootsPage(data) {
                 panel += '<dd>';
 
                 if (bootLog !== null) {
-                    if (bootLog.search(labName) == -1) {
+                    if (bootLog.search(labName) === -1) {
                         logPath = uriPath + '/' + labName + '/' + bootLog;
                     } else {
                         logPath = uriPath + '/' + bootLog;
@@ -296,7 +306,7 @@ function populateBootsPage(data) {
                     if (bootLog !== null) {
                         panel += '&nbsp;&mdash;&nbsp;';
                     }
-                    if (bootLogHtml.search(labName) == -1) {
+                    if (bootLogHtml.search(labName) === -1) {
                         logPath = uriPath + '/' + labName + '/' + bootLogHtml;
                     } else {
                         logPath = uriPath + '/' + bootLogHtml;
@@ -339,14 +349,10 @@ function populateBootsPage(data) {
         }
 
         // Make sure it is clean.
-        labLinks = null;
         toAppend = '';
         Object.keys(allLabs).sort().forEach(function(element, index, array) {
             lab = allLabs[element];
             len = lab.length;
-
-            labLinks = [];
-            labLinks.push({'href': element, 'name': element});
 
             toAppend += '<div id="' + element + '">' +
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
@@ -359,12 +365,6 @@ function populateBootsPage(data) {
         });
 
         $('#accordion-container').empty().append(toAppend);
-        // Add sidebar navigation links.
-        JSBase.populateSideBarNav([
-            {'href': '#details', 'name': 'Details'},
-            {'href': '#tested-boards', 'name': 'Boards'},
-            {'href': '#labs', 'name': 'Labs', 'subnav': labLinks}
-        ]);
 
         if (hasFailed) {
             $('#fail-btn').removeAttr('disabled');
@@ -379,7 +379,7 @@ function populateBootsPage(data) {
         }
 
         $('#all-btn').removeAttr('disabled');
-        if (!WebStorage.load($('#storage-id').val())) {
+        if (!WebStorage.load('boot' + jobName + kernelName)) {
             if (hasFailed) {
                 // If there is no saved session, show only the failed ones.
                 $('.df-failed').show();
@@ -399,59 +399,174 @@ function populateBootsPage(data) {
     }
 }
 
-function ajaxCallFailed() {
+function ajaxDefconfigGetFailed() {
     'use strict';
-    var staticContent = '<div class="text-center">' +
-        '<h3>Error loading data.</h3>' +
-        '</div>';
-    JSBase.replaceContentByID('#accordion-container', staticContent);
+    JSBase.replaceContentByID(
+        '#accordion-container',
+        '<div class="text-center"><h3>Error loading data.</h3></div>'
+    );
 }
 
-function parseData(data) {
-    // Just a wrapper function calling jQuery 'when' with multiple functions.
+function ajaxJobGetFailed() {
     'use strict';
-    $.when(populateBootsPage(data), createPieChart(data));
+    JSBase.replaceContentByClass(
+        '.loading-content',
+        '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>'
+    );
+}
+
+function populateJobData(data) {
+    'use strict';
+    var localData = data.result,
+        localResult = null,
+        dataLen = localData.length,
+        gitCommit = null,
+        gitUrl = null,
+        gitUrls = null,
+        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>';
+
+    if (dataLen > 0) {
+        localResult = localData[0];
+        gitCommit = localResult.git_commit;
+        gitUrl = localResult.git_url;
+
+        gitUrls = JSBase.translateCommitURL(gitUrl, gitCommit);
+
+        $('#tree').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Details for tree ' + jobName + '">' +
+            '<a href="/job/' + jobName + '/">' + jobName + '</a>' +
+            '</span>&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Boot reports details for ' + jobName + '">' +
+            '<a href="/boot/all/job/' + jobName + '/">' +
+            '<i class="fa fa-hdd-o"></i>' +
+            '</a></span>'
+        );
+
+        $('#git-branch').empty().append(localResult.git_branch);
+
+        $('#git-describe').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Details for build ' + jobName + '&nbsp;&dash;&nbsp;' +
+            kernelName + '">' +
+            '<a href="/build/' + jobName + '/kernel/' + kernelName + '/">' +
+            kernelName +
+            '</a>' +
+            '</span>&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="All boot reports for ' + jobName + '&nbsp;&dash;&nbsp;' +
+            kernelName + '">' +
+            '<a href="/boot/all/job/' + jobName + '/kernel/' + kernelName +
+            '/">' +
+            '<i class="fa fa-hdd-o"></i></a></span>'
+        );
+
+        if (gitUrls[0] !== null) {
+            $('#git-url').empty().append(
+                '<a href="' + gitUrls[0] + '">' + gitUrl +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (gitUrl !== null) {
+                $('#git-url').empty().append(gitUrl);
+            } else {
+                $('#git-url').empty().append(nonAvail);
+            }
+        }
+
+        if (gitUrls[1] !== null) {
+            $('#git-commit').empty().append(
+                '<a href="' + gitUrls[1] + '">' + gitCommit +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (gitCommit !== null) {
+                $('#git-commit').empty().append(gitCommit);
+            } else {
+                $('#git-commit').empty().append(nonAvail);
+            }
+        }
+    } else {
+        ajaxJobGetFailed();
+    }
+}
+
+function getBootData(data) {
+    'use strict';
+
+    var localData = data.result,
+        localResult = null,
+        dataLen = localData.length,
+        ajaxData,
+        ajaxDeferredCall,
+        errorReason = 'Boot data call failed';
+
+    if (dataLen > 0) {
+        localResult = localData[0];
+
+        ajaxData = {
+            'sort': ['status', 'defconfig_full', 'arch'],
+            'sort_order': 1,
+            'job': jobName,
+            'kernel': kernelName,
+            'job_id': localResult._id.$oid
+        };
+
+        ajaxDeferredCall = JSBase.createDeferredCall(
+            '/_ajax/boot',
+            'GET',
+            ajaxData,
+            null,
+            ajaxDefconfigGetFailed,
+            errorReason,
+            null,
+            'boot-call'
+        );
+
+        $.when(ajaxDeferredCall)
+            .done(populateBootsPage)
+            .done(createPieChart);
+    } else {
+        ajaxDefconfigGetFailed();
+    }
 }
 
 $(document).ready(function() {
     'use strict';
-
     $('#li-boot').addClass('active');
 
-    var errorReason = 'Boot data call failed',
-        ajaxDeferredCall,
-        ajaxData = {
-            'sort': ['status', '_id'],
-            'sort_order': 1
-        },
-        jobId = $('#job-id').val(),
-        kernelName = $('#kernel-name').val(),
-        jobName = $('#job-name').val();
+    var ajaxDeferredCall = null,
+        ajaxData = null,
+        errorReason = 'Job data call failed';
 
-    if (jobId !== 'None') {
-        ajaxData.job_id = jobId;
-    } else {
-        ajaxData.job = jobName;
-        ajaxData.kernel = kernelName;
-    }
-
+    ajaxData = {
+        'job': jobName,
+        'kernel': kernelName
+    };
     ajaxDeferredCall = JSBase.createDeferredCall(
-        '/_ajax/boot',
+        '/_ajax/job',
         'GET',
         ajaxData,
         null,
-        ajaxCallFailed,
-        errorReason,
-        null,
-        'boot-call'
+        ajaxJobGetFailed,
+        errorReason
     );
 
-    $.when(ajaxDeferredCall).then(parseData, ajaxCallFailed);
+    $.when(ajaxDeferredCall)
+        .done(populateJobData)
+        .done(getBootData);
 });
 
 $(document).ready(function() {
     // No use strict here or onbeforeunload is not recognized.
-    var sessionState = new WebStorage.SessionState($('#storage-id').val());
+    var sessionState = new WebStorage.SessionState(
+        'boot' + jobName + kernelName
+    );
     onbeforeunload = function() {
 
         var panelState = {},

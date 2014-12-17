@@ -121,44 +121,13 @@ class BootJobKernelView(BootGeneralView):
             (job, kernel)
         )
 
-        params = {"job": job, "kernel": kernel}
-        response = get_job(**params)
-
-        base_url = ""
-        commit_url = ""
-
-        if response.status_code == 200:
-            document = json.loads(response.content, encoding="utf_8")
-            result = document.get("result", None)
-
-            if result and len(result) == 1:
-                result = result[0]
-                res_get = result.get
-
-                job_id = (res_get("_id")).get("$oid")
-                storage_id = "boot-" + job_id
-
-                base_url, commit_url = translate_git_url(
-                    res_get("git_url", None),
-                    res_get("git_commit", None)
-                )
-
-                return render_template(
-                    "boots-job-kernel.html",
-                    page_title=self.BOOT_PAGES_TITLE,
-                    body_title=body_title,
-                    base_url=base_url,
-                    commit_url=commit_url,
-                    job_id=job_id,
-                    job=job,
-                    kernel=kernel,
-                    result=result,
-                    storage_id=storage_id,
-                )
-            else:
-                abort(400)
-        else:
-            abort(response.status_code)
+        return render_template(
+            "boots-job-kernel.html",
+            page_title=self.BOOT_PAGES_TITLE,
+            body_title=body_title,
+            job=job,
+            kernel=kernel
+        )
 
 
 class BootJobView(BootGeneralView):
