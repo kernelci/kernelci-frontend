@@ -321,23 +321,6 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
     return return_data, status_code, r_headers
 
 
-def get_job(**kwargs):
-    """Get a job document from the backend.
-
-    This function is only used for server side processing data.
-
-    :return A `requests.Response` object.
-    """
-    api_path = app.config.get("JOB_API_ENDPOINT")
-
-    if kwargs.get("id", None):
-        api_path = _create_api_path(api_path, kwargs["id"])
-        kwargs.pop("id")
-
-    url = _create_url_headers(api_path)
-    return request_get(url, params=kwargs)
-
-
 def ajax_count_get(request, api_path, collection):
     """Handle AJAX call from the client to the `count` API.
 
@@ -399,7 +382,7 @@ def ajax_bisect(request, collection, doc_id, api_path):
     return (r.raw.data, r.status_code, r.headers.items())
 
 
-def ajax_batch_post(request, api_path):
+def ajax_batch_post(request, api_path, timeout=None):
     """Handle batch POST operations.
 
     :param request: The request performed.
@@ -407,9 +390,12 @@ def ajax_batch_post(request, api_path):
     :return A tuple with the data, status code and headers of the
         `requests.Response` object.
     """
-
     url = _create_url_headers(api_path)
     data, status_code, headers = request_post(
-        url, request.data, headers={"Content-Type": "application/json"})
+        url,
+        request.data,
+        headers={"Content-Type": "application/json"},
+        timeout=timeout
+    )
 
     return data, status_code, headers.items()
