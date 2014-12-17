@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -13,9 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import (
-    render_template,
-)
+from flask import render_template
 from flask.views import View
 
 from dashboard.utils.backend import (
