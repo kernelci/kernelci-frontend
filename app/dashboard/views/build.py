@@ -35,7 +35,13 @@ from dashboard.utils.backend import (
 PAGE_TITLE = "Kernel CI Dashboard &mdash; Builds"
 
 
-class BuildsAllView(View):
+class GeneralBuildsView(View):
+
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    BUILD_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
+
+
+class BuildsAllView(GeneralBuildsView):
 
     def dispatch_request(self, *args, **kwargs):
         body_title = "Available Builds"
@@ -44,14 +50,14 @@ class BuildsAllView(View):
         return render_template(
             "builds-all.html",
             page_len=page_len,
-            page_title=PAGE_TITLE,
+            page_title=self.BUILD_PAGES_TITLE,
             body_title=body_title,
             search_filter=search_filter,
             server_date=today_date(),
         )
 
 
-class BuildsJobKernelView(View):
+class BuildsJobKernelView(GeneralBuildsView):
 
     def dispatch_request(self, *args, **kwargs):
         job = kwargs["job"]
@@ -83,7 +89,7 @@ class BuildsJobKernelView(View):
 
                 return render_template(
                     "builds-job-kernel.html",
-                    page_title=PAGE_TITLE,
+                    page_title=self.BUILD_PAGES_TITLE,
                     body_title=body_title,
                     base_url=base_url,
                     commit_url=commit_url,
@@ -99,7 +105,7 @@ class BuildsJobKernelView(View):
             abort(response.status_code)
 
 
-class BuildsJobKernelDefconfigView(View):
+class BuildsJobKernelDefconfigView(GeneralBuildsView):
 
     def dispatch_request(self, *args, **kwargs):
         job = kwargs["job"]
@@ -120,6 +126,6 @@ class BuildsJobKernelDefconfigView(View):
             defconfig_id=defconfig_id,
             job_name=job,
             kernel_name=kernel,
-            page_title=PAGE_TITLE,
+            page_title=self.BUILD_PAGES_TITLE,
             url_translation=url_translation
         )

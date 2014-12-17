@@ -14,14 +14,11 @@
 from flask import (
     current_app as app,
     render_template,
-    request,
+    request
 )
 from flask.views import View
 
-from dashboard.utils.backend import (
-    get_search_parameters,
-    today_date,
-)
+from dashboard.utils.backend import get_search_parameters
 
 
 class GeneralJobsView(View):
@@ -40,8 +37,7 @@ class JobsAllView(GeneralJobsView):
             body_title=body_title,
             page_len=page_len,
             page_title=self.JOB_PAGES_TITLE,
-            search_filter=search_filter,
-            server_date=today_date(),
+            search_filter=search_filter
         )
 
 

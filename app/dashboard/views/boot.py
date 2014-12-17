@@ -28,8 +28,7 @@ from flask.views import View
 from dashboard.utils.backend import (
     get_job,
     get_search_parameters,
-    today_date,
-    translate_git_url,
+    translate_git_url
 )
 
 
@@ -51,8 +50,7 @@ class BootAllView(BootGeneralView):
             page_len=page_len,
             page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
-            search_filter=search_filter,
-            server_date=today_date(),
+            search_filter=search_filter
         )
 
 
@@ -77,7 +75,7 @@ class BootDefconfigView(BootGeneralView):
             job=kwargs["job"],
             kernel=kwargs["kernel"],
             defconfig=kwargs["defconfig"],
-            url_translation=url_translation,
+            url_translation=url_translation
         )
 
 
@@ -108,7 +106,7 @@ class BootIdView(BootGeneralView):
             defconfig=kwargs["defconfig"],
             url_translation=url_translation,
             lab_name=kwargs["lab_name"],
-            boot_id=boot_id,
+            boot_id=boot_id
         )
 
 

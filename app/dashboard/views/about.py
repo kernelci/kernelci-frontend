@@ -11,11 +11,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from flask import (
+    current_app as app,
+    render_template
+)
 from flask.views import View
-from flask import render_template
 
 
 class AboutView(View):
 
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    ABOUT_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Info")
+
     def dispatch_request(self):
-        return render_template("info.html")
+        return render_template("info.html", page_title=self.ABOUT_TITLE)

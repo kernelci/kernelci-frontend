@@ -11,21 +11,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import render_template
-from flask.views import View
-
-from dashboard.utils.backend import (
-    today_date,
+from flask import (
+    current_app as app,
+    render_template
 )
+from flask.views import View
 
 
 class IndexView(View):
 
-    def dispatch_request(self, *args, **kwargs):
-        page_title = "Kernel CI Dashboard &mdash; Home"
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    INDEX_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Home")
 
-        return render_template(
-            "index.html",
-            page_title=page_title,
-            server_date=today_date(),
-        )
+    def dispatch_request(self, *args, **kwargs):
+        return render_template("index.html", page_title=self.INDEX_TITLE)
