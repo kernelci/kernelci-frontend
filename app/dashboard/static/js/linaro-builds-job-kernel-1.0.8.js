@@ -303,7 +303,7 @@ function createBuildsPage(data) {
     }
 
     $('#all-btn').removeAttr('disabled');
-    if (!WebStorage.load(jobName + kernelName)) {
+    if (!WebStorage.load('build' + jobName + kernelName)) {
         if (hasFailed) {
             // If there is no saved session, show only the failed ones.
             $('.df-failed').show();
@@ -480,7 +480,8 @@ $(document).ready(function() {
 
 $(document).ready(function() {
     // No use strict here or onbeforeunload is not recognized.
-    var sessionState = new WebStorage.SessionState(jobName + kernelName);
+    var sessionState = new WebStorage.SessionState(
+        'build' + jobName + kernelName);
     onbeforeunload = function() {
 
         var panelState = {},
