@@ -1,5 +1,8 @@
+Flask-Cache
 Flask-WTF==0.10.3
 Flask==0.10.1
 pymongo
+redis==2.10.3
+hiredis
 requests==2.4.3
 simplejson>=3.6.1
