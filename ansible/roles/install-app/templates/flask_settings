@@ -11,8 +11,10 @@ FILE_SERVER_URL = '{{ file_server }}'
 GOOGLE_ANALYTICS_ID = '{{ google_analytics }}'
 
 {% if role == "production" %}
+CACHE_TYPE = 'redis'
 DEBUG = False
 {% else %}
+CACHE_TIPE = 'simple'
 DEBUG = True
 {% endif %}
 TESTING = DEBUG
