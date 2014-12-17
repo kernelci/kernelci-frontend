@@ -12,6 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import hashlib
 import re
 import requests
 import types
@@ -30,6 +31,13 @@ from requests.exceptions import (
 # Timeout seconds to connect and read from the remote server.
 CONNECT_TIMEOUT = 6.0
 READ_TIMEOUT = 10.0
+
+AUTH_HEADER = app.config.get("BACKEND_TOKEN_HEADER")
+AUTH_TOKEN = app.config.get("BACKEND_TOKEN")
+
+# The requests session object.
+req_session = requests.Session()
+req_session.headers.update({AUTH_HEADER: AUTH_TOKEN})
 
 
 def translate_git_url(git_url, commit_id):
@@ -75,7 +83,20 @@ def is_mobile_browser(request):
     """
     platform = request.user_agent.platform
     user_agent = request.user_agent.string
+    return _is_mobile_browser(platform, user_agent)
 
+
+@app.cache.memoize(timeout=60*60*6)
+def _is_mobile_browser(platform, user_agent):
+    """Wrapper to make the function cachable.
+
+    This is where the logic lies. This function is only used to provide an
+    easy way to cache its results based on valid arguments.
+
+    :param platform: The platform making the request.
+    :param user_agent: The user agent string.
+    :return True or False.
+    """
     is_mobile = False
     if any([platform == "android", platform == "iphone"]):
         is_mobile = True
@@ -100,14 +121,26 @@ def is_old_browser(request):
     :param request: The request to analyze.
     :return True or False.
     """
-    is_old = False
-
     browser = request.user_agent.browser
     version = (
         request.user_agent.version and
         int(request.user_agent.version.split('.')[0])
     )
+    return _is_old_browser(browser, version)
 
+
+@app.cache.memoize(timeout=60*60*6)
+def _is_old_browser(browser, version):
+    """Wrapper to make the function cachable.
+
+    This is where the logic lies. This function is only used to provide an
+    easy way to cache its results based on valid arguments.
+
+    :param browser: The browser string in a request.
+    :param version: The browser version number.
+    :return True or False.
+    """
+    is_old = False
     if (browser == "msie" and version < 9):
         is_old = True
 
@@ -142,6 +175,7 @@ def today_date():
     return datetime.date.today().strftime("%a, %d %b %Y")
 
 
+@app.cache.memoize(timeout=60*60*6)
 def _create_url_headers(api_path):
     """Create the complete URL to the API backend.
 
@@ -150,19 +184,10 @@ def _create_url_headers(api_path):
     :param api_path: The API path.
     :return A tuple with the full URL, and the headers set.
     """
-    backend_token = app.config.get("BACKEND_TOKEN")
     backend_url = app.config.get("BACKEND_URL")
-    backend_token_header = app.config.get("BACKEND_TOKEN_HEADER")
-
     backend_url = urlparse.urljoin(backend_url, api_path)
 
-    headers = {}
-    if backend_token:
-        headers = {
-            backend_token_header: backend_token,
-        }
-
-    return (backend_url, headers)
+    return backend_url
 
 
 def _create_api_path(api_path, other_path=None):
@@ -196,6 +221,113 @@ def _create_api_path(api_path, other_path=None):
     return api_path
 
 
+@app.cache.memoize(timeout=60*60*6)
+def _get_request_headers():
+    """Get the default request headers.
+
+    :return The headers as a dictionary.
+    """
+    backend_token = app.config.get("BACKEND_TOKEN")
+    backend_token_header = app.config.get("BACKEND_TOKEN_HEADER")
+
+    headers = {}
+    if backend_token:
+        headers = {
+            backend_token_header: backend_token,
+        }
+
+    return headers
+
+
+def request_get(url, params=[], timeout=None):
+    """Perform a GET request on the provided URL.
+
+    :return The server response.
+    """
+    return_data = status_code = headers = None
+
+    cache_key = hashlib.md5("%s%s" % (url, str(params))).digest()
+
+    cached = app.cache.get(cache_key)
+    if cached:
+        return_data, status_code, headers = cached
+    else:
+        try:
+            r = req_session.get(
+                url,
+                params=params,
+                timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
+                stream=True
+            )
+
+            return_data = r.raw.data or r.text
+            status_code = r.status_code
+            headers = r.headers
+
+            if timeout is None:
+                timeout = app.config.get("CACHE_DEFAULT_TIMEOUT")
+
+            app.cache.set(
+                cache_key,
+                (return_data, status_code, headers),
+                timeout=timeout
+            )
+        except (ConnectTimeout, ReadTimeout):
+            abort(408)
+        except ConnectionError:
+            abort(500)
+
+    return return_data, status_code, headers
+
+
+def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
+    """Perform a POST request on the provided URL with the given data.
+
+    :return The server response.
+    """
+    return_data = status_code = r_headers = None
+    print "POST"
+    print url
+    print type(data), data
+    print type(params), params
+
+    cache_key = hashlib.md5("%s%s%s" % (url, data, str(params))).digest()
+    print cache_key
+
+    cached = app.cache.get(cache_key)
+    if cached:
+        print "WE HAVE CACHED POST DATA"
+        return_data, status_code, r_headers = cached
+    else:
+        try:
+            r = req_session.post(
+                url,
+                data=data,
+                params=params,
+                headers=headers,
+                stream=stream,
+                timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
+            )
+            return_data = r.raw.data or r.text
+            status_code = r.status_code
+            r_headers = r.headers
+
+            if timeout is None:
+                timeout = app.config.get("CACHE_DEFAULT_TIMEOUT")
+
+            app.cache.set(
+                cache_key,
+                (return_data, status_code, r_headers),
+                timeout=timeout
+            )
+        except (ConnectTimeout, ReadTimeout):
+            abort(408)
+        except ConnectionError:
+            abort(500)
+
+    return return_data, status_code, r_headers
+
+
 def get_job(**kwargs):
     """Get a job document from the backend.
 
@@ -209,43 +341,8 @@ def get_job(**kwargs):
         api_path = _create_api_path(api_path, kwargs["id"])
         kwargs.pop("id")
 
-    url, headers = _create_url_headers(api_path)
-
-    try:
-        return requests.get(
-            url, params=kwargs, headers=headers,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
-
-
-def get_defconfig(**kwargs):
-    """Get a defconfig document from the backend.
-
-    This function is only used for server side processing data.
-
-    :return A `requests.Response` object.
-    """
-    api_path = app.config.get("DEFCONFIG_API_ENDPOINT")
-
-    if kwargs.get("id", None):
-        api_path = _create_api_path(api_path, kwargs["id"])
-        kwargs.pop("id")
-
-    url, headers = _create_url_headers(api_path)
-
-    try:
-        return requests.get(
-            url, params=kwargs, headers=headers,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
+    url = _create_url_headers(api_path)
+    return request_get(url, params=kwargs)
 
 
 def ajax_count_get(request, api_path, collection):
@@ -265,21 +362,13 @@ def ajax_count_get(request, api_path, collection):
     if collection:
         api_path = _create_api_path(api_path, collection)
 
-    url, headers = _create_url_headers(api_path)
+    url = _create_url_headers(api_path)
 
-    try:
-        r = requests.get(
-            url, headers=headers, params=params_list, stream=True,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-        return (r.raw.data, r.status_code, r.headers.items())
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
+    data, status_code, headers = request_get(url, params=params_list)
+    return data, status_code, headers.items()
 
 
-def ajax_get(request, api_path):
+def ajax_get(request, api_path, timeout=None):
     """Handle general AJAX calls from the client.
 
     :param request: The request performed.
@@ -295,17 +384,26 @@ def ajax_get(request, api_path):
 
         params_list.remove(("id", [doc_id]))
 
-    url, headers = _create_url_headers(api_path)
-    try:
-        r = requests.get(
-            url, headers=headers, params=params_list, stream=True,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-        return (r.raw.data, r.status_code, r.headers.items())
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
+    url = _create_url_headers(api_path)
+
+    data, status_code, headers = request_get(
+        url, params=params_list, timeout=timeout)
+    return (data, status_code, headers.items())
+
+
+def ajax_bisect(request, collection, doc_id, api_path):
+    """Handle GET operations on the bisect collection.
+
+    :param request: The request performed.
+    :param collection: The name of the collection where to perform the bisect.
+    :param doc_id: The ID of the document to bisect.
+    :param api_path: The API endpoint where to perform the request.
+    """
+    api_path = _create_api_path(api_path, [collection, doc_id])
+    url = _create_url_headers(api_path)
+
+    r = request_get(url)
+    return (r.raw.data, r.status_code, r.headers.items())
 
 
 def ajax_batch_post(request, api_path):
@@ -317,32 +415,8 @@ def ajax_batch_post(request, api_path):
         `requests.Response` object.
     """
 
-    url, headers = _create_url_headers(api_path)
-    # Make sure we send JSON.
-    headers["Content-Type"] = "application/json"
-    try:
-        r = requests.post(
-            url, data=request.data, headers=headers, stream=True,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-        return (r.raw.data, r.status_code, r.headers.items())
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
+    url = _create_url_headers(api_path)
+    data, status_code, headers = request_post(
+        url, request.data, headers={"Content-Type": "application/json"})
 
-
-def ajax_bisect(request, collection, doc_id, api_path):
-    api_path = _create_api_path(api_path, [collection, doc_id])
-    url, headers = _create_url_headers(api_path)
-
-    try:
-        r = requests.get(
-            url, headers=headers, stream=True,
-            timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-        )
-        return (r.raw.data, r.status_code, r.headers.items())
-    except (ConnectTimeout, ReadTimeout):
-        abort(408)
-    except ConnectionError:
-        abort(500)
+    return data, status_code, headers.items()
