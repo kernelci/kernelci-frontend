@@ -11,28 +11,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 from flask import (
-    abort,
     current_app as app,
     render_template,
-    request,
+    request
 )
-
 from flask.views import View
 
-from dashboard.utils.backend import (
-    get_job,
-    get_search_parameters,
-    today_date,
-    translate_git_url,
-)
-
-PAGE_TITLE = "Kernel CI Dashboard &mdash; Builds"
+from dashboard.utils.backend import get_search_parameters
 
 
 class GeneralBuildsView(View):
@@ -53,7 +39,6 @@ class BuildsAllView(GeneralBuildsView):
             page_title=self.BUILD_PAGES_TITLE,
             body_title=body_title,
             search_filter=search_filter,
-            server_date=today_date(),
         )
 
 
@@ -89,7 +74,6 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
             "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
             (job, kernel)
         )
-        url_translation = app.config.get("KNOWN_GIT_URLS")
 
         return render_template(
             "builds-job-kernel-defconf.html",
@@ -98,6 +82,5 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
             defconfig_id=defconfig_id,
             job_name=job,
             kernel_name=kernel,
-            page_title=self.BUILD_PAGES_TITLE,
-            url_translation=url_translation
+            page_title=self.BUILD_PAGES_TITLE
         )
