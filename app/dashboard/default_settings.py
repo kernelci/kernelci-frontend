@@ -74,7 +74,7 @@ DATE_RANGE = 5
 # Google Analytics code.
 GOOGLE_ANALYTICS_ID = None
 
-# Redis cache values: need to override USE_CACHE to make use of the cache.
+# Redis cache values.
 CACHE_TYPE = 'simple'
 CACHE_KEY_PREFIX = 'kernelcifrontend|'
 CACHE_REDIS_HOST = 'localhost'
