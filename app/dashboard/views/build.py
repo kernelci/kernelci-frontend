@@ -63,46 +63,18 @@ class BuildsJobKernelView(GeneralBuildsView):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
 
-        job_name = "%s-%s" % (job, kernel)
-
         body_title = (
             "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
             (job, kernel)
         )
 
-        params = {"name": job_name}
-        response = get_job(**params)
-
-        if response.status_code == 200:
-            document = json.loads(response.content, encoding="utf_8")
-            result = document.get("result", None)
-
-            if result and len(result) == 1:
-                result = result[0]
-                res_get = result.get
-
-                job_id = (res_get("_id")).get("$oid")
-                base_url, commit_url = translate_git_url(
-                    res_get("git_url", None),
-                    res_get("git_commit", None)
-                )
-
-                return render_template(
-                    "builds-job-kernel.html",
-                    page_title=self.BUILD_PAGES_TITLE,
-                    body_title=body_title,
-                    base_url=base_url,
-                    commit_url=commit_url,
-                    job_name=job_name,
-                    job_id=job_id,
-                    job=job,
-                    kernel=kernel,
-                    result=result,
-                )
-            else:
-                abort(400)
-        else:
-            abort(response.status_code)
+        return render_template(
+            "builds-job-kernel.html",
+            page_title=self.BUILD_PAGES_TITLE,
+            body_title=body_title,
+            job=job,
+            kernel=kernel
+        )
 
 
 class BuildsJobKernelDefconfigView(GeneralBuildsView):

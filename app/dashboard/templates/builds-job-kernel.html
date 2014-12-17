@@ -7,79 +7,31 @@
     <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
             <dt>Tree</dt>
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Details for job&nbsp; {{ job }}">
-            <a href="/job/{{ job }}">
-                {{ job }}
-            </a>
-            </span> &nbsp;&mdash;&nbsp;
-                <span rel="tooltip" data-toggle="tooltip" title="Boot reports details for&nbsp;{{ job }}">
-                <a href="/boot/all/job/{{ job }}/">
-                <i class="fa fa-hdd-o"></i>
-                </a>
-            </span>
+            <dd class="loading-content" id="tree">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Git branch</dt>
-            {%- if result and result.git_branch %}
-            <dd>
-                {{ result.git_branch }}
+            <dd class="loading-content" id="git-branch">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
             <dt>Git describe</dt>
-            <dd>
-                {{ kernel }} &nbsp;&mdash;&nbsp;
-                <span rel="tooltip" data-toggle="tooltip" title="All boot reports for&nbsp;{{ job }}&nbsp;&dash;&nbsp;{{ kernel }}">
-                <a href="/boot/all/job/{{ job }}/kernel/{{ kernel }}/">
-                <i class="fa fa-hdd-o"></i>
-                </a>
-            </span>
+            <dd class="loading-content" id="git-describe">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Git URL</dt>
-            {%- if result and result.git_url and base_url %}
-            <dd>
-                <a href="{{ base_url }}">
-            {{ result.git_url }}
-            <i class="fa fa-external-link"></i>
-            </a>
+            <dd class="loading-content" id="git-url">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- elif result and result.git_url %}
-            <dd>{{ result.git_url }}</dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
             <dt>Git commit</dt>
-            {%- if result and result.git_commit and commit_url %}
-            <dd>
-                <a href="{{ commit_url }}">
-                {{ result.git_commit }}
-                <i class="fa fa-external-link"></i>
-            </a>
+            <dd class="loading-content" id="git-commit">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
-            {%- elif result and result.git_commit %}
-            <dd>{{ result.git_commit }}</dd>
-            {%- else %}
-            <dd>
-                <span rel="tooltip" data-toggle="tooltip" title="Not available">
-                <i class="fa fa-ban"></i>
-            </span>
-            </dd>
-            {%- endif %}
         </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
         <div id="builds-chart" class="chart-div">
             <div id="builds-chart-heading">
-                <table id="builds-chart-legend" class="pie-chart">
+                <table id="builds-chart-legend" class="pie-chart" summary="Defconfigs built status chart">
                     <tbody>
                         <tr>
                             <td id="success-cell" onclick="showHideDefconfs(this)">0</td>
@@ -116,9 +68,14 @@
         </div>
     </div>
 </div>
-<input type="hidden" id="job-name" value="{{ job_name }}">
-<input type="hidden" id="job-id" value="{{ job_id }}">
-<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}"> {%- endblock %} {%- block scripts %} {{ super() }}
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+{# Beware the single quotes on this variable! #}
+<input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
+{%- endblock %}
+{%- block scripts %}
+{{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.1.js"></script>
 <script type="text/javascript" src="/static/js/linaro-builds-job-kernel-1.0.7.js"></script>

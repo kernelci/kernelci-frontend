@@ -1,5 +1,5 @@
 var jobName = $('#job-name').val();
-var jobId = $('#job-id').val();
+var kernelName = $('#kernel-name').val();
 
 function showHideDefconfs(element) {
     'use strict';
@@ -57,12 +57,12 @@ function showHideDefconfs(element) {
 
 function createPieChart(data) {
     'use strict';
-
-    var success = 0,
+    var result = data.result,
+        len = result.length,
+        success = 0,
         fail = 0,
         unknown = 0,
         i = 0,
-        len = data.length,
         width = 200,
         height = 200,
         radius = Math.min(width, height) / 2,
@@ -75,7 +75,7 @@ function createPieChart(data) {
 
     if (len > 0) {
         for (i; i < len; i = i + 1) {
-            switch (data[i].status) {
+            switch (result[i].status) {
                 case 'FAIL':
                     fail = fail + 1;
                     break;
@@ -128,8 +128,9 @@ function createPieChart(data) {
 
 function createBuildsPage(data) {
     'use strict';
-
-    var fileServer = $('#file-server').val(),
+    var result = data.result,
+        len = result.length,
+        fileServer = $('#file-server').val(),
         panel = '',
         cls,
         dataUrl,
@@ -140,7 +141,6 @@ function createBuildsPage(data) {
         label,
         arch,
         i = 0,
-        len = data.length,
         hasFailed = false,
         hasSuccess = false,
         hasUnknown = false,
@@ -153,7 +153,7 @@ function createBuildsPage(data) {
         archLabel = '';
 
     for (i; i < len; i = i + 1) {
-        localData = data[i];
+        localData = result[i];
 
         defconfigFull = localData.defconfig_full;
         job = localData.job;
@@ -163,7 +163,7 @@ function createBuildsPage(data) {
         dataUrl = fileServer + job + '/' + kernel + '/' + arch + '-' +
             defconfigFull + '/';
 
-        switch (data[i].status) {
+        switch (result[i].status) {
             case 'FAIL':
                 hasFailed = true;
                 label = failLabel;
@@ -303,7 +303,7 @@ function createBuildsPage(data) {
     }
 
     $('#all-btn').removeAttr('disabled');
-    if (!WebStorage.load(jobId)) {
+    if (!WebStorage.load(jobName + kernelName)) {
         if (hasFailed) {
             // If there is no saved session, show only the failed ones.
             $('.df-failed').show();
@@ -316,54 +316,171 @@ function createBuildsPage(data) {
     }
 }
 
-function ajaxCallFailed() {
+function ajaxDefconfigGetFailed() {
     'use strict';
-
-    $('#accordion-container').empty().append(
+    JSBase.replaceContentByID(
+        '#accordion-container',
         '<div class="text-center">' +
         '<h3>Error loading data.</h3>' +
         '</div>'
     );
 }
 
-function parseData(data) {
+function ajaxJobGetFailed() {
+    'use strict';
+    JSBase.replaceContentByClass(
+        '.loading-content',
+        '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>'
+    );
+}
+
+function populateJobData(data) {
     'use strict';
 
-    // Just a wrapper function calling jQuery 'when' with multiple functions.
-    var localData = data.result;
-    $.when(createBuildsPage(localData), createPieChart(localData));
+    var localData = data.result,
+        localResult = null,
+        dataLen = localData.length,
+        gitCommit = null,
+        gitUrl = null,
+        gitUrls = null,
+        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Not available"><i class="fa fa-ban"></i>' +
+        '</span>';
+
+    if (dataLen > 0) {
+        localResult = localData[0];
+        gitCommit = localResult.git_commit;
+        gitUrl = localResult.git_url;
+
+        gitUrls = JSBase.translateCommitURL(gitUrl, gitCommit);
+
+        $('#tree').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Details for tree ' + jobName + '">' +
+            '<a href="/job/' + jobName + '/">' + jobName + '</a>' +
+            '</span>&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Boot reports details for ' + jobName + '">' +
+            '<a href="/boot/all/job/' + jobName + '/">' +
+            '<i class="fa fa-hdd-o"></i>' +
+            '</a></span>'
+        );
+
+        $('#git-branch').empty().append(localResult.git_branch);
+
+        $('#git-describe').empty().append(
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Details for build ' + jobName + '&nbsp;&dash;&nbsp;' +
+            kernelName + '">' +
+            '<a href="/build/' + jobName + '/kernel/' + kernelName + '/">' +
+            kernelName +
+            '</a>' +
+            '</span>&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="All boot reports for ' + jobName + '&nbsp;&dash;&nbsp;' +
+            kernelName + '">' +
+            '<a href="/boot/all/job/' + jobName + '/kernel/' + kernelName +
+            '/">' +
+            '<i class="fa fa-hdd-o"></i></a></span>'
+        );
+
+        if (gitUrls[0] !== null) {
+            $('#git-url').empty().append(
+                '<a href="' + gitUrls[0] + '">' + gitUrl +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (gitUrl !== null) {
+                $('#git-url').empty().append(gitUrl);
+            } else {
+                $('#git-url').empty().append(nonAvail);
+            }
+        }
+
+        if (gitUrls[1] !== null) {
+            $('#git-commit').empty().append(
+                '<a href="' + gitUrls[1] + '">' + gitCommit +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (gitCommit !== null) {
+                $('#git-commit').empty().append(gitCommit);
+            } else {
+                $('#git-commit').empty().append(nonAvail);
+            }
+        }
+    } else {
+        ajaxJobGetFailed();
+    }
+}
+
+function getDefconfigData(data) {
+    'use strict';
+    var localData = data.result,
+        localResult = null,
+        dataLen = localData.length,
+        ajaxData,
+        ajaxDeferredCall,
+        errorReason = 'Build data call failed';
+
+    if (dataLen > 0) {
+        localResult = localData[0];
+
+        ajaxData = {
+            'job_id': localResult._id.$oid,
+            'job': jobName,
+            'kernel': kernelName,
+            'sort': ['status', 'defconfig_full', 'arch'],
+            'sort_order': 1
+        };
+        ajaxDeferredCall = JSBase.createDeferredCall(
+            '/_ajax/defconf',
+            'GET',
+            ajaxData,
+            null,
+            ajaxDefconfigGetFailed,
+            errorReason
+        );
+
+        $.when(ajaxDeferredCall)
+            .done(createBuildsPage)
+            .done(createPieChart);
+    } else {
+        ajaxDefconfigGetFailed();
+    }
 }
 
 $(document).ready(function() {
     'use strict';
-
     $('#li-build').addClass('active');
 
     var ajaxDeferredCall = null,
         ajaxData = null,
-        errorReason = 'Defconfig data call failed';
+        errorReason = 'Job data call failed';
 
     ajaxData = {
-        'job_id': jobId,
-        'sort': ['status', '_id'],
-        'sort_order': 1
+        'job': jobName,
+        'kernel': kernelName
     };
     ajaxDeferredCall = JSBase.createDeferredCall(
-        '/_ajax/defconf',
+        '/_ajax/job',
         'GET',
         ajaxData,
         null,
-        ajaxCallFailed,
+        ajaxJobGetFailed,
         errorReason
     );
 
-    $.when(ajaxDeferredCall).done(parseData);
-
+    $.when(ajaxDeferredCall)
+        .done(populateJobData)
+        .done(getDefconfigData);
 });
 
 $(document).ready(function() {
     // No use strict here or onbeforeunload is not recognized.
-    var sessionState = new WebStorage.SessionState(jobId);
+    var sessionState = new WebStorage.SessionState(jobName + kernelName);
     onbeforeunload = function() {
 
         var panelState = {},
