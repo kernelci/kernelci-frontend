@@ -11,25 +11,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 from flask import (
-    abort,
     current_app as app,
     render_template,
     request,
 )
-
 from flask.views import View
 
-from dashboard.utils.backend import (
-    get_job,
-    get_search_parameters,
-    translate_git_url
-)
+from dashboard.utils.backend import get_search_parameters
 
 
 class BootGeneralView(View):
