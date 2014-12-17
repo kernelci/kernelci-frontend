@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -75,6 +73,14 @@ DATE_RANGE = 5
 
 # Google Analytics code.
 GOOGLE_ANALYTICS_ID = None
+
+# Redis cache values: need to override USE_CACHE to make use of the cache.
+CACHE_TYPE = 'simple'
+CACHE_KEY_PREFIX = 'kernelcifrontend|'
+CACHE_REDIS_HOST = 'localhost'
+CACHE_REDIS_PORT = 6379
+CACHE_REDIS_DB = 0
+CACHE_DEFAULT_TIMEOUT = 420
 
 DEBUG = True
 TESTING = DEBUG
