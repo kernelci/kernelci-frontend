@@ -11,12 +11,7 @@
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/linaro-base-1.0.6.css"> {%- endblock %}
 </head>
-
-{%- if is_mobile %}
 <body>
-{%- else %}
-<body data-spy="scroll" data-target="#sidebar-nav">
-{%- endif %}
     <div class="navbar navbar-default navbar-static-top" id="top" role="navigation">
         <div class="container">
             <div class="navbar-header">
@@ -58,14 +53,6 @@
             </div>
         </div>
     </div>
-{%- if not is_mobile %}
-    <div class="row-offcanvas row-offcanvas-left">
-        <div id="sidebar" class="sidebar-offcanvas">
-            <div id="sidebar-nav" class="sidebar nav col-lg-1 hidden-sx hidden-sm hidden-md" data-spy="affix" data-offset="60">
-            </div>
-        </div>
-    </div>
-{%- endif %}
     {% include "hotkeys.html" %}
     <div class="container">
         <div id="errors-container"></div>
