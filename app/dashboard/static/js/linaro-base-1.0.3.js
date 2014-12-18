@@ -414,21 +414,6 @@ var JSBase = (function() {
     };
 }());
 
-var setErrorAlert = JSBase.setErrorAlert;
-var loadContent = JSBase.loadContent;
-var populateSideBarNav = JSBase.populateSideBarNav;
-var collectObjects = JSBase.collectObjects;
-var csrftoken = $('meta[name=csrf-token]').attr('content');
-
-function setXhrHeader(xhr) {
-    /*
-        Set the CSRF token header for ajax request.
-        xhr: The xhr object to add the header to.
-    */
-    'use strict';
-    xhr.setRequestHeader('X-CSRFToken', csrftoken);
-}
-
 /*
     Return a custom date in ISO format.
     The format returned is: YYYY-MM-DD
