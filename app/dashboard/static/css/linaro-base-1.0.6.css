@@ -192,3 +192,20 @@ ul.affix {
 .footer .text-muted {
     margin: 21px 0;
 }
+.arch-label {
+    padding: 4px 7px 4px;
+}
+#lab-header h3, span {
+    display: inline;
+}
+#lab-header .lab-view {
+    padding-top: 10px;
+    padding-right: 2px;
+}
+#lab-header {
+    margin-bottom: 10px;
+    margin-top: 25px;
+}
+#lab-header span span i {
+    cursor: pointer;
+}
