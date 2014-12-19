@@ -97,7 +97,7 @@ function populateBootPage(data) {
             col0 = '<td><a class="table-link" ' +
                 'href="/boot/all/lab/' + labName + '/">' + labName +
                 '</a></td>';
-            if (resultDescription !== null && staus !== 'PASS') {
+            if (resultDescription !== null && status !== 'PASS') {
                 if (resultDescription.length > 64) {
                     col1 = '<td>' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
