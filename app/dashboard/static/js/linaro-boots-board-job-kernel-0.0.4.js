@@ -95,9 +95,10 @@ function populateBootTable(data) {
                 'data': 'boot_result_description',
                 'title': 'Failure Reason',
                 'type': 'string',
-                'render': function(data) {
-                    var display = '';
-                    if (data !== null) {
+                'render': function(data, type, object) {
+                    var display = '',
+                        status = object.status;
+                    if (data !== null && status !== 'PASS') {
                         if (data.length > 45) {
                             display = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
