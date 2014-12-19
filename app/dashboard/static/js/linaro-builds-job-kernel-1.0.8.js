@@ -200,7 +200,7 @@ function createBuildsPage(data) {
 
         if (localData.arch !== null) {
             archLabel = '<small>' +
-                '<span class="pull-right" style="padding: 3px">' +
+                '<span class="pull-right arch-label">' +
                 localData.arch + '</span></small>';
         }
 
