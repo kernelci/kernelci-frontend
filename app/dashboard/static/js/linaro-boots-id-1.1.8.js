@@ -297,6 +297,7 @@ function populatePage(data) {
         bootLog,
         bootLogHtml,
         status,
+        retries,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
@@ -315,8 +316,14 @@ function populatePage(data) {
     bootLogHtml = localData.boot_log_html;
     createdOn = new Date(localData.created_on.$date);
     status = localData.status;
+    retries = localData.retries;
 
     $('#dd-date').empty().append(createdOn.getCustomISODate());
+
+    $('#dd-retries').empty().append(
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="How many times the boot has been attempted">' +
+        retries + '</span>');
 
     $('#dd-lab-name').empty().append(
         '<span rel="tooltip" data-toggle="tooltip"' +
