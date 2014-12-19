@@ -176,13 +176,11 @@ def today_date():
 
 
 @app.cache.memoize(timeout=60*60*6)
-def _create_url_headers(api_path):
+def _create_url(api_path):
     """Create the complete URL to the API backend.
 
-    Used if we need to set special headers.
-
     :param api_path: The API path.
-    :return A tuple with the full URL, and the headers set.
+    :return The full URL to the backend.
     """
     backend_url = app.config.get("BACKEND_URL")
     backend_url = urlparse.urljoin(backend_url, api_path)
@@ -321,7 +319,7 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
     return return_data, status_code, r_headers
 
 
-def ajax_count_get(request, api_path, collection):
+def ajax_count_get(request, api_path, collection, timeout=None):
     """Handle AJAX call from the client to the `count` API.
 
     :param request: The request performed.
@@ -338,9 +336,10 @@ def ajax_count_get(request, api_path, collection):
     if collection:
         api_path = _create_api_path(api_path, collection)
 
-    url = _create_url_headers(api_path)
+    url = _create_url(api_path)
 
-    data, status_code, headers = request_get(url, params=params_list)
+    data, status_code, headers = request_get(
+        url, params=params_list, timeout=timeout)
     return data, status_code, headers.items()
 
 
@@ -360,14 +359,14 @@ def ajax_get(request, api_path, timeout=None):
 
         params_list.remove(("id", [doc_id]))
 
-    url = _create_url_headers(api_path)
+    url = _create_url(api_path)
 
     data, status_code, headers = request_get(
         url, params=params_list, timeout=timeout)
     return (data, status_code, headers.items())
 
 
-def ajax_bisect(request, collection, doc_id, api_path):
+def ajax_bisect(request, collection, doc_id, api_path, timeout=None):
     """Handle GET operations on the bisect collection.
 
     :param request: The request performed.
@@ -376,10 +375,10 @@ def ajax_bisect(request, collection, doc_id, api_path):
     :param api_path: The API endpoint where to perform the request.
     """
     api_path = _create_api_path(api_path, [collection, doc_id])
-    url = _create_url_headers(api_path)
+    url = _create_url(api_path)
 
-    r = request_get(url)
-    return (r.raw.data, r.status_code, r.headers.items())
+    data, status_code, headers = request_get(url, timeout=timeout)
+    return (data, status_code, headers.items())
 
 
 def ajax_batch_post(request, api_path, timeout=None):
@@ -390,7 +389,7 @@ def ajax_batch_post(request, api_path, timeout=None):
     :return A tuple with the data, status code and headers of the
         `requests.Response` object.
     """
-    url = _create_url_headers(api_path)
+    url = _create_url(api_path)
     data, status_code, headers = request_post(
         url,
         request.data,
