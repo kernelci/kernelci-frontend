@@ -25,6 +25,8 @@ function populateBootPage(data) {
         arch,
         bootLog,
         bootLogHtml,
+        status,
+        localResult = null,
         fileServerUrl,
         fileServerResource,
         pathUrl = '',
@@ -34,14 +36,16 @@ function populateBootPage(data) {
 
     if (dataLen > 0) {
         for (i; i < dataLen; i = i + 1) {
-            labName = localData[i].lab_name;
-            createdOn = new Date(localData[i].created_on.$date);
-            resultDescription = localData[i].boot_result_description;
-            fileServerUrl = localData[i].file_server_url;
-            fileServerResource = localData[i].file_server_resource;
-            arch = localData[i].arch;
-            bootLog = localData[i].boot_log;
-            bootLogHtml = localData[i].boot_log_html;
+            localResult = localData[i];
+            labName = localResult.lab_name;
+            createdOn = new Date(localResult.created_on.$date);
+            resultDescription = localResult.boot_result_description;
+            fileServerUrl = localResult.file_server_url;
+            fileServerResource = localResult.file_server_resource;
+            arch = localResult.arch;
+            bootLog = localResult.boot_log;
+            bootLogHtml = localResult.boot_log_html;
+            status = localResult.status;
 
             if (fileServerUrl !== null && fileServerUrl !== undefined) {
                 fileServer = fileServerUrl;
@@ -58,7 +62,7 @@ function populateBootPage(data) {
             fileServerUri = new URI(fileServer);
             uriPath = fileServerUri.path() + '/' + pathUrl;
 
-            switch (localData[i].status) {
+            switch (status) {
                 case 'PASS':
                     statusDisplay = '<span rel="tooltip" ' +
                         'data-toggle="tooltip"' +
@@ -93,7 +97,7 @@ function populateBootPage(data) {
             col0 = '<td><a class="table-link" ' +
                 'href="/boot/all/lab/' + labName + '/">' + labName +
                 '</a></td>';
-            if (resultDescription !== null) {
+            if (resultDescription !== null && staus !== 'PASS') {
                 if (resultDescription.length > 64) {
                     col1 = '<td>' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
@@ -149,7 +153,7 @@ function populateBootPage(data) {
 
             rowHref = '/boot/' + boardName + '/job/' + jobName +
                 '/kernel/' + kernelName + '/defconfig/' + defconfigFull +
-                '/lab/' + labName + '/?_id=' + localData[i]._id.$oid;
+                '/lab/' + labName + '/?_id=' + localResult._id.$oid;
 
             col5 = '<td><span rel="tooltip" data-toggle="tooltip"' +
                 'title="Details for board&nbsp;' + boardName + 'with&nbsp;' +
