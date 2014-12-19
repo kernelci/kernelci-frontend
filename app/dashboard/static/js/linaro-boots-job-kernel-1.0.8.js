@@ -1,5 +1,46 @@
+var nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
+    'title="Not available"><i class="fa fa-ban"></i></span>';
 var kernelName = $('#kernel-name').val();
 var jobName = $('#job-name').val();
+
+function createHideShowButton(element, action) {
+    'use strict';
+    var faClass = 'fa fa-eye',
+        tooltipTitle = 'Show content for lab &#171;' + element + '&#187;"';
+    if (action === 'hide') {
+        faClass = 'fa fa-eye-slash';
+        tooltipTitle = 'Hide content for lab &#171;' + element + '&#187;"';
+    }
+    return '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="' + tooltipTitle + '"><i data-action="' + action + '" ' +
+        'data-id="' + element + '" class="' + faClass + '" ' +
+        'onclick="showHideLab(this)"></i></span>';
+}
+
+function showHideLab(element) {
+    'use strict';
+    var tElement = $(element),
+        dataId = tElement.data('id'),
+        dataAction = tElement.data('action');
+
+    if (dataAction === 'hide') {
+        $('#accordion' + dataId).hide();
+        $('#view-eye-' + dataId).empty().append(
+            createHideShowButton(dataId, 'show')
+        );
+        $('#view-' + dataId).empty().append(
+            '<small>Content for lab &#171;' + dataId + '&#187; ' +
+            'hidden. Use the <i class="fa fa-eye"></i> ' +
+            'button to show it again.</small>'
+        );
+    } else {
+        $('#accordion' + dataId).show();
+        $('#view-' + dataId).empty();
+        $('#view-eye-' + dataId).empty().append(
+            createHideShowButton(dataId, 'hide')
+        );
+    }
+}
 
 function showHideBoots(element) {
     'use strict';
@@ -159,9 +200,6 @@ function populateBootsPage(data) {
         logPath = null,
         bootLog,
         bootLogHtml,
-        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Not available"><i class="fa fa-ban"></i>' +
-            '</span>',
         failLabel = '<span class="pull-right label label-danger">' +
             '<li class="fa fa-exclamation-triangle"></li></span>',
         successLabel = '<span class="pull-right label label-success">' +
@@ -223,8 +261,8 @@ function populateBootsPage(data) {
 
             if (arch !== null) {
                 archLabel = '<small>' +
-                    '<span class="pull-right" style="padding: 3px">' +
-                    arch + '</span></small>';
+                    '<span class="pull-right arch-label">' + arch +
+                    '</span></small>';
             }
 
             panel = '<div class="panel panel-default ' + cls + '">' +
@@ -355,7 +393,13 @@ function populateBootsPage(data) {
             len = lab.length;
 
             toAppend += '<div id="' + element + '">' +
+                '<div id="lab-header">' +
                 '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
+                '<span class="pull-right lab-view" id="view-eye-' + element +
+                '">' +
+                createHideShowButton(element, 'hide') +
+                '</span></div>' +
+                '<div id="view-' + element + '" class="pull-center"></div>' +
                 '<div class="panel-group" id="accordion' + element + '">';
 
             for (i = 0; i < len; i = i + 1) {
@@ -424,10 +468,7 @@ function populateJobData(data) {
         dataLen = localData.length,
         gitCommit = null,
         gitUrl = null,
-        gitUrls = null,
-        nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i>' +
-        '</span>';
+        gitUrls = null;
 
     if (dataLen > 0) {
         localResult = localData[0];
