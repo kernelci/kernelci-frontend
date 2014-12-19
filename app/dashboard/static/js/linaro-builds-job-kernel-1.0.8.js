@@ -215,7 +215,7 @@ function createBuildsPage(data) {
         if (localData.modules !== null) {
             panel += '<dt>Modules</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.modules + '/' + '">' +
+                    dataUrl + localData.modules + '">' +
                     localData.modules +
                     '&nbsp;<i class="fa fa-external-link">' +
                     '</i></a></dd>';
