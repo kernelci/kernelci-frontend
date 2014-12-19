@@ -296,6 +296,7 @@ function populatePage(data) {
         createdOn = null,
         bootLog,
         bootLogHtml,
+        status,
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
@@ -313,6 +314,7 @@ function populatePage(data) {
     bootLog = localData.boot_log;
     bootLogHtml = localData.boot_log_html;
     createdOn = new Date(localData.created_on.$date);
+    status = localData.status;
 
     $('#dd-date').empty().append(createdOn.getCustomISODate());
 
@@ -435,7 +437,7 @@ function populatePage(data) {
         $('#dd-board-boot-log').empty().append(nonAvail);
     }
 
-    switch (localData.status) {
+    switch (status) {
         case 'PASS':
             displ = '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="Boot completed"><span class="label ' +
@@ -461,7 +463,7 @@ function populatePage(data) {
             break;
     }
 
-    if (localData.boot_result_description !== null) {
+    if (localData.boot_result_description !== null && status !== 'PASS') {
         displ += '&nbsp;<small>' + localData.boot_result_description +
             '</small>';
     }
