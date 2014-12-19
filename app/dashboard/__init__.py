@@ -163,9 +163,11 @@ def ajax_boot():
 @app.route("/_ajax/count/<string:collection>")
 def ajax_count(collection=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        # Cache for 1 hour.
         return backend.ajax_count_get(
             request, app_conf_get("COUNT_API_ENDPOINT"),
-            collection
+            collection,
+            timeout=60*60
         )
     else:
         abort(400)
@@ -187,10 +189,12 @@ def ajax_batch():
 @app.route("/_ajax/bisect/<string:collection>/<string:doc_id>")
 def ajax_bisect_call(collection=None, doc_id=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        # Cache bisect data for 2 hours.
         if all([collection, doc_id]):
             return backend.ajax_bisect(
                 request, collection, doc_id,
-                app_conf_get("BISECT_API_ENDPOINT")
+                app_conf_get("BISECT_API_ENDPOINT"),
+                timeout=60*60*2
             )
         else:
             abort(400)
