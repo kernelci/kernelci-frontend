@@ -131,9 +131,13 @@ function createBuildsPage(data) {
     var result = data.result,
         len = result.length,
         fileServer = $('#file-server').val(),
+        fileServerUrl = null,
+        fileServerResource = null,
+        pathUrl = '',
+        fileServerUri = null,
+        uriPath = '',
         panel = '',
         cls,
-        dataUrl,
         job,
         kernel,
         defconfigFull,
@@ -159,9 +163,22 @@ function createBuildsPage(data) {
         job = localData.job;
         kernel = localData.kernel;
         arch = localData.arch;
+        fileServerUrl = localData.file_server_url;
+        fileServerResource = localData.file_server_resource;
 
-        dataUrl = fileServer + job + '/' + kernel + '/' + arch + '-' +
-            defconfigFull + '/';
+        if (fileServerUrl !== null && fileServerUrl !== undefined) {
+            fileServer = fileServerUrl;
+        }
+
+        if (fileServerResource !== null && fileServerResource !== undefined) {
+            pathUrl = fileServerResource;
+        } else {
+            pathUrl = job + '/' + kernel + '/' + arch + '-' +
+                defconfigFull + '/';
+        }
+
+        fileServerUri = new URI(fileServer);
+        uriPath = fileServerUri.path() + '/' + pathUrl;
 
         switch (result[i].status) {
             case 'FAIL':
@@ -206,19 +223,23 @@ function createBuildsPage(data) {
         if (localData.dtb_dir !== null) {
             panel += '<dt>Dtb directory</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.dtb_dir + '/' + '">' +
-                    localData.dtb_dir +
-                    '&nbsp;<i class="fa fa-external-link">' +
-                    '</i></a></dd>';
+                fileServerUri.path(uriPath + '/' + localData.dtb_dir + '/')
+                    .normalizePath().href() +
+                '">' +
+                localData.dtb_dir +
+                '&nbsp;<i class="fa fa-external-link">' +
+                '</i></a></dd>';
         }
 
         if (localData.modules !== null) {
             panel += '<dt>Modules</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.modules + '">' +
-                    localData.modules +
-                    '&nbsp;<i class="fa fa-external-link">' +
-                    '</i></a></dd>';
+                fileServerUri.path(uriPath + '/' + localData.moduels)
+                    .normalizePath().href() +
+                '">' +
+                localData.modules +
+                '&nbsp;<i class="fa fa-external-link">' +
+                '</i></a></dd>';
         }
 
         if (localData.text_offset !== null) {
@@ -229,28 +250,34 @@ function createBuildsPage(data) {
         if (localData.kernel_image !== null) {
             panel += '<dt>Kernel image</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.kernel_image + '">' +
-                    localData.kernel_image +
-                    '&nbsp;<i class="fa fa-external-link">' +
-                    '</i></a></dd>';
+                fileServerUri.path(uriPath + '/' + localData.kernel_image)
+                    .normalizePath().href() +
+                '">' +
+                localData.kernel_image +
+                '&nbsp;<i class="fa fa-external-link">' +
+                '</i></a></dd>';
         }
 
         if (localData.kernel_config !== null) {
             panel += '<dt>Kernel config</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.kernel_config + '">' +
-                    localData.kernel_config +
-                    '&nbsp;<i class="fa fa-external-link">' +
-                    '</i></a></dd>';
+                fileServerUri.path(uriPath + '/' + localData.kernel_config)
+                    .normalizePath().href() +
+                '">' +
+                localData.kernel_config +
+                '&nbsp;<i class="fa fa-external-link">' +
+                '</i></a></dd>';
         }
 
         if (localData.build_log !== null) {
             panel += '<dt>Build log</dt>' +
                 '<dd><a href="' +
-                    dataUrl + localData.build_log + '">' +
-                    localData.build_log +
-                    '&nbsp;<i class="fa fa-external-link">' +
-                    '</i></a></dd>';
+                fileServerUri.path(uriPath + '/' + localData.build_log)
+                    .normalizePath().href() +
+                '">' +
+                localData.build_log +
+                '&nbsp;<i class="fa fa-external-link">' +
+                '</i></a></dd>';
         }
 
         panel += '</dl></div>';
