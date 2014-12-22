@@ -68,11 +68,11 @@
     - web-server
 
 - name: Install nginx upstream definitions
-  copy: src=frontend-upstreams.conf
-        dest=/etc/nginx/conf.d/frontend-upstreams.conf
-        mode=0644
-        owner=root
-        group=root
+  template: src=frontend-upstreams.conf
+            dest=/etc/nginx/conf.d/frontend-upstreams.conf
+            mode=0644
+            owner=root
+            group=root
   notify:
     - reload-nginx
   tags:
