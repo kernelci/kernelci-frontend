@@ -28,7 +28,7 @@ from flask_wtf.csrf import (
 )
 from flask.ext.cache import Cache
 
-__version__ = "2014.12.3"
+__version__ = "2014.12.4"
 __versionfull__ = __version__
 
 CSRF_TOKEN_H = "X-Csrftoken"
