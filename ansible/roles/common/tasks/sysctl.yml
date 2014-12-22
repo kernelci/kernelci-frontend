@@ -7,3 +7,5 @@
         mode=0644
   notify:
     - reload-sysctl
+  tags:
+    - sysctl
