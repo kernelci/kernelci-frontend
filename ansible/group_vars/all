@@ -6,3 +6,5 @@ app_user: www-data
 web_root: /usr/share/nginx/html
 git_head: master
 role: production
+uwsgi_port: 5000
+uwsgi_threads: 2
