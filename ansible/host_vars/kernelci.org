@@ -1,0 +1,2 @@
+hostname: kernelci.org
+role: production
