@@ -106,17 +106,20 @@ class BootJobKernelView(BootGeneralView):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
 
-        body_title = body_title = (
+        body_title = (
             "Boot details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
             (job, kernel)
         )
+
+        search_filter, _ = get_search_parameters(request)
 
         return render_template(
             "boots-job-kernel.html",
             page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
             job=job,
-            kernel=kernel
+            kernel=kernel,
+            search_filter=search_filter
         )
 
 
