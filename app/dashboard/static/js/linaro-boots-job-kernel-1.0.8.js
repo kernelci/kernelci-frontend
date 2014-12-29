@@ -427,13 +427,13 @@ function populateBootsPage(data) {
             if (searchFilter.length > 0) {
                 switch (searchFilter) {
                     case 'fail':
-                        showHideBoots($('#fail-btn'));
+                        showHideBoots($('#fail-cell'));
                         break;
                     case 'success':
-                        showHideBoots($('#success-btn'));
+                        showHideBoots($('#success-cell'));
                         break;
                     case 'unknown':
-                        showHideBoots($('#unknown-btn'));
+                        showHideBoots($('#unknown-cell'));
                         break;
                 }
             }
