@@ -2,6 +2,7 @@ var nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
     'title="Not available"><i class="fa fa-ban"></i></span>';
 var kernelName = $('#kernel-name').val();
 var jobName = $('#job-name').val();
+var searchFilter = $('#search-filter').val();
 
 function createHideShowButton(element, action) {
     'use strict';
@@ -44,7 +45,6 @@ function showHideLab(element) {
 
 function showHideBoots(element) {
     'use strict';
-
     switch (element.id) {
         case 'success-cell':
             if ($('#success-btn').attr('disabled') !== 'disabled') {
@@ -423,7 +423,21 @@ function populateBootsPage(data) {
         }
 
         $('#all-btn').removeAttr('disabled');
-        if (!WebStorage.load('boot' + jobName + kernelName)) {
+        if (searchFilter !== null && searchFilter !== undefined) {
+            if (searchFilter.length > 0) {
+                switch (searchFilter) {
+                    case 'fail':
+                        showHideBoots($('#fail-btn'));
+                        break;
+                    case 'success':
+                        showHideBoots($('#success-btn'));
+                        break;
+                    case 'unknown':
+                        showHideBoots($('#unknown-btn'));
+                        break;
+                }
+            }
+        } else if (!WebStorage.load('boot' + jobName + kernelName)) {
             if (hasFailed) {
                 // If there is no saved session, show only the failed ones.
                 $('.df-failed').show();
