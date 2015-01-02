@@ -92,6 +92,8 @@ function showHideBoots(element) {
             $('.df-failed').show();
             $('.df-success').show();
             $('.df-unknown').show();
+            $('#all-btn').addClass('active').siblings()
+                .removeClass('active');
             break;
     }
 }
@@ -427,13 +429,13 @@ function populateBootsPage(data) {
             if (searchFilter.length > 0) {
                 switch (searchFilter) {
                     case 'fail':
-                        showHideBoots($('#fail-cell'));
+                        showHideBoots(document.getElementById('fail-cell'));
                         break;
                     case 'success':
-                        showHideBoots($('#success-cell'));
+                        showHideBoots(document.getElementById('success-cell'));
                         break;
                     case 'unknown':
-                        showHideBoots($('#unknown-cell'));
+                        showHideBoots(document.getElementById('unknown-cell'));
                         break;
                 }
             }
