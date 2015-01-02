@@ -3,15 +3,22 @@ var dateRange = $('#date-range').val();
 
 function countFailCallback() {
     'use strict';
-    JSBase.replaceContentByClass('.badge-count', '&infin;');
+    JSBase.replaceContentByClass('.fail-badge', '&infin;');
+}
+
+function countSuccessCallback() {
+    'use strict';
+    JSBase.replaceContentByClass('.success-badge', '&infin;');
 }
 
 function failedMainAjaxCall() {
     'use strict';
     var staticContent = '<tr>' +
-        '<td colspan="4" align="center" valign="middle">' +
+        '<td colspan="5" align="center" valign="middle">' +
         '<h4>Error loading data.</h4></td></tr>';
     JSBase.replaceContentByID('#boot-reports-body', staticContent);
+    countFailCallback();
+    countSuccessCallback();
 }
 
 function populateBootReports(data) {
@@ -25,6 +32,7 @@ function populateBootReports(data) {
         col2,
         col3,
         col4,
+        col5,
         href,
         kernel,
         i = 0,
@@ -41,15 +49,21 @@ function populateBootReports(data) {
             href = '/boot/all/job/' + job + '/kernel/' + kernel + '/';
 
             col1 = '<td>' + kernel + '</td>';
-            col2 = '<td class="pull-center"><span id="span-id' + i +
+            col2 = '<td class="pull-center"><span id="success-span-id' + i +
                 '" class="badge">' +
-                '<span id="fail-count' + i + '" ' +
-                'class="badge-count">' +
+                '<span id="success-count' + i + '" ' +
+                'class="badge-count success-badge">' +
                 '<i class="fa fa-cog fa-spin"></i></span></span>' +
                 '</td>';
-            col3 = '<td class="pull-center">' + created.getCustomISODate() +
+            col3 = '<td class="pull-center"><span id="fail-span-id' + i +
+                '" class="badge">' +
+                '<span id="fail-count' + i + '" ' +
+                'class="badge-count fail-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
                 '</td>';
-            col4 = '<td class="pull-center">' +
+            col4 = '<td class="pull-center">' + created.getCustomISODate() +
+                '</td>';
+            col5 = '<td class="pull-center">' +
                 '<span rel="tooltip" data-toggle="tooltip" ' +
                 'title="Details for boot reports&nbsp;' + job +
                 '&nbsp;&dash;&nbsp;' + kernel + '">' +
@@ -57,7 +71,7 @@ function populateBootReports(data) {
                 '<i class="fa fa-search"></i></a>' +
                 '</span></td>';
             row += '<tr data-url="' + href + '">' +
-                col1 + col2 + col3 + col4 + '</tr>';
+                col1 + col2 + col3 + col4 + col5 + '</tr>';
         }
 
         JSBase.replaceContentByID('#boot-reports-body', row);
@@ -66,7 +80,6 @@ function populateBootReports(data) {
 
 function countFailedDoneCallback(data) {
     'use strict';
-
     var localData = data.result,
         len = localData.length,
         i = 0,
@@ -78,22 +91,40 @@ function countFailedDoneCallback(data) {
             count = localData[0].count;
 
             $('#fail-count0').empty().append(count);
-            if (count === 0) {
-                $('#span-id0').addClass('alert-success');
-            } else {
-                $('#span-id0').addClass('alert-danger');
-            }
+            $('#fail-span-id0').addClass('alert-danger');
         } else {
             for (i; i < len; i = i + 1) {
                 batchResult = localData[i].result[0];
                 count = batchResult.count;
 
                 $(localData[i].operation_id).empty().append(count);
-                if (count === 0) {
-                    $('#span-id' + i).addClass('alert-success');
-                } else {
-                    $('#span-id' + i).addClass('alert-danger');
-                }
+                $('#fail-span-id' + i).addClass('alert-danger');
+            }
+        }
+    }
+}
+
+function countSuccessfulDoneCallback(data) {
+    'use strict';
+    var localData = data.result,
+        len = localData.length,
+        i = 0,
+        batchResult = null,
+        count;
+
+    if (len > 0) {
+        if (len === 1) {
+            count = localData[0].count;
+
+            $('#success-count0').empty().append(count);
+            $('#success-span-id0').addClass('alert-success');
+        } else {
+            for (i; i < len; i = i + 1) {
+                batchResult = localData[i].result[0];
+                count = batchResult.count;
+
+                $(localData[i].operation_id).empty().append(count);
+                $('#success-span-id' + i).addClass('alert-success');
             }
         }
     }
@@ -101,12 +132,16 @@ function countFailedDoneCallback(data) {
 
 function countFailedErrorCallback() {
     'use strict';
-    JSBase.replaceContentByClass('.badge-count', '&infin;');
+    JSBase.replaceContentByClass('.fail-badge', '?');
 }
 
-function countFailedBootReports(data) {
+function countSuccessfulErrorCallback() {
     'use strict';
+    JSBase.replaceContentByClass('.success-badge', '?');
+}
 
+function countSuccessfulBootReports(data) {
+    'use strict';
     var localData = data.result,
         i = 0,
         len = localData.length,
@@ -118,7 +153,69 @@ function countFailedBootReports(data) {
     if (len > 0) {
         if (len === 1) {
             // Perform normal GET.
-            errorReason = 'Boot count data call failed';
+            errorReason = 'Boot success count data call failed';
+            ajaxData = {
+                'status': 'PASS',
+                'job': jobId,
+                'kernel': localData[0].kernel
+            };
+            ajaxDeferredCall = JSBase.createDeferredCall(
+                '/_ajax/count/boot',
+                'GET',
+                ajaxData,
+                null,
+                countSuccessfulErrorCallback,
+                errorReason,
+                null,
+                'failed-count'
+            );
+        } else {
+            // Perform POST on batch API.
+            for (i; i < len; i = i + 1) {
+                batchQueris[i] = {
+                    'method': 'GET',
+                    'operation_id': '#success-count' + i,
+                    'collection': 'count',
+                    'document_id': 'boot',
+                    'query': 'status=PASS&job=' + jobId + '&kernel=' +
+                        localData[i].kernel
+                };
+            }
+
+            errorReason = 'Batch successful count failed';
+            ajaxData = JSON.stringify({
+                    'batch': batchQueris
+            });
+            ajaxDeferredCall = JSBase.createDeferredCall(
+                '/_ajax/batch',
+                'POST',
+                ajaxData,
+                null,
+                countSuccessfulErrorCallback,
+                errorReason,
+                {'Content-Type': 'application/json'},
+                'failed-count'
+            );
+        }
+
+        $.when(ajaxDeferredCall).done(countSuccessfulDoneCallback);
+    }
+}
+
+function countFailedBootReports(data) {
+    'use strict';
+    var localData = data.result,
+        i = 0,
+        len = localData.length,
+        ajaxDeferredCall = null,
+        ajaxData = null,
+        batchQueris = new Array(len),
+        errorReason;
+
+    if (len > 0) {
+        if (len === 1) {
+            // Perform normal GET.
+            errorReason = 'Boot failed count data call failed';
             ajaxData = {
                 'status': 'FAIL',
                 'job': jobId,
@@ -147,7 +244,7 @@ function countFailedBootReports(data) {
                 };
             }
 
-            errorReason = 'Batch count failed';
+            errorReason = 'Batch failed count failed';
             ajaxData = JSON.stringify({
                     'batch': batchQueris
             });
@@ -231,7 +328,7 @@ $(document).ready(function() {
         'batch-count'
     );
 
-    $.when(ajaxDeferredCall).then(countBootDetails, failedCountBootDetails);
+    $.when(ajaxDeferredCall).done(countBootDetails);
 
     errorReason = 'Boot data call failed';
     ajaxData = {
@@ -253,5 +350,7 @@ $(document).ready(function() {
         'boot-report'
     );
 
-    $.when(ajaxDeferredCall).then(countFailedBootReports, countFailCallback);
+    $.when(ajaxDeferredCall)
+        .done(countFailedBootReports)
+        .done(countSuccessfulBootReports);
 });
