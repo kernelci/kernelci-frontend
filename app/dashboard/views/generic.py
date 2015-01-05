@@ -30,3 +30,10 @@ class FaqView(GenericView):
     def dispatch_request(self, *args, **kwargs):
         FAQ_TITLE = "%s &mdash; %s" % (self.PAGE_TITLE, "FAQ")
         return render_template("faq.html", page_title=FAQ_TITLE)
+
+
+class ContactView(GenericView):
+
+    def dispatch_request(self, *args, **kwargs):
+        CONTACT_TITLE = "%s &mdash; %s" % (self.PAGE_TITLE, "Contact us")
+        return render_template("contact.html", page_title=CONTACT_TITLE)
