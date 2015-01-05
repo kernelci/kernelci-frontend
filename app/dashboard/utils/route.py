@@ -13,6 +13,7 @@
 
 from flask import current_app as app
 
+import dashboard.views.generic as vgeneric
 import dashboard.views.about as vabout
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
@@ -33,6 +34,11 @@ def init():
     add_rule(
         "/info/",
         view_func=vabout.AboutView.as_view("about"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/faq/",
+        view_func=vgeneric.FaqView.as_view("faq"),
         methods=["GET"]
     )
 
