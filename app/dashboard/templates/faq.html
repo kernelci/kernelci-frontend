@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{% block title %}{{ page_title|safe }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="page-header">
+        <h4>Frequently Asked Questions</h4>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <ol>
+            <li>
+                <a href="#what-is"
+                    title="What's kernelci.org?">
+                    What's kernelci.org?
+                </a>
+            </li>
+            <li>
+                <a href="#the-code"
+                    title="Where can I find the code that kernelci.org is built on?">
+                    Where can I find the code that kernelci.org is built on?
+                </a>
+            </li>
+            <li>
+                <a href="#build-test"
+                    title="How can I partecipate in the build test phase?">
+                    How can I partecipate in the build test phase?
+                </a>
+            </li>
+            <li>
+                <a href="#boot-test"
+                    title="How can I partecipate in the boot test phase?">
+                    How can I partecipate in the boot test phase?
+                </a>
+            </li>
+            <li>
+                <a href="#my-board"
+                    title="I would like to have my board boot tested, how can I do it?">
+                    I would like to have my board boot tested, how can I do it?
+                </a>
+            </li>
+            <li>
+                <a href="#send-hw"
+                    title="Can I send you my boards?">
+                    Can I send you my boards?
+                </a>
+            </li>
+        </ol>
+        <hr />
+        <div class="faq">
+            <dl>
+                <dt id="what-is">What's kernelci.org?</dt>
+                <dd>kernelci.org, this website, is a build and boot automation tool.</dd>
+                <dt id="the-code">Where can I find the code that kernelci.org is built on?</dt>
+                <dd>
+                    The code powering kernelci.org can be found at the <em>Linaro Git Code Hosting</em>: <a title="Linaro Git Code Hosting" href="https://git.linaro.org">https://git.linaro.org</a>.
+                    <br />
+                    There are two main components:
+                    <ol>
+                        <li>
+                            <a title="Kernel CI website source code" href="https://git.linaro.org/infrastructure/kernel-ci-frontend.git">This website</a>
+                        </li>
+                        <li>
+                            <a title="Kernel CI API source code" href="https://git.linaro.org/infrastructure/kernel-ci-backend.git">
+                            The Kernel CI API
+                            </a>
+                        </li>
+                    </ol>
+                </dd>
+                <dt id="build-test">How can I partecipate in the build test phase?</dt>
+                <dd>You can't.</dd>
+                <dt id="boot-test">How can I partecipate in the boot test phase?</dt>
+                <dd>You can't.</dd>
+                <dt id="my-board">I would like to have my board boot tested, how can I do it?</dt>
+                <dd>You can't.</dd>
+                <dt id="send-hw">Can I send you my boards?</dt>
+                <dd>No you can't.</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{%- block scripts %}
+{{ super() }}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#li-info').addClass("active");
+});
+</script>
+{%- endblock %}
