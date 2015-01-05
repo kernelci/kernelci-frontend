@@ -63,15 +63,29 @@
     </div>
     <footer class="footer">
         <div class="container">
-            <p class="text-muted pull-center">
-                <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI Dashboard version">
-                    <a href="https://git.linaro.org/infrastructure/kernel-ci-frontend.git/log/refs/tags/{{ front_version }}">{{ front_version }}</a>
-                </span>
-                &nbsp;|&nbsp;
-                <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
-                    <i class="fa fa-cog fa-spin"></i>
-                <span>
-            </p>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <ul class="list-unstyled">
+                        <li>
+                            <a title="Frequently asked questions" href="/faq">FAQ</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                    <ul class="list-unstyled">
+                        <li>
+                            Version:&nbsp;
+                            <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI Dashboard version">
+                                <a href="https://git.linaro.org/infrastructure/kernel-ci-frontend.git/log/refs/tags/{{ front_version }}">{{ front_version }}</a>
+                            </span>
+                            &nbsp;|&nbsp;
+                            <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
+                                <i class="fa fa-cog fa-spin"></i>
+                            <span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </footer>
 <input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}"> {%- block scripts %}

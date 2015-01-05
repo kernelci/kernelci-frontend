@@ -209,3 +209,15 @@ ul.affix {
 #lab-header span span i {
     cursor: pointer;
 }
+.footer > .container {
+    font-size: small;
+    font-weight: lighter;
+    margin-top: 9px;
+    margin-bottom: 3px;
+}
+.faq dt {
+    margin-top: 15px;
+}
+.faq dd {
+    margin-bottom: 15px;
+}
