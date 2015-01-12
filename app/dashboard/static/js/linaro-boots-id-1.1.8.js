@@ -184,6 +184,10 @@ function populateCompareTables(data, tableId, tableBodyId) {
 
 function compareToMainlineFailed() {
     'use strict';
+    $('#compare-to-mainline-div').empty().append(
+        '<div class="pull-center"><p>' +
+        '<strong>Error comparing with mainline.</strong>' +
+        '</p></div>');
 }
 
 function populateCompareToMainline(data) {
@@ -194,6 +198,10 @@ function populateCompareToMainline(data) {
 
 function compareToNextFailed() {
     'use strict';
+    $('#compare-to-next-div').empty().append(
+        '<div class="pull-center"><p>' +
+        '<strong>Error comparing with mainline.</strong>' +
+        '</p></div>');
 }
 
 function populateCompareToNext(data) {
@@ -204,7 +212,6 @@ function populateCompareToNext(data) {
 
 function populateOtherBootTable(data) {
     'use strict';
-
     var localData = data.result,
         localDataLen = localData.length,
         validReports = 0,
@@ -276,7 +283,6 @@ function populateOtherBootTable(data) {
 
 function populatePage(data) {
     'use strict';
-
     var localData = data.result[0],
         bootTime,
         displ = '',
@@ -298,6 +304,9 @@ function populatePage(data) {
         bootLogHtml,
         status,
         retries,
+        otherDetails = null,
+        otherDetailsTxt = '',
+        otherTxt = '',
         nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
             'title="Not available"><i class="fa fa-ban"></i>' +
             '</span>';
@@ -522,6 +531,43 @@ function populatePage(data) {
             '&nbsp;<i class="fa fa-external-link"></i></a>');
     } else {
         $('#dd-board-kernel-image').empty().append(nonAvail);
+    }
+
+    otherDetails = $('#other-details-div');
+    if (localData.qemu !== null && localData.qemu !== '') {
+        otherTxt = '';
+        otherDetailsTxt = '<div id="qemu-details" class="row">' +
+            '<div class="page-header"><h4>Qemu details</h4></div>' +
+            '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
+        if (localData.qemu_command !== null && localData.qemu_command !== '') {
+            otherTxt = '<dt>Command</dt><dd>';
+            if (localData.qemu_command.length > 99) {
+                otherTxt += '<span class="command">' +
+                    localData.qemu_command.slice(0, 99).trimRight() +
+                    '&hellip;</span>&nbsp;' +
+                    '<span class="pointer details" ' +
+                    'rel="tooltip" data-toggle="tooltip" ' +
+                    'title="View full qemu command"> ' +
+                    '<i class="fa fa-eye" ' +
+                    'data-toggle="modal" ' +
+                    'data-target="#qemu-command"></i></span>';
+                otherDetailsTxt += JSBase.createLargeModalDialog(
+                    'qemu-command',
+                    'Qemu Command Line',
+                    '<div class="row"><p><span class="command">' +
+                        localData.qemu_command +
+                        '</p></span></div>');
+            } else {
+                otherTxt += '<span class="command">' + localData.qemu_command +
+                    '</span></dd>';
+            }
+        }
+        otherDetailsTxt += '<dl class="dl-horizontal">' +
+            '<dt>Binary</dt><dd>' + localData.qemu + '</dd>' +
+            otherTxt +
+            '</dl></div></div>';
+        otherDetails.append(otherDetailsTxt);
+        otherDetails.removeClass('hidden');
     }
 }
 
