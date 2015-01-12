@@ -400,10 +400,33 @@ var JSBase = (function() {
         });
     }
 
+    /*
+        Create a modal dialog with a single x button to close it.
+    */
+    function createLargeModalDialog(id, title, body) {
+        var mDialog = '<div class="modal fade" tabindex="-1" ' +
+            'role="dialog" aria-hidden="true" id="' + id + '">';
+
+        mDialog += '<div class="modal-dialog modal-lg larger-modal">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header">' +
+            '<button type="button" class="close" ' +
+            'data-dismiss="modal"' +
+            'aria-hidden="true">&times;</button>' +
+            '<h3 class="modal-title" id="' + id + '-title">' +
+            title + '</h3>' +
+            '<div class="modal-body">' +
+            body +
+            '</div></div></div></div></div>';
+
+        return mDialog;
+    }
+
     return {
         collectObjects: collectObjects,
         createBisectShellScript: createBisectShellScript,
         createDeferredCall: createDeferredCall,
+        createLargeModalDialog: createLargeModalDialog,
         init: init,
         loadHTMLContent: loadHTMLContent,
         populateSideBarNav: populateSideBarNav,
