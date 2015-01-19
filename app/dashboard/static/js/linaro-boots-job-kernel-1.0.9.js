@@ -425,7 +425,8 @@ function populateBootsPage(data) {
         }
 
         $('#all-btn').removeAttr('disabled');
-        if (searchFilter !== null && searchFilter !== undefined) {
+        if (searchFilter !== '' && searchFilter !== null &&
+                searchFilter !== undefined) {
             if (searchFilter.length > 0) {
                 switch (searchFilter) {
                     case 'fail':
