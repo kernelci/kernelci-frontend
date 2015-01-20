@@ -230,6 +230,7 @@ function populateBootsTable(data) {
         board,
         job,
         kernel,
+        kernelDispl,
         defconfigFull,
         labName,
         bootId,
@@ -282,7 +283,15 @@ function populateBootsTable(data) {
                 '/lab/' + labName +
                 '/?_id=' + bootId.$oid;
 
-            if (defconfigFull.length > 33) {
+            if (kernel.length > 34) {
+                kernelDispl = '<span rel="tooltip" data-toggle="tooltip" ' +
+                    'title="' + kernel + '">' + kernel.slice(0, 33) +
+                    '&hellip;</span>';
+            } else {
+                kernelDispl = kernel;
+            }
+
+            if (defconfigFull.length > 34) {
                 defconfigFull = '<span rel="tooltip" ' +
                     'data-toggle="tooltip" ' +
                     'title="' + defconfigFull + '">' +
@@ -300,7 +309,7 @@ function populateBootsTable(data) {
             col1 = '<td><a class="table-link" href="/boot/all/job/' +
                 job + '/">' + job + '</a></td>';
             col2 = '<td><a class="table-link" href="/boot/all/job/' + job +
-                '/kernel/' + kernel + '/">' + kernel + '</a></td>';
+                '/kernel/' + kernel + '/">' + kernelDispl + '</a></td>';
             col3 = '<td><a class="table-link" href="/boot/' + board +
                 '/job/' + job + '/kernel/' + kernel + '/">' +
                 board + '</a></td>';
