@@ -8,6 +8,7 @@ function populateDefconfigData(data) {
     var job = data.job,
         kernel = data.kernel,
         gitUrl = data.git_url,
+        createdOn = new Date(data.created_on.$date),
         gitCommit = data.git_commit,
         gitUrls = null,
         arch = data.arch,
@@ -132,6 +133,20 @@ function populateDefconfigData(data) {
     } else {
         $('#build-time').empty().append(nonAvail);
     }
+
+    $('#build-defconfig').empty().append(
+        defconfigFull +
+        '&nbsp;&mdash;&nbsp;' +
+        '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Boot reports for&nbsp;' + jobName +
+        '&nbsp;&dash;&nbsp;' + kernelName +
+        '&nbsp;&dash;&nbsp;' + defconfigFull + '">' +
+        '<a href="/boot/all/job/' + jobName + '/kernel/' +
+        kernelName + '/defconfig/' + defconfigFull + '">' +
+        '<i class="fa fa-hdd-o"></i></a></span>'
+    );
+
+    $('#build-data').empty().append(createdOn.getCustomISODate());
 
     switch (data.status) {
         case 'PASS':
@@ -295,6 +310,16 @@ function populateBootSection(data) {
 
         $('#boot-report').empty().append(
             columns.col1 + columns.col2 + columns.col3);
+        $('#boot-report').append(
+            '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
+            '<span rel="tooltip" data-toggle="tooltip" title="' +
+            'More details on the boot reports for&nbsp;' + jobName +
+            '&nbsp;&dash;&nbsp;' + kernelName + '&nbsp;&dash;&nbsp;' +
+            defconfigFull + '">' +
+            '<a href="/boot/all/job/' + jobName + '/kernel/' + kernelName +
+            '/defconfig/' + defconfigFull + '">More details</a></span>' +
+            '</div>'
+        );
     } else {
         $('#boot-report').empty().append(
             '<div class="text-center">' +
