@@ -1,10 +1,10 @@
-var jobId = $('#job-id').val();
+var jobName = $('#job-name').val();
 var dateRange = $('#date-range').val();
 
 function emptyTableOnError() {
     'use strict';
     var staticContent = '<tr>' +
-        '<td colspan="6" align="center" valign="middle">' +
+        '<td colspan="7" align="center" valign="middle">' +
         '<h4>Error loading data.</h4></td></tr>';
     $('#builds-body').empty().append(staticContent);
 }
@@ -14,129 +14,130 @@ function countFailBatchCallback() {
     JSBase.replaceContentByClass('.count-list-badge', '&infin;');
 }
 
-function countFailDefconfigCallback() {
-    'use strict';
-    JSBase.replaceContentByClass('.count-badge', '&infin;');
-}
-
 function countDoneBatchCallback(data) {
     'use strict';
     var localData = data.result,
         dataLen = localData.length,
         firstResult = null,
         secondResult = null,
+        thirdResult = null,
         firstCount = 0,
-        secondCount = 0;
+        secondCount = 0,
+        thirdCount = 0;
 
-    if (dataLen === 2) {
+    if (dataLen === 3) {
         firstResult = localData[0];
         secondResult = localData[1];
+        thirdResult = localData[2];
 
         firstCount = firstResult.result[0].count;
         secondCount = secondResult.result[0].count;
+        thirdCount = thirdResult.result[0].count;
 
         $(firstResult.operation_id).empty().append(firstCount);
         $(secondResult.operation_id).empty().append(secondCount);
+        $(thirdResult.operation_id).empty().append(thirdCount);
     } else {
         JSBase.replaceContentByClass('.count-list-badge', '?');
     }
 }
 
-function countDoneDefconfigCallback(data) {
+function countBuildBootFailCallback() {
     'use strict';
-    var localData = data.result,
-        len = localData.length,
-        i = 0,
-        batchResult = null,
-        count = 0;
-
-    if (len > 0) {
-        if (len === 1) {
-            count = localData[0].count;
-            $('#fail-count0').empty().append(count);
-
-            if (count === 0) {
-                $('#span-id0').addClass('alert-success');
-            } else {
-                $('#span-id0').addClass('alert-danger');
-            }
-        } else {
-            for (i; i < len; i = i + 1) {
-                batchResult = localData[i].result[0];
-                count = batchResult.count;
-                $(localData[i].operation_id).empty().append(count);
-
-                if (count === 0) {
-                    $('#span-id' + i).addClass('alert-success');
-                } else {
-                    $('#span-id' + i).addClass('alert-danger');
-                }
-            }
-        }
-    } else {
-        JSBase.replaceContentByClass('.count-badge', '?');
-    }
+    JSBase.replaceContentByClass('.count-badge', '&infin;');
 }
 
-function countFailedDefconfigs(data) {
+function countBuilBootStatus(data) {
     'use strict';
     var localData = data.result,
         len = localData.length,
-        ajaxDeferredCall = null,
+        queriesLen = len * 4,
+        batchElements = 4,
+        deferredAjaxCall = null,
         ajaxData = null,
-        errorReason = '',
+        errorReason = 'Batch count failed',
+        kernelName = null,
         i = 0,
-        batchQueries = new Array(len);
+        j = 0,
+        k = 0,
+        batchQueries = new Array(queriesLen);
 
     if (len > 0) {
-        if (len === 1) {
-            // Peform normal GET.
-            errorReason = 'Defconfig count failed';
-            ajaxData = {
-                'status': 'FAIL',
-                'job': jobId,
-                'kernel': localData[0].kernel
-            };
-            ajaxDeferredCall = JSBase.createDeferredCall(
-                '/_ajax/count/defconfig',
-                'GET',
-                ajaxData,
-                null,
-                countFailDefconfigCallback,
-                errorReason,
-                null,
-                'defconfig-count'
-            );
-        } else {
-            // Perform POST on batch API.
-            for (i; i < len; i = i + 1) {
-                batchQueries[i] = {
-                    'method': 'GET',
-                    'operation_id': '#fail-count' + i,
-                    'collection': 'count',
-                    'document_id': 'defconfig',
-                    'query': 'status=FAIL&job=' + jobId +
-                        '&kernel=' + localData[i].kernel
-                };
-            }
+        for (i; i < queriesLen; i += batchElements) {
+            j = i;
+            k = i / batchElements;
+            kernelName = localData[k].kernel;
 
-            errorReason = 'Batch build count failed';
-            ajaxData = JSON.stringify({
-                'batch': batchQueries
-            });
-            ajaxDeferredCall = JSBase.createDeferredCall(
-                '/_ajax/batch',
-                'POST',
-                ajaxData,
-                null,
-                countFailDefconfigCallback,
-                errorReason,
-                {'Content-Type': 'application/json'},
-                'batch-defconfig-count'
-            );
+            // Get successful defconfig count.
+            batchQueries[i] = {
+                'method': 'GET',
+                'operation_id': '#build-success-count-' + k,
+                'collection': 'count',
+                'document_id': 'defconfig',
+                'query': 'status=PASS&date_range=' + dateRange +
+                    '&job=' + jobName + '&kernel=' + kernelName
+            };
+
+            // Get failed defconfig count.
+            batchQueries[j + 1] = {
+                'method': 'GET',
+                'operation_id': '#build-fail-count-' + k,
+                'collection': 'count',
+                'document_id': 'defconfig',
+                'query': 'status=FAIL&date_range=' + dateRange +
+                    '&job=' + jobName + '&kernel=' + kernelName
+            };
+
+            // Get successful boot reports count.
+            batchQueries[j + 2] = {
+                'method': 'GET',
+                'operation_id': '#boot-success-count-' + k,
+                'collection': 'count',
+                'document_id': 'boot',
+                'query': 'status=PASS&date_range=' + dateRange +
+                    '&job=' + jobName + '&kernel=' + kernelName
+            };
+
+            // Get failed boot reports count.
+            batchQueries[j + 3] = {
+                'method': 'GET',
+                'operation_id': '#boot-fail-count-' + k,
+                'collection': 'count',
+                'document_id': 'boot',
+                'query': 'status=FAIL&date_range=' + dateRange +
+                    '&job=' + jobName + '&kernel=' + kernelName
+            };
         }
 
-        $.when(ajaxDeferredCall).done(countDoneDefconfigCallback);
+        ajaxData = JSON.stringify({
+            'batch': batchQueries
+        });
+
+        deferredAjaxCall = JSBase.createDeferredCall(
+            '/_ajax/batch',
+            'POST',
+            ajaxData,
+            null,
+            countBuildBootFailCallback,
+            errorReason,
+            {'Content-Type': 'application/json'},
+            'batch-failed'
+        );
+
+        $.when(deferredAjaxCall).done(function(data) {
+            var batchData = data.result,
+                batchLen = batchData.length,
+                batchResult = null,
+                idx = 0;
+
+            if (batchLen > 0) {
+                for (idx; idx < batchLen; idx = idx + 1) {
+                    batchResult = batchData[idx].result[0];
+                    $(batchData[idx].operation_id).empty().append(
+                        batchResult.count);
+                }
+            }
+        });
     } else {
         JSBase.replaceContentByClass('.count-badge', '?');
     }
@@ -154,6 +155,7 @@ function defconfigAggregateDone(data) {
         col4,
         col5,
         col6,
+        col7,
         href,
         kernel,
         gitBranch,
@@ -163,7 +165,7 @@ function defconfigAggregateDone(data) {
         htmlElement = $('#builds-body');
 
     if (len === 0) {
-        row = '<tr><td colspan="6" align="center" valign="middle"><h4>' +
+        row = '<tr><td colspan="7" align="center" valign="middle"><h4>' +
             'No builds available.</h4></td></tr>';
         htmlElement.empty().append(row);
     } else {
@@ -173,29 +175,48 @@ function defconfigAggregateDone(data) {
             gitBranch = localDefconf.git_branch;
             gitCommit = localDefconf.git_commit;
             created = new Date(localDefconf.created_on.$date);
-            href = '/build/' + jobId + '/kernel/' + kernel + '/';
+            href = '/build/' + jobName + '/kernel/' + kernel + '/';
 
             col1 = '<td>' + kernel + '</td>';
             col2 = '<td>' + gitBranch + '</td>';
             col3 = '<td>' + gitCommit + '</td>';
-            col4 = '<td><div class="pull-center">' +
-                '<span id="span-id' + i + '" ' +
-                'class="badge">' +
-                '<span id="fail-count' + i + '" class="count-badge">' +
+
+            col4 = '<td class="pull-center">' +
+                '<span class="badge alert-success extra-margin">' +
+                '<span id="build-success-count-' + i +
+                '" class="count-badge">' +
                 '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                '<div></td>';
-            col5 = '<td><div class="pull-center">' +
+                '<span class="badge alert-danger">' +
+                '<span id="build-fail-count-' + i +
+                '" class="count-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                '</td>';
+
+            col5 = '<td class="pull-center">' +
+                '<a href="/boot/all/job/' + jobName + '/kernel/' +
+                kernel + '/">' +
+                '<span class="badge alert-success extra-margin">' +
+                '<span id="boot-success-count-' + i +
+                '" class="count-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                '<span class="badge alert-danger">' +
+                '<span id="boot-fail-count-' + i +
+                '" class="count-badge">' +
+                '<i class="fa fa-cog fa-spin"></i></span></span>' +
+                '</a></td>';
+
+            col6 = '<td><div class="pull-center">' +
                 created.getCustomISODate() +
                 '</div></td>';
-            col6 = '<td class="pull-center">' +
+            col7 = '<td class="pull-center">' +
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build&nbsp;' + jobId +
+                'title="Details for build&nbsp;' + jobName +
                 '&nbsp;&dash;&nbsp;' + kernel + '">' +
                 '<a href="' + href + '">' +
                 '<i class="fa fa-search"></i></a>' +
                 '</span></td>';
             row += '<tr data-url="' + href + '">' +
-                col1 + col2 + col3 + col4 + col5 + col6 + '</tr>';
+                col1 + col2 + col3 + col4 + col5 + col6 + col7 + '</tr>';
         }
 
         htmlElement.empty().append(row);
@@ -209,14 +230,15 @@ $(document).ready(function() {
     var ajaxDeferredCall = null,
         ajaxData = null,
         batchQueries = new Array(2),
-        errorReason = '';
+        errorReason = '',
+        query = 'job=' + jobName + '&date_range=' + dateRange;
 
     batchQueries[0] = {
         'operation_id': '#builds-count',
         'method': 'GET',
         'collection': 'count',
         'document_id': 'job',
-        'query': 'job=' + jobId + '&date_range=' + dateRange
+        'query': query
     };
 
     batchQueries[1] = {
@@ -224,7 +246,15 @@ $(document).ready(function() {
         'method': 'GET',
         'collection': 'count',
         'document_id': 'defconfig',
-        'query': 'job=' + jobId + '&date_range=' + dateRange
+        'query': query
+    };
+
+    batchQueries[2] = {
+        'operation_id': '#boot-reports-count',
+        'method': 'GET',
+        'collection': 'count',
+        'document_id': 'boot',
+        'query': query
     };
 
     errorReason = 'Batch count failed';
@@ -247,7 +277,7 @@ $(document).ready(function() {
     errorReason = 'Defconfig data call failed';
     ajaxData = {
         'aggregate': 'kernel',
-        'job': jobId,
+        'job': jobName,
         'sort': 'created_on',
         'sort_order': -1,
         'date_range': dateRange,
@@ -257,12 +287,14 @@ $(document).ready(function() {
         '/_ajax/defconf',
         'GET',
         ajaxData,
-        defconfigAggregateDone,
+        null,
         emptyTableOnError,
         errorReason,
         null,
         'aggregate-defconfig'
     );
 
-    $.when(ajaxDeferredCall).done(countFailedDefconfigs);
+    $.when(ajaxDeferredCall)
+        .done(defconfigAggregateDone)
+        .done(countBuilBootStatus);
 });
