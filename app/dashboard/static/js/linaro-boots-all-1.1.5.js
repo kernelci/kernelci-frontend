@@ -77,9 +77,17 @@ function createBootsTable(data) {
                 'title': 'Kernel',
                 'type': 'string',
                 'render': function(data, type, object) {
-                    return '<a class="table-link" href="/boot/all/job/' +
+                    var display = '<a class="table-link" href="/boot/all/job/' +
                         object.job + '/kernel/' + data + '/">' + data +
                         '</a>';
+                    if (data.length > 33) {
+                        display = '<span rel="tooltip" data-toggle="tooltip"' +
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="/boot/all/job/' +
+                            object.job + '/kernel/' + data + '/">' +
+                            data.slice(0, 32) + '&hellip;</a></span>';
+                    }
+                    return display;
                 }
             },
             {
@@ -87,9 +95,18 @@ function createBootsTable(data) {
                 'title': 'Board Model',
                 'type': 'string',
                 'render': function(data, type, object) {
-                    return '<a class="table-link" href="/boot/' + data +
+                    var display = '<a class="table-link" href="/boot/' + data +
                         '/job/' + object.job + '/kernel/' +
                         object.kernel + '/">' + data + '</a>';
+                    if (data.length > 19) {
+                        display = '<span rel="tooltip" data-toggle="tooltip"' +
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="/boot/' + data +
+                            '/job/' + object.job + '/kernel/' +
+                            object.kernel + '/">' +
+                            data.slice(0, 18) + '&hellip;</a></span>';
+                    }
+                    return display;
                 }
             },
             {
