@@ -178,7 +178,9 @@ def ajax_batch():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         if request.data:
             return backend.ajax_batch_post(
-                request, app_conf_get("BATCH_API_ENDPOINT")
+                request,
+                app_conf_get("BATCH_API_ENDPOINT"),
+                timeout=1080
             )
         else:
             abort(400)
