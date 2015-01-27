@@ -571,6 +571,141 @@ function populatePage(data) {
     }
 }
 
+function bisectCompareToAjaxCallFailed() {
+    'use strict';
+    $('#bisect-compare-loading-div').remove();
+    $('#bisect-compare-content')
+        .removeClass('hidden')
+        .empty()
+        .append('<strong>Error loading bisect data from server.</strong>')
+        .addClass('pull-center');
+}
+
+function createBisectCompareToTable(data) {
+    'use strict';
+    $('#bisect-compare-loading-content')
+        .empty()
+        .append('loading bisect data&hellip;');
+
+    var localResult = data.result[0],
+        localData = localResult.bisect_data,
+        localLen = localData.length,
+        compareJob = localResult.compare_to,
+        i = 0,
+        bisectData,
+        gitDescribeCell,
+        badCommitCell,
+        unknownCommitCell,
+        goodCommitCell,
+        bootStatus,
+        tableRows = '',
+        tooltipLink,
+        tooltipTitle,
+        gitURLs,
+        gitDescribeVal,
+        gitURL = null,
+        gitCommit = null;
+
+    for (i; i < localLen; i = i + 1) {
+        bisectData = localData[i];
+        bootStatus = bisectData.boot_status;
+        gitDescribeVal = bisectData.git_describe;
+        gitCommit = bisectData.git_commit;
+        gitURL = bisectData.git_url;
+
+        if (gitCommit === '' || gitCommit === undefined) {
+            gitCommit = null;
+        }
+
+        if (gitCommit !== null) {
+            tooltipLink = '<a href="/boot/all/job/' + compareJob +
+                '/kernel/' + gitDescribeVal + '">' +
+                gitDescribeVal + '</a>';
+
+            tooltipTitle = 'Boot report details for&nbsp;' + compareJob +
+                '&nbsp;&dash;&nbsp;' + gitDescribeVal;
+
+            gitDescribeCell = '<td><span class="bisect-tooltip">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="' + tooltipTitle + '">' +
+                '<span class="bisect-text">' + tooltipLink +
+                '</span></span></span></td>';
+
+            gitURLs = JSBase.translateCommitURL(
+                gitURL, gitCommit);
+
+            switch (bootStatus) {
+                case 'PASS':
+                    goodCommitCell = '<td class="bg-success"><a href="' +
+                        gitURLs[1] + '">' + gitCommit +
+                        '&nbsp;<i class="fa fa-external-link">' +
+                        '</i></a></td>';
+                    badCommitCell = '<td class="bg-danger"></td>';
+                    unknownCommitCell = '<td class="bg-warning"></td>';
+                    break;
+                case 'FAIL':
+                    goodCommitCell = '<td class="bg-success"></td>';
+                    badCommitCell = '<td class="bg-danger"><a href="' +
+                        gitURLs[1] + '">' + gitCommit +
+                        '&nbsp;<i class="fa fa-external-link">' +
+                        '</i></a></td>';
+                    unknownCommitCell = '<td class="bg-warning"></td>';
+                    break;
+                default:
+                    goodCommitCell = '<td class="bg-success"></td>';
+                    badCommitCell = '<td class="bg-danger"></td>';
+                    unknownCommitCell = '<td class="bg-warning">' +
+                        '<a href="' +
+                        gitURLs[1] + '">' + gitCommit +
+                        '&nbsp;<i class="fa fa-external-link">' +
+                        '</i></a></td>';
+                    break;
+            }
+
+            tableRows += '<tr>' + gitDescribeCell + badCommitCell +
+                unknownCommitCell + goodCommitCell + '</tr>';
+        }
+    }
+
+    $('#bisect-compare-loading-div').remove();
+    $('#bisect-compare-table-body').empty().append(tableRows);
+    $('#bisect-compare-content')
+        .removeClass('hidden')
+        .fadeIn('slow', 'linear');
+}
+
+function populateBisectTable() {
+    'use strict';
+}
+
+function bisectComparedToMainline(data) {
+    'use strict';
+    var bisectData = data.result[0],
+        bootId,
+        ajaxDeferredCall,
+        errorReason = 'Error loading bisect data compared to mainline';
+
+    if (bisectData.job !== 'mainline') {
+        $('#bisect-compare-div').removeClass('hidden');
+        bootId = bisectData.boot_id.$oid;
+        ajaxDeferredCall = JSBase.createDeferredCall(
+            '/_ajax/bisect?collection=boot&compare_to=mainline&' +
+                'boot_id=' + bootId,
+            'GET',
+            null,
+            null,
+            bisectCompareToAjaxCallFailed,
+            errorReason,
+            null,
+            'bisect-call-compare-to'
+        );
+
+        $.when(ajaxDeferredCall).done(createBisectCompareToTable);
+    } else {
+        $('#bisect-compare-div').remove();
+    }
+}
+
 function createBootBisectTable(data) {
     'use strict';
     $('#bisect-loading-content').empty().append('loading bisect data&hellip;');
@@ -745,7 +880,7 @@ function getBisectData(data) {
         }
 
         bisectAjaxCall = JSBase.createDeferredCall(
-            '/_ajax/bisect/boot/' + bootId,
+            '/_ajax/bisect?collection=boot&boot_id=' + bootId,
             'GET',
             null,
             null,
@@ -755,7 +890,9 @@ function getBisectData(data) {
             'bisect-call'
         );
 
-        $.when(bisectAjaxCall).done(createBootBisectTable);
+        $.when(bisectAjaxCall)
+            .done(createBootBisectTable)
+            .done(bisectComparedToMainline);
     } else {
         $('#bisect-div').remove();
     }

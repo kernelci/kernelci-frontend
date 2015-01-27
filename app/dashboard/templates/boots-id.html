@@ -112,6 +112,14 @@
     </div>
     {%- include "other-bisect-content.html" %}
 </div>
+<div class="row hidden" id="bisect-compare-div">
+    <div class="page-header">
+        <h4>
+            Boot bisect for board &#171;{{ board }}&#187;&nbsp;<small>(compared to &#171;mainline&#187;)</small>
+        </h4>
+    </div>
+    {%- include "other-bisect-compare-content.html" -%}
+</div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
 <input type="hidden" id="board-name" value="{{ board }}">
 <input type="hidden" id="job-name" value="{{ job }}">
