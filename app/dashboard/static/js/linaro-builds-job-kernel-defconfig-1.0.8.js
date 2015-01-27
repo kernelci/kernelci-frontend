@@ -553,7 +553,7 @@ function getBisectData(data) {
         }
 
         deferredAjaxCall = JSBase.createDeferredCall(
-            '/_ajax/bisect/defconfig/' + defconfigId,
+            '/_ajax/bisect?collection=defconfig&defconfig_id=' + defconfigId,
             'GET',
             null,
             null,
