@@ -188,18 +188,17 @@ def ajax_batch():
         abort(400)
 
 
-@app.route("/_ajax/bisect/<string:collection>/<string:doc_id>")
-def ajax_bisect_call(collection=None, doc_id=None):
+@app.route("/_ajax/bisect")
+@app.route("/_ajax/bisect/<string:doc_id>")
+def ajax_bisect_call(doc_id=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         # Cache bisect data for 2 hours.
-        if all([collection, doc_id]):
-            return backend.ajax_bisect(
-                request, collection, doc_id,
-                app_conf_get("BISECT_API_ENDPOINT"),
-                timeout=60*60*2
-            )
-        else:
-            abort(400)
+        return backend.ajax_bisect(
+            request,
+            doc_id,
+            app_conf_get("BISECT_API_ENDPOINT"),
+            timeout=60*60*2
+        )
     else:
         abort(400)
 

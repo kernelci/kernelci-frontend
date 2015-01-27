@@ -366,18 +366,24 @@ def ajax_get(request, api_path, timeout=None):
     return (data, status_code, headers.items())
 
 
-def ajax_bisect(request, collection, doc_id, api_path, timeout=None):
+def ajax_bisect(request, doc_id, api_path, timeout=None):
     """Handle GET operations on the bisect collection.
 
     :param request: The request performed.
-    :param collection: The name of the collection where to perform the bisect.
-    :param doc_id: The ID of the document to bisect.
+    :param doc_id: The ID of the bisect document.
     :param api_path: The API endpoint where to perform the request.
     """
-    api_path = _create_api_path(api_path, [collection, doc_id])
-    url = _create_url(api_path)
+    params_list = request.args.lists()
 
-    data, status_code, headers = request_get(url, timeout=timeout)
+    if doc_id:
+        api_path = _create_api_path(api_path, [doc_id])
+    else:
+        api_path = _create_api_path(api_path)
+    url = _create_url(api_path)
+    print url
+
+    data, status_code, headers = request_get(
+        url, params=params_list, timeout=timeout)
     return (data, status_code, headers.items())
 
 
