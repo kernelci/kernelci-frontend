@@ -179,5 +179,6 @@
 <input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %} {%- block scripts %}
 {{ super() }}
+<script type="text/javascript" src="/static/js/linaro-bisect-0.0.1.js"></script>
 <script type="text/javascript" src="/static/js/linaro-builds-job-kernel-defconfig-1.0.8.js"></script>
 {%- endblock %}
