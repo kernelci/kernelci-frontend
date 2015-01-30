@@ -4,16 +4,32 @@
         <span id="bisect-compare-loading-content">retrieving bisect data compared with mainline&hellip;</span>
     </div>
     <div id="bisect-compare-content" class="hidden">
-        <p>
-            The comparison with the &#171;mainline&#187; tree is based on the boot
-            reports with the same board, lab name and defconfig values.
-        </p>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Bisect comparison summary</h3>
+          </div>
+          <div class="panel-body" id="bisect-summary">
+            <div id="bisect-compare-description"></div>
+            <dl class="dl-horizontal hidden" id="dl-bisect-compare-script">
+                <dt>Bisect script</dt>
+                <dd>
+                    <span id="bisect-compare-script"></span>
+                    <span class="bisect-compare-desc">
+                        <small>
+                            (The script is made with values from the previous
+                            bisect and this one)
+                        </small>
+                    </span>
+                </dd>
+            </dl>
+          </div>
+        </div>
     {%- if is_mobile %}
-        <div class="table-responsive" id="table-div">
+        <div class="table-responsive" id="table-compare-div">
     {%- else %}
-        <div class="table" id="table-div">
+        <div class="table" id="table-compare-div">
     {%- endif %}
-            <table id="bisect-compare-table" class="bisect-table table" summary="Bisect table">
+            <table id="bisect-compare-table" class="bisect-table table" summary="Bisect comparison table">
                 <thead>
                     <tr>
                         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
