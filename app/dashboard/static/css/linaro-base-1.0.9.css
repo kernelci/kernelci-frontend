@@ -151,3 +151,6 @@ div.dataTables_filter input {
 .larger-modal {
     width: 1024px;
 }
+.bisect-compare-desc {
+    margin-left: 10px;
+}
