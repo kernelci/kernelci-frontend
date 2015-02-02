@@ -384,7 +384,7 @@ function getBootReports(data) {
     $.when(ajaxDeferredCall).done(populateBootSection);
 }
 
-function bisectAjaxCallFailed(data) {
+function bisectAjaxCallFailed() {
     'use strict';
     $('#bisect-loading-div').remove();
     $('#bisect-content')
@@ -544,6 +544,7 @@ function getBisectData(data) {
     'use strict';
     var status = data.status,
         deferredAjaxCall,
+        bisectElements = null,
         errorReason = 'Bisect data call failed';
 
     if (status === 'FAIL') {
@@ -563,7 +564,30 @@ function getBisectData(data) {
             'bisect-failed'
         );
 
-        $.when(deferredAjaxCall).done(createBisectTable);
+        bisectElements = {
+            tableDivID: '#table-div',
+            tableID: '#bisect-table',
+            tableBodyID: '#bisect-table-body',
+            contentDivID: '#bisect-content',
+            loadingDivID: '#bisect-loading-div',
+            loadingContentID: '#bisect-loading-content',
+            loadingContentText: 'loading bisect data&hellip;',
+            badCommitID: '#bad-commit',
+            goodCommitID: '#good-commit',
+            bisectScriptContainerID: '#dl-bisect-script',
+            bisectScriptContentID: '#bisect-script',
+            bisectCompareDescriptionID: null,
+            prevBisect: null
+        };
+
+        // $.when(deferredAjaxCall).done(createBisectTable);
+        $.when(deferredAjaxCall).done(function(data) {
+            Bisect.fillBisectTable(
+                data,
+                bisectElements,
+                false
+            );
+        });
     } else {
         $('#bisect-div').remove();
     }
