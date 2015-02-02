@@ -113,17 +113,31 @@ var JSBase = (function() {
             .fadeIn('slow', 'linear');
     }
 
-    // Remove CSS class from the specified element.
+    // Remove CSS class from the specified DOM element ID.
     // `elementID`: The ID of the element.
     // `cssClass`: The CSS class to remove or an Array of classes as string.
     function removeCssClassForID(elementID, cssClass) {
         var realID = checkIfID(elementID);
         if (cssClass.constructor === Array) {
-            cssClass.forEach(function(element, index, arra) {
+            cssClass.forEach(function(element) {
                 $(realID).removeClass(element);
             });
         } else {
             $(realID).removeClass(cssClass);
+        }
+    }
+
+    // Add CSS class to the specified DOM element ID.
+    // `elementID`: The ID of the element.
+    // `cssClass`: The CSS class to add or an Array of classes as string.
+    function addCssClassForID(elementID, cssClass) {
+        var realID = checkIfID(elementID);
+        if (cssClass.constructor === Array) {
+            cssClass.forEach(function(element) {
+                $(realID).addClass(element);
+            });
+        } else {
+            $(realID).addClass(cssClass);
         }
     }
 
@@ -439,14 +453,15 @@ var JSBase = (function() {
     }
 
     return {
+        addCssClassForID: addCssClassForID,
         collectObjects: collectObjects,
         createDeferredCall: createDeferredCall,
         createLargeModalDialog: createLargeModalDialog,
         init: init,
         loadHTMLContent: loadHTMLContent,
         populateSideBarNav: populateSideBarNav,
-        removeElementByID: removeElementByID,
         removeCssClassForID: removeCssClassForID,
+        removeElementByID: removeElementByID,
         replaceContentByClass: replaceContentByClass,
         replaceContentByID: replaceContentByID,
         setErrorAlert: setErrorAlert,
