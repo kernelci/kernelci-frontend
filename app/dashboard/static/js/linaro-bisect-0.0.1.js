@@ -70,10 +70,10 @@ var Bisect = (function() {
 
     bisectBootComparisonDescription = 'The comparison with the ' +
         '&#171;%s&#187; tree is based on the boot reports with the same ' +
-        'board, lab name and defconfig values.';
+        'board, lab name, architecture and defconfig values.';
     bisectBuildComparisonDescription = 'The comparison with the ' +
         '&#171;%s&#187; tree is based on the build reports with the same ' +
-        'defconfig value.';
+        'architecture and defconfig values.';
 
     bisectScriptElementF = '<span rel="tooltip" data-toggle="tooltip"' +
         'title="%s"><a download="%s" href="%s">' +
@@ -135,7 +135,7 @@ var Bisect = (function() {
                         element.boot_created_on.$date);
                 } else if (bisectType === 'build') {
                     otherCommitDate = new Date(
-                        element.defconfig_created.$date);
+                        element.created_on.$date);
                 }
 
                 if (!prevCommitInserted && prevGoodCommitDate !== null &&
