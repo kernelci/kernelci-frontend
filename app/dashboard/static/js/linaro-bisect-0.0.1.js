@@ -23,10 +23,18 @@ var Bisect = (function() {
         gitDescribeCellF,
         commitCellF,
         bisectScriptElementF,
+        showBisectTooltip,
+        hideBisectTooltip,
+        showBisectComparedTooltip,
+        hideBisectComparedTooltip,
+        bisectHiddenText,
+        bisectComparedHiddenText,
         BisectElements;
 
     // Object prototype that should be passed to fillBisctTable function.
     BisectElements = {
+        // The ID of the element to show/hide the bisect table.
+        showHideID: null,
         // The ID of the div containing the bisect table.
         tableDivID: null,
         // The ID of the table element.
@@ -79,6 +87,85 @@ var Bisect = (function() {
         'title="%s"><a download="%s" href="%s">' +
         '<i class="fa fa-download"></i></a></span>';
 
+    showBisectTooltip = 'Show content of default bisect';
+    hideBisectTooltip = 'Hide content of default bisect';
+    showBisectComparedTooltip = 'Show content of bisect ' +
+        'compared to &#171;%s&#187;';
+    hideBisectComparedTooltip = 'Hide content of bisect ' +
+        'compared to &#171;%s&#187;';
+    bisectHiddenText = 'Content of default bisection hidden. ' +
+        'Use the <i class="fa fa-eye"></i> button to show it again.';
+    bisectComparedHiddenText = 'Content of bisection compared to ' +
+        '&#171;%s&#187; hidden. Use the ' +
+        '<i class="fa fa-eye"></i> button to show it again.';
+
+    // Create the "eye" button to show/hide the bisect table and summary.
+    // `element`: The ID of the element that should contain the button.
+    // `showHide`: The ID of the element that should be shown/hidden.
+    // `action`: The action to take: can be 'show' or 'hide'.
+    // `compareTo`: The name of the compare tree or null.
+    function createShowHideButton(element, showHide, action, compareTo) {
+        var faClass = 'fa fa-eye',
+            tooltipTitle = showBisectTooltip;
+
+        if (action === 'show' && compareTo !== null) {
+            tooltipTitle = sprintf(showBisectComparedTooltip, compareTo);
+        }
+
+        if (action === 'hide') {
+            faClass = 'fa fa-eye-slash';
+
+            if (compareTo === null) {
+                tooltipTitle = hideBisectTooltip;
+            } else {
+                tooltipTitle = sprintf(hideBisectComparedTooltip, compareTo);
+            }
+        }
+
+        return '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="' + tooltipTitle + '"><i data-action="' + action + '" ' +
+            'data-id="' + element + '" data-sh="' + showHide + '" ' +
+            'data-compared="' + compareTo + '" ' +
+            'class="' + faClass + '" ' +
+            'onclick="Bisect.showHideBisect(this)"></i></span>';
+    }
+
+    // Show/Hide the bisect data based on the data attributes of the element.
+    function showHideBisect(element) {
+        var button = null,
+            tElement = $(element),
+            dataId = JSBase.checkIfNotID(tElement.data('id')),
+            dataAction = tElement.data('action'),
+            dataShowHide = tElement.data('sh'),
+            dataCompared = tElement.data('compared');
+
+        if (dataAction === 'hide') {
+            button = createShowHideButton(
+                dataId, dataShowHide, 'show', dataCompared);
+            JSBase.hideElementByID(dataShowHide);
+            JSBase.replaceContentByID(dataId, button);
+
+            if (dataCompared === null) {
+                JSBase.replaceContentByID(
+                    '#view-' + dataId,
+                    '<small>' + bisectHiddenText + '<small>');
+            } else {
+                JSBase.replaceContentByID(
+                    '#view-' + dataId,
+                    '<small>' +
+                    sprintf(bisectComparedHiddenText, dataCompared) +
+                    '<small>'
+                );
+            }
+        } else {
+            button = createShowHideButton(
+                dataId, dataShowHide, 'hide', dataCompared);
+            JSBase.showElementByID(dataShowHide);
+            $('#view-' + dataId).empty();
+            JSBase.replaceContentByID(dataId, button);
+        }
+    }
+
     // Create a simple bash script for git bisection.
     // `badCommit`: The starting point for the bisect script.
     // `goodCommit`: The end point.
@@ -93,6 +180,9 @@ var Bisect = (function() {
             encodeURIComponent(bisectScript);
     }
 
+    // Create a bash script for git bisection for the compared one.
+    // `badCommit`: The starting point for the bisect script.
+    // `goodCommits`: The list of good commits.
     function bisectCompareShellScript(badCommit, goodCommits) {
         var bisectScript = '';
 
@@ -236,16 +326,16 @@ var Bisect = (function() {
     // `bisectElements`: The BisectElements object with DOM ids and other data.
     // `bisectType`: The type of the bisect (boot, build).
     // `compareGoodCommits`: The good commits for the comparison.
-    // `isBisectComparison`: If this is for a comparison bisect or not.
+    // `isComparison`: If this is for a comparison bisect or not.
     function fillBisectSummary(
         badCommit,
         goodCommit,
         bisectElements,
         bisectType,
         compareGoodCommits,
-        isBisectComparison)
+        isComparison)
     {
-        if (isBisectComparison) {
+        if (isComparison) {
             bisectComparedToSummary(
                 bisectElements, bisectType, compareGoodCommits);
         } else {
@@ -325,12 +415,12 @@ var Bisect = (function() {
         return [row, goodCommit];
     }
 
-    // Populate a bisect table based on the provided DOM elements.
+    // Populate the bisect elements based on the provided DOM elements.
     // `bisectData`: The bisect JSON data to analyze.
     // `bisectElements`: The BisectElements data structure that contains the
     // DOM element IDs and other necessary data.
-    // `isBisectComparison`: If the bisect is a comparison one or not.
-    function fillBisectTable(bisectData, bisectElements, isBisectComparison) {
+    // `isComparison`: If the bisect is a comparison one or not.
+    function initBisect(bisectData, bisectElements, isComparison) {
         JSBase.replaceContentByID(
             bisectElements.loadingContentID,
             bisectElements.loadingContentText);
@@ -342,9 +432,11 @@ var Bisect = (function() {
             tableRows = '',
             bisectType = null,
             job = null,
+            compareTo = null,
             badCommit = null,
             goodCommit = null,
             rowResult = null,
+            button = null,
             // Contain the good commits for comparison purposes.
             compareGoodCommits = [];
 
@@ -354,8 +446,9 @@ var Bisect = (function() {
 
         // Retrieve the job value in case the 'compare_to' field is empty.
         // It is empty in the case of a normal bisect.
-        if (isBisectComparison) {
+        if (isComparison) {
             job = localResult.compare_to;
+            compareTo = localResult.compare_to;
         } else {
             job = localResult.job;
         }
@@ -369,7 +462,7 @@ var Bisect = (function() {
         }
 
         // If it is a comparison bisect, add the description to the summary.
-        if (isBisectComparison) {
+        if (isComparison) {
             if (bisectType === 'boot') {
                 JSBase.replaceContentByID(
                     bisectElements.bisectCompareDescriptionID,
@@ -412,8 +505,16 @@ var Bisect = (function() {
                 bisectElements,
                 bisectType,
                 compareGoodCommits,
-                isBisectComparison
+                isComparison
             );
+
+            button = createShowHideButton(
+                bisectElements.showHideID,
+                bisectElements.contentDivID,
+                'hide',
+                compareTo
+            );
+            JSBase.replaceContentByID(bisectElements.showHideID, button);
 
             JSBase.replaceContentByID(bisectElements.tableBodyID, tableRows);
         }
@@ -426,6 +527,7 @@ var Bisect = (function() {
         BisectElements: BisectElements,
         bisectCompareShellScript: bisectCompareShellScript,
         bisectShellScript: bisectShellScript,
-        fillBisectTable: fillBisectTable
+        initBisect: initBisect,
+        showHideBisect: showHideBisect
     };
 }());
