@@ -585,6 +585,7 @@ function bisectComparedToMainline(data) {
         );
 
         bisectElements = {
+            showHideID: '#bootb-compare-showhide',
             tableDivID: '#table-compare-div',
             tableID: '#bisect-compare-table',
             tableBodyID: '#bisect-compare-table-body',
@@ -601,7 +602,7 @@ function bisectComparedToMainline(data) {
         };
 
         $.when(ajaxDeferredCall).done(function(data) {
-            Bisect.fillBisectTable(
+            Bisect.initBisect(
                 data,
                 bisectElements,
                 true
@@ -651,6 +652,7 @@ function getBisectData(data) {
         );
 
         bisectElements = {
+            showHideID: '#bootb-showhide',
             tableDivID: '#table-div',
             tableID: '#bisect-table',
             tableBodyID: '#bisect-table-body',
@@ -669,7 +671,7 @@ function getBisectData(data) {
         $.when(bisectAjaxCall)
             .done(bisectComparedToMainline)
             .done(function(data) {
-                Bisect.fillBisectTable(
+                Bisect.initBisect(
                     data,
                     bisectElements,
                     false

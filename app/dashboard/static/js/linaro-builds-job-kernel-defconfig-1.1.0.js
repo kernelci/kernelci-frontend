@@ -564,6 +564,7 @@ function buildBisectComparedToMainline(data) {
         defconfigVal = bisectData.defconfig_id.$oid;
 
         bisectElements = {
+            showHideID: '#buildb-compare-showhide',
             tableDivID: '#table-compare-div',
             tableID: '#bisect-compare-table',
             tableBodyID: '#bisect-compare-table-body',
@@ -594,7 +595,7 @@ function buildBisectComparedToMainline(data) {
         );
 
         $.when(ajaxDeferredCall).done(function(data) {
-            Bisect.fillBisectTable(
+            Bisect.initBisect(
                 data,
                 bisectElements,
                 true
@@ -630,6 +631,7 @@ function getBisectData(data) {
         );
 
         bisectElements = {
+            showHideID: '#buildb-showhide',
             tableDivID: '#table-div',
             tableID: '#bisect-table',
             tableBodyID: '#bisect-table-body',
@@ -648,7 +650,7 @@ function getBisectData(data) {
         $.when(deferredAjaxCall)
             .done(buildBisectComparedToMainline)
             .done(function(data) {
-                Bisect.fillBisectTable(
+                Bisect.initBisect(
                     data,
                     bisectElements,
                     false
