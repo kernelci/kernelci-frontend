@@ -19,6 +19,17 @@ var JSBase = (function() {
         defaultErrorReason = 'Data call failed',
         defaultTimeout = 10000;
 
+    // Make sure an element is not an ID: does not start with #.
+    // `elementID`: The element ID to check.
+    function checkIfNotID(elementID) {
+        var localElement = elementID;
+
+        if (localElement[0] === '#') {
+            localElement = elementID.slice(1);
+        }
+        return localElement;
+    }
+
     // Make sure the element ID starts with #.
     // `elementID`: The element ID to check.
     function checkIfID(elementID) {
@@ -111,6 +122,13 @@ var JSBase = (function() {
         $(realID)
             .removeClass('hidden')
             .fadeIn('slow', 'linear');
+    }
+
+    // Hide the provided DOM element.
+    // `elementID`: The ID of the element to hide.
+    function hideElementByID(elementID) {
+        var realID = checkIfID(elementID);
+        $(realID).hide();
     }
 
     // Remove CSS class from the specified DOM element ID.
@@ -454,9 +472,11 @@ var JSBase = (function() {
 
     return {
         addCssClassForID: addCssClassForID,
+        checkIfNotID: checkIfNotID,
         collectObjects: collectObjects,
         createDeferredCall: createDeferredCall,
         createLargeModalDialog: createLargeModalDialog,
+        hideElementByID: hideElementByID,
         init: init,
         loadHTMLContent: loadHTMLContent,
         populateSideBarNav: populateSideBarNav,
