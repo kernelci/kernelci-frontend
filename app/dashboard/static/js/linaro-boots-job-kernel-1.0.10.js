@@ -395,12 +395,12 @@ function populateBootsPage(data) {
             len = lab.length;
 
             toAppend += '<div id="' + element + '">' +
-                '<div id="lab-header">' +
-                '<h3>Lab&nbsp;&#171;' + element + '&#187;</h3>' +
-                '<span class="pull-right lab-view" id="view-eye-' + element +
+                '<div class="other-header">' +
+                '<h4>Lab&nbsp;&#171;' + element + '&#187;</h4>' +
+                '<span class="pull-right" id="view-eye-' + element +
                 '">' +
                 createHideShowButton(element, 'hide') +
-                '</span></div>' +
+                '</span><hr class="blurred subheader" /></div>' +
                 '<div id="view-' + element + '" class="pull-center"></div>' +
                 '<div class="panel-group" id="accordion' + element + '">';
 
