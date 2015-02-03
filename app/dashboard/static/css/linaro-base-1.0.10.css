@@ -112,20 +112,6 @@ div.dataTables_filter input {
 .arch-label {
     padding: 4px 7px 4px;
 }
-#lab-header h3, span {
-    display: inline;
-}
-#lab-header .lab-view {
-    padding-top: 10px;
-    padding-right: 2px;
-}
-#lab-header {
-    margin-bottom: 10px;
-    margin-top: 25px;
-}
-#lab-header span span i {
-    cursor: pointer;
-}
 .footer > .container {
     font-size: small;
     font-weight: lighter;
@@ -153,4 +139,27 @@ div.dataTables_filter input {
 }
 .bisect-compare-desc {
     margin-left: 10px;
+}
+.other-header h4, span {
+    display: inline;
+}
+.other-header {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    margin-left: 4px;
+}
+.other-header span span i {
+    cursor: pointer;
+}
+hr.subheader {
+    margin-top: 7px;
+    margin-bottom: 15px;
+}
+hr.blurred {
+    border: 0;
+    height: 1px;
+    background-image: -webkit-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
+    background-image: -moz-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
+    background-image: -ms-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
+    background-image: -o-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
 }
