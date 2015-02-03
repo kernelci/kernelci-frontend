@@ -102,15 +102,34 @@
 <div id="other-details-div" class="hidden"></div>
 <div class="row" id="multiple-labs">
     <div class="page-header">
-        <h4>Other boot reports</h4>
+        <h3>Other Boot Reports</h3>
     </div>
     {%- include "other-multiple-boot-reports.html" %}
 </div>
-<div class="row hidden" id="bisect-div">
+<div class="row" id="bisect">
     <div class="page-header">
-        <h4>Boot bisect for board &#171;{{ board }}&#187;</h4>
+        <h3>Boot Bisect for board &#171;{{ board }}&#187;</h3>
     </div>
-    {%- include "other-bisect-content.html" %}
+    <div class="hidden" id="bisect-div">
+        <div class="other-header">
+            <h4>Default bisect</h4>
+            {# Placeholder for the show/hide button created dynamically #}
+            <span class="pull-right" id="bootb-showhide"></span>
+            <hr class="blurred subheader" />
+        </div>
+        <div id="view-bootb-showhide" class="pull-center"></div>
+        {%- include "other-bisect-content.html" %}
+    </div>
+    <div class="hidden" id="bisect-compare-div">
+        <div class="other-header">
+            <h4>Compared to &#171;mainline&#187;</h4>
+            {# Placeholder for the show/hide button created dynamically #}
+            <span class="pull-right" id="bootb-compare-showhide"></span>
+            <hr class="blurred subheader" />
+        </div>
+        <div id="view-bootb-compare-showhide" class="pull-center"></div>
+        {%- include "other-bisect-compare-content.html" -%}
+    </div>
 </div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
 <input type="hidden" id="board-name" value="{{ board }}">
@@ -124,5 +143,6 @@
 {%- endblock %}
 {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" src="/static/js/linaro-boots-id-1.1.9.js"></script>
+<script type="text/javascript" src="/static/js/linaro-bisect-0.0.1.js"></script>
+<script type="text/javascript" src="/static/js/linaro-boots-id-1.2.0.js"></script>
 {%- endblock %}

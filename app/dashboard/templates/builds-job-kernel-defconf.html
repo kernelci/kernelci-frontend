@@ -114,15 +114,32 @@
         </dl>
     </div>
 </div>
-<div class="row hidden" id="bisect-div">
-    <div class="page-header">
-        <h4 id="bisect">Build Bisect</h4>
+<div class="row" id="bisect">
+    <div class="page-header"><h3>Build Bisect</h3></div>
+    <div class="hidden" id="bisect-div">
+        <div class="other-header">
+            <h4>Default bisect</h4>
+            {# Placeholder for the show/hide button created dynamically #}
+            <span class="pull-right" id="buildb-showhide"></span>
+            <hr class="blurred subheader" />
+        </div>
+        <div id="view-buildb-showhide" class="pull-center"></div>
+        {%- include "other-bisect-content.html" %}
     </div>
-    {%- include "other-bisect-content.html" %}
+    <div class="hidden" id="bisect-compare-div">
+        <div class="other-header">
+            <h4>Compared to &#171;mainline&#187;</h4>
+            {# Placeholder for the show/hide button created dynamically #}
+            <span class="pull-right" id="buildb-compare-showhide"></span>
+            <hr class="blurred subheader" />
+        </div>
+        <div id="view-buildb-compare-showhide" class="pull-center"></div>
+        {%- include "other-bisect-compare-content.html" -%}
+    </div>
 </div>
 <div class="row">
     <div class="page-header">
-        <h4 id="boot-reports">Boot Reports</h4>
+        <h3 id="boot-reports">Boot Reports</h3>
     </div>
     <div id="boot-report">
         <div class="pull-center">
@@ -132,7 +149,7 @@
 </div>
 <div class="row">
     <div class="page-header">
-        <h4 id="platform">Build Platform</h4>
+        <h3 id="platform">Build Platform</h3>
     </div>
     <div id="build-platform">
         <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
@@ -179,5 +196,6 @@
 <input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %} {%- block scripts %}
 {{ super() }}
-<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-defconfig-1.0.8.js"></script>
+<script type="text/javascript" src="/static/js/linaro-bisect-0.0.1.js"></script>
+<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-defconfig-1.1.0.js"></script>
 {%- endblock %}

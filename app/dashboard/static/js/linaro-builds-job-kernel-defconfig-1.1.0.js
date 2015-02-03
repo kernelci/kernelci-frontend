@@ -384,7 +384,7 @@ function getBootReports(data) {
     $.when(ajaxDeferredCall).done(populateBootSection);
 }
 
-function bisectAjaxCallFailed(data) {
+function bisectAjaxCallFailed() {
     'use strict';
     $('#bisect-loading-div').remove();
     $('#bisect-content')
@@ -540,10 +540,77 @@ function createBisectTable(data) {
     }
 }
 
+function bisectCompareToAjaxCallFailed() {
+    'use strict';
+    $('#bisect-compare-loading-div').remove();
+    $('#bisect-compare-content')
+        .removeClass('hidden')
+        .empty()
+        .append('<strong>Error loading bisect data from server.</strong>')
+        .addClass('pull-center');
+}
+
+function buildBisectComparedToMainline(data) {
+    'use strict';
+    var bisectData = data.result[0],
+        bootId,
+        ajaxDeferredCall,
+        bisectElements = null,
+        defconfigVal = null,
+        errorFunc,
+        errorReason = 'Error loading bisect data compared to mainline';
+
+    if (bisectData.job !== 'mainline') {
+        defconfigVal = bisectData.defconfig_id.$oid;
+
+        bisectElements = {
+            showHideID: '#buildb-compare-showhide',
+            tableDivID: '#table-compare-div',
+            tableID: '#bisect-compare-table',
+            tableBodyID: '#bisect-compare-table-body',
+            contentDivID: '#bisect-compare-content',
+            loadingDivID: '#bisect-compare-loading-div',
+            loadingContentID: '#bisect-compare-loading-content',
+            loadingContentText: 'loading bisect data&hellip;',
+            badCommitID: null,
+            goodCommitID: null,
+            bisectScriptContainerID: '#dl-bisect-compare-script',
+            bisectScriptContentID: '#bisect-compare-script',
+            bisectCompareDescriptionID: '#bisect-compare-description',
+            prevBisect: bisectData
+        };
+
+        JSBase.removeCssClassForID('#bisect-compare-div', 'hidden');
+
+        ajaxDeferredCall = JSBase.createDeferredCall(
+            '/_ajax/bisect?collection=defconfig&compare_to=mainline&' +
+                'defconfig_id=' + defconfigVal,
+            'GET',
+            null,
+            null,
+            bisectCompareToAjaxCallFailed,
+            errorReason,
+            null,
+            'bisect-call-compare-to'
+        );
+
+        $.when(ajaxDeferredCall).done(function(data) {
+            Bisect.initBisect(
+                data,
+                bisectElements,
+                true
+            );
+        });
+    } else {
+        JSBase.removeElementByID('#bisect-compare-div');
+    }
+}
+
 function getBisectData(data) {
     'use strict';
     var status = data.status,
         deferredAjaxCall,
+        bisectElements = null,
         errorReason = 'Bisect data call failed';
 
     if (status === 'FAIL') {
@@ -553,7 +620,7 @@ function getBisectData(data) {
         }
 
         deferredAjaxCall = JSBase.createDeferredCall(
-            '/_ajax/bisect/defconfig/' + defconfigId,
+            '/_ajax/bisect?collection=defconfig&defconfig_id=' + defconfigId,
             'GET',
             null,
             null,
@@ -563,7 +630,32 @@ function getBisectData(data) {
             'bisect-failed'
         );
 
-        $.when(deferredAjaxCall).done(createBisectTable);
+        bisectElements = {
+            showHideID: '#buildb-showhide',
+            tableDivID: '#table-div',
+            tableID: '#bisect-table',
+            tableBodyID: '#bisect-table-body',
+            contentDivID: '#bisect-content',
+            loadingDivID: '#bisect-loading-div',
+            loadingContentID: '#bisect-loading-content',
+            loadingContentText: 'loading bisect data&hellip;',
+            badCommitID: '#bad-commit',
+            goodCommitID: '#good-commit',
+            bisectScriptContainerID: '#dl-bisect-script',
+            bisectScriptContentID: '#bisect-script',
+            bisectCompareDescriptionID: null,
+            prevBisect: null
+        };
+
+        $.when(deferredAjaxCall)
+            .done(buildBisectComparedToMainline)
+            .done(function(data) {
+                Bisect.initBisect(
+                    data,
+                    bisectElements,
+                    false
+                );
+        });
     } else {
         $('#bisect-div').remove();
     }

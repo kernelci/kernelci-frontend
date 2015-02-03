@@ -10,7 +10,8 @@
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/linaro-base-1.0.9.css"> {%- endblock %}
+    <link rel="stylesheet" type="text/css" href="/static/css/linaro-base-1.0.11.css">
+    {%- endblock %}
 </head>
 <body>
     <div class="navbar navbar-default navbar-static-top" id="top" role="navigation">
@@ -84,7 +85,7 @@
                             &nbsp;|&nbsp;
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
                                 <i class="fa fa-cog fa-spin"></i>
-                            <span>
+                            </span>
                         </li>
                         <li>
                             <a title="API documentation" href="http://api.kernelci.org">
@@ -100,9 +101,10 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sprintf/1.0.1/sprintf.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.hotkeys-1.0.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.hotkeymap-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-base-1.0.5.js"></script>
+<script type="text/javascript" src="/static/js/linaro-base-1.0.7.js"></script>
 <script type="text/javascript">
 function apiVersionLinkSuccess(data) {
     'use strict';
@@ -158,5 +160,4 @@ _gaq.push(['_trackPageview']);
 {%- endblock %} {# Analytics block #}
 {%- endblock %}
 </body>
-
 </html>

@@ -19,6 +19,17 @@ var JSBase = (function() {
         defaultErrorReason = 'Data call failed',
         defaultTimeout = 10000;
 
+    // Make sure an element is not an ID: does not start with #.
+    // `elementID`: The element ID to check.
+    function checkIfNotID(elementID) {
+        var localElement = elementID;
+
+        if (localElement[0] === '#') {
+            localElement = elementID.slice(1);
+        }
+        return localElement;
+    }
+
     // Make sure the element ID starts with #.
     // `elementID`: The element ID to check.
     function checkIfID(elementID) {
@@ -77,26 +88,19 @@ var JSBase = (function() {
         $(realID).empty().load(contentURL);
     }
 
-    // Create a simple bash script for git bisection.
-    // `badCommit`: The starting point for the bisect script.
-    // `goodCommit`: The end point.
-    function createBisectShellScript(badCommit, goodCommit) {
-        var bisectScript = '';
-
-        if (badCommit !== null && goodCommit !== null) {
-            bisectScript = '#!/bin/bash\ngit bisect start ' +
-                badCommit + ' ' + goodCommit + '\n';
-        }
-        return 'data:text/plain;charset=UTF-8,' +
-            encodeURIComponent(bisectScript);
-    }
-
     // Replace content of an element based on its id.
     // `elementID`: The ID of the element to search.
     // `staticContent`: The content that the element will be replaced with.
     function replaceContentByID(elementID, staticContent) {
         var realID = checkIfID(elementID);
         $(realID).empty().append(staticContent);
+    }
+
+    // Remove an element by its ID from the DOM.
+    // `elementID`: The ID of the element to remove.
+    function removeElementByID(elementID) {
+        var realID = checkIfID(elementID);
+        $(realID).remove();
     }
 
     // Replace content of elements based on their class name.
@@ -109,6 +113,50 @@ var JSBase = (function() {
         $(realClass).each(function() {
             $(this).empty().append(staticContent);
         });
+    }
+
+    // Remove hidden class from element and apply animation to show it.
+    // `elementID`: The ID of the element to show.
+    function showElementByID(elementID) {
+        var realID = checkIfID(elementID);
+        $(realID)
+            .removeClass('hidden')
+            .fadeIn('slow', 'linear');
+    }
+
+    // Hide the provided DOM element.
+    // `elementID`: The ID of the element to hide.
+    function hideElementByID(elementID) {
+        var realID = checkIfID(elementID);
+        $(realID).hide();
+    }
+
+    // Remove CSS class from the specified DOM element ID.
+    // `elementID`: The ID of the element.
+    // `cssClass`: The CSS class to remove or an Array of classes as string.
+    function removeCssClassForID(elementID, cssClass) {
+        var realID = checkIfID(elementID);
+        if (cssClass.constructor === Array) {
+            cssClass.forEach(function(element) {
+                $(realID).removeClass(element);
+            });
+        } else {
+            $(realID).removeClass(cssClass);
+        }
+    }
+
+    // Add CSS class to the specified DOM element ID.
+    // `elementID`: The ID of the element.
+    // `cssClass`: The CSS class to add or an Array of classes as string.
+    function addCssClassForID(elementID, cssClass) {
+        var realID = checkIfID(elementID);
+        if (cssClass.constructor === Array) {
+            cssClass.forEach(function(element) {
+                $(realID).addClass(element);
+            });
+        } else {
+            $(realID).addClass(cssClass);
+        }
     }
 
     // Return an ajax promise.
@@ -423,16 +471,21 @@ var JSBase = (function() {
     }
 
     return {
+        addCssClassForID: addCssClassForID,
+        checkIfNotID: checkIfNotID,
         collectObjects: collectObjects,
-        createBisectShellScript: createBisectShellScript,
         createDeferredCall: createDeferredCall,
         createLargeModalDialog: createLargeModalDialog,
+        hideElementByID: hideElementByID,
         init: init,
         loadHTMLContent: loadHTMLContent,
         populateSideBarNav: populateSideBarNav,
+        removeCssClassForID: removeCssClassForID,
+        removeElementByID: removeElementByID,
         replaceContentByClass: replaceContentByClass,
         replaceContentByID: replaceContentByID,
         setErrorAlert: setErrorAlert,
+        showElementByID: showElementByID,
         translateCommitURL: translateCommitURL
     };
 }());
