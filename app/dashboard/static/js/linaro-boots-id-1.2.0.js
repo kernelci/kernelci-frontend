@@ -635,7 +635,9 @@ function getBisectData(data) {
     errorReason = 'Bisect data call failed';
 
     if (status === 'FAIL') {
-        $('#bisect-div').removeClass('hidden');
+        JSBase.removeCssClassForID('#bisect', 'hidden');
+        JSBase.removeCssClassForID('#bisect-div', 'hidden');
+
         if (bootId === 'None') {
             bootId = data.result[0]._id.$oid;
         }
@@ -678,7 +680,7 @@ function getBisectData(data) {
                 );
             });
     } else {
-        $('#bisect-div').remove();
+        JSBase.removeElementByID('#bisect');
     }
 }
 
