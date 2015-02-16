@@ -80,6 +80,10 @@ body {
 .bisect-table tbody tr:hover td:first-child .bisect-text, .bisect-table tbody tr:hover th:first-child .bisect-text {
     font-weight: bold;
 }
+.bisect-back {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
 .clean-link a:link a:visited a:hover a:active a:focus {
     text-decoration: none;
 }
