@@ -145,6 +145,20 @@ var JSBase = (function() {
         }
     }
 
+    // Remove CSS class from the specified DOM element class.
+    // `className`: The name of the class to search.
+    // `cssClass`: The CSS class to remove or an Array of classes as string.
+    function removeCssClassForClass(className, cssClass) {
+        var realClass = checkIfClass(className);
+        if (cssClass.constructor === Array) {
+            cssClass.forEach(function(element) {
+                $(realClass).removeClass(element);
+            });
+        } else {
+            $(realClass).removeClass(cssClass);
+        }
+    }
+
     // Add CSS class to the specified DOM element ID.
     // `elementID`: The ID of the element.
     // `cssClass`: The CSS class to add or an Array of classes as string.
@@ -472,6 +486,7 @@ var JSBase = (function() {
 
     return {
         addCssClassForID: addCssClassForID,
+        checkIfID: checkIfID,
         checkIfNotID: checkIfNotID,
         collectObjects: collectObjects,
         createDeferredCall: createDeferredCall,
@@ -480,6 +495,7 @@ var JSBase = (function() {
         init: init,
         loadHTMLContent: loadHTMLContent,
         populateSideBarNav: populateSideBarNav,
+        removeCssClassForClass: removeCssClassForClass,
         removeCssClassForID: removeCssClassForID,
         removeElementByID: removeElementByID,
         replaceContentByClass: replaceContentByClass,
