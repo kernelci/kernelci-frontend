@@ -429,7 +429,8 @@ function buildBisectComparedToMainline(data) {
             bisectScriptContainerID: '#dl-bisect-compare-script',
             bisectScriptContentID: '#bisect-compare-script',
             bisectCompareDescriptionID: '#bisect-compare-description',
-            prevBisect: bisectData
+            prevBisect: bisectData,
+            bisectShowHideID: '#bisect-compare-hide-div'
         };
 
         JSBase.removeCssClassForID('#bisect-compare-div', 'hidden');
@@ -498,7 +499,8 @@ function getBisectData(data) {
             bisectScriptContainerID: '#dl-bisect-script',
             bisectScriptContentID: '#bisect-script',
             bisectCompareDescriptionID: null,
-            prevBisect: null
+            prevBisect: null,
+            bisectShowHideID: '#bisect-hide-div'
         };
 
         $.when(deferredAjaxCall)
