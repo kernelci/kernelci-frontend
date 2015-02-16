@@ -100,17 +100,17 @@
     </div>
 </div>
 <div id="other-details-div" class="hidden"></div>
-<div class="row" id="multiple-labs">
+<div id="multiple-labs" class="row">
     <div class="page-header">
         <h3>Other Boot Reports</h3>
     </div>
     {%- include "other-multiple-boot-reports.html" %}
 </div>
-<div class="row hidden" id="bisect">
+<div id="bisect" class="row hidden">
     <div class="page-header">
         <h3>Boot Bisect for Board &#171;{{ board }}&#187;</h3>
     </div>
-    <div class="hidden" id="bisect-div">
+    <div id="bisect-div" class="hidden" >
         <div id="bisect-default" class="other-header">
             <h4>Default bisect</h4>
             {# Placeholder for the show/hide button created dynamically #}
@@ -120,11 +120,11 @@
         <div id="view-bootb-showhide" class="pull-center"></div>
         {%- include "other-bisect-content.html" %}
     </div>
-    <div class="hidden" id="bisect-compare-div">
+    <div id="bisect-compare-div" class="hidden">
         <div id="bisect-compared" class="other-header">
             <h4>Compared to &#171;mainline&#187;</h4>
             {# Placeholder for the show/hide button created dynamically #}
-            <span class="pull-right" id="bootb-compare-showhide"></span>
+            <span id="bootb-compare-showhide" class="pull-right"></span>
             <hr class="blurred subheader" />
         </div>
         <div id="view-bootb-compare-showhide" class="pull-center"></div>
