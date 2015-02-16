@@ -76,7 +76,9 @@ var Bisect = (function() {
         prevBisect: null,
         // The ID of the div element where to put show/hide buttons for the
         // bisect table rows.
-        bisectShowHideID: null
+        bisectShowHideID: null,
+        // The ID of the div with the title of the bisect section.
+        bisectSectionId: null
     };
 
     // Format strings used to build links, tooltips, labels...
@@ -432,7 +434,7 @@ var Bisect = (function() {
 
     // Create the +/- buttons to show/hide bisect table rows.
     function createBisectShowHideButton(
-            elNumber, elementID, tableID, isComparison) {
+            elNumber, elementID, tableID, sectionId, tableDivId, isComparison) {
         var plusButton,
             minusButton,
             buttonLayout,
@@ -470,6 +472,14 @@ var Bisect = (function() {
         buttonLayout = sprintf('%s&nbsp;%s', plusButton, minusButton);
 
         JSBase.replaceContentByID(elementID, buttonLayout);
+        $(JSBase.checkIfID(tableDivId)).append(
+            '<div class="pull-right bisect-back">' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Go back to bisect summary">' +
+            '<small><a href="' + sectionId + '">Back to Section</a></small>' +
+            '</span>' +
+            '</div>'
+        );
     }
 
     // Function called to hide bisect table rows.
@@ -665,6 +675,8 @@ var Bisect = (function() {
                     localLen,
                     bisectElements.bisectShowHideID,
                     bisectElements.tableID,
+                    bisectElements.bisectSectionId,
+                    bisectElements.tableDivID,
                     isComparison);
 
                 if (isComparison) {
