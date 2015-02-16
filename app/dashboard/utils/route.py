@@ -13,10 +13,9 @@
 
 from flask import current_app as app
 
-import dashboard.views.generic as vgeneric
-import dashboard.views.about as vabout
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
+import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 
@@ -33,7 +32,7 @@ def init():
     )
     add_rule(
         "/info/",
-        view_func=vabout.AboutView.as_view("about"),
+        view_func=vgeneric.AboutView.as_view("about"),
         methods=["GET"]
     )
     add_rule(
