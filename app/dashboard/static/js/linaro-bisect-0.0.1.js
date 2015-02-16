@@ -29,7 +29,19 @@ var Bisect = (function() {
         hideBisectComparedTooltip,
         bisectHiddenText,
         bisectComparedHiddenText,
-        BisectElements;
+        BisectElements,
+        // The number of columns in the bisect table.
+        bisectColSpan = 4,
+        // How many rows are too many?
+        bisectMaxElements = 6,
+        bisectHiddenHelpRowId = 'bisect-hidden-help',
+        bisectCompareHiddenHelpRowId = 'bisect-comapre-hidden-help',
+        bisectHiddenRowClass = 'bisect-hidden-row',
+        bisectCompareHiddenRowClass = 'bisect-compare-hidden-row',
+        bisectPlustButtonId = 'plus-button',
+        bisectMinusButtonId = 'minus-button',
+        bisectComparePlusButtonId = 'plus-compare-button',
+        bisectCompareMinusButtonId = 'minus-compare-button';
 
     // Object prototype that should be passed to fillBisctTable function.
     BisectElements = {
@@ -61,7 +73,10 @@ var Bisect = (function() {
         // description.
         bisectCompareDescriptionID: null,
         // The bisect data of the previous bisect (for comparison).
-        prevBisect: null
+        prevBisect: null,
+        // The ID of the div element where to put show/hide buttons for the
+        // bisect table rows.
+        bisectShowHideID: null
     };
 
     // Format strings used to build links, tooltips, labels...
@@ -415,6 +430,133 @@ var Bisect = (function() {
         return [row, goodCommit];
     }
 
+    // Create the +/- buttons to show/hide bisect table rows.
+    function createBisectShowHideButton(
+            elNumber, elementID, tableID, isComparison) {
+        var plusButton,
+            minusButton,
+            buttonLayout,
+            dataType = 'default',
+            plusId = bisectPlustButtonId,
+            minusId = bisectMinusButtonId;
+
+        if (isComparison) {
+            dataType = 'compare';
+            plusId = bisectComparePlusButtonId;
+            minusId = bisectCompareMinusButtonId;
+        }
+
+        plusButton = '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Show all bisect results">' +
+            '<button id="' + plusId + '" type="button" ' +
+            'class="btn btn-default" ' +
+            'onclick="Bisect.showMoreBisectRows(this)" ' +
+            'data-table="' + tableID + '" data-rows="' + elNumber +
+            '" data-type="' + dataType + '">' +
+            '<i class="fa fa-plus"></i>' +
+            '</button>' +
+            '</span>';
+        minusButton = '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Show less bisect results"' +
+            '<button id="' + minusId + '" type="button" ' +
+            'class="btn btn-default"' +
+            'onclick="Bisect.showLessBisectRows(this)" ' +
+            'data-table="' + tableID + '" data-rows="' + elNumber +
+            '" data-type="' + dataType + '">' +
+            '<i class="fa fa-minus"></i>' +
+            '</button>' +
+            '</span>';
+
+        buttonLayout = sprintf('%s&nbsp;%s', plusButton, minusButton);
+
+        JSBase.replaceContentByID(elementID, buttonLayout);
+    }
+
+    // Function called to hide bisect table rows.
+    // `element`: The element that is triggering the function.
+    function showLessBisectRows(element) {
+        // The triggering element must contain the following data attributes:
+        // data-table: the ID of the table element
+        // data-rows: the total number of rows
+        // data-type: the type of bisect (default or compare)
+        // The other elements are provided by the closure.
+        var tElement = $(element),
+            tableID = tElement.data('table'),
+            rowsNumber = tElement.data('rows'),
+            bisectType = tElement.data('type'),
+            helpRowId = bisectHiddenHelpRowId,
+            bisectHiddenClass = bisectHiddenRowClass,
+            row = null,
+            rowIndex = 0,
+            // Only show 4 rows and hide all the others.
+            elementsToShow = [1, 2, rowsNumber - 1, rowsNumber],
+            newRow = null,
+            rowText = null,
+            plusId = bisectPlustButtonId,
+            minusId = bisectMinusButtonId,
+            plusButton = '<i class="fa fa-plus"></i>';
+
+        if (bisectType === 'compare') {
+            helpRowId = bisectCompareHiddenHelpRowId;
+            bisectHiddenClass = bisectCompareHiddenRowClass;
+            plusId = bisectComparePlusButtonId;
+            minusId = bisectCompareMinusButtonId;
+        }
+
+        rowText = sprintf(
+            '%d out of %d rows hidden. Use the %s button on the right to ' +
+            'show them.',
+            (rowsNumber - 4), rowsNumber, plusButton);
+
+        newRow = sprintf(
+            '<tr id="' + helpRowId + '">' +
+            '<td class="pull-center" colspan="' + bisectColSpan + '">' +
+            '<small>%s</small></td></tr>',
+            rowText
+        );
+
+        $(tableID + ' > tbody > tr').each(function() {
+            row = $(this);
+            rowIndex = row.context.rowIndex;
+
+            if (elementsToShow.indexOf(rowIndex) === -1) {
+                row.addClass('hidden').addClass(bisectHiddenClass);
+            }
+        });
+
+        // Add the row with the help text as the 3rd row.
+        $(tableID + ' tr:nth-child(2)').after(newRow);
+        $(JSBase.checkIfID(plusId)).removeAttr('disabled');
+        $(JSBase.checkIfID(minusId)).attr('disabled', 'disable');
+    }
+
+    // Function called to show again the hidden bisect row.
+    // `element`: The element that is triggering the function.
+    function showMoreBisectRows(element) {
+        // The triggering element must contain at least the following data
+        // attributes:
+        // 'data-type': the type of bisect (default or compare)
+        // The other elements are provided by the closure.
+        var tElement = $(element),
+            bisectType = tElement.data('type'),
+            helpRowId = bisectHiddenHelpRowId,
+            plusId = bisectPlustButtonId,
+            minusId = bisectMinusButtonId,
+            bisectHiddenClass = bisectHiddenRowClass;
+
+        if (bisectType === 'compare') {
+            helpRowId = bisectCompareHiddenHelpRowId;
+            bisectHiddenClass = bisectCompareHiddenRowClass;
+            plusId = bisectComparePlusButtonId;
+            minusId = bisectCompareMinusButtonId;
+        }
+
+        JSBase.removeElementByID(helpRowId);
+        JSBase.removeCssClassForClass(bisectHiddenClass, 'hidden');
+        $(JSBase.checkIfID(minusId)).removeAttr('disabled');
+        $(JSBase.checkIfID(plusId)).attr('disabled', 'disable');
+    }
+
     // Populate the bisect elements based on the provided DOM elements.
     // `bisectData`: The bisect JSON data to analyze.
     // `bisectElements`: The BisectElements data structure that contains the
@@ -514,9 +656,24 @@ var Bisect = (function() {
                 'hide',
                 compareTo
             );
-            JSBase.replaceContentByID(bisectElements.showHideID, button);
 
+            JSBase.replaceContentByID(bisectElements.showHideID, button);
             JSBase.replaceContentByID(bisectElements.tableBodyID, tableRows);
+
+            if (localLen > bisectMaxElements) {
+                createBisectShowHideButton(
+                    localLen,
+                    bisectElements.bisectShowHideID,
+                    bisectElements.tableID,
+                    isComparison);
+
+                if (isComparison) {
+                    $(JSBase.checkIfID(bisectCompareMinusButtonId))
+                        .trigger('click');
+                } else {
+                    $(JSBase.checkIfID(bisectMinusButtonId)).trigger('click');
+                }
+            }
         }
 
         JSBase.removeElementByID(bisectElements.loadingDivID);
@@ -528,6 +685,8 @@ var Bisect = (function() {
         bisectCompareShellScript: bisectCompareShellScript,
         bisectShellScript: bisectShellScript,
         initBisect: initBisect,
-        showHideBisect: showHideBisect
+        showHideBisect: showHideBisect,
+        showLessBisectRows: showLessBisectRows,
+        showMoreBisectRows: showMoreBisectRows
     };
 }());
