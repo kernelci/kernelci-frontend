@@ -117,7 +117,7 @@
 <div class="row hidden" id="bisect">
     <div class="page-header"><h3>Build Bisect</h3></div>
     <div class="hidden" id="bisect-div">
-        <div class="other-header">
+        <div id="bisect-default" class="other-header">
             <h4>Default bisect</h4>
             {# Placeholder for the show/hide button created dynamically #}
             <span class="pull-right" id="buildb-showhide"></span>
@@ -127,7 +127,7 @@
         {%- include "other-bisect-content.html" %}
     </div>
     <div class="hidden" id="bisect-compare-div">
-        <div class="other-header">
+        <div id="bisect-compared" class="other-header">
             <h4>Compared to &#171;mainline&#187;</h4>
             {# Placeholder for the show/hide button created dynamically #}
             <span class="pull-right" id="buildb-compare-showhide"></span>
