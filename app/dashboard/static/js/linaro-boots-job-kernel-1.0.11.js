@@ -148,6 +148,21 @@ function createPieChart(data) {
             })
             .attr('d', arc);
 
+        svg.append('text')
+            .attr('dy', '0em')
+            .style('text-anchor', 'middle')
+            .attr('class', 'pie-chart-inside')
+            .text(function(d) {
+                return len;
+            });
+
+        svg.append('text')
+            .attr('dy', '1.5em')
+            .style('text-anchor', 'middle')
+            .attr('class', 'pie-chart-data')
+            .text(function(d) {
+                return 'total boots';
+            });
     }
 
     $('#success-cell')
