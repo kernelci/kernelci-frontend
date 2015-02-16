@@ -35,6 +35,14 @@ body {
 .chart-div {
     text-align: -webkit-center;
 }
+.pie-chart-inside {
+    font-weight: bold;
+    font-size: xx-large;
+}
+.pie-chart-data {
+    font-weight: lighter;
+    font-size: small;
+}
 .btn-group {
     padding-bottom: 1em;
 }
