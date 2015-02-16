@@ -598,7 +598,8 @@ function bisectComparedToMainline(data) {
             bisectScriptContainerID: '#dl-bisect-compare-script',
             bisectScriptContentID: '#bisect-compare-script',
             bisectCompareDescriptionID: '#bisect-compare-description',
-            prevBisect: bisectData
+            prevBisect: bisectData,
+            bisectShowHideID: '#bisect-compare-hide-div'
         };
 
         $.when(ajaxDeferredCall).done(function(data) {
@@ -667,7 +668,8 @@ function getBisectData(data) {
             bisectScriptContainerID: '#dl-bisect-script',
             bisectScriptContentID: '#bisect-script',
             bisectCompareDescriptionID: null,
-            prevBisect: null
+            prevBisect: null,
+            bisectShowHideID: '#bisect-hide-div'
         };
 
         $.when(bisectAjaxCall)
