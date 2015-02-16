@@ -20,6 +20,7 @@ function batchCountElements(data) {
         j = 0,
         batchElements = 4,
         jobName = '',
+        kernelName = '',
         queriesLen = len * 4,
         batchQueries = new Array(queriesLen),
         errorReason = 'Batch count failed',
@@ -30,6 +31,7 @@ function batchCountElements(data) {
         for (i; i < queriesLen; i += batchElements) {
             j = i;
             jobName = localData[i / batchElements].job;
+            kernelName = localData[i / batchElements].kernel;
 
             // Get successful defconfig count.
             batchQueries[i] = {
@@ -37,8 +39,7 @@ function batchCountElements(data) {
                 'operation_id': '#defconf-success-count-' + jobName,
                 'collection': 'count',
                 'document_id': 'defconfig',
-                'query': 'status=PASS&date_range=' + dateRange +
-                    '&job=' + jobName
+                'query': 'status=PASS&job=' + jobName + '&kernel=' + kernelName
             };
 
             // Get failed defconfig count.
@@ -47,8 +48,7 @@ function batchCountElements(data) {
                 'operation_id': '#defconf-fail-count-' + jobName,
                 'collection': 'count',
                 'document_id': 'defconfig',
-                'query': 'status=FAIL&date_range=' + dateRange +
-                    '&job=' + jobName
+                'query': 'status=FAIL&job=' + jobName + '&kernel=' + kernelName
             };
 
             // Get successful boot reports count.
@@ -57,8 +57,7 @@ function batchCountElements(data) {
                 'operation_id': '#boot-success-count-' + jobName,
                 'collection': 'count',
                 'document_id': 'boot',
-                'query': 'status=PASS&date_range=' + dateRange +
-                    '&job=' + jobName
+                'query': 'status=PASS&job=' + jobName + '&kernel=' + kernelName
             };
 
             // Get failed boot reports count.
@@ -67,8 +66,7 @@ function batchCountElements(data) {
                 'operation_id': '#boot-fail-count-' + jobName,
                 'collection': 'count',
                 'document_id': 'boot',
-                'query': 'status=FAIL&date_range=' + dateRange +
-                    '&job=' + jobName
+                'query': 'status=FAIL&job=' + jobName + '&kernel=' + kernelName
             };
         }
 
@@ -171,8 +169,8 @@ function createJobsTable(data) {
             {
                 'data': 'job',
                 'title': '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Successful/Failed defconfigs built">' +
-                    'Build Status</span>',
+                    'title="Successful/Failed defconfigs built for latest job">' +
+                    'Latest Build Status</span>',
                 'type': 'String',
                 'searchable': false,
                 'orderable': false,
@@ -195,8 +193,8 @@ function createJobsTable(data) {
             {
                 'data': 'job',
                 'title': '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Successful/Failed boot reports">' +
-                    'Boot Status</span>',
+                    'title="Successful/Failed boot reports for latest job">' +
+                    'Latest Boot Status</span>',
                 'type': 'string',
                 'searchable': false,
                 'orderable': false,
@@ -325,7 +323,7 @@ $(document).ready(function() {
         'sort_order': -1,
         'date_range': $('#date-range').val(),
         'field': [
-            'job', 'created_on', 'status', 'git_branch'
+            'job', 'created_on', 'status', 'git_branch', 'kernel'
         ]
     };
     deferredAjaxCall = JSBase.createDeferredCall(
