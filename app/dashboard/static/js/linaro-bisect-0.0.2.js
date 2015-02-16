@@ -76,9 +76,7 @@ var Bisect = (function() {
         prevBisect: null,
         // The ID of the div element where to put show/hide buttons for the
         // bisect table rows.
-        bisectShowHideID: null,
-        // The ID of the div with the title of the bisect section.
-        bisectSectionId: null
+        bisectShowHideID: null
     };
 
     // Format strings used to build links, tooltips, labels...
@@ -476,7 +474,7 @@ var Bisect = (function() {
             '<div class="pull-right bisect-back">' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Go back to bisect summary">' +
-            '<small><a href="' + sectionId + '">Back to Section</a></small>' +
+            '<small><a href="' + sectionId + '">Back to Summary</a></small>' +
             '</span>' +
             '</div>'
         );
@@ -675,7 +673,7 @@ var Bisect = (function() {
                     localLen,
                     bisectElements.bisectShowHideID,
                     bisectElements.tableID,
-                    bisectElements.bisectSectionId,
+                    bisectElements.contentDivID,
                     bisectElements.tableDivID,
                     isComparison);
 
