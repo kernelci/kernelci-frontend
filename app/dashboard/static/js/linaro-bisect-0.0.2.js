@@ -459,7 +459,7 @@ var Bisect = (function() {
             '</button>' +
             '</span>';
         minusButton = '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Show less bisect results"' +
+            'title="Show less bisect results">' +
             '<button id="' + minusId + '" type="button" ' +
             'class="btn btn-default"' +
             'onclick="Bisect.showLessBisectRows(this)" ' +
