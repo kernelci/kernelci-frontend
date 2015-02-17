@@ -628,33 +628,27 @@ function populateJobData(data) {
         gitUrls = JSBase.translateCommitURL(gitUrl, gitCommit);
 
         $('#tree').empty().append(
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for tree ' + jobName + '">' +
-            '<a href="/job/' + jobName + '/">' + jobName + '</a>' +
-            '</span>&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Boot reports details for ' + jobName + '">' +
-            '<a href="/boot/all/job/' + jobName + '/">' +
-            '<i class="fa fa-hdd-o"></i>' +
-            '</a></span>'
+            '<a href="/boot/all/job/' + jobName + '/">' + jobName +
+            '</a></span>' +
+            '&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Details for tree ' + jobName + '">' +
+            '<a href="/job/' + jobName + '/">' +
+            '<i class="fa fa-sitemap"></i></a></span>'
         );
 
         $('#git-branch').empty().append(localResult.git_branch);
 
         $('#git-describe').empty().append(
+            kernelName +
+            '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="Details for build ' + jobName + '&nbsp;&dash;&nbsp;' +
             kernelName + '">' +
             '<a href="/build/' + jobName + '/kernel/' + kernelName + '/">' +
-            kernelName +
-            '</a>' +
-            '</span>&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="All boot reports for ' + jobName + '&nbsp;&dash;&nbsp;' +
-            kernelName + '">' +
-            '<a href="/boot/all/job/' + jobName + '/kernel/' + kernelName +
-            '/">' +
-            '<i class="fa fa-hdd-o"></i></a></span>'
+            '<i class="fa fa-cube"></i></a></span>'
         );
 
         if (gitUrls[0] !== null) {
