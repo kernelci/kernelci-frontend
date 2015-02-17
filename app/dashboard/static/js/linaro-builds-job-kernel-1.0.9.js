@@ -381,7 +381,6 @@ function ajaxJobGetFailed() {
 
 function populateJobData(data) {
     'use strict';
-
     var localData = data.result,
         localResult = null,
         dataLen = localData.length,
@@ -414,13 +413,8 @@ function populateJobData(data) {
         $('#git-branch').empty().append(localResult.git_branch);
 
         $('#git-describe').empty().append(
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for build ' + jobName + '&nbsp;&dash;&nbsp;' +
-            kernelName + '">' +
-            '<a href="/build/' + jobName + '/kernel/' + kernelName + '/">' +
             kernelName +
-            '</a>' +
-            '</span>&nbsp;&mdash;&nbsp;' +
+            '&nbsp;&mdash;&nbsp;' +
             '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="All boot reports for ' + jobName + '&nbsp;&dash;&nbsp;' +
             kernelName + '">' +
