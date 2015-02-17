@@ -98,6 +98,124 @@ function showHideBoots(element) {
     }
 }
 
+function countUniqueData(data) {
+    'use strict';
+    var dData = null,
+        board,
+        arch,
+        soc,
+        defconfig,
+        localData = data.result,
+        localLen = localData.length,
+        uniqueArchs = {},
+        uniqueBoards = {},
+        uniqueDefcons = {},
+        uniqueSocs = {},
+        uniq = {},
+        i = 0;
+
+    if (localLen > 0) {
+        for (i; i < localLen; i = i + 1) {
+            dData = localData[i];
+
+            arch = dData.arch;
+            board = dData.board;
+            defconfig = dData.defconfig_full;
+            soc = dData.mach;
+
+            if (arch !== null) {
+                uniqueArchs[arch] = (uniqueArchs[arch] || 0) + 1;
+            }
+            if (board !== null) {
+                uniqueBoards[board] = (uniqueArchs[board] || 0) + 1;
+            }
+            if (defconfig !== null) {
+                uniqueDefcons[defconfig] = (uniqueDefcons[defconfig] || 0) + 1;
+            }
+            if (soc !== null) {
+                uniqueSocs[soc] = (uniqueSocs[soc] || 0) + 1;
+            }
+        }
+
+        uniq = {
+            arch: Object.keys(uniqueArchs),
+            board: Object.keys(uniqueBoards),
+            defconfig: Object.keys(uniqueDefcons),
+            soc: Object.keys(uniqueSocs)
+        };
+    }
+
+    return uniq;
+}
+
+function populateUniqueCounts(data) {
+    'use strict';
+    var uniq = countUniqueData(data),
+        ajaxData = null,
+        ajaxDeferredCall = null,
+        totalDefconfig = 0,
+        boardText = '',
+        socText = '',
+        defconfigText = '',
+        innerDefconfText = '';
+
+    boardText = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Total number of unique boards tested">%d</span>';
+    socText = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Total number of unique SoC families tested">%d</span>';
+    defconfigText = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Total number of unique defconfigs tested">%s</span>';
+
+    if (Object.getOwnPropertyNames(uniq).length > 0) {
+        if (uniq.board.length > 0) {
+            JSBase.replaceContentByID(
+                '#unique-boards', sprintf(boardText, uniq.board.length));
+        } else {
+            JSBase.replaceContentByID('#unique-boards', nonAvail);
+        }
+
+        if (uniq.soc.length > 0) {
+            JSBase.replaceContentByID(
+                '#unique-socs', sprintf(socText, uniq.soc.length));
+        } else {
+            JSBase.replaceContentByID('#unique-socs', nonAvail);
+        }
+
+        if (uniq.defconfig.length > 0) {
+            ajaxData = {'job_id': data.result[0].job_id.$oid};
+            ajaxDeferredCall = JSBase.createDeferredCall(
+                '/_ajax/count/defconfig',
+                'GET', ajaxData, null, null, null, null, null);
+
+            $.when(ajaxDeferredCall).always(function(res, textStatus) {
+                if (textStatus === 'success') {
+                    if (res.code === 200) {
+                        totalDefconfig = res.result[0].count;
+                        innerDefconfText = sprintf(
+                            '%d out of %d',
+                            uniq.defconfig.length, totalDefconfig);
+                        JSBase.replaceContentByID(
+                            '#unique-defconfigs',
+                            sprintf(defconfigText, innerDefconfText));
+                    } else {
+                        JSBase.replaceContentByID(
+                            '#unique-defconfigs',
+                            sprintf(defconfigText, uniq.defconfig.length));
+                    }
+                } else {
+                    JSBase.replaceContentByID(
+                        '#unique-defconfigs',
+                        sprintf(defconfigText, uniq.defconfig.length));
+                }
+            });
+        } else {
+            JSBase.replaceContentByID('#unique-defconfigs', nonAvail);
+        }
+    } else {
+        JSBase.replaceContentByClass('.unique-values', nonAvail);
+    }
+}
+
 function createPieChart(data) {
     'use strict';
     var localData = data.result,
@@ -603,7 +721,8 @@ function getBootData(data) {
 
         $.when(ajaxDeferredCall)
             .done(populateBootsPage)
-            .done(createPieChart);
+            .done(createPieChart)
+            .done(populateUniqueCounts);
     } else {
         ajaxDefconfigGetFailed();
     }
