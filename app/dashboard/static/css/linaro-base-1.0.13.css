@@ -24,6 +24,9 @@ body {
 #success-cell, #fail-cell, #unknown-cell {
     cursor: pointer;
 }
+.pie-chart {
+    margin: 0 auto;
+}
 .pie-chart td {
     text-align: center;
     width: 25px;
