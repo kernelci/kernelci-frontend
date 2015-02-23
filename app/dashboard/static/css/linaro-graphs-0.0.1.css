@@ -1,0 +1,44 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: gray;
+    shape-rendering: crispEdges;
+}
+.axis text {
+    font-size: 11px;
+}
+.y-axis .minor line {
+    stroke-dasharray: 1, 5;
+    opacity: 0.8;
+}
+.x-axis line {
+    stroke: black;
+    opacity: 1;
+}
+.x-tick,
+.graph-dot {
+    cursor: pointer;
+}
+.line path {
+    stroke: #5cb85c;
+    fill: none;
+}
+.pass-dot {
+    fill: white;
+    stroke: #5cb85c;
+    stroke-width: 1.5;
+}
+.x-grid path {
+    stroke-width: 0;
+}
+.x-grid line {
+    stroke: gray;
+    stroke-opacity: 0.25;
+    shape-rendering: crispEdges;
+}
+.hover-group polyline {
+    fill: none;
+    stroke: gray;
+    stroke-width: 1.5;
+    stroke-dasharray: 5, 5;
+}
