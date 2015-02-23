@@ -223,11 +223,16 @@ function defconfigAggregateDone(data) {
     }
 }
 
+function createJobTrends(defconfData) {
+    'use strict';
+    KG.jobStatusRate(defconfData, jobName, 'pass-rate-graph');
+}
+
 $(document).ready(function() {
     'use strict';
     $('#li-job').addClass('active');
 
-    var ajaxDeferredCall = null,
+    var ajaxDeferredCall,
         ajaxData = null,
         batchQueries = new Array(2),
         errorReason = '',
@@ -297,4 +302,16 @@ $(document).ready(function() {
     $.when(ajaxDeferredCall)
         .done(defconfigAggregateDone)
         .done(countBuilBootStatus);
+
+    ajaxData = {
+        job: jobName,
+        sort: 'created_on',
+        sort_order: 1,
+        date_range: 30,
+        field: ['status', 'kernel', 'created_on']
+    };
+    ajaxDeferredCall = JSBase.createDeferredCall(
+        '/_ajax/defconf', 'GET', ajaxData);
+
+    $.when(ajaxDeferredCall).done(createJobTrends);
 });
