@@ -23,7 +23,6 @@ var JSBase = (function() {
     // `elementID`: The element ID to check.
     function checkIfNotID(elementID) {
         var localElement = elementID;
-
         if (localElement[0] === '#') {
             localElement = elementID.slice(1);
         }
@@ -34,7 +33,6 @@ var JSBase = (function() {
     // `elementID`: The element ID to check.
     function checkIfID(elementID) {
         var localElement = elementID;
-
         if (localElement[0] !== '#') {
             localElement = '#' + localElement;
         }
@@ -45,7 +43,6 @@ var JSBase = (function() {
     // `className`: The name of the class to check.
     function checkIfClass(className) {
         var localName = className;
-
         if (localName[0] !== '.') {
             localName = '.' + localName;
         }
@@ -444,10 +441,6 @@ var JSBase = (function() {
         body.tooltip({
             'selector': '[rel=tooltip]',
             'placement': 'auto top'
-        });
-
-        body.scrollspy({
-            target: '#sidebar-nav'
         });
 
         $('.clickable-table tbody').on('click', 'tr', function() {
