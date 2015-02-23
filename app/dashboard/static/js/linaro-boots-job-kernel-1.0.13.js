@@ -270,17 +270,13 @@ function createPieChart(data) {
             .attr('dy', '0em')
             .style('text-anchor', 'middle')
             .attr('class', 'pie-chart-inside')
-            .text(function(d) {
-                return len;
-            });
+            .text(len);
 
         svg.append('text')
             .attr('dy', '1.5em')
             .style('text-anchor', 'middle')
             .attr('class', 'pie-chart-data')
-            .text(function(d) {
-                return 'total boots';
-            });
+            .text('total boots');
     }
 
     $('#success-cell')
