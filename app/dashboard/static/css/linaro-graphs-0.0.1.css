@@ -15,18 +15,25 @@
     stroke: black;
     opacity: 1;
 }
+.graph-dot {
+    fill: white;
+}
 .x-tick,
 .graph-dot {
     cursor: pointer;
 }
 .line path {
-    stroke: #5cb85c;
     fill: none;
 }
-.pass-dot {
-    fill: white;
+.pass-line,
+.pass-dot,
+.pass-legend {
     stroke: #5cb85c;
-    stroke-width: 1.5;
+}
+.fail-line,
+.fail-dot,
+.fail-legend {
+    stroke: #d9534f;
 }
 .x-grid path {
     stroke-width: 0;
@@ -41,4 +48,29 @@
     stroke: gray;
     stroke-width: 1.5;
     stroke-dasharray: 5, 5;
+}
+.legend {
+    font-size: smaller;
+    text-rendering: optimizeLegibility;
+}
+.legend rect {
+    cursor: pointer;
+}
+.fail-legend,
+.pass-legend {
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+.pass-legend {
+    fill: #5cb85c;
+}
+.fail-legend {
+    fill: #d9534f;
+}
+.legend-clicked {
+    fill: white;
+}
+.hidden {
+    display: none;
+    visibility: hidden;
 }
