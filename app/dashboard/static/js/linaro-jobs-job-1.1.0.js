@@ -225,7 +225,10 @@ function defconfigAggregateDone(data) {
 
 function createJobTrends(defconfData) {
     'use strict';
-    KG.jobStatusRate(defconfData, jobName, 'pass-rate-graph');
+    var graph = new KG.PassFailGraph('#pass-rate-graph')
+        .init()
+        .bind(defconfData, jobName)
+        .draw();
 }
 
 $(document).ready(function() {
