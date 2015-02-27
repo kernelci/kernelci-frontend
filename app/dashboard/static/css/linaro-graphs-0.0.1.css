@@ -35,6 +35,10 @@
 .fail-legend {
     stroke: #d9534f;
 }
+.time-line,
+.boot-dot {
+    stroke: orange;
+}
 .x-grid path {
     stroke-width: 0;
 }
