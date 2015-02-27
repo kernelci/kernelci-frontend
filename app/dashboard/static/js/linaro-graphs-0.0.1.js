@@ -123,8 +123,6 @@ var KG = (function() {
         self.defs = null;
         self.clipPath = null;
 
-        self.hoverGroup = null;
-        self.failHoverGroup = null;
         self.yAxisGroup = null;
         self.xAxisGroup = null;
 
@@ -168,14 +166,6 @@ var KG = (function() {
             .attr('class', 'x-axis axis')
             .attr('transform', sprintf(translateFmt, 0, self.paddedH));
 
-        self.hoverGroup = self.svgGroup.append('g')
-            .attr('class', 'hover-group pass-hover-group pass')
-            .attr('pointer-events', 'visible');
-
-        self.failHoverGroup = self.svgGroup.append('g')
-            .attr('class', 'hover-group fail-hover-group fail')
-            .attr('pointer-events', 'none');
-
         return self;
     };
 
@@ -192,11 +182,28 @@ var KG = (function() {
     BootTimeGraph = function(elementId, w, h, margins) {
         var self = this;
         GenericGraph.call(self, elementId, w, h, margins);
+        self.hoverGroup = null;
+        self.timeGraphLine = null;
         return self;
     };
 
     BootTimeGraph.prototype = Object.create(GenericGraph.prototype);
     BootTimeGraph.prototype.constructor = BootTimeGraph;
+
+    BootTimeGraph.prototype.init = function() {
+        var self = this;
+        GenericGraph.prototype.init.call(self);
+        self.hoverGroup = self.svgGroup.append('g')
+            .attr('class', 'hover-group')
+            .attr('pointer-events', 'visible');
+        return self;
+    };
+
+    BootTimeGraph.prototype.bind = function(data) {
+        var self = this;
+        console.log(data);
+        return self;
+    };
 
     PassFailGraph = function(elementId, w, h, margins) {
         var self = this;
@@ -205,6 +212,8 @@ var KG = (function() {
         self.passLineFunc = d3.svg.line();
         self.failLineGroup = null;
         self.failLineFunc = d3.svg.line();
+        self.hoverGroup = null;
+        self.failHoverGroup = null;
         // Prev index when hovering the mouse over the hoverGroup element.
         // This is used to provide show/hide of the elements.
         // Index will never be < 0.
@@ -216,6 +225,21 @@ var KG = (function() {
 
     PassFailGraph.prototype = Object.create(GenericGraph.prototype);
     PassFailGraph.prototype.constructor = PassFailGraph;
+
+    PassFailGraph.prototype.init = function() {
+        var self = this;
+        GenericGraph.prototype.init.call(self);
+
+        self.hoverGroup = self.svgGroup.append('g')
+            .attr('class', 'hover-group pass-hover-group pass')
+            .attr('pointer-events', 'visible');
+
+        self.failHoverGroup = self.svgGroup.append('g')
+            .attr('class', 'hover-group fail-hover-group fail')
+            .attr('pointer-events', 'none');
+
+        return self;
+    };
 
     PassFailGraph.prototype.bind = function(data, job) {
         var self = this;
