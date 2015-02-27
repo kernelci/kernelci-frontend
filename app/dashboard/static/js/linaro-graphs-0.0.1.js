@@ -20,6 +20,7 @@ var KG = (function() {
         statusTooltip = '%.1f%%<br />(%d&nbsp;/&nbsp;%d)',
         kernelStringFmt = 'Kernel:&nbsp;%s',
         translateFmt = 'translate(%f,%f)',
+        bootURLFmt = '/boot/%s/job/%s/kernel/%s/defconfig/%s/lab/%s/',
         styles = {},
         GenericGraph,
         BootTimeGraph,
@@ -97,6 +98,44 @@ var KG = (function() {
         }
 
         return dataObj;
+    }
+
+    function parseBootData(data) {
+        var localData = data.result,
+            localLen = localData.length,
+            localResult = null,
+            parsedResult = null,
+            bootTimes = null,
+            bootTime = null,
+            i = 0,
+            kernel,
+            createdOn,
+            dataObj = {};
+
+        if (localLen > 0) {
+            dataObj = [];
+            bootTimes = [];
+            for (i; i < localLen; i = i + 1) {
+                localResult = localData[i];
+                kernel = localResult.kernel;
+                createdOn = new Date(localResult.created_on.$date);
+                bootTime = new Date(localResult.time.$date);
+
+                bootTimes.push(bootTime);
+                if (!dataObj.hasOwnProperty(kernel)) {
+                    dataObj[kernel] = {};
+                    dataObj[kernel].id = localResult._id.$oid;
+                    dataObj[kernel].job = localResult.job;
+                    dataObj[kernel].defconfig = localResult.defconfig_full;
+                    dataObj[kernel].board = localResult.board;
+                    dataObj[kernel].lab_name = localResult.lab_name;
+                    dataObj[kernel].created_on = createdOn;
+                    dataObj[kernel].time = bootTime;
+                }
+            }
+        }
+
+        return [dataObj, bootTimes.sort()];
     }
 
     GenericGraph = function(elementId, w, h, margins) {
@@ -182,8 +221,16 @@ var KG = (function() {
     BootTimeGraph = function(elementId, w, h, margins) {
         var self = this;
         GenericGraph.call(self, elementId, w, h, margins);
+        self.yScale = d3.time.scale();
         self.hoverGroup = null;
         self.timeGraphLine = null;
+        self.bootLineGroup = null;
+        self.bootLineFunc = d3.svg.line();
+        self.tooltipTimeFormat = null;
+        self.bootTooltip = null;
+        self.bootSecondsTooltip = '%s seconds<br />Kernel: %s';
+        self.bootMinutesTooltip = '%s minutes<br />Kernel: %s';
+        self.prevIndex = -1;
         return self;
     };
 
@@ -200,9 +247,385 @@ var KG = (function() {
     };
 
     BootTimeGraph.prototype.bind = function(data) {
-        var self = this;
-        console.log(data);
+        var self = this,
+            parsedResults = null,
+            bootTimes = null,
+            maxTime,
+            maxRange,
+            maxDate,
+            timeInterval = null,
+            interval,
+            timeFormat;
+
+        parsedResults = parseBootData(data);
+        self.data = parsedResults[0];
+        bootTimes = parsedResults[1];
+
+        if (self.data !== null && bootTimes !== null) {
+            self.dataSet = Object.keys(self.data);
+            self.dataSetLen = self.dataSet.length;
+            self.xMin = 0;
+            self.xMax = self.dataSetLen - 1;
+            maxTime = bootTimes.slice(-1)[0];
+
+            if (maxTime.getMinutes() > 0) {
+                maxRange = maxTime.getMinutes() + 1;
+                maxDate = new Date(Date.UTC(70, 0, 1, 0, maxRange, 0, 0));
+                timeInterval = d3.time.minute.utc;
+                interval = maxRange / 2;
+                timeFormat = d3.time.format('%Mm');
+                self.tooltipTimeFormat = d3.time.format('%M:%S.%L');
+                self.bootTooltip = self.bootMinutesTooltip;
+            } else {
+                maxRange = maxTime.getSeconds() + 1;
+                maxDate = new Date(Date.UTC(70, 0, 1, 0, 0, maxRange, 0));
+                timeInterval = d3.time.second.utc;
+                interval = maxRange / 2;
+                timeFormat = d3.time.format(':%Ss');
+                self.tooltipTimeFormat = d3.time.format('%S.%L');
+                self.bootTooltip = self.bootSecondsTooltip;
+            }
+
+            self.yScale
+                .domain([bootTimes[0], maxDate])
+                .range([self.paddedH, 0]);
+
+            self.yAxis
+                .scale(self.yScale)
+                .innerTickSize(-self.paddedW)
+                .outerTickSize(0)
+                .ticks(timeInterval, interval)
+                .tickFormat(timeFormat);
+
+            self.xScale
+                .domain([self.xMin, self.xMax])
+                .rangeRound([0, self.paddedW]);
+
+            self.xAxis
+                .scale(self.xScale)
+                .ticks(self.dataSetLen)
+                .tickFormat(function(d, i) {
+                    var kernel = self.dataSet[d];
+                    if (self.dataSetLen > maxData) {
+                        if (i !== 0 && i !== self.xMax) {
+                            if (i % 3 !== 0) {
+                                // u2026: unicode horizontal ellipsis
+                                // http://unicode-table.com/en/2026/
+                                kernel = '\u2026';
+                            }
+                        }
+                    }
+                    if (kernel.length > 12) {
+                        kernel = kernel.slice(0, 12) + '\u2026';
+                    }
+                    return kernel;
+                });
+        }
+
         return self;
+    };
+
+    BootTimeGraph.prototype.calcBootTime = function(kernel) {
+        var self = this;
+        var bootReport = self.data[kernel];
+        return self.yScale(bootReport.time);
+    };
+
+    BootTimeGraph.prototype.draw = function() {
+        var self = this,
+            i = 0;
+
+        if (self.data !== null) {
+            self.yAxisGroup.call(self.yAxis)
+                .selectAll('g')
+                    .filter(function(d) {
+                        return d;
+                    })
+                    .classed('minor', true);
+
+            self.xAxisGroup.call(self.xAxis);
+            self.xAxisGroup
+                .selectAll('text')
+                    .attr('class', 'x-tick')
+                    .attr('data-kernel', function(d) {
+                        return self.dataSet[d];
+                    })
+                    .attr('data-job', function(d) {
+                        return self.data[self.dataSet[d]].job;
+                    })
+                    .attr('data-lab', function(d) {
+                        return self.data[self.dataSet[d]].lab_name;
+                    })
+                    .attr('data-defconfig', function(d) {
+                        return self.data[self.dataSet[d]].defconfig;
+                    })
+                    .attr('data-board', function(d) {
+                        return self.data[self.dataSet[d]].board;
+                    })
+                    .attr('data-id', function(d) {
+                        return self.data[self.dataSet[d]].id;
+                    })
+                    .style('text-anchor', 'end')
+                    .style('font-size', 'x-small')
+                    .attr('transform', 'translate(-5,3) rotate(-45)')
+                    .on('click', function() {
+                        // this is the DOM element, not the instance!
+                        self.xAxisClick(self, this);
+                    })
+                    .on('mouseover', function(d, i) {
+                        self.xAxisMouseOver(self, this, i);
+                    })
+                    .on('mouseout', function(d, i) {
+                        self.xAxisMouseOut(self, this, i);
+                    });
+
+            // Draw the lines for mouse over.
+            self.hoverGroup.selectAll('polyline')
+                .data(self.dataSet)
+                .enter()
+                .append('svg:polyline')
+                    .attr('class', 'hover-line')
+                    .style('opacity', styles.transparent)
+                    .attr('points', function(d, i) {
+                        var x1 = 0,
+                            y1 = self.calcBootTime(d),
+                            x2 = self.xScale(i),
+                            y2 = y1,
+                            x3 = x2,
+                            y3 = self.paddedH - y1 || self.paddedH,
+                            points = '%f,%f %f,%f %f,%f';
+
+                        return sprintf(points, x1, y1, x2, y2, x3, y3);
+                    });
+            self.hoverGroup
+                .on('mousemove', function() {
+                    self.hoverGroupMouseMove(self);
+                })
+                .on('mouseout', function() {
+                    self.hoverGroupMouseOut(self);
+                });
+
+            // Draw the rate line.
+            self.bootLineFunc
+                .x(function(d, i) {
+                    return self.xScale(i);
+                })
+                .y(function(d) {
+                    return self.calcBootTime(d);
+                })
+                .interpolate('linear');
+
+            self.bootLineGroup = self.svgGroup.append('g')
+                .attr('class', 'line');
+            self.bootLineGroup.append('path')
+                .attr('class', 'time-path')
+                .attr('d', self.bootLineFunc(self.dataSet));
+
+            for (i; i < self.dataSetLen - 1; i = i + 1) {
+                self.bootLineGroup.append('svg:line')
+                    .attr('class', 'hover-line time-line')
+                    .attr('x1', self.xScale(i))
+                    .attr('y1', self.calcBootTime(self.dataSet[i]))
+                    .attr('x2', self.xScale(i + 1))
+                    .attr('y2', self.calcBootTime(self.dataSet[i + 1]));
+            }
+
+            // Add the pass circles to the graph.
+            self.bootLineGroup.selectAll('circle')
+                .data(self.dataSet)
+                .enter()
+                .append('circle')
+                    .attr('class', 'boot-dot graph-dot')
+                    .style('stroke-width', styles.strokeNormal)
+                    .attr('r', 2.5)
+                    .attr('data-kernel', function(d) {
+                        return d;
+                    })
+                    .attr('data-job', function(d) {
+                        return self.data[d].job;
+                    })
+                    .attr('data-lab', function(d) {
+                        return self.data[d].lab_name;
+                    })
+                    .attr('data-defconfig', function(d) {
+                        return self.data[d].defconfig;
+                    })
+                    .attr('data-board', function(d) {
+                        return self.data[d].board;
+                    })
+                    .attr('data-id', function(d) {
+                        return self.data[d].id;
+                    })
+                    .attr('data-time', function(d) {
+                        return self.data[d].time.getTime();
+                    })
+                    .attr('cx', function(d, i) {
+                        return self.xScale(i);
+                    })
+                    .attr('cy', function(d) {
+                        return self.calcBootTime(d);
+                    })
+                    .on('mouseover', function(d, i) {
+                        self.timeDotMouseOver(self, i);
+                    })
+                    .on('mouseout', function(d, i) {
+                        self.timeDotMouseOut(self, i);
+                    })
+                    .on('click', function(d, i) {
+                        self.timeDotClick(self, this);
+                    });
+
+            self.addDotTooltip(self);
+        }
+    };
+
+    BootTimeGraph.prototype.graphClick = function(self, element) {
+        var el = $(element),
+            id = el.data('id'),
+            board = el.data('board'),
+            kernel = el.data('kernel'),
+            job = el.data('job'),
+            lab = el.data('lab'),
+            defconfig = el.data('defconfig'),
+            url;
+        url = sprintf(bootURLFmt, board, job, kernel, defconfig, lab);
+        url = url + '?_id=' + id;
+        window.location = url;
+    };
+
+    BootTimeGraph.prototype.timeDotClick = function(self, element) {
+        self.graphClick(self, element);
+    };
+
+    BootTimeGraph.prototype.xAxisClick = function(self, element) {
+        self.graphClick(self, element);
+    };
+
+    BootTimeGraph.prototype.hoverGroupMouseOut = function(self, i) {
+        var mXY = d3.mouse(self.hoverGroup.node()),
+            inverted = self.xScale.invert(mXY[0]),
+            idx = i || Math.round(inverted),
+            dot,
+            tick,
+            hoverLine;
+
+        if (self.prevIndex !== -1) {
+            idx = self.prevIndex;
+            self.prevIndex = -1;
+        }
+
+        dot = self.svgGroup.selectAll('.boot-dot')[0][idx];
+        tick = self.svg.selectAll('.x-tick')[0][idx];
+        hoverLine = self.svg.selectAll('.hover-group .hover-line')[0][idx];
+
+        $(tick).css('font-weight', 'normal');
+        $(hoverLine).css('opacity', styles.transparent);
+        $(dot).css('stroke-width', styles.strokeNormal);
+        $(dot).tooltip('hide');
+    };
+
+    BootTimeGraph.prototype.hoverGroupMouseMove = function(self, i) {
+        var mXY = d3.mouse(self.hoverGroup.node()),
+            inverted = self.xScale.invert(mXY[0]),
+            idx = Math.round(inverted),
+            dot,
+            tick,
+            hoverLine;
+
+        if (self.prevIndex !== idx) {
+            if (self.prevIndex !== -1) {
+                dot = self.svgGroup
+                    .selectAll('.boot-dot')[0][self.prevIndex];
+                tick = self.svg.selectAll('.x-tick')[0][self.prevIndex];
+                hoverLine = self.svg.selectAll(
+                    '.hover-group .hover-line')[0][self.prevIndex];
+
+                $(tick).css('font-weight', 'normal');
+                $(hoverLine).css('opacity', styles.transparent);
+                $(dot).css('stroke-width', styles.strokeNormal);
+                $(dot).tooltip('hide');
+            }
+            self.hoverGroupMouseOver(self, idx);
+            self.prevIndex = idx;
+        }
+    };
+
+    BootTimeGraph.prototype.hoverGroupMouseOver = function(self, i) {
+        var mXY = d3.mouse(self.hoverGroup.node()),
+            inverted = self.xScale.invert(mXY[0]),
+            idx = i || Math.round(inverted),
+            dot = self.svgGroup.selectAll('.boot-dot')[0][idx],
+            tick = self.svg.selectAll('.x-tick')[0][idx],
+            hoverLine = self.svg
+                .selectAll('.hover-group .hover-line')[0][idx];
+
+        $(tick).css('font-weight', 'bolder');
+        $(hoverLine).css('opacity', styles.full);
+        $(dot).css('stroke-width', styles.strokeOver);
+        $(dot).tooltip('show');
+    };
+
+    BootTimeGraph.prototype.timeDotMouseOver = function(self, i) {
+        var dot = self.svgGroup.selectAll('.boot-dot')[0][i],
+            tick = self.svgGroup.selectAll('.x-tick')[0][i],
+            hoverLine = self.svgGroup.selectAll(
+                '.hover-group .hover-line')[0][i];
+
+        $(tick).css('font-weight', 'bolder');
+        $(dot).css('stroke-width', styles.strokeOver);
+        $(hoverLine).css('opacity', styles.full);
+    };
+
+    BootTimeGraph.prototype.timeDotMouseOut = function(self, i) {
+        var dot = self.svgGroup.selectAll('.boot-dot')[0][i],
+            tick = self.svgGroup.selectAll('.x-tick')[0][i],
+            hoverLine = self.svgGroup.selectAll(
+                '.hover-group .hover-line')[0][i];
+
+        $(tick).css('font-weight', 'normal');
+        $(dot).css('stroke-width', styles.strokeNormal);
+        $(hoverLine).css('opacity', styles.transparent);
+    };
+
+    BootTimeGraph.prototype.xAxisMouseOver = function(self, element, i) {
+        var tick = $(element),
+            dot = self.svgGroup.selectAll('.boot-dot')[0][i],
+            hoverLine = self.svgGroup.selectAll(
+                '.hover-group .hover-line')[0][i];
+
+        tick.css('font-weight', 'bolder');
+        $(hoverLine).css('opacity', styles.full);
+        $(dot).tooltip('show');
+        $(dot).css('stroke-width', styles.strokeOver);
+    };
+
+    BootTimeGraph.prototype.xAxisMouseOut = function(self, element, i) {
+        var tick = $(element),
+            dot = self.svgGroup.selectAll('.boot-dot')[0][i],
+            hoverLine = self.svgGroup.selectAll(
+                '.hover-group .hover-line')[0][i];
+
+        tick.css('font-weight', 'normal');
+        $(hoverLine).css('opacity', styles.transparent);
+        $(dot).tooltip('hide');
+        $(dot).css('stroke-width', styles.strokeNormal);
+    };
+
+    BootTimeGraph.prototype.addDotTooltip = function(self) {
+        $('svg .boot-dot').tooltip({
+            'html': true,
+            'trigger': 'hover',
+            'container': 'body',
+            'placement': 'top',
+            'title': function() {
+                var el = $(this),
+                    kernel = el.data('kernel'),
+                    time = new Date(el.data('time'));
+
+                return sprintf(
+                    self.bootTooltip, self.tooltipTimeFormat(time), kernel);
+            }
+        });
     };
 
     PassFailGraph = function(elementId, w, h, margins) {
