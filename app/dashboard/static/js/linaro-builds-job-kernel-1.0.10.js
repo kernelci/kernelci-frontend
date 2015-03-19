@@ -51,7 +51,7 @@ function showHideWarnErr(element) {
         default:
             checkButtonStatus();
             break;
-        }
+    }
 }
 
 function showHideDefconfs(element) {
