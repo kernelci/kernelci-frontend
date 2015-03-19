@@ -231,7 +231,8 @@ function createBuildsPage(data) {
         errorsCount,
         warningsCount,
         warningString = '',
-        errorString = '';
+        errorString = '',
+        metadata;
 
     for (i; i < len; i = i + 1) {
         localData = result[i];
@@ -244,6 +245,7 @@ function createBuildsPage(data) {
         fileServerResource = localData.file_server_resource;
         errorsCount = localData.errors;
         warningsCount = localData.warnings;
+        metadata = localData.metadata;
 
         if (fileServerUrl !== null && fileServerUrl !== undefined) {
             fileServer = fileServerUrl;
@@ -424,6 +426,22 @@ function createBuildsPage(data) {
         }
 
         panel += '</dl></div>';
+
+        if (metadata !== undefined && metadata !== null) {
+            panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
+            panel += '<dl class="dl-horizontal">';
+            if (metadata.hasOwnProperty('cross_compile')) {
+                panel += '<dt>Cross-compile</dt>';
+                panel += '<dd>' + metadata.cross_compile + '</dd>';
+                panel += '</dt>';
+            }
+            if (metadata.hasOwnProperty('compiler_version')) {
+                panel += '<dt>Compiler</dt>';
+                panel += '<dd>' + metadata.compiler_version + '</dd>';
+                panel += '</dt>';
+            }
+            panel += '</dl></div>';
+        }
 
         panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
         panel += '<div class="pull-center">' +
