@@ -229,7 +229,9 @@ function createBuildsPage(data) {
         warnErrString = '',
         buildLogUri = '',
         errorsCount,
-        warningsCount;
+        warningsCount,
+        warningString = '',
+        errorString = '';
 
     for (i; i < len; i = i + 1) {
         localData = result[i];
@@ -292,10 +294,21 @@ function createBuildsPage(data) {
             cls += ' df-no-w-no-e';
         }
 
-        warnErrString = sprintf(
-            'Build warnings (%d) and errors (%d)', warningsCount, errorsCount);
+        if (warningsCount === 1) {
+            warningString = sprintf('%d&nbsp;warning', warningsCount);
+        } else {
+            warningString = sprintf('%d&nbsp;warnings', warningsCount);
+        }
+
+        if (errorsCount === 1) {
+            errorString = sprintf('%d&nbsp;error', errorsCount);
+        } else {
+            errorString = sprintf('%d&nbsp;errors', errorsCount);
+        }
+
+        warnErrString = 'Build warnings and errors';
         warnErrCount = sprintf(
-            '%d&nbsp;&mdash;&nbsp;%d', warningsCount, errorsCount);
+            '%s&nbsp;&mdash;&nbsp;%s', warningString, errorString);
         if (localData.build_log !== null) {
             buildLogUri = fileServerUri.path(uriPath +
                 '/' + localData.build_log).normalizePath().href();
