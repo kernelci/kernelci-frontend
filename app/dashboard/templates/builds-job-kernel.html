@@ -57,6 +57,18 @@
             <button id="fail-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>Failed</button>
             <button id="unknown-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>Unknown</button>
         </div>
+        <div class="dropdown warn-err-dropdown">
+            <button id="warn-err-btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Show
+            <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
+                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="all">All</a></li>
+                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="warnings">Builds with warnings and no errors</a></li>
+                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="errors">Builds with errors and no warnings</a></li>
+                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="warnings-errors">Builds with warnings and errors</a></li>
+                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
+            </ul>
+        </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="accordion-container">
@@ -78,5 +90,5 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-webstorage-1.0.1.js"></script>
-<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-1.0.9.js"></script>
+<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-1.0.10.js"></script>
 {%- endblock %}
