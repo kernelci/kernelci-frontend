@@ -598,7 +598,7 @@ function getDefconfigData(data) {
             'job_id': localResult._id.$oid,
             'job': jobName,
             'kernel': kernelName,
-            'sort': ['status', 'defconfig_full', 'arch'],
+            'sort': ['defconfig_full', 'arch'],
             'sort_order': 1
         };
         ajaxDeferredCall = JSBase.createDeferredCall(
