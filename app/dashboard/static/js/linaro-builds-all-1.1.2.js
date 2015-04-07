@@ -79,20 +79,23 @@ function createBuildsTable(data) {
             },
             {
                 'data': 'kernel',
-                'title': 'Kernel'
+                'title': 'Kernel',
+                'type': 'string',
+                'className': 'kernel-column',
+                'render': function(data, type, object) {
+                    var display = '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="' + data + '">' + data + '</span>';
+                    return display;
+                }
             },
             {
                 'data': 'defconfig_full',
                 'title': 'Defconfig',
+                'className': 'defconfig-column',
                 'render': function(data, type, object) {
-                    var display = data;
-                    if (data.length > 33) {
-                        display = '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" ' +
-                            'title="' + data + '">' +
-                            data.slice(0, 33) + '&hellip;' +
-                            '</span>';
-                    }
+                    var display = '<span rel="tooltip" ' +
+                        'data-toggle="tooltip" ' +
+                        'title="' + data + '">' + data + '</span>';
                     return display;
                 }
             },

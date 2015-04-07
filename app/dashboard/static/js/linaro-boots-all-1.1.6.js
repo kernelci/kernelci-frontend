@@ -76,17 +76,13 @@ function createBootsTable(data) {
                 'data': 'kernel',
                 'title': 'Kernel',
                 'type': 'string',
+                'className': 'kernel-column',
                 'render': function(data, type, object) {
-                    var display = '<a class="table-link" href="/boot/all/job/' +
+                    var display = '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="' + data + '">' +
+                        '<a class="table-link" href="/boot/all/job/' +
                         object.job + '/kernel/' + data + '/">' + data +
-                        '</a>';
-                    if (data.length > 33) {
-                        display = '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' +
-                            '<a class="table-link" href="/boot/all/job/' +
-                            object.job + '/kernel/' + data + '/">' +
-                            data.slice(0, 32) + '&hellip;</a></span>';
-                    }
+                        '</a></span>';
                     return display;
                 }
             },
@@ -94,46 +90,34 @@ function createBootsTable(data) {
                 'data': 'board',
                 'title': 'Board Model',
                 'type': 'string',
+                'className': 'board-column',
                 'render': function(data, type, object) {
-                    var display = '<a class="table-link" href="/boot/' + data +
+                    var display = '<span rel="tooltip" data-toggle="tooltip"' +
+                        'title="' + data + '">' +
+                        '<a class="table-link" href="/boot/' + data +
                         '/job/' + object.job + '/kernel/' +
-                        object.kernel + '/">' + data + '</a>';
-                    if (data.length > 19) {
-                        display = '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' +
-                            '<a class="table-link" href="/boot/' + data +
-                            '/job/' + object.job + '/kernel/' +
-                            object.kernel + '/">' +
-                            data.slice(0, 18) + '&hellip;</a></span>';
-                    }
+                        object.kernel + '/">' + data + '</a></span>';
                     return display;
                 }
             },
             {
                 'data': 'defconfig_full',
                 'title': 'Defconfig',
+                'className': 'defconfig-column',
                 'render': function(data, type, object) {
                     var display = null,
                         href = null,
-                        linkEl = null,
                         board = object.board,
                         job = object.job,
                         kernel = object.kernel;
 
                     href = '/boot/' + board + '/job/' + job + '/kernel/' +
                         kernel + '/defconfig/' + data + '/';
-                    linkEl = '<a class="table-link" href="' + href + '">' +
-                        data + '</a>';
-
-                    if (data.length > 33) {
-                        display = '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" ' +
-                            'title="' + data + '">' +
-                            '<a class="table-link" href="' + href + '">' +
-                            data.slice(0, 33) + '&hellip;</a></span>';
-                    } else {
-                        display = linkEl;
-                    }
+                    display = '<span rel="tooltip" ' +
+                        'data-toggle="tooltip" ' +
+                        'title="' + data + '">' +
+                        '<a class="table-link" href="' + href + '">' +
+                        data + '</a></span>';
                     return display;
                 }
             },
