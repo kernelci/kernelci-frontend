@@ -15,6 +15,20 @@ body {
     text-align: center !important;
     vertical-align: middle !important;
 }
+.board-column {
+    max-width: 130px;
+}
+.defconfig-column,
+.kernel-column {
+    max-width: 240px;
+}
+.board-column,
+.defconfig-column,
+.kernel-column {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .table tbody td a.table-link {
     color: inherit;
 }
