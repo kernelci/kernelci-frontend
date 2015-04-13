@@ -331,9 +331,8 @@ function createBuildsPage(data) {
         }
 
         if (localData.arch !== null) {
-            archLabel = '<small>' +
-                '<span class="pull-right arch-label">' +
-                localData.arch + '</span></small>';
+            archLabel = '<span class="arch-label">' +
+                localData.arch + '</span>';
         }
 
         panel += '<div class="panel panel-default ' + cls + '">' +
