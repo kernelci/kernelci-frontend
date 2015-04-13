@@ -331,8 +331,8 @@ function createBuildsPage(data) {
         }
 
         if (localData.arch !== null) {
-            archLabel = '<span class="arch-label">' +
-                localData.arch + '</span>';
+            archLabel = '&nbsp;&dash;&nbsp;' +
+                '<span class="arch-label">' + localData.arch + '</span>';
         }
 
         panel += '<div class="panel panel-default ' + cls + '">' +
@@ -343,8 +343,9 @@ function createBuildsPage(data) {
                 '<h4 class="panel-title">' +
                 '<a data-toggle="collapse" data-parent="#accordion" ' +
                 'href="#collapse-defconf' + i + '">' + defconfigFull +
-                '</a>' + label + archLabel + warnErrLabel + '</h4></div>' +
-                '<div id="collapse-defconf' + i +
+                '</a>' + archLabel + label +
+                 warnErrLabel + '</h4></div>' +
+                 '<div id="collapse-defconf' + i +
                 '" class="panel-collapse collapse"><div class="panel-body">';
 
         panel += '<div class="row">';
