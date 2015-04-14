@@ -162,7 +162,8 @@ div.dataTables_filter input {
     margin: 21px 0;
 }
 .arch-label {
-    padding: 4px 7px 4px;
+    font-weight: normal;
+    font-size: 88%;
 }
 .footer > .container {
     font-size: small;
