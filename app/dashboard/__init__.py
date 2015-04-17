@@ -87,7 +87,8 @@ def inject_variables():
         is_mobile=backend.is_mobile_browser(request),
         is_old_browser=backend.is_old_browser(request),
         server_date=backend.today_date(),
-        front_version=__version__
+        front_version=__version__,
+        contact_email=app_conf_get("CONTACT_EMAIL", "info@example.org")
     )
 
 
