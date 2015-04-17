@@ -13,6 +13,7 @@
 
 from flask import current_app as app
 
+import dashboard.utils.feeds as feeds
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
 import dashboard.views.generic as vgeneric
@@ -55,6 +56,11 @@ def init():
     add_rule(
         "/build/all/",
         view_func=vbuild.BuildsAllView.as_view("all-builds"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/build/feed.atom",
+        view_func=feeds.all_build_feed,
         methods=["GET"]
     )
     add_rule(
