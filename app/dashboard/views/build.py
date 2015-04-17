@@ -24,20 +24,29 @@ from dashboard.utils.backend import get_search_parameters
 class GeneralBuildsView(View):
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
-    BUILD_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
+    BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
+    FEED_LINK = u"<a href=\"feed.atom\"><i class=\"fa fa-rss\"></i></a>"
 
 
 class BuildsAllView(GeneralBuildsView):
 
     def dispatch_request(self, *args, **kwargs):
-        body_title = "Available Builds"
+        body_title = u"Available Builds"
+        feed_tooltip = (
+            u"<span data-toggle=\"tooltip\" rel=\"tooltip\" "
+            "title=\"Daily Atom feed for available builds\">%s</span>" %
+            self.FEED_LINK
+        )
+        full_body_title = (
+            u"%s&nbsp;<span class=\"rss-feed\">%s</span>" %
+            (body_title, feed_tooltip))
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "builds-all.html",
             page_len=page_len,
             page_title=self.BUILD_PAGES_TITLE,
-            body_title=body_title,
+            body_title=full_body_title,
             search_filter=search_filter,
         )
 
