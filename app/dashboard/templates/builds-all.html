@@ -6,6 +6,7 @@
 {%- block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="alternate" type="application/atom+xml" href="/feed.atom" title="Daily Builds Feed">
 {%- endblock %}
 {%- block content %}
 {% include "date-range.html" %}
