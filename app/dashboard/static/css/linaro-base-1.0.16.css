@@ -5,6 +5,12 @@ html {
 body {
     margin-bottom: 60px;
 }
+.rss-feed {
+    font-size: small;
+}
+.rss-feed a {
+    color: #FF6600;
+}
 #container-content {
     margin-bottom: 25px;
 }
