@@ -41,7 +41,7 @@ AUTHOR_NAME = "Kernel CI Feed Bot"
 # Default author information.
 AUTHOR = {
     "name": AUTHOR_NAME,
-    "email": CONFIG_GET("CONTACT_EMAIL"),
+    "email": CONFIG_GET("INFO_EMAIL"),
     "uri": CONFIG_GET("BASE_URL")
 }
 
