@@ -33,6 +33,7 @@ CONFIG_GET = app.config.get
 # Timeout seconds to connect and read from the remote server.
 CONNECT_TIMEOUT = 6.0
 READ_TIMEOUT = 10.0
+CACHE_DEFAULT_TIMEOUT = CONFIG_GET("CACHE_DEFAULT_TIMEOUT")
 
 AUTH_HEADER = CONFIG_GET("BACKEND_TOKEN_HEADER")
 AUTH_TOKEN = CONFIG_GET("BACKEND_TOKEN")
@@ -260,7 +261,7 @@ def request_get(url, params=[], timeout=None):
             headers = r.headers
 
             if timeout is None:
-                timeout = CONFIG_GET("CACHE_DEFAULT_TIMEOUT")
+                timeout = CACHE_DEFAULT_TIMEOUT
 
             app.cache.set(
                 cache_key,
@@ -301,7 +302,7 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
             r_headers = r.headers
 
             if timeout is None:
-                timeout = CONFIG_GET("CACHE_DEFAULT_TIMEOUT")
+                timeout = CACHE_DEFAULT_TIMEOUT
 
             app.cache.set(
                 cache_key,
