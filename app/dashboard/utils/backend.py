@@ -225,13 +225,10 @@ def _get_request_headers():
 
     :return The headers as a dictionary.
     """
-    backend_token = CONFIG_GET("BACKEND_TOKEN")
-    backend_token_header = CONFIG_GET("BACKEND_TOKEN_HEADER")
-
     headers = {}
-    if backend_token:
+    if AUTH_TOKEN:
         headers = {
-            backend_token_header: backend_token,
+            AUTH_HEADER: AUTH_TOKEN
         }
 
     return headers
