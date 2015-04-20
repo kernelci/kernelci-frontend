@@ -59,11 +59,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/build/feed.atom",
-        view_func=feeds.all_build_feed,
-        methods=["GET"]
-    )
-    add_rule(
         "/build/<string:job>/kernel/<string:kernel>/",
         view_func=vbuild.BuildsJobKernelView.as_view("job-kernel-builds"),
         methods=["GET"]
