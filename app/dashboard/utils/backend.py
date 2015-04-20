@@ -36,6 +36,7 @@ READ_TIMEOUT = 10.0
 
 AUTH_HEADER = CONFIG_GET("BACKEND_TOKEN_HEADER")
 AUTH_TOKEN = CONFIG_GET("BACKEND_TOKEN")
+BACKEND_URL = CONFIG_GET("BACKEND_URL")
 
 # The requests session object.
 req_session = requests.Session()
@@ -184,10 +185,7 @@ def create_url(api_path):
     :param api_path: The API path.
     :return The full URL to the backend.
     """
-    backend_url = CONFIG_GET("BACKEND_URL")
-    backend_url = urlparse.urljoin(backend_url, api_path)
-
-    return backend_url
+    return urlparse.urljoin(BACKEND_URL, api_path)
 
 
 def _create_api_path(api_path, other_path=None):
