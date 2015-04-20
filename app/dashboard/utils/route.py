@@ -13,7 +13,6 @@
 
 from flask import current_app as app
 
-import dashboard.utils.feeds as feeds
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
 import dashboard.views.generic as vgeneric
