@@ -695,7 +695,7 @@ function getBootData(data) {
         localResult = localData[0];
 
         ajaxData = {
-            'sort': ['defconfig_full', 'arch'],
+            'sort': ['board', 'defconfig_full', 'arch'],
             'sort_order': 1,
             'job': jobName,
             'kernel': kernelName,
