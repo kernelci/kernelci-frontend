@@ -1,9 +1,61 @@
 var jobName = $('#job-name').val();
 var kernelName = $('#kernel-name').val();
 
+function showHideWarnErr(element) {
+    'use strict';
+    var view = $(element).data('view');
+
+    function checkButtonStatus() {
+        if ($('#success-btn').hasClass('active')) {
+            $('.df-success').show();
+        } else if ($('#fail-btn').hasClass('active')) {
+            $('.df-failed').show();
+        } else if ($('#unknown-btn').hasClass('active')) {
+            $('.df-unknown').show();
+        } else {
+            $('.df-failed').show();
+            $('.df-success').show();
+            $('.df-unknown').show();
+        }
+    }
+
+    switch (view) {
+        case 'warnings':
+            checkButtonStatus();
+            $('.df-w :visible').show();
+            $('.df-e').hide();
+            $('.df-w-e').hide();
+            $('.df-no-w-no-e').hide();
+            break;
+        case 'errors':
+            checkButtonStatus();
+            $('.df-w').hide();
+            $('.df-e :visible').show();
+            $('.df-w-e').hide();
+            $('.df-no-w-no-e').hide();
+            break;
+        case 'warnings-errors':
+            checkButtonStatus();
+            $('.df-w').hide();
+            $('.df-e').hide();
+            $('.df-w-e :visible').show();
+            $('.df-no-w-no-e').hide();
+            break;
+        case 'no-warnings-no-errors':
+            checkButtonStatus();
+            $('.df-w').hide();
+            $('.df-e').hide();
+            $('.df-w-e').hide();
+            $('.df-no-w-no-e :visible').show();
+            break;
+        default:
+            checkButtonStatus();
+            break;
+    }
+}
+
 function showHideDefconfs(element) {
     'use strict';
-
     switch (element.id) {
         case 'success-cell':
             if ($('#success-btn').attr('disabled') !== 'disabled') {
@@ -170,7 +222,17 @@ function createBuildsPage(data) {
             '<li class="fa fa-check"></li></span>',
         unknownLabel = '<span class="pull-right label label-warning">' +
             '<li class="fa fa-question"></li></span>',
-        archLabel = '';
+        archLabel = '',
+        warnErrCount = '',
+        warnErrLabel = '',
+        warnErrTooltip = '',
+        warnErrString = '',
+        buildLogUri = '',
+        errorsCount,
+        warningsCount,
+        warningString = '',
+        errorString = '',
+        metadata;
 
     for (i; i < len; i = i + 1) {
         localData = result[i];
@@ -181,6 +243,9 @@ function createBuildsPage(data) {
         arch = localData.arch;
         fileServerUrl = localData.file_server_url;
         fileServerResource = localData.file_server_resource;
+        errorsCount = localData.errors;
+        warningsCount = localData.warnings;
+        metadata = localData.metadata;
 
         if (fileServerUrl !== null && fileServerUrl !== undefined) {
             fileServer = fileServerUrl;
@@ -214,10 +279,60 @@ function createBuildsPage(data) {
                 break;
         }
 
+        if (errorsCount === undefined) {
+            errorsCount = 0;
+        }
+        if (warningsCount === undefined) {
+            warningsCount = 0;
+        }
+
+        if (warningsCount > 0 && errorsCount > 0) {
+            cls += ' df-w-e';
+        } else if (warningsCount > 0 && errorsCount === 0) {
+            cls += ' df-w';
+        } else if (warningsCount === 0 && errorsCount > 0) {
+            cls += ' df-e';
+        } else if (warningsCount === 0 && errorsCount === 0) {
+            cls += ' df-no-w-no-e';
+        }
+
+        if (warningsCount === 1) {
+            warningString = sprintf('%d&nbsp;warning', warningsCount);
+        } else {
+            warningString = sprintf('%d&nbsp;warnings', warningsCount);
+        }
+
+        if (errorsCount === 1) {
+            errorString = sprintf('%d&nbsp;error', errorsCount);
+        } else {
+            errorString = sprintf('%d&nbsp;errors', errorsCount);
+        }
+
+        warnErrString = 'Build warnings and errors';
+        warnErrCount = sprintf(
+            '%s&nbsp;&mdash;&nbsp;%s', warningString, errorString);
+        if (localData.build_log !== null) {
+            buildLogUri = fileServerUri.path(uriPath +
+                '/' + localData.build_log).normalizePath().href();
+            warnErrTooltip = sprintf(
+                '%s&nbsp;&mdash;&nbsp;%s',
+                warnErrString, 'Click to view the build log');
+            warnErrLabel = '<small>' +
+                '<span class="build-warnings">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="' + warnErrTooltip + '"><a href="' + buildLogUri +
+                '">' + warnErrCount + '</a></span><span></small>';
+        } else {
+            warnErrLabel = '<small>' +
+                '<span class="build-warnings">' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="' + warnErrString + '">' + warnErrCount +
+                '</span><span></small>';
+        }
+
         if (localData.arch !== null) {
-            archLabel = '<small>' +
-                '<span class="pull-right arch-label">' +
-                localData.arch + '</span></small>';
+            archLabel = '&nbsp;&dash;&nbsp;' +
+                '<span class="arch-label">' + localData.arch + '</span>';
         }
 
         panel += '<div class="panel panel-default ' + cls + '">' +
@@ -228,8 +343,9 @@ function createBuildsPage(data) {
                 '<h4 class="panel-title">' +
                 '<a data-toggle="collapse" data-parent="#accordion" ' +
                 'href="#collapse-defconf' + i + '">' + defconfigFull +
-                '</a>' + label + archLabel + '</h4></div>' +
-                '<div id="collapse-defconf' + i +
+                '</a>' + archLabel + label +
+                 warnErrLabel + '</h4></div>' +
+                 '<div id="collapse-defconf' + i +
                 '" class="panel-collapse collapse"><div class="panel-body">';
 
         panel += '<div class="row">';
@@ -287,10 +403,7 @@ function createBuildsPage(data) {
 
         if (localData.build_log !== null) {
             panel += '<dt>Build log</dt>' +
-                '<dd><a href="' +
-                fileServerUri.path(uriPath + '/' + localData.build_log)
-                    .normalizePath().href() +
-                '">' +
+                '<dd><a href="' + buildLogUri + '">' +
                 localData.build_log +
                 '&nbsp;<i class="fa fa-external-link">' +
                 '</i></a></dd>';
@@ -302,10 +415,10 @@ function createBuildsPage(data) {
         panel += '<dl class="dl-horizontal">';
 
         panel += '<dt>Build errors</dt>';
-        panel += '<dd>' + localData.errors + '</dd>';
+        panel += '<dd>' + errorsCount + '</dd>';
 
         panel += '<dt>Build warnings</dt>';
-        panel += '<dd>' + localData.warnings + '</dd>';
+        panel += '<dd>' + warningsCount + '</dd>';
 
         if (localData.build_time !== null) {
             panel += '<dt>Build time</dt>';
@@ -313,6 +426,22 @@ function createBuildsPage(data) {
         }
 
         panel += '</dl></div>';
+
+        if (metadata !== undefined && metadata !== null) {
+            panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
+            panel += '<dl class="dl-horizontal">';
+            if (metadata.hasOwnProperty('cross_compile')) {
+                panel += '<dt>Cross-compile</dt>';
+                panel += '<dd>' + metadata.cross_compile + '</dd>';
+                panel += '</dt>';
+            }
+            if (metadata.hasOwnProperty('compiler_version')) {
+                panel += '<dt>Compiler</dt>';
+                panel += '<dd>' + metadata.compiler_version + '</dd>';
+                panel += '</dt>';
+            }
+            panel += '</dl></div>';
+        }
 
         panel += '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
         panel += '<div class="pull-center">' +
@@ -469,7 +598,7 @@ function getDefconfigData(data) {
             'job_id': localResult._id.$oid,
             'job': jobName,
             'kernel': kernelName,
-            'sort': ['status', 'defconfig_full', 'arch'],
+            'sort': ['defconfig_full', 'arch'],
             'sort_order': 1
         };
         ajaxDeferredCall = JSBase.createDeferredCall(

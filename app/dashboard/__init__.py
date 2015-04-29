@@ -28,7 +28,7 @@ from flask_wtf.csrf import (
 )
 from flask.ext.cache import Cache
 
-__version__ = "2015.2.1"
+__version__ = "2015.4.2"
 __versionfull__ = __version__
 
 CSRF_TOKEN_H = "X-Csrftoken"
@@ -87,7 +87,8 @@ def inject_variables():
         is_mobile=backend.is_mobile_browser(request),
         is_old_browser=backend.is_old_browser(request),
         server_date=backend.today_date(),
-        front_version=__version__
+        front_version=__version__,
+        info_email=app_conf_get("INFO_EMAIL", "info@example.org")
     )
 
 

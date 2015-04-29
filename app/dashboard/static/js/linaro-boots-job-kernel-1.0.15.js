@@ -391,9 +391,8 @@ function populateBootsPage(data) {
             }
 
             if (arch !== null) {
-                archLabel = '<small>' +
-                    '<span class="pull-right arch-label">' + arch +
-                    '</span></small>';
+                archLabel = '&nbsp;&dash;&nbsp;' +
+                    '<span class="arch-label">' + arch + '</span>';
             }
 
             panel = '<div class="panel panel-default ' + cls + '">' +
@@ -406,7 +405,8 @@ function populateBootsPage(data) {
                     'data-parent="#accordion' + labName + '" ' +
                     'href="#collapse-boots' + i + '">' +
                     board + '&nbsp;<small>' + defconfigFull + '</small>' +
-                    '</a>' + label + archLabel + '</h4></div>' +
+                    '</a>' + archLabel + label +
+                    '</h4></div>' +
                     '<div id="collapse-boots' + i +
                     '" class="panel-collapse collapse">' +
                     '<div class="panel-body">';
@@ -691,7 +691,7 @@ function getBootData(data) {
         localResult = localData[0];
 
         ajaxData = {
-            'sort': ['status', 'defconfig_full', 'arch'],
+            'sort': ['board', 'defconfig_full', 'arch'],
             'sort_order': 1,
             'job': jobName,
             'kernel': kernelName,

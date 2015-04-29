@@ -26,6 +26,8 @@ BACKEND_TOKEN_HEADER = 'Authorization'
 SECRET_KEY = 'bar'
 # Add the trailing slash!
 FILE_SERVER_URL = 'http://127.0.0.1/'
+# Contact email address. to be used in RSS feed or other pages.
+INFO_EMAIL = "info@example.org"
 
 # This is the default page title common to all HTML pages.
 DEFAULT_PAGE_TITLE = "Kernel CI Dashboard"

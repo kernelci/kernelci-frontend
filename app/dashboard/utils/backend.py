@@ -28,12 +28,16 @@ from requests.exceptions import (
     ReadTimeout,
 )
 
+CONFIG_GET = app.config.get
+
 # Timeout seconds to connect and read from the remote server.
 CONNECT_TIMEOUT = 6.0
 READ_TIMEOUT = 10.0
+CACHE_DEFAULT_TIMEOUT = CONFIG_GET("CACHE_DEFAULT_TIMEOUT")
 
-AUTH_HEADER = app.config.get("BACKEND_TOKEN_HEADER")
-AUTH_TOKEN = app.config.get("BACKEND_TOKEN")
+AUTH_HEADER = CONFIG_GET("BACKEND_TOKEN_HEADER")
+AUTH_TOKEN = CONFIG_GET("BACKEND_TOKEN")
+BACKEND_URL = CONFIG_GET("BACKEND_URL")
 
 # The requests session object.
 req_session = requests.Session()
@@ -53,7 +57,7 @@ def translate_git_url(git_url, commit_id):
 
     if git_url and commit_id:
         t_url = urlparse.urlparse(git_url)
-        known_git_urls = app.config.get("KNOWN_GIT_URLS")
+        known_git_urls = CONFIG_GET("KNOWN_GIT_URLS")
 
         if t_url.netloc in known_git_urls.keys():
             known_git = known_git_urls.get(t_url.netloc)
@@ -176,16 +180,13 @@ def today_date():
 
 
 @app.cache.memoize(timeout=60*60*6)
-def _create_url(api_path):
+def create_url(api_path):
     """Create the complete URL to the API backend.
 
     :param api_path: The API path.
     :return The full URL to the backend.
     """
-    backend_url = app.config.get("BACKEND_URL")
-    backend_url = urlparse.urljoin(backend_url, api_path)
-
-    return backend_url
+    return urlparse.urljoin(BACKEND_URL, api_path)
 
 
 def _create_api_path(api_path, other_path=None):
@@ -225,13 +226,10 @@ def _get_request_headers():
 
     :return The headers as a dictionary.
     """
-    backend_token = app.config.get("BACKEND_TOKEN")
-    backend_token_header = app.config.get("BACKEND_TOKEN_HEADER")
-
     headers = {}
-    if backend_token:
+    if AUTH_TOKEN:
         headers = {
-            backend_token_header: backend_token,
+            AUTH_HEADER: AUTH_TOKEN
         }
 
     return headers
@@ -263,7 +261,7 @@ def request_get(url, params=[], timeout=None):
             headers = r.headers
 
             if timeout is None:
-                timeout = app.config.get("CACHE_DEFAULT_TIMEOUT")
+                timeout = CACHE_DEFAULT_TIMEOUT
 
             app.cache.set(
                 cache_key,
@@ -304,7 +302,7 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
             r_headers = r.headers
 
             if timeout is None:
-                timeout = app.config.get("CACHE_DEFAULT_TIMEOUT")
+                timeout = CACHE_DEFAULT_TIMEOUT
 
             app.cache.set(
                 cache_key,
@@ -336,7 +334,7 @@ def ajax_count_get(request, api_path, collection, timeout=None):
     if collection:
         api_path = _create_api_path(api_path, collection)
 
-    url = _create_url(api_path)
+    url = create_url(api_path)
 
     data, status_code, headers = request_get(
         url, params=params_list, timeout=timeout)
@@ -359,7 +357,7 @@ def ajax_get(request, api_path, timeout=None):
 
         params_list.remove(("id", [doc_id]))
 
-    url = _create_url(api_path)
+    url = create_url(api_path)
 
     data, status_code, headers = request_get(
         url, params=params_list, timeout=timeout)
@@ -379,7 +377,7 @@ def ajax_bisect(request, doc_id, api_path, timeout=None):
         api_path = _create_api_path(api_path, [doc_id])
     else:
         api_path = _create_api_path(api_path)
-    url = _create_url(api_path)
+    url = create_url(api_path)
     print url
 
     data, status_code, headers = request_get(
@@ -395,7 +393,7 @@ def ajax_batch_post(request, api_path, timeout=None):
     :return A tuple with the data, status code and headers of the
         `requests.Response` object.
     """
-    url = _create_url(api_path)
+    url = create_url(api_path)
     data, status_code, headers = request_post(
         url,
         request.data,
