@@ -1,0 +1,50 @@
+Installation
+============
+
+Requirements are defined in the requirements.txt file.
+
+Once installed, to run the Flask application:
+
+  cd app/
+  python server.py
+
+It will bind to localhost:5000
+
+Configuration
+=============
+
+There is a default file with configuration parameters located at:
+
+  app/dashboard/default_settings.py
+
+To override those values, create a file similar to that one, and define
+the following env variable that points to it:
+
+  FLASK_SETTINGS
+
+The important parameter to define, at this moment, is the BACKEND_URL, that
+should point to the server:port running the backend REST API.
+
+Installation via Ansible
+========================
+
+To locally deploy the frontend using ansible, move into the `ansible` directory
+and run:
+
+ ansible-playbook -i hosts -l local -c local -K -D -e "@/path/to/secrets.yml"
+
+The previous command will install the frontend code into '/srv/kernelci-frontend',
+adding also a default web server configuration always named kernelci-frontend.
+
+To install and setup everything correctly, it is necessary to provide a file
+with the secret values necessary. To skip all the tasks that require secrets, use:
+
+ --skip-tags=secrets
+
+In order to use the frontend through port 80 with the default web server
+configuration, it is necessary to remove the following lines from the config file:
+
+    server {
+        listen 80 backlog=1024 default_server;
+        return 404;
+    }
