@@ -99,7 +99,8 @@
             </div>
         </div>
     </footer>
-<input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}"> {%- block scripts %}
+<input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}">
+{%- block scripts %}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
@@ -142,7 +143,9 @@ $(document).ready(function() {
     $.when(ajaxDeferred).then(apiVersionLinkSuccess, apiVersionLinkFail);
 });
 </script>
-{%- block analytics %}{%- if analytics %}
+{%- endblock %}{# Scripts block #}
+{%- block analytics %}
+{%- if analytics %}
 <script type="text/javascript">
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -151,7 +154,7 @@ $(document).ready(function() {
   ga('create', '{{ analytics }}', 'auto');
   ga('send', 'pageview');
 </script>
-{%- endif %}{%- endblock %} {# Analytics block #}
-{%- endblock %}
+{%- endif %}
+{%- endblock %}{# Analytics block #}
 </body>
 </html>
