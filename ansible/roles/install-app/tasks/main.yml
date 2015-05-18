@@ -1,6 +1,6 @@
 ---
 - name: Checkout kernel-ci-frontend code
-  git:  repo=http://git.linaro.org/git/lava-team/kernel-ci-frontend.git
+  git:  repo=https://github.com/kernelci/kernelci-frontend.git
         dest={{ install_base }}/{{ hostname }}
         version={{ git_head }}
         update=yes
