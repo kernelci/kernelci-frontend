@@ -82,7 +82,7 @@
                         <li>
                             Version:&nbsp;
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI Dashboard version">
-                                <a href="https://git.linaro.org/infrastructure/kernel-ci-frontend.git/log/refs/tags/{{ front_version }}">{{ front_version }}</a>
+                                <a href="https://github.com/kernelci/kernelci-frontend/tree/{{ front_version }}">{{ front_version }}</a>
                             </span>
                             &nbsp;|&nbsp;
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
@@ -119,8 +119,8 @@ function apiVersionLinkSuccess(data) {
         version = localData[0].version;
         apiHref.empty().append(
             '<a href="' +
-            'https://git.linaro.org/infrastructure/kernel-ci-backend.git/' +
-            'log/refs/tags/' + version + '">' + version + '</a>');
+            'https://github.com/kernelci/kernelci-backend/tree/' +
+            version + '">' + version + '</a>');
     } else {
         apiHref.empty().append('&infin;');
     }
