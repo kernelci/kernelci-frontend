@@ -1,80 +1,45 @@
+svg {
+  font-size: 12px;
+}
+.x-axis text:hover,
+circle:hover {
+    cursor: pointer;
+}
 .axis path,
 .axis line {
     fill: none;
-    stroke: gray;
+    stroke: black;
+    opacity: 1;
     shape-rendering: crispEdges;
 }
-.axis text {
-    font-size: 11px;
-}
-.y-axis .minor line {
+.y-axis line {
+    stroke: gray;
     stroke-dasharray: 1, 5;
     opacity: 0.8;
 }
-.x-axis line {
+line.y-first {
     stroke: black;
     opacity: 1;
-}
-.graph-dot {
-    fill: white;
-}
-.x-tick,
-.graph-dot {
-    cursor: pointer;
+    stroke-dasharray: none;
 }
 .line path {
     fill: none;
 }
-.pass-line,
-.pass-dot,
-.pass-legend {
-    stroke: #5cb85c;
-}
-.fail-line,
-.fail-dot,
-.fail-legend {
-    stroke: #d9534f;
-}
-.time-line,
-.boot-dot {
-    stroke: orange;
-}
-.x-grid path {
-    stroke-width: 0;
-}
-.x-grid line {
-    stroke: gray;
-    stroke-opacity: 0.25;
-    shape-rendering: crispEdges;
-}
-.hover-group polyline {
+.rate-line {
     fill: none;
-    stroke: gray;
-    stroke-width: 1.5;
-    stroke-dasharray: 5, 5;
-}
-.legend {
-    font-size: smaller;
-    text-rendering: optimizeLegibility;
-}
-.legend rect {
-    cursor: pointer;
-}
-.fail-legend,
-.pass-legend {
     stroke-width: 1;
-    shape-rendering: crispEdges;
 }
-.pass-legend {
+path.area {
     fill: #5cb85c;
+    opacity: 0.4;
 }
-.fail-legend {
-    fill: #d9534f;
-}
-.legend-clicked {
+circle {
     fill: white;
 }
-.hidden {
-    display: none;
-    visibility: hidden;
+.rate-line,
+circle.pass-dot {
+    stroke: #5cb85c;
+}
+text {
+    text-rendering: optimizeLegibility;
 }
