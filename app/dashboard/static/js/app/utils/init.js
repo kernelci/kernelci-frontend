@@ -29,14 +29,14 @@ define([
     function getVersionDone(response) {
         var localData = response.result,
             dataLen = localData.length,
-            gitURL = 'https://git.linaro.org/lava-team/kernel-ci-backend.git/',
+            gitURL = 'https://github.com/kernelci/kernelci-backend/tree/',
             version,
             content;
 
         if (dataLen > 0) {
             version = localData[0].version;
-            content = '<a href="' + gitURL + 'log/refs/tags/' + version +
-                '">' + version + '</a>';
+            content = '<a href="' + gitURL + version + '">' +
+                version + '</a>';
         } else {
             content = '&infin;';
         }
