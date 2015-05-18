@@ -24,10 +24,12 @@ body {
 .board-column {
     max-width: 130px;
 }
+.commit-column,
 .defconfig-column,
 .kernel-column {
     max-width: 240px;
 }
+.commit-column,
 .board-column,
 .defconfig-column,
 .kernel-column {
@@ -152,6 +154,10 @@ div.tooltip-inner {
 }
 div.dataTables_filter input {
     margin-left: 0 !important;
+}
+div.dataTables_paginate,
+div.dataTables_filter {
+    float: right;
 }
 .date-range {
     margin-bottom: 27px;
