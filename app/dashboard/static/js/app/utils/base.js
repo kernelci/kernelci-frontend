@@ -27,7 +27,10 @@ define(function() {
     };
 
     b.replaceById = function(name, content) {
-        document.getElementById(name).innerHTML = content;
+        var el = document.getElementById(name);
+        if (el !== null) {
+            el.innerHTML = content;
+        }
     };
 
     b.checkElement = function(element) {
