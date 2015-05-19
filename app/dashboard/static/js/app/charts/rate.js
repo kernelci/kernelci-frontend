@@ -31,8 +31,8 @@ define([
             h = height - margin.top - margin.bottom,
             xscale = d3.scale.linear(),
             yscale = d3.scale.linear().domain([0, 100]).range([h, 0]),
-            xaxis = d3.svg.axis().scale(xscale).orient('bottom'),
-            yaxis = d3.svg.axis().scale(yscale).orient('left'),
+            xaxis = d3.svg.axis().orient('bottom'),
+            yaxis = d3.svg.axis().orient('left'),
             zoom = d3.behavior.zoom(),
             dataAttributes = null,
             clickFunction = null,
@@ -53,7 +53,9 @@ define([
             maxRound = 0,
             fixedW = 45;
 
-        yaxis.ticks(3)
+        yaxis
+            .scale(yscale)
+            .ticks(3)
             .innerTickSize(-w)
             .tickFormat(function(d) {
                 return d + '%';
@@ -243,11 +245,19 @@ define([
                 parsedData = [new Array(dataLength)];
                 dataLength = dataKeys.length;
 
-                if (dataLength > 15) {
-                    // More than a subset of elements, use a fixed width
-                    // spacing.
-                    maxRound = (dataLength - 1) * fixedW;
+                xscale
+                    .domain([0, dataLength - 1]);
+                if (dataLength >= 15) {
+                    // Use a fixed width spacing if more than 15.
+                    maxRound = dataLength * fixedW;
                     rangeR = maxRound;
+                    xscale.rangeRound([0, rangeR]);
+                } else if (dataLength <= 14 && dataLength > 3) {
+                    xscale.rangeRound([0, w]);
+                } else {
+                    xscale
+                        .domain([0, dataLength])
+                        .rangeRound([0, w]);
                 }
 
                 for (i; i < dataLength; i = i + 1) {
@@ -256,9 +266,8 @@ define([
                     ];
                 }
 
-                xscale.domain([0, dataLength - 1]).rangeRound([0, rangeR]);
-
-                xaxis.scale(xscale)
+                xaxis
+                    .scale(xscale)
                     .ticks(dataLength)
                     .tickFormat(function(d) {
                         var returnData = null,
@@ -333,17 +342,19 @@ define([
                         .attr('r', 2.5)
                         .style('stroke-width', 1.5);
 
-                zoom.x(xscale)
-                    .scaleExtent([1, 1])
-                    .on('zoom', zoomed);
+                if (dataLength >= 15) {
+                    zoom.x(xscale)
+                        .scaleExtent([1, 1])
+                        .on('zoom', zoomed);
 
-                svg.call(zoom)
-                    .on('mousewheel.zoom', null)
-                    .on('DOMMouseScroll.zoom', null);
+                    svg.call(zoom)
+                        .on('mousewheel.zoom', null)
+                        .on('DOMMouseScroll.zoom', null);
 
-                // Position at the end of the graph, adding 1 more pixel
-                // in order to show the final tick.
-                zoom.translate([w - maxRound - 1, 0]);
+                    // Position at the end of the graph, adding 1 more pixel
+                    // in order to show the final tick.
+                    zoom.translate([w - maxRound - 1, 0]);
+                }
                 draw();
             });
         };
