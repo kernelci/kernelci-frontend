@@ -17,6 +17,12 @@
                 </a>
             </li>
             <li>
+                <a href="#more-info"
+                    title="Where can I find more info about kernelci.org?">
+                    Where can I find more info about kernelci.org?
+                </a>
+            </li>
+            <li>
                 <a href="#the-code"
                     title="Where can I find the code that kernelci.org is built on?">
                     Where can I find the code that kernelci.org is built on?
@@ -65,17 +71,22 @@
                 <dd>
                     kernelci.org, this website, is a build and boot automation tool for <a title="kernel.org website" href="https://www.kernel.org/">upstream Linux kernel trees</a>.
                 </dd>
+                <dt id="more-info">Where can I find more info about kernelci.org?</dt>
+                <dd>
+                    For more information about kernelci.org and its architecture,
+                    please see <a href="http://wiki.kernelci.org/">wiki.kernelci.org</a>.
+                </dd>
                 <dt id="the-code">Where can I find the code that kernelci.org is built on?</dt>
                 <dd>
-                    The code powering kernelci.org can be found at the <em>Linaro Git Code Hosting</em>: <a title="Linaro Git Code Hosting" href="https://git.linaro.org">https://git.linaro.org</a>.
+                    The code powering kernelci.org can be found on <em>GitHub</em>: <a title="GitHub" href="https://github.com/kernelci/">github.com/kernelci/</a>.
                     <br />
                     There are two main components:
                     <ol>
                         <li>
-                            <a title="Kernel CI website source code" href="https://git.linaro.org/infrastructure/kernel-ci-frontend.git">This website</a>
+                            <a title="Kernel CI website source code" href="https://github.com/kernelci/kernelci-frontend/">This website</a>
                         </li>
                         <li>
-                            <a title="Kernel CI API source code" href="https://git.linaro.org/infrastructure/kernel-ci-backend.git">
+                            <a title="Kernel CI API source code" href="https://github.com/kernelci/kernelci-backend/">
                             The Kernel CI API
                             </a>
                         </li>
@@ -127,7 +138,7 @@
 {{ super() }}
 <script type="text/javascript">
 $(document).ready(function() {
-    $('#li-info').addClass("active");
+    $('#li-info').addClass('active');
 });
 </script>
 {%- endblock %}
