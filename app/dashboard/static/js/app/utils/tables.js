@@ -29,13 +29,16 @@ define([
         order,
         searchFilter = null,
         pageLen = null,
+        tTable,
         tElement,
         tLoading = null,
         tDiv = null,
         rowURL = '/build/%(job)s/kernel/%(kernel)s/',
         rowURLElements,
         tableData = [],
-        search;
+        searchLanguage,
+        searchType,
+        disableIn = false;
 
     dom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
             '<"length-menu"l>>' +
@@ -44,7 +47,7 @@ define([
             '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
             '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>';
 
-    search = '<div id="search-area" class="input-group pull-right">' +
+    searchLanguage = '<div id="search-area" class="input-group pull-right">' +
         '<span class="input-group-addon">' +
         '<i class="fa fa-search"></i></span>_INPUT_</div>';
 
@@ -55,8 +58,12 @@ define([
     zeroR = 'No reports to display';
 
     order = [1, 'desc'];
+    searchType = {
+        'regex': true,
+        'smart': true
+    };
 
-    table = function(elements, f, l) {
+    table = function(elements, d) {
         var len;
         if (elements.constructor === Array) {
             len = elements.length;
@@ -80,19 +87,19 @@ define([
             tElement = b.checkElement(elements);
         }
 
-        searchFilter = f || null;
-        pageLen = l || null;
+        if (d !== null && d !== undefined) {
+            disableIn = d;
+        }
         return table;
     };
 
     table.draw = function() {
-        var tTable;
-        tTable = $(tElement[1]).dataTable({
+        tTable = $(tElement[1]).DataTable({
             'dom': dom,
             'language': {
                 'lengthMenu': s.sprintf(menuFmt, menu),
                 'zeroRecords': s.sprintf(zeroRFmt, zeroR),
-                'search': search,
+                'search': searchLanguage,
                 'searchPlaceholder': 'Filter the results'
             },
             'lengthMenu': [25, 50, 75, 100],
@@ -102,36 +109,13 @@ define([
             'stateSave': true,
             'stateDuration': -1,
             'processing': true,
-            'search': {
-                'regex': true,
-                'smart': true
-            },
+            'search': searchType,
             'initComplete': function() {
                 if (tLoading !== null) {
                     $(tLoading[1]).remove();
                 }
-
                 if (tDiv !== null) {
                     $(tDiv[1]).fadeIn('slow', 'linear');
-                }
-
-                var api = this.api();
-
-                if (pageLen !== undefined && pageLen !== null) {
-                    if (pageLen.length > 0) {
-                        pageLen = Number(pageLen);
-                        if (isNaN(pageLen)) {
-                            pageLen = 25;
-                        }
-
-                        api.page.len(pageLen).draw();
-                    }
-                }
-
-                if (searchFilter !== null && searchFilter !== undefined) {
-                    if (searchFilter.length > 0) {
-                        api.search(searchFilter, true).draw();
-                    }
                 }
             },
             'data': tableData,
@@ -139,7 +123,7 @@ define([
         });
 
         $(document).on('click', tElement[1] + ' tbody tr', function() {
-            var localTable = tTable.fnGetData(this),
+            var localTable = tTable.row(this).data(),
                 location = '#',
                 substitutions = {};
             if (localTable) {
@@ -161,6 +145,38 @@ define([
                 $(this).blur();
             }
         });
+
+        if (disableIn) {
+            $('.input-sm').prop('disabled', true);
+        }
+    };
+
+    table.search = function(value) {
+        $('.input-sm').prop('disabled', false);
+        if (arguments.length) {
+            if (value !== null && value !== undefined) {
+                if (value.length > 0) {
+                    tTable.search(value, true).draw();
+                }
+            }
+        }
+        return table;
+    };
+
+    table.pageLen = function(value) {
+        var pLen;
+        if (arguments.length) {
+            if (value !== undefined && value !== null) {
+                if (value.length > 0) {
+                    pLen = Number(value);
+                    if (isNaN(pLen)) {
+                        pLen = 25;
+                    }
+                    tTable.page.len(pLen).draw();
+                }
+            }
+        }
+        return table;
     };
 
     table.menu = function(value) {
@@ -221,6 +237,15 @@ define([
         var returnData = rowURLElements;
         if (arguments.length) {
             rowURLElements = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.searchType = function(value) {
+        var returnData = searchType;
+        if (arguments.length) {
+            searchType = value;
             returnData = table;
         }
         return returnData;

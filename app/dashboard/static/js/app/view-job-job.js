@@ -22,7 +22,10 @@ define([
 ], function($, i, b, r, e, t, chart) {
     'use strict';
     var jobName = null,
-        dateRange = null;
+        dateRange = null,
+        buildsTable = null,
+        searchFilter = null,
+        pageLen = null;
 
     function getBootStatsFail() {
         var content = '<div class="pull-center">' +
@@ -96,6 +99,10 @@ define([
                 b.replaceById(batchData[idx].operation_id, batchCount);
             }
         }
+        // Perform the table search now, after completing all operations.
+        buildsTable
+            .pageLen(pageLen)
+            .search(searchFilter);
     }
 
     function getBuildBootCount(response) {
@@ -190,9 +197,6 @@ define([
                 '</div>';
             b.replaceById(tableDiv[0], noContent);
         } else {
-            filter = document.getElementById('search-filter').value;
-            pageLen = document.getElementById('page-len').value;
-
             columns = [
                 {
                     'data': '_id',
@@ -294,11 +298,10 @@ define([
                 }
             ];
 
-            tb = t(
-                ['jobstable', 'table-loading', 'table-div'], filter, pageLen);
-            tb.tableData(localData)
-                .order([6, 'desc'])
+            buildsTable
+                .tableData(localData)
                 .columns(columns)
+                .order([6, 'desc'])
                 .menu('builds per page')
                 .rowURLElements(['job', 'kernel'])
                 .draw();
@@ -419,7 +422,16 @@ define([
         dateRange = document.getElementById('date-range').value;
     }
 
+    if (document.getElementById('page-len') !== null) {
+        pageLen = document.getElementById('page-len').value;
+    }
+
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
+
     if (jobName !== null && dateRange !== null) {
+        buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
         getDetails();
         getDefconfigs();
         getDefconfigsStats();
