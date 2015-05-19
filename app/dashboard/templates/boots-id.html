@@ -3,10 +3,6 @@
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-<link rel="stylesheet" type="text/css" href="/static/css/linaro-graphs-0.0.1.css">
-{%- endblock %}
 {%- block content %}
 <div class="row">
     <div class="page-header">
@@ -104,12 +100,6 @@
     </div>
 </div>
 <div id="other-details-div" class="row hidden"></div>
-<div id="time-chart-div" class="row">
-    <div class="page-header">
-        <h3>Boot Time Trends</h3>
-    </div>
-    <div id="time-chart"></div>
-</div>
 <div id="multiple-labs" class="row">
     <div class="page-header">
         <h3>Other Boot Reports</h3>
@@ -155,6 +145,5 @@
 {{ super() }}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 <script type="text/javascript" src="/static/js/linaro-bisect-0.0.2.js"></script>
-<script type="text/javascript" src="/static/js/linaro-graphs-0.0.2.js"></script>
 <script type="text/javascript" src="/static/js/linaro-boots-id-1.2.3.js"></script>
 {%- endblock %}

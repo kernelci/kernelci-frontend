@@ -784,14 +784,6 @@ function bootIdAjaxFailed() {
     );
 }
 
-function createBootTimeGraph(data) {
-    'use strict';
-    var graph = new KG.BootTimeGraph('#time-chart')
-        .init()
-        .bind(data)
-        .draw();
-}
-
 $(document).ready(function() {
     'use strict';
     $('#li-boot').addClass('active');
@@ -847,26 +839,4 @@ $(document).ready(function() {
     );
 
     $.when(deferredAjaxCall).done(populateOtherBootTable);
-
-    ajaxData = {
-        // kernel: kernelName,
-        job: jobName,
-        defconfig_full: defconfName,
-        lab: labName,
-        board: boardName,
-        date_range: 30,
-        sort_order: 1,
-        sort: 'created_on',
-        status: 'PASS',
-        field: [
-            'created_on', 'lab_name', 'kernel', 'created_on', 'board', 'time',
-            'job', 'defconfig', 'defconfig_full'
-        ]
-    };
-    deferredAjaxCall = JSBase.createDeferredCall(
-        '/_ajax/boot',
-        'GET',
-        ajaxData
-    );
-    $.when(deferredAjaxCall).done(createBootTimeGraph);
 });
