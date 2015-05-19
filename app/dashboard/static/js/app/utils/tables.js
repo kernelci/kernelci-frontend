@@ -27,8 +27,6 @@ define([
         zeroRFmt,
         columns,
         order,
-        searchFilter = null,
-        pageLen = null,
         tTable,
         tElement,
         tLoading = null,
@@ -38,6 +36,7 @@ define([
         tableData = [],
         searchLanguage,
         searchType,
+        oldSearch = null,
         disableIn = false;
 
     dom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
@@ -94,6 +93,14 @@ define([
     };
 
     table.draw = function() {
+        var target;
+        function stateLoad(s, d) {
+            if (disableIn && d.search.search.length > 0) {
+                oldSearch = d.search.search;
+                d.search.search = '';
+            }
+        }
+
         tTable = $(tElement[1]).DataTable({
             'dom': dom,
             'language': {
@@ -119,10 +126,23 @@ define([
                 }
             },
             'data': tableData,
-            'columns': columns
+            'columns': columns,
+            'stateLoadParams': stateLoad
         });
 
-        $(document).on('click', tElement[1] + ' tbody tr', function() {
+        target = document.querySelector('input.input-sm');
+        // Remove focus from input when Esc is pressed.
+        $(target).keyup(function(key) {
+            if (key.keyCode === 27) {
+                $(this).blur();
+            }
+        });
+
+        if (disableIn) {
+            target.setAttribute('disabled', true);
+        }
+
+        tTable.on('click', 'tbody tr', function() {
             var localTable = tTable.row(this).data(),
                 location = '#',
                 substitutions = {};
@@ -139,24 +159,49 @@ define([
             window.location = location;
         });
 
-        // Remove focus from input when Esc is pressed.
-        $('.input-sm').keyup(function(key) {
-            if (key.keyCode === 27) {
-                $(this).blur();
+        tTable.on('search.dt', function() {
+            var obs,
+                obsCfg;
+            if (disableIn && oldSearch !== null) {
+                if (window.MutationObserver) {
+                    if (target.getAttribute('disabled')) {
+                        obs = new MutationObserver(function(muts) {
+                            muts.forEach(function(mut) {
+                                if (mut.target === target) {
+                                    if (mut.attributeName === 'disabled') {
+                                        if (oldSearch !== null) {
+                                            tTable
+                                                .search(oldSearch, true, true)
+                                                .draw();
+                                            oldSearch = null;
+                                        }
+                                    }
+                                }
+                            });
+                            obs.disconnect();
+                        });
+                        obsCfg = {
+                            attributes: true,
+                            attributeOldValue: true
+                        };
+                        obs.observe(target, obsCfg);
+                    }
+                } else {
+                    // No support for MutationObserver.
+                    tTable.search(oldSearch, true, true).draw();
+                }
             }
         });
-
-        if (disableIn) {
-            $('.input-sm').prop('disabled', true);
-        }
+        return table;
     };
 
     table.search = function(value) {
-        $('.input-sm').prop('disabled', false);
+        document.querySelector('input.input-sm').removeAttribute('disabled');
         if (arguments.length) {
             if (value !== null && value !== undefined) {
                 if (value.length > 0) {
-                    tTable.search(value, true).draw();
+                    oldSearch = null;
+                    tTable.search(value, true, true).draw();
                 }
             }
         }
