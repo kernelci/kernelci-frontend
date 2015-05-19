@@ -351,6 +351,8 @@ define([
                         .on('mousewheel.zoom', null)
                         .on('DOMMouseScroll.zoom', null);
 
+                    clipP.style('cursor', 'move');
+
                     // Position at the end of the graph, adding 1 more pixel
                     // in order to show the final tick.
                     zoom.translate([w - maxRound - 1, 0]);
