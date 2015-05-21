@@ -16,13 +16,17 @@ var jqueryURL =
     'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min';
 var bootstrapURL =
     'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min';
-var uriURL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min';
+var uriURL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min';
 var sprintfURL =
     'https://cdnjs.cloudflare.com/ajax/libs/sprintf/1.0.1/sprintf.min';
 var d3URL = 'https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min';
 var dtURL =
     'https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.7/js/jquery.dataTables.min';
 var dtBootstrapURL = 'https://cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.min';
+var ipv6URL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/IPv6.min';
+var punyURL =
+    'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/punycode.min';
+var sdlURL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/SecondLevelDomains.min';
 
 require.config({
     baseUrl: '/static/js',
@@ -38,7 +42,10 @@ require.config({
         'bootstrap': bootstrapURL,
         'datatables': dtURL,
         'datatables.bootstrap': dtBootstrapURL,
-        'uri': uriURL,
+        'URI': [uriURL, 'lib/uri-1.15.1.min'],
+        'IPv6': [ipv6URL, 'lib/IPv6-1.15.1.min'],
+        'punycode': [punyURL, 'lib/punycode-1.15.1.min'],
+        'SDL': [sdlURL, 'lib/SecondLevelDomains-1.15.1.min'],
         'sprintf': sprintfURL,
         'd3': d3URL
     },
@@ -55,6 +62,9 @@ require.config({
         },
         'jquery.hotkeymap': {
             deps: ['jquery.hotkeys']
+        },
+        'URI': {
+            deps: ['jquery', 'punycode', 'IPv6', 'SDL']
         }
     }
 });
