@@ -149,6 +149,12 @@ body {
 .red-font {
     color: #d9534f;
 }
+.green-font {
+    color: #5cb85c;
+}
+.yellow-font {
+    color: #f0ad4e;
+}
 div.tooltip-inner {
     max-width: 350px;
 }
