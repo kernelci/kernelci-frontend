@@ -1,6 +1,4 @@
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as
-// This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -15,25 +13,44 @@
 
 define(function() {
     'use strict';
-    var b;
+    var base = {};
 
-    b = function() {};
+    // Concatenate objects into a single one.
+    base.collectObjects = function() {
+        var fObject = {},
+            i = 0,
+            argLen = arguments.length,
+            arg,
+            key;
 
-    b.replaceByClass = function(name, content) {
+        for (i; i < argLen; i = i + 1) {
+            arg = arguments[i];
+            if (typeof arg === 'object') {
+                for (key in arg) {
+                    if (arg.hasOwnProperty(key)) {
+                        fObject[key] = arg[key];
+                    }
+                }
+            }
+        }
+        return fObject;
+    };
+
+    base.replaceByClass = function(name, content) {
         var elements = document.getElementsByClassName(name);
         Array.prototype.filter.call(elements, function(element) {
             element.innerHTML = content;
         });
     };
 
-    b.replaceById = function(name, content) {
+    base.replaceById = function(name, content) {
         var el = document.getElementById(name);
         if (el !== null) {
             el.innerHTML = content;
         }
     };
 
-    b.checkElement = function(element) {
+    base.checkElement = function(element) {
         var tElement,
             dElement;
         if (element[0] === '#') {
@@ -122,5 +139,5 @@ define(function() {
         return localTime.trim();
     };
 
-    return b;
+    return base;
 });
