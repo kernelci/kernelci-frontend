@@ -18,8 +18,7 @@ define([
     'charts/rate'
 ], function(d3, b, k) {
     'use strict';
-    var bootpassrate,
-        buildpassrate,
+    var passrate = {},
         emptyContent;
 
     emptyContent = '<div class="pull-center">' +
@@ -76,7 +75,7 @@ define([
         return dataObj;
      }
 
-    bootpassrate = function(element, response) {
+    passrate.bootpassrate = function(element, response) {
         var chart,
             setup,
             datat = null,
@@ -106,7 +105,7 @@ define([
         }
     };
 
-    buildpassrate = function(element, response) {
+    passrate.buildpassrate = function(element, response) {
         var chart,
             setup,
             datat = null,
@@ -136,9 +135,6 @@ define([
         }
     };
 
-    return {
-        bootpassrate: bootpassrate,
-        buildpassrate: buildpassrate
-    };
+    return passrate;
 });
 
