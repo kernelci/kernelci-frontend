@@ -1,5 +1,12 @@
-{% extends 'base.html' %} {%- block meta -%}
-<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block head %} {{ super() }} {%- endblock %} {%- block content %}
+{% extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+{%- endblock %}
+{%- block content %}
 <div class="row">
     <div class="page-header">
         <h3 id="details">{{ body_title|safe }}</h3>
@@ -48,15 +55,16 @@
                 <table id="pie-chart-legend" class="pie-chart">
                     <tbody>
                         <tr>
-                            <td id="success-cell" onclick="showHideBoots(this)">0</td>
+                            <td id="success-cell" class="click-btn">0</td>
                             <td>&nbsp;/&nbsp;</td>
-                            <td id="fail-cell" onclick="showHideBoots(this)">0</td>
+                            <td id="fail-cell" class="click-btn">0</td>
                             <td>&nbsp;/&nbsp;</td>
-                            <td id="unknown-cell" onclick="showHideBoots(this)">0</td>
+                            <td id="unknown-cell" class="click-btn">0</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <div id="boot-chart"></div>
         </div>
     </div>
 </div>
@@ -66,10 +74,10 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="btn-group">
-            <button id="all-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>All</button>
-            <button id="success-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Successful</button>
-            <button id="fail-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Failed</button>
-            <button id="unknown-btn" onclick="showHideBoots(this)" type="button" class="btn btn-default" disabled>Unknown</button>
+            <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
+            <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
+            <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
+            <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -90,9 +98,7 @@
 <input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.1.js"></script>
-<script type="text/javascript" src="/static/js/linaro-boots-job-kernel-1.0.15.js"></script>
+<!-- URI does not work very well with require.js, load it here. -->
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
+<script data-main="/static/js/kci-boots-job-kernel" src="/static/js/lib/require.js"></script>
 {%- endblock %}
