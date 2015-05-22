@@ -214,7 +214,7 @@ require([
 
         if (response.count > 0) {
             data = {'job_id': response.result[0].job_id.$oid};
-            deferred = r.get('/_ajax/count/defconfigs', data);
+            deferred = r.get('/_ajax/count/defconfig', data);
 
             $.when(deferred, uniq.countUniqueBootD(response))
                 .fail(e.error, uniqueCountFail)
