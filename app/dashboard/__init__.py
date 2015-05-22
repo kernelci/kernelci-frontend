@@ -42,12 +42,12 @@ APP_ENVVAR = "FLASK_SETTINGS"
 def generate_csrf_token():
     """Custom function for tokens generation.
 
-    It returns a CSRF token with a random time limit between 30 and
-    120 seconds.
+    It returns a CSRF token with a random time limit between 60 and
+    180 seconds.
 
     :return A random CSRF token.
     """
-    return generate_csrf(time_limit=random.randint(30, 120))
+    return generate_csrf(time_limit=random.randint(60, 180))
 
 
 app = Flask("kernelci-frontend")
