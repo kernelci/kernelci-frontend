@@ -14,6 +14,9 @@ body {
 #container-content {
     margin-bottom: 25px;
 }
+.default-cursor {
+    cursor: default;
+}
 .clickable-table tbody tr {
     cursor: pointer;
 }
