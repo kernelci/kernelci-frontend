@@ -91,6 +91,10 @@ require([
         });
     }
 
+    function uniqueCountFail() {
+        b.replaceByClass('unique-values', sNonAvail);
+    }
+
     function uniqueCountDone(defconfig, unique) {
         var totalDefconfig = defconfig[0].result[0].count,
             uniqueTotal = unique[0],
@@ -210,13 +214,13 @@ require([
 
         if (response.count > 0) {
             data = {'job_id': response.result[0].job_id.$oid};
-            deferred = r.get('/_ajax/count/defconfig', data);
+            deferred = r.get('/_ajax/count/defconfigs', data);
 
             $.when(deferred, uniq.countUniqueBootD(response))
-                .fail(e.error)
+                .fail(e.error, uniqueCountFail)
                 .done(uniqueCountDone);
         } else {
-            // TODO
+            uniqueCountFail();
         }
     }
 
