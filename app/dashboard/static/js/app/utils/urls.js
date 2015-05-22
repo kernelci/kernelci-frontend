@@ -16,7 +16,6 @@ define([
 ], function(p) {
     'use strict';
     var urls = {};
-    require(['URI']);
 
     urls.translateServerURL = function(vUrl, url, path, data) {
         var sPath = '',
