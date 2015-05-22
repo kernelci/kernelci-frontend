@@ -106,10 +106,13 @@ require([
             pass,
             unkn;
 
-        labBootCountFmt = '<small>(%d&nbsp;&mdash;&nbsp;' +
+        labBootCountFmt = '<span class="default-cursor" rel="tooltip" ' +
+            'data-toggle="tooltip"' +
+            'title="Total, passed, failed and unknown boot reports count">' +
+            '<small>(%d&nbsp;&mdash;&nbsp;' +
             '<span class="green-font">%d</span>' +
             '&nbsp;/&nbsp;<span class="red-font">%d</span>' +
-            '&nbsp;/&nbsp;<span class="yellow-font">%d</span>)</small>';
+            '&nbsp;/&nbsp;<span class="yellow-font">%d</span>)</small></span>';
 
         if (Object.getOwnPropertyNames(uniqueTotal.totals).length > 0) {
             if (uniqueTotal.totals.board > 0) {
