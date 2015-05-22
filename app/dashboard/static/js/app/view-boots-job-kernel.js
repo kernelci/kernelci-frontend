@@ -651,9 +651,7 @@ require([
                 panelState['#panel-boots-' + id] = {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('panel-boots-' + id)
-                        .getAttribute('class')
+                    'value': b.getAttrById('panel-boots-' + id, 'class')
                 };
             });
 
@@ -661,9 +659,7 @@ require([
                 panelState['#collapse-boots-' + id] = {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('collapse-boots-' + id)
-                        .getAttribute('class')
+                    'value': b.getAttrById('collapse-boots-' + id, 'class')
                 };
             });
 
@@ -671,44 +667,37 @@ require([
                 '.df-success': {
                     'type': 'attr',
                     'name': 'style',
-                    'value': document
-                        .querySelector('.df-success').getAttribute('style')
+                    'value': b.getAttrBySelector('.df-success', 'style')
                 },
                 '.df-failed': {
                     'type': 'attr',
                     'name': 'style',
-                    'value': document
-                        .querySelector('.df-failed').getAttribute('style')
+                    'value': b.getAttrBySelector('.df-failed', 'style')
                 },
                 '.df-unknown': {
                     'type': 'attr',
                     'name': 'style',
-                    'value': document
-                        .querySelector('.df-unknown').getAttribute('style')
+                    'value': b.getAttrBySelector('.df-unknown', 'style')
                 },
                 '#all-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('all-btn').getAttribute('class')
+                    'value': b.getAttrById('all-btn', 'class')
                 },
                 '#success-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('success-btn').getAttribute('class')
+                    'value': b.getAttrById('success-btn', 'class')
                 },
                 '#fail-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('fail-btn').getAttribute('class')
+                    'value': b.getAttrById('fail-btn', 'class')
                 },
                 '#unknown-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value': document
-                        .getElementById('unknown-btn').getAttribute('class')
+                    'value': b.getAttrById('unknown-btn', 'class')
                 }
             };
 

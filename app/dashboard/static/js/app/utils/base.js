@@ -15,6 +15,24 @@ define(function() {
     'use strict';
     var base = {};
 
+    base.getAttrBySelector = function(selector, attribute) {
+        var el = document.querySelector(selector),
+            attr = null;
+        if (el !== null) {
+            attr = el.getAttribute(attribute);
+        }
+        return attr;
+    };
+
+    base.getAttrById = function(elementID, attribute) {
+        var el = document.getElementById(elementID),
+            attr = null;
+        if (el !== null) {
+            attr = el.getAttribute(attribute);
+        }
+        return attr;
+    };
+
     // Concatenate objects into a single one.
     base.collectObjects = function() {
         var fObject = {},
