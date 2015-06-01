@@ -37,7 +37,6 @@ require([
         unknownLabel,
         archLabel,
         divCol6,
-        divCol6to12,
         divCol12,
         sessionNameFmt,
         panelFmt,
@@ -69,7 +68,6 @@ require([
 
     divCol6 = '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
     divCol12 = '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
-    divCol6to12 = '<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">';
     sessionNameFmt = 'boot-%s-%s';
 
     boardTextFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
@@ -100,23 +98,33 @@ require([
             uniqueTotal = unique[0],
             uniqueLab = unique[1],
             sLab,
-            sLabDetails,
             inDefconfText,
             labBootCountFmt,
+            labUniqueCountFmt,
             lLab,
             tStatus,
             tTotal,
             fail,
             pass,
-            unkn;
+            unkn,
+            uArch = '0 architectures',
+            uBoard = '0 boards',
+            uSoc = '0 SoCs',
+            uDefconfig = '0 defconfigs',
+            uStr = '';
 
         labBootCountFmt = '<span class="default-cursor" rel="tooltip" ' +
-            'data-toggle="tooltip"' +
-            'title="Total, passed, failed and unknown boot reports count">' +
-            '<small>(%d&nbsp;&mdash;&nbsp;' +
+            'data-toggle="tooltip" ' +
+            'title="Total, passed, failed and unknown boot reports count ' +
+            'for this lab"><small>(%d&nbsp;&mdash;&nbsp;' +
             '<span class="green-font">%d</span>' +
             '&nbsp;/&nbsp;<span class="red-font">%d</span>' +
             '&nbsp;/&nbsp;<span class="yellow-font">%d</span>)</small></span>';
+
+        labUniqueCountFmt = '<span class="default-cursor" rel="tooltip" ' +
+            'data-toggle="tooltip" title="Unique count of architectures, ' +
+            'boards, SoCs and defconfigs"><small>' +
+            '(%s&nbsp;/&nbsp;%s&nbsp;/&nbsp;%s&nbsp;/&nbsp;%s)</small></span>';
 
         if (Object.getOwnPropertyNames(uniqueTotal.totals).length > 0) {
             if (uniqueTotal.totals.board > 0) {
@@ -177,32 +185,37 @@ require([
                         'boot-count-' + sLab,
                         p.sprintf(labBootCountFmt, tTotal, pass, fail, unkn));
 
-                    sLabDetails = divCol6to12;
-                    sLabDetails += '<dl class="dl-horizontal">';
-
                     if (lLab.totals.arch !== null) {
-                        sLabDetails += '<dt>Unique architectures</dt>' +
-                            '<dd>' + lLab.totals.arch + '</dd>';
+                        if (lLab.totals.arch === 1) {
+                            uArch = lLab.totals.arch + ' architecture';
+                        } else {
+                            uArch = lLab.totals.arch + ' architectures';
+                        }
                     }
                     if (lLab.totals.board !== null) {
-                        sLabDetails += '<dt>Unique boards</dt>' +
-                            '<dd>' + lLab.totals.board + '</dd>';
+                        if (lLab.totals.board === 1) {
+                            uBoard = lLab.totals.board + ' board';
+                        } else {
+                            uBoard = lLab.totals.board + ' boards';
+                        }
                     }
-                    sLabDetails += '</dl>';
-                    sLabDetails += '</div>';
-                    sLabDetails += divCol6to12;
-                    sLabDetails += '<dl class="dl-horizontal">';
                     if (lLab.totals.soc !== null) {
-                        sLabDetails += '<dt>Unique SoCs</dt>' +
-                            '<dd>' + lLab.totals.soc + '</dd>';
+                        if (lLab.totals.soc === 1) {
+                            uSoc = lLab.totals.soc + ' SoC';
+                        } else {
+                            uSoc = lLab.totals.soc + ' SoCs';
+                        }
                     }
                     if (lLab.totals.defconfig !== null) {
-                        sLabDetails += '<dt>Unique defconfigs</dt>' +
-                            '<dd>' + lLab.totals.defconfig + '</dd>';
+                        if (lLab.totals.defconfig === 1) {
+                            uDefconfig = lLab.totals.defconfig + ' defconfig';
+                        } else {
+                            uDefconfig = lLab.totals.defconfig + ' defconfigs';
+                        }
                     }
-                    sLabDetails += '</dl>';
-                    sLabDetails += '</div>';
-                    b.replaceById('lab-details-' + sLab, sLabDetails);
+                    uStr = p.sprintf(
+                        labUniqueCountFmt, uArch, uBoard, uSoc, uDefconfig);
+                    b.replaceById('unique-count-' + sLab, uStr);
                 }
             }
         }
@@ -449,14 +462,14 @@ require([
                     '<div class="other-header">' +
                     '<h4>Lab&nbsp;&#171;' + element + '&#187;</h4>' +
                     '&nbsp;<span id="boot-count-' + element + '"></span>' +
+                    '&nbsp;<span id="unique-count-' + element + '"></span>' +
                     '<span class="pull-right" id="view-eye-' + element + '">' +
                     btns.createShowHideLabBtn(element, 'hide') +
                     '</span><hr class="blurred subheader" /></div>' +
                     '<div id="view-' + element +
                     '" class="pull-center"></div>' +
                     '<div class="panel-group" id="accordion-' +
-                    element + '">' + '<div id="lab-details-' + element +
-                    '" class="row lab-details"></div>';
+                    element + '">';
 
                 for (i = 0; i < len; i = i + 1) {
                     toAppend += lab[i];
@@ -531,7 +544,7 @@ require([
             localResult = result[0];
             data = {
                 'sort': ['board', 'defconfig_full', 'arch'],
-                'sort_order': -1,
+                'sort_order': 1,
                 'job': jobName,
                 'kernel': kernelName,
                 'job_id': localResult._id.$oid
