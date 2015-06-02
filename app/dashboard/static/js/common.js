@@ -13,7 +13,7 @@
 
 // No trailing .js here!!!
 var jqueryURL =
-    'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min';
+    'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min';
 var bootstrapURL =
     'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min';
 var uriURL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min';
