@@ -285,6 +285,7 @@ define([
                     'title': '',
                     'orderable': false,
                     'searchable': false,
+                    'width': '30px',
                     'className': 'pull-center',
                     'render': function(data, type, object) {
                         var job = object.job,
