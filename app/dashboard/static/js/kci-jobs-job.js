@@ -13,5 +13,5 @@
 
 define(['common'], function() {
     'use strict';
-    require(['app/view-job-job']);
+    require(['app/view-jobs-job']);
 });
