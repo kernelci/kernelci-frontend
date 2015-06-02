@@ -24,32 +24,31 @@ define([
         pageLen = null,
         bootsTable = null,
         dateRange = 14,
+        eDiv,
         rowURLFmt,
         hrefFmt,
         bootAllUrl;
 
+    eDiv = '<div class="pull-center"><h4>%s</h4></div>';
     rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
         '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
     bootAllUrl = '/boot/all/%s';
     hrefFmt = '<a class="table-link" href="%s">%s</a>';
 
     function getBootsFail() {
-        b.replaceById('table-loading', '');
+        b.replaceById('table-loading', p.sprintf(eDiv, 'Error loading data.'));
     }
 
     function getBootsDone(response) {
         var results = response.result,
             len = results.length,
             tableDiv,
-            noContent,
             columns;
 
         if (len === 0) {
             tableDiv = b.checkElement('table-div');
-            noContent = '<div class="pull-center">' +
-                '<h4>No boots data available.</h4>' +
-                '</div>';
-            b.replaceById(tableDiv[0], noContent);
+            b.replaceById(
+                tableDiv[0], p.sprintf(eDiv, 'No boots data available.'));
         } else {
             columns = [
                 {
@@ -199,6 +198,7 @@ define([
                     'title': '',
                     'orderable': false,
                     'searchable': false,
+                    'width': '30px',
                     'className': 'pull-center',
                     'render': function(data, type, object) {
                         var defconfigFull = object.defconfig_full,
