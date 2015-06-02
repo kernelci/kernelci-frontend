@@ -25,12 +25,17 @@ body {
     vertical-align: middle !important;
 }
 .board-column {
-    max-width: 130px;
+    max-width: 110px;
+}
+.tree-column,
+.date-column,
+.lab-column {
+    min-width: 75px;
 }
 .commit-column,
 .defconfig-column,
 .kernel-column {
-    max-width: 240px;
+    max-width: 220px;
 }
 .commit-column,
 .board-column,
