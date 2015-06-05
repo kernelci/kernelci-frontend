@@ -30,12 +30,12 @@ body {
 .tree-column,
 .date-column,
 .lab-column {
-    min-width: 75px;
+    min-width: 85px;
 }
 .commit-column,
 .defconfig-column,
 .kernel-column {
-    max-width: 220px;
+    max-width: 210px;
 }
 .commit-column,
 .board-column,
