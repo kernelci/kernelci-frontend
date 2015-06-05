@@ -1,10 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {%- block meta -%}
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
-{% include 'date-range.html' %}
+{% include "date-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
@@ -58,11 +58,11 @@
         <table id="failed-boots" class="table table-striped tabled-condensed table-hover clickable-table">
             <thead>
                 <tr>
-                    <th>Tree</th>
+                    <th>Tree &dash; Branch</th>
                     <th>Kernel</th>
                     <th>Board</th>
                     <th>Defconfig</th>
-                    <th class="pull-center">Lab Name</th>
+                    <th>Lab Name</th>
                     <th class="pull-center">Failure Reason</th>
                     <th class="pull-center">Date</th>
                     <th></th>
@@ -109,8 +109,7 @@
         </ul>
     </div>
 </div>
-{%- endblock %}
+{%- endblock %}{# content block #}
 {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="/static/js/linaro-index-1.3.3.js"></script>
+<script data-main="/static/js/kci-index" src="/static/js/lib/require.js"></script>
 {%- endblock %}
