@@ -282,6 +282,7 @@ define([
                 .menu('jobs per page')
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job'])
+                .noIDUrl(true)
                 .draw();
         }
     }
