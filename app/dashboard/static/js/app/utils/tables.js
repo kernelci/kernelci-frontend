@@ -21,6 +21,8 @@ define([
     'use strict';
     var table,
         dom,
+        lengthMenu,
+        zeroRecords,
         menu,
         menuFmt,
         zeroR,
@@ -37,7 +39,8 @@ define([
         searchLanguage,
         searchType,
         oldSearch = null,
-        disableIn = false;
+        disableIn = false,
+        noIDUrl = false;
 
     dom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
             '<"length-menu"l>>' +
@@ -61,6 +64,9 @@ define([
         'regex': true,
         'smart': true
     };
+
+    zeroRecords = s.sprintf(zeroRFmt, zeroR);
+    lengthMenu = s.sprintf(menuFmt, menu);
 
     table = function(elements, d) {
         var len;
@@ -104,8 +110,8 @@ define([
         tTable = $(tElement[1]).DataTable({
             'dom': dom,
             'language': {
-                'lengthMenu': s.sprintf(menuFmt, menu),
-                'zeroRecords': s.sprintf(zeroRFmt, zeroR),
+                'lengthMenu': lengthMenu,
+                'zeroRecords': zeroRecords,
                 'search': searchLanguage,
                 'searchPlaceholder': 'Filter the results'
             },
@@ -152,7 +158,7 @@ define([
                 });
 
                 location = s.sprintf(rowURL, substitutions);
-                if (localTable._id !== null) {
+                if (!noIDUrl && localTable._id !== null) {
                     location += '?_id=' + localTable._id.$oid;
                 }
             }
@@ -291,6 +297,42 @@ define([
         var returnData = searchType;
         if (arguments.length) {
             searchType = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.searchLanguage = function(value) {
+        var returnData = searchLanguage;
+        if (arguments.length) {
+            searchLanguage = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.zeroRecords = function(value) {
+        var returnData = zeroRecords;
+        if (arguments.length) {
+            zeroRecords = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.lengthMenu = function(value) {
+        var returnData = lengthMenu;
+        if (arguments.length) {
+            lengthMenu = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.noIDUrl = function(value) {
+        var returnData = noIDUrl;
+        if (arguments.length) {
+            noIDUrl = value;
             returnData = table;
         }
         return returnData;
