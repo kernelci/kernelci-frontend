@@ -28,7 +28,7 @@
     - web-server
 
 - name: Copy static content
-  command: rsync -a --delete {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
+  command: rsync -a -u --delete {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
   tags:
     - web-server
 
