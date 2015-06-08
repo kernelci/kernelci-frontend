@@ -27,13 +27,38 @@ define([
         eDiv,
         rowURLFmt,
         hrefFmt,
-        bootAllUrl;
+        bootAllUrl,
+        bootAllJKUrl,
+        bootBoardJKUrl,
+        bootDefconfigUrl,
+        tooltipFmt,
+        successLabel,
+        failLabel,
+        offlineLabel,
+        unknownLabel;
 
     eDiv = '<div class="pull-center"><h4>%s</h4></div>';
     rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
         '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-    bootAllUrl = '/boot/all/%s';
+    bootAllUrl = '/boot/all/job/%s/';
+    bootAllJKUrl = '/boot/all/job/%s/kernel/%s/';
+    bootBoardJKUrl = '/boot/%s/job/%s/kernel/%s/';
+    bootDefconfigUrl = '/boot/%s/job/%s/kernel/%s/defconfig/%s/';
     hrefFmt = '<a class="table-link" href="%s">%s</a>';
+    tooltipFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="%s">%s</span>';
+    successLabel = '<span rel="tooltip" data-toggle="tooltip" ' +
+        'title="Boot completed"><span class="label label-success">' +
+        '<i class="fa fa-check"></i></span></span>';
+    failLabel = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Boot failed"> <span class="label label-danger">' +
+        '<i class="fa fa-exclamation-triangle"></i></span></span>';
+    offlineLabel = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Board offline" <span class="label label-info">' +
+        '<i class="fa fa-power-off"></i></span></span>';
+    unknownLabel = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Unknown status"><span class="label label-warning">' +
+        '<i class="fa fa-question"></i></span></span>';
 
     function getBootsFail() {
         b.replaceById('table-loading', p.sprintf(eDiv, 'Error loading data.'));
@@ -65,15 +90,23 @@ define([
                     'render': function(data, type, object) {
                         var display,
                             hrefData,
+                            tTitle,
                             branch = object.git_branch;
 
                         hrefData = data;
+                        tTitle = data;
                         if (branch !== null && branch !== undefined) {
+                            tTitle = data + '&nbsp;&dash;&nbsp;' + branch;
                             hrefData = data + '&nbsp;&dash;&nbsp;<small>' +
                                 branch + '</small>';
                         }
                         display = p.sprintf(
-                            hrefFmt, p.sprintf(bootAllUrl, data), hrefData);
+                            tooltipFmt,
+                            tTitle,
+                            p.sprintf(
+                                hrefFmt,
+                                p.sprintf(bootAllUrl, data), hrefData)
+                        );
 
                         return display;
                     }
@@ -84,11 +117,14 @@ define([
                     'type': 'string',
                     'className': 'kernel-column',
                     'render': function(data, type, object) {
-                        var display = '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" title="' + data + '">' +
-                            '<a class="table-link" href="/boot/all/job/' +
-                            object.job + '/kernel/' + data + '/">' + data +
-                            '</a></span>';
+                        var display = p.sprintf(
+                            tooltipFmt,
+                            data,
+                            p.sprintf(
+                                hrefFmt,
+                                p.sprintf(bootAllJKUrl, object.job, data),
+                                data)
+                        );
                         return display;
                     }
                 },
@@ -98,11 +134,19 @@ define([
                     'type': 'string',
                     'className': 'board-column',
                     'render': function(data, type, object) {
-                        var display = '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" title="' + data + '">' +
-                            '<a class="table-link" href="/boot/' + data +
-                            '/job/' + object.job + '/kernel/' +
-                            object.kernel + '/">' + data + '</a></span>';
+                        var display = p.sprintf(
+                            tooltipFmt,
+                            data,
+                            p.sprintf(
+                                hrefFmt,
+                                p.sprintf(
+                                    bootBoardJKUrl,
+                                    data,
+                                    object.job,
+                                    object.kernel),
+                                data
+                            )
+                        );
                         return display;
                     }
                 },
@@ -117,13 +161,13 @@ define([
                             job = object.job,
                             kernel = object.kernel;
 
-                        href = '/boot/' + board + '/job/' + job + '/kernel/' +
-                            kernel + '/defconfig/' + data + '/';
-                        display = '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" ' +
-                            'title="' + data + '">' +
-                            '<a class="table-link" href="' + href + '">' +
-                            data + '</a></span>';
+                        href = p.sprintf(
+                            bootDefconfigUrl, board, job, kernel, data);
+                        display = p.sprintf(
+                            tooltipFmt,
+                            data,
+                            p.sprintf(hrefFmt, href, data)
+                        );
                         return display;
                     }
                 },
@@ -159,35 +203,16 @@ define([
                         var displ;
                         switch (data) {
                             case 'PASS':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot completed">' +
-                                    '<span class="label label-success">' +
-                                    '<i class="fa fa-check"></i></span></span>';
+                                displ = successLabel;
                                 break;
                             case 'FAIL':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot failed">' +
-                                    '<span class="label label-danger">' +
-                                    '<i class="fa fa-exclamation-triangle">' +
-                                    '</i></span></span>';
+                                displ = failLabel;
                                 break;
                             case 'OFFLINE':
-                                displ = '<span rel="tooltip"' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Board offline"' +
-                                    '<span class="label label-info">' +
-                                    '<i class="fa fa-power-off">' +
-                                    '</i></span></span>';
+                                displ = offlineLabel;
                                 break;
                             default:
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<span class="label label-warning">' +
-                                    '<i class="fa fa-question">' +
-                                    '</i></span></span>';
+                                displ = unknownLabel;
                                 break;
                         }
                         return displ;
