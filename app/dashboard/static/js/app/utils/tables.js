@@ -65,9 +65,6 @@ define([
         'smart': true
     };
 
-    zeroRecords = s.sprintf(zeroRFmt, zeroR);
-    lengthMenu = s.sprintf(menuFmt, menu);
-
     table = function(elements, d) {
         var len;
         if (elements.constructor === Array) {
@@ -99,7 +96,8 @@ define([
     };
 
     table.draw = function() {
-        var target;
+        var target,
+            that = this;
         function stateLoad(s, d) {
             if (disableIn && d.search.search.length > 0) {
                 oldSearch = d.search.search;
@@ -110,9 +108,9 @@ define([
         tTable = $(tElement[1]).DataTable({
             'dom': dom,
             'language': {
-                'lengthMenu': lengthMenu,
-                'zeroRecords': zeroRecords,
-                'search': searchLanguage,
+                'lengthMenu': that.lengthMenu(),
+                'zeroRecords': that.zeroRecords(),
+                'search': that.searchLanguage(),
                 'searchPlaceholder': 'Filter the results'
             },
             'lengthMenu': [25, 50, 75, 100],
@@ -122,7 +120,7 @@ define([
             'stateSave': true,
             'stateDuration': -1,
             'processing': true,
-            'search': searchType,
+            'search': that.searchType(),
             'initComplete': function() {
                 if (tLoading !== null) {
                     $(tLoading[1]).remove();
@@ -131,8 +129,8 @@ define([
                     $(tDiv[1]).fadeIn('slow', 'linear');
                 }
             },
-            'data': tableData,
-            'columns': columns,
+            'data': that.tableData(),
+            'columns': that.columns(),
             'stateLoadParams': stateLoad
         });
 
@@ -312,19 +310,22 @@ define([
     };
 
     table.zeroRecords = function(value) {
-        var returnData = zeroRecords;
+        var returnData = table;
         if (arguments.length) {
             zeroRecords = value;
-            returnData = table;
+        } else {
+            returnData = s.sprintf(zeroRFmt, zeroR);
         }
         return returnData;
     };
 
     table.lengthMenu = function(value) {
-        var returnData = lengthMenu;
+        var returnData = table;
         if (arguments.length) {
             lengthMenu = value;
             returnData = table;
+        } else {
+            returnData = s.sprintf(menuFmt, menu);
         }
         return returnData;
     };
