@@ -27,23 +27,20 @@ body {
     text-align: center !important;
     vertical-align: middle !important;
 }
+.tree-column,
 .board-column {
-    max-width: 110px;
+    max-width: 150px;
 }
-.lab-column {
-    min-width: 75px;
-}
+.lab-column,
 .date-column {
-    min-width: 80px;
-}
-.tree-column {
-    min-width: 90px;
+    min-width: 75px;
 }
 .commit-column,
 .defconfig-column,
 .kernel-column {
     max-width: 200px;
 }
+.tree-column,
 .commit-column,
 .board-column,
 .defconfig-column,
