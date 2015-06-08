@@ -20,6 +20,9 @@ body {
 .clickable-table tbody tr {
     cursor: pointer;
 }
+.pull-middle {
+    vertical-align: middle !important;
+}
 .pull-center {
     text-align: center !important;
     vertical-align: middle !important;
@@ -27,15 +30,19 @@ body {
 .board-column {
     max-width: 110px;
 }
-.tree-column,
-.date-column,
 .lab-column {
-    min-width: 85px;
+    min-width: 75px;
+}
+.date-column {
+    min-width: 80px;
+}
+.tree-column {
+    min-width: 90px;
 }
 .commit-column,
 .defconfig-column,
 .kernel-column {
-    max-width: 210px;
+    max-width: 200px;
 }
 .commit-column,
 .board-column,
