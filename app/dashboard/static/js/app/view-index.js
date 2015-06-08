@@ -36,27 +36,19 @@ define([
 
     errorData = '<tr><td colspan="%d" align="center" valign="middle">' +
         '<h4>Error loading data.</h4></td></tr>';
-
     noBoots = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
         'No failed boot reports.</h4></td></tr>';
-
     noBuilds = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
         'No failed build reports.</h4></td></tr>';
-
     tooltipFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
         'title="%s">%s</span>';
-
     kernelBootLinkFmt = '<a class="table-link" ' +
         'href="/boot/all/job/%s/kernel/%s/">%s</a>';
-
     defconfigBootLinkFmt = '<a class="table-link" ' +
         'href="/boot/%s/job/%s/kernel/%s/defconfig/%s/">%s</a>';
-
     boardBootLinkFmt = '<a class="table-link" ' +
         'href="/boot/%s/job/%s/kernel/%s/">%s</a>';
-
     jobBootLinkFmt = '<a class="table-link" href="/boot/all/job/%s/">%s</a>';
-
     fullBootLinkFmt = '/boot/%s/job/%s/kernel/%s/defconfig/%s/lab/%s/?_id=%s';
     fullBuildLinkFmt = '/build/%s/kernel/%s/';
     jobBuildLinkFmt = '<a class="table-link" href="/job/%s/">%s</a>';
@@ -154,9 +146,14 @@ define([
                 href = p.sprintf(fullBuildLinkFmt, job, kernel);
 
                 jobDispl = p.sprintf(
-                    jobBuildLinkFmt,
-                    job,
-                    job + '&nbsp;&dash;&nbsp;<small>' + branch + '</small>');
+                    tooltipFmt,
+                    job + ' &dash; ' + branch,
+                    p.sprintf(
+                        jobBuildLinkFmt,
+                        job,
+                        job +
+                        '&nbsp;&dash;&nbsp;<small>' + branch + '</small>')
+                );
 
                 kernelDispl = p.sprintf(tooltipFmt, kernel, kernel);
 
@@ -249,9 +246,14 @@ define([
                     job, kernel, defconfigFull, labName, bootId.$oid);
 
                 jobDispl = p.sprintf(
-                    jobBootLinkFmt,
-                    job,
-                    job + '&nbsp;&dash;&nbsp;<small>' + branch + '</small>');
+                    tooltipFmt,
+                    job + ' &dash; ' + branch,
+                    p.sprintf(
+                        jobBootLinkFmt,
+                        job,
+                        job +
+                        '&nbsp;&dash;&nbsp;<small>' + branch + '</small>')
+                );
 
                 kernelDispl = p.sprintf(
                     tooltipFmt,
