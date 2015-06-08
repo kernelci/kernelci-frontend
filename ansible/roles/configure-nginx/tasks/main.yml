@@ -27,12 +27,8 @@
   tags:
     - web-server
 
-- name: Link static content
-  file: state=link
-        src={{ install_base }}/{{ hostname }}/app/dashboard/static/
-        dest={{ web_root }}/{{ hostname }}/static
-        owner={{ web_user }}
-        group={{ web_user }}
+- name: Copy static content
+  command: rsync -a --delete {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
   tags:
     - web-server
 

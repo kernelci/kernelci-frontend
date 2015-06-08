@@ -26,6 +26,7 @@
   with_items:
     - nginx
     - nginx-extras
+    - rsync
   tags:
     - install
 
