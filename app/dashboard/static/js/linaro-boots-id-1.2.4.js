@@ -812,7 +812,7 @@ $(document).ready(function() {
     multiLabData.field = [
         '_id', 'lab_name', 'boot_log', 'boot_log_html',
         'boot_result_description', 'defconfig', 'defconfig_full',
-        'created_on', 'status', 'arch'
+        'created_on', 'status', 'arch', 'job', 'kernel'
     ];
 
     deferredAjaxCall = JSBase.createDeferredCall(
