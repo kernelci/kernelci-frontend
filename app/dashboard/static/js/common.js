@@ -49,6 +49,11 @@ require.config({
         'sprintf': sprintfURL,
         'd3': d3URL
     },
+    map: {
+        '*': {
+            'view-jobs-all': 'view-jobs-all.20150622'
+        }
+    },
     shim: {
         'bootstrap': {
             deps: ['jquery']
