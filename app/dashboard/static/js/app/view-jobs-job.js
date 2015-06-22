@@ -300,6 +300,7 @@ define([
             ];
 
             buildsTable
+                .noIDUrl(true)
                 .tableData(localData)
                 .columns(columns)
                 .order([6, 'desc'])
