@@ -81,6 +81,59 @@ define(function() {
         return [tElement, dElement];
     };
 
+    base.createModalDialog = function(id, title, body) {
+        var mDialog = '<div class="modal fade" tabindex="-1" ' +
+            'role="dialog" aria-hidden="true" id="' + id + '">';
+
+        mDialog += '<div class="modal-dialog modal-lg larger-modal">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header">' +
+            '<button type="button" class="close" ' +
+            'data-dismiss="modal"' +
+            'aria-hidden="true">&times;</button>' +
+            '<h3 class="modal-title" id="' + id + '-title">' +
+            title + '</h3>' +
+            '<div class="modal-body">' +
+            body +
+            '</div></div></div></div></div>';
+
+        return mDialog;
+    };
+
+    base.addContent = function(id, content) {
+        var el = document.getElementById(id);
+        if (el !== null) {
+            el.innerHTML += content;
+        }
+    };
+
+    base.addClass = function(id, className) {
+        var el = document.getElementById(id);
+        if (el !== null) {
+            el.className = el.className + ' ' + className;
+        }
+    };
+
+    base.removeClass = function(id, className) {
+        var el = document.getElementById(id),
+            regEx;
+        if (el !== null) {
+            regEx = new RegExp('(?:^|\\s)' + className + '(?!\\S)', 'g');
+            el.className = el.className.replace(regEx, '');
+        }
+    };
+
+    base.removeElement = function(id) {
+        var el = document.getElementById(id);
+        if (el !== null) {
+            el.remove();
+        }
+    };
+
+    Element.prototype.remove = function() {
+        this.parentElement.removeChild(this);
+    };
+
     /*
         Return a custom date in ISO format.
         The format returned is: YYYY-MM-DD
