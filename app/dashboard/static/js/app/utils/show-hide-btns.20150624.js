@@ -210,8 +210,6 @@ define([
             compared = data.compared,
             tooltipTitle = sShowBisectTooltip;
 
-        console.log('eye button pressed');
-
         if (data.action === 'hide') {
             that.dataset.action = 'show';
             // TODO: if we get less IE 8 visits, use Element.classList.

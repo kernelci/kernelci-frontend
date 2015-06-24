@@ -389,9 +389,7 @@ define([
     }
 
     function bindBisectButtons() {
-        console.log('bind eye buttons');
         $('.bisect-click-btn').each(function() {
-            console.log(this);
             $(this).off().on('click', btns.showHideBisect);
         });
     }

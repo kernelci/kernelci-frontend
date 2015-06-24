@@ -25,7 +25,6 @@ define(function() {
     }
 
     function toBootLinkClick(element) {
-        console.log('calling boot click');
         var loc = '#',
             job = element.getAttribute('data-job'),
             kernel = element.getAttribute('data-kernel');
