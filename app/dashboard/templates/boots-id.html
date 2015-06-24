@@ -1,4 +1,4 @@
-{%- extends 'base.html' %}
+{%- extends "base.html" %}
 {%- block meta -%}
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
@@ -20,6 +20,10 @@
         </dd>
         <dt>Tree</dt>
         <dd id="dd-board-tree" class="loading-content">
+            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+        </dd>
+        <dt>Git branch<dt>
+        <dd id="dd-board-branch" class="loading-content">
             <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
         </dd>
         <dt>Git describe</dt>
@@ -137,12 +141,12 @@
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
 <input type="hidden" id="defconfig-name" value="{{ defconfig }}">
 <input type="hidden" id="lab-name" value="{{ lab_name }}">
-<input type="hidden" id="boot-id" value='{{ boot_id }}'>
+<input type="hidden" id="boot-id" value="{{ boot_id }}">
 {# Beware the single quotes on this variable! #}
-<input type="hidden" id="url-translation" value='{{ url_translation|tojson|safe }}'>
+<input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="/static/js/linaro-bisect-0.0.2.js"></script>
-<script type="text/javascript" src="/static/js/linaro-boots-id-1.2.4.js"></script>
+<!-- URI does not work very well with require.js, load it here. -->
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
+<script data-main="/static/js/kci-boots-id" src="/static/js/lib/require.js"></script>
 {%- endblock %}
