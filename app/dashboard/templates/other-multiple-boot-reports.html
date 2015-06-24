@@ -13,10 +13,10 @@
                 <caption>Exact Match</caption>
                 <thead>
                     <tr>
-                        <th>Lab Name</th>
-                        <th>Failure Reason</th>
+                        <th class="lab-column">Lab Name</th>
+                        <th class="failure-column">Failure Reason</th>
                         <th class="pull-center">Boot Log</th>
-                        <th class="pull-center">Date</th>
+                        <th class="date-column pull-center">Date</th>
                         <th class="pull-center">Status</th>
                         <th></th>
                     </tr>
@@ -26,8 +26,7 @@
         </div>
     </div>
     <div id="boot-reports-compared-to">
-        <div id="boot-reports-compared-to-load" class="pull-center">
-        </div>
+        <div id="boot-reports-compared-to-load" class="pull-center"></div>
     {%- if is_mobile %}
         <div class="table-responsive" id="compare-to-mainline-div">
     {%- else %}
@@ -37,10 +36,10 @@
                 <caption>Compared to &#171;mainline&#187;</caption>
                 <thead>
                     <tr>
-                        <th>Lab Name</th>
-                        <th>Failure Reason</th>
+                        <th class="lab-column">Lab Name</th>
+                        <th class="failure-column">Failure Reason</th>
                         <th class="pull-center">Boot Log</th>
-                        <th class="pull-center">Date</th>
+                        <th class="date-column pull-center">Date</th>
                         <th class="pull-center">Status</th>
                         <th></th>
                     </tr>
@@ -57,10 +56,10 @@
                 <caption>Compared to &#171;next&#187;</caption>
                 <thead>
                     <tr>
-                        <th>Lab Name</th>
-                        <th>Failure Reason</th>
+                        <th class="lab-column">Lab Name</th>
+                        <th class="failure-column">Failure Reason</th>
                         <th class="pull-center">Boot Log</th>
-                        <th class="pull-center">Date</th>
+                        <th class="date-column pull-center">Date</th>
                         <th class="pull-center">Status</th>
                         <th></th>
                     </tr>
