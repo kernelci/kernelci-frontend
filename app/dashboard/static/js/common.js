@@ -15,7 +15,7 @@
 var jqueryURL =
     'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min';
 var bootstrapURL =
-    'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min';
+    'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min';
 var uriURL = 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min';
 var sprintfURL =
     'https://cdnjs.cloudflare.com/ajax/libs/sprintf/1.0.1/sprintf.min';
@@ -51,7 +51,11 @@ require.config({
     },
     map: {
         '*': {
-            'view-jobs-all': 'view-jobs-all.20150622'
+            'app/view-boots-id': 'app/view-boots-id.20150622',
+            'app/view-jobs-all': 'app/view-jobs-all.20150622',
+            'utils/base': 'utils/base.20150623',
+            'utils/bisect': 'utils/bisect.20150624',
+            'utils/show-hide-btns': 'utils/show-hide-btns.20150624'
         }
     },
     shim: {
