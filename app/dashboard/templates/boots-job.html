@@ -46,6 +46,8 @@
     </div>
 </div>
 <input type="hidden" id="job-id" value="{{ job }}">
+<input type="hidden" id="page-len" value="{{ page_len }}">
+<input type="hidden" id="search-filter" value="{{ search_filter }}">
 {%- endblock %}
 {%- block scripts %}
 <script data-main="/static/js/kci-boots-all-job" src="/static/js/lib/require.js"></script>
