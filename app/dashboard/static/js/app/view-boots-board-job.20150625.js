@@ -182,10 +182,7 @@ define([
                 .menu('boot reports per page')
                 .rowURL(rowURLFmt)
                 .rowURLElements(
-                    [
-                        'board', 'job', 'kernel', 'defconfig_full', 'lab_name'
-                    ]
-                )
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
             bootsTable
