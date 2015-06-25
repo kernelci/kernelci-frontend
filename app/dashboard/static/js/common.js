@@ -51,6 +51,7 @@ require.config({
     },
     map: {
         '*': {
+            'app/view-boots-all-job': 'app/view-boots-all-job.20150625',
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.20150625',
             'app/view-boots-board-job': 'app/view-boots-board-job.20150625',
             'app/view-boots-id': 'app/view-boots-id.20150624',
