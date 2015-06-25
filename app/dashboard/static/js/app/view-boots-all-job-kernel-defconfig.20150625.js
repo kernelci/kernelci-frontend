@@ -289,10 +289,9 @@ define([
     }
 
     $(document).ready(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
         // Setup and perform base operations.
         i();
-
-        document.getElementById('li-boot').setAttribute('class', 'active');
 
         if (document.getElementById('job-name') !== null) {
             jobName = document.getElementById('job-name').value;
