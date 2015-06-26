@@ -242,7 +242,7 @@ define([
 
                         return '<span rel="tooltip" data-toggle="tooltip"' +
                             'title="Details for board&nbsp;' + data +
-                            'with&nbsp;' + job + '&dash;' + kernel +
+                            ' with&nbsp;' + job + '&dash;' + kernel +
                             '&dash;' + defconfigFull + '&nbsp;&dash;&nbsp;(' +
                             lab + ')"><a href="/boot/' + data + '/job/' +
                             job + '/kernel/' + kernel + '/defconfig/' +
@@ -275,19 +275,7 @@ define([
         data = {
             'board': boardName,
             'job': jobName,
-            'kernel': kernelName,
-            'field': [
-                'arch',
-                'boot_log',
-                'boot_log_html',
-                'boot_result_description',
-                'created_on',
-                'defconfig_full',
-                'file_server_resource',
-                'file_server_url',
-                'lab_name',
-                'status'
-            ]
+            'kernel': kernelName
         };
         deferred = r.get('/_ajax/boot', data);
         $.when(deferred)
