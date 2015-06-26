@@ -50,7 +50,7 @@ define([
         return counted;
     }
 
-    passpie.bootpie = function(element, response) {
+    function passGraph(element, response) {
         var chart,
             setup,
             tElement,
@@ -72,6 +72,14 @@ define([
                     d3.select(this).call(datum.chart);
                 });
         }
+    }
+
+    passpie.buildpie = function(element, response) {
+        passGraph(element, response);
+    };
+
+    passpie.bootpie = function(element, response) {
+        passGraph(element, response);
     };
 
     return passpie;
