@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {%- block meta -%}
-<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block head %} {{ super() }} {%- endblock %} {%- block content %}
+{% extends "base.html" %}
+{%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
 <div class="row">
     <div class="page-header">
         <h3>{{ body_title|safe }}</h3>
@@ -29,20 +33,21 @@
         </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
-        <div id="builds-chart" class="chart-div pull-center">
-            <div id="builds-chart-heading">
-                <table id="builds-chart-legend" class="pie-chart">
+        <div id="pie-chart" class="chart-div pull-center">
+            <div id="pie-chart-heading">
+                <table id="pie-chart-legend" class="pie-chart">
                     <tbody>
                         <tr>
-                            <td id="success-cell" onclick="showHideDefconfs(this)">0</td>
+                            <td id="success-cell" class="click-btn">0</td>
                             <td>&nbsp;/&nbsp;</td>
-                            <td id="fail-cell" onclick="showHideDefconfs(this)">0</td>
+                            <td id="fail-cell" class="click-btn">0</td>
                             <td>&nbsp;/&nbsp;</td>
-                            <td id="unknown-cell" onclick="showHideDefconfs(this)">0</td>
+                            <td id="unknown-cell" class="click-btn">0</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <div id="build-chart"></div>
         </div>
     </div>
 </div>
@@ -52,21 +57,21 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="btn-group">
-            <button id="all-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>All</button>
-            <button id="success-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>Successful</button>
-            <button id="fail-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>Failed</button>
-            <button id="unknown-btn" onclick="showHideDefconfs(this)" type="button" class="btn btn-default" disabled>Unknown</button>
+            <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
+            <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
+            <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
+            <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
         </div>
         <div class="dropdown warn-err-dropdown">
-            <button id="warn-err-btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="true">Show
+            <button id="warn-err-btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="true" disabled>Show
             <span class="caret"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
-                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="all">All</a></li>
-                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="warnings">Builds with warnings and no errors</a></li>
-                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="errors">Builds with errors and no warnings</a></li>
-                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="warnings-errors">Builds with warnings and errors</a></li>
-                <li role="presentation"><a class="unselectable" onclick="showHideWarnErr(this)" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
+                <li role="presentation"><a class="unselectable warn-err-btn" data-view="all">All</a></li>
+                <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings">Builds with warnings and no errors</a></li>
+                <li role="presentation"><a class="unselectable warn-err-btn" data-view="errors">Builds with errors and no warnings</a></li>
+                <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings-errors">Builds with warnings and errors</a></li>
+                <li role="presentation"><a class="unselectable warn-err-btn" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
             </ul>
         </div>
     </div>
@@ -84,11 +89,10 @@
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 {# Beware the single quotes on this variable! #}
-<input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
+<input type="hidden" id="url-translation" value='{{config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-webstorage-1.0.1.js"></script>
-<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-1.0.12.js"></script>
+{# URI does not work very well with require.js, load it here. #}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
+<script data-main="/static/js/kci-builds-job-kernel" src="/static/js/lib/require.js"></script>
 {%- endblock %}
