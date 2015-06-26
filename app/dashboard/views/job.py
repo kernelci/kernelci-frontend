@@ -42,13 +42,15 @@ class JobsAllView(GeneralJobsView):
 
 class JobsJobView(GeneralJobsView):
     def dispatch_request(self, **kwargs):
-        body_title = "Details for&nbsp;&#171;%s&#187;" % kwargs["job"]
+        job = kwargs["job"]
+        body_title = "Details for&nbsp;&#171;%s&#187;" % job
+        page_title = "%s &mdash; &#171;%s&#187; job" % (self.PAGE_TITLE, job)
         search_filter, page_len = get_search_parameters(request)
         return render_template(
             "jobs-job.html",
             body_title=body_title,
-            job=kwargs["job"],
+            job=job,
             page_len=page_len,
-            page_title=self.PAGE_TITLE,
+            page_title=page_title,
             search_filter=search_filter
         )
