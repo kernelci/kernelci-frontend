@@ -20,10 +20,10 @@ define([
 ], function($, b, e, i, r, t) {
     'use strict';
     var bootsTable,
-        boardName = $('#board-name').val(),
-        dateRange = $('#date-range').val(),
-        pageLen = $('#page-len').val(),
-        searchFilter = $('#search-filter').val();
+        boardName,
+        dateRang,
+        pageLen,
+        searchFilter;
 
     function getBootsFail() {
         b.removeElement('table-loading');
