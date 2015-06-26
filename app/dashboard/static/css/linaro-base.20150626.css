@@ -27,9 +27,16 @@ body {
     text-align: center !important;
     vertical-align: middle !important;
 }
+.branch-column {
+    max-width: 100px;
+}
 .tree-column,
 .board-column {
     max-width: 150px;
+}
+.boot-count,
+.build-count {
+    min-width: 100px;
 }
 .lab-column,
 .date-column {
@@ -39,8 +46,9 @@ body {
 .commit-column,
 .defconfig-column,
 .kernel-column {
-    max-width: 200px;
+    max-width: 175px;
 }
+.branch-column,
 .failure-column,
 .tree-column,
 .commit-column,
