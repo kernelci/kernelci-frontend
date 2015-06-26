@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {%- block meta -%}
-    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+<meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
-{%- block head %}
-{{ super() }}
-{%- endblock %}
 {%- block content %}
 <div class="row">
     <div class="page-header">
@@ -98,7 +95,7 @@
 <input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
-<!-- URI does not work very well with require.js, load it here. -->
+{# URI does not work very well with require.js, load it here. #}
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
 <script data-main="/static/js/kci-boots-job-kernel" src="/static/js/lib/require.js"></script>
 {%- endblock %}
