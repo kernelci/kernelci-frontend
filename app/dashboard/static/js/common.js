@@ -61,6 +61,7 @@ require.config({
             'app/view-boots-id': 'app/view-boots-id.20150624',
             'app/view-builds-all': 'app/view-builds-all.20150626',
             'app/view-jobs-all': 'app/view-jobs-all.20150622',
+            'app/view-jobs-job': 'app/view-jobs-job.20150626',
             'charts/passpie': 'charts/passpie.20150626',
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150624',

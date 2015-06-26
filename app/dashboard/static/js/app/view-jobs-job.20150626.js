@@ -180,22 +180,16 @@ define([
     }
 
     function getDefconfigsDone(data) {
-        var tableDiv,
-            noContent,
-            localData = data.result,
+        var localData = data.result,
             len = localData.length,
-            tb,
-            columns,
-            filter,
-            pageLen;
-
-        tableDiv = b.checkElement('table-div');
+            columns;
 
         if (len === 0) {
-            noContent = '<div class="pull-center">' +
-                '<h4>No builds data available.</h4>' +
-                '</div>';
-            b.replaceById(tableDiv[0], noContent);
+            b.replaceById(
+                'table-div',
+                '<div class="pull-center"><strong>' +
+                'No builds data available.</strong></div>'
+            );
         } else {
             columns = [
                 {
@@ -208,18 +202,31 @@ define([
                     'data': 'kernel',
                     'title': 'Kernel',
                     'type': 'string',
-                    'className': 'kernel-column'
+                    'className': 'kernel-column',
+                    'render': function(data) {
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="' + data + '">' + data + '</span>';
+                    }
                 },
                 {
                     'data': 'git_branch',
                     'title': 'Branch',
-                    'type': 'string'
+                    'type': 'string',
+                    'className': 'branch-column',
+                    'render': function(data) {
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="' + data + '">' + data + '</span>';
+                    }
                 },
                 {
                     'data': 'git_commit',
                     'title': 'Commit',
                     'type': 'string',
-                    'className': 'commit-column'
+                    'className': 'commit-column',
+                    'render': function(data) {
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                        'title="' + data + '">' + data + '</span>';
+                    }
                 },
                 {
                     'data': 'kernel',
@@ -227,7 +234,7 @@ define([
                         'title="Successful/Failed defconfigs built">' +
                         'Build Status</span>',
                     'type': 'string',
-                    'className': 'pull-center',
+                    'className': 'build-count pull-center',
                     'render': function(data, type, object, meta) {
                         var idx = meta.row,
                             rend;
@@ -249,7 +256,7 @@ define([
                         'title="Successful/Failed boot reports">' +
                         'Boot Status</span>',
                     'type': 'string',
-                    'className': 'pull-center',
+                    'className': 'boot-count pull-center',
                     'render': function(data, type, object, meta) {
                         var href,
                             rend,
@@ -274,7 +281,7 @@ define([
                     'data': 'created_on',
                     'title': 'Date',
                     'type': 'date',
-                    'className': 'pull-center',
+                    'className': 'date-column pull-center',
                     'render': function(data) {
                         var created = new Date(data.$date);
                         return created.getCustomISODate();
