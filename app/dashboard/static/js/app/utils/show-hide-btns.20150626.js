@@ -298,7 +298,7 @@ define([
         switch (that.id) {
             case 'success-cell':
                 el = document.getElementById('success-btn');
-                if (!el.getAttribute('disabled')) {
+                if (!el.hasAttribute('disabled')) {
                     $('.df-failed').hide();
                     $('.df-success').show();
                     $('.df-unknown').hide();
@@ -312,7 +312,7 @@ define([
                 break;
             case 'fail-cell':
                 el = document.getElementById('fail-btn');
-                if (!el.getAttribute('disabled')) {
+                if (!el.hasAttribute('disabled')) {
                     $('.df-failed').show();
                     $('.df-success').hide();
                     $('.df-unknown').hide();
@@ -326,7 +326,7 @@ define([
                 break;
             case 'unknown-cell':
                 el = document.getElementById('unknown-btn');
-                if (!el.getAttribute('disabled')) {
+                if (!el.hasAttribute('disabled')) {
                     $('.df-failed').hide();
                     $('.df-success').hide();
                     $('.df-unknown').show();
@@ -347,5 +347,59 @@ define([
                 break;
         }
     };
+
+    btns.showHideWarnErr = function() {
+        var that = this,
+            view = that.dataset.view;
+
+        function checkButtonStatus() {
+            if ($('#success-btn').hasClass('active')) {
+                $('.df-success').show();
+            } else if ($('#fail-btn').hasClass('active')) {
+                $('.df-failed').show();
+            } else if ($('#unknown-btn').hasClass('active')) {
+                $('.df-unknown').show();
+            } else {
+                $('.df-failed').show();
+                $('.df-success').show();
+                $('.df-unknown').show();
+            }
+        }
+
+        switch (view) {
+            case 'warnings':
+                checkButtonStatus();
+                $('.df-w :visible').show();
+                $('.df-e').hide();
+                $('.df-w-e').hide();
+                $('.df-no-w-no-e').hide();
+                break;
+            case 'errors':
+                checkButtonStatus();
+                $('.df-w').hide();
+                $('.df-e :visible').show();
+                $('.df-w-e').hide();
+                $('.df-no-w-no-e').hide();
+                break;
+            case 'warnings-errors':
+                checkButtonStatus();
+                $('.df-w').hide();
+                $('.df-e').hide();
+                $('.df-w-e :visible').show();
+                $('.df-no-w-no-e').hide();
+                break;
+            case 'no-warnings-no-errors':
+                checkButtonStatus();
+                $('.df-w').hide();
+                $('.df-e').hide();
+                $('.df-w-e').hide();
+                $('.df-no-w-no-e :visible').show();
+                break;
+            default:
+                checkButtonStatus();
+                break;
+        }
+    };
+
     return btns;
 });
