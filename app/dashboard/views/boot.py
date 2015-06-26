@@ -72,22 +72,18 @@ class BootDefconfigView(BootGeneralView):
 
         page_title = (
             self.BOOT_PAGES_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" %
-            kwargs
-        )
+            kwargs)
         body_title = (
             "Boot reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
 
-        url_translation = app.config.get("KNOWN_GIT_URLS")
-
         return render_template(
-            "boots-job-kernel-defconfig.html",
+            "boots-board-job-kernel-defconfig.html",
             page_title=page_title,
             body_title=body_title,
             board=kwargs["board"],
             job=kwargs["job"],
             kernel=kwargs["kernel"],
             defconfig=kwargs["defconfig"],
-            url_translation=url_translation
         )
 
 
