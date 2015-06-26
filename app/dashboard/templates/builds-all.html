@@ -5,7 +5,7 @@
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
 {% include "date-range.html" %}
@@ -20,7 +20,7 @@
     {%- else %}
         <div class="table" id="table-div">
     {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="defconfstable">
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="builds-table">
             </table>
         </div>
     </div>
@@ -29,8 +29,5 @@
 <input type="hidden" id="page-len" value="{{ page_len }}">
 {%- endblock %}
 {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/datatables/1.10.6/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="//cdn.datatables.net/plug-ins/1.10.6/integration/bootstrap/3/dataTables.bootstrap.js"></script>
-<script type="text/javascript" src="/static/js/linaro-builds-all-1.1.3.js"></script>
+<script data-main="/static/js/kci-builds-all" src="/static/js/lib/require.js"></script>
 {%- endblock %}

@@ -58,6 +58,7 @@ require.config({
             'app/view-boots-board-job-kernel': 'app/view-boots-board-job-kernel.20150626',
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.20150626',
             'app/view-boots-id': 'app/view-boots-id.20150624',
+            'app/view-builds-all': 'app/view-builds-all.20150626',
             'app/view-jobs-all': 'app/view-jobs-all.20150622',
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150624',
