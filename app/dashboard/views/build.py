@@ -77,7 +77,7 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
         )
 
         return render_template(
-            "builds-job-kernel-defconf.html",
+            "builds-job-kernel-defconfig.html",
             body_title=body_title,
             defconfig_full=defconfig,
             defconfig_id=defconfig_id,

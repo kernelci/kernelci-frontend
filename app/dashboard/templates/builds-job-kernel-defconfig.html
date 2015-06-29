@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {%- block meta -%}
-<meta name="csrf-token" content="{{ csrf_token_r() }}"> {%- endblock %} {%- block title %}{{ page_title|safe }}{%- endblock %} {%- block content %}
+{% extends "base.html" %}
+{%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
 <div class="row">
     <div class="page-header">
         <h3 id="details">{{ body_title|safe }}</h3>
@@ -31,7 +35,7 @@
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
             <dt>Date</dt>
-            <dd class="loading-content" id="build-data">
+            <dd class="loading-content" id="build-date">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
         </dl>
@@ -74,7 +78,7 @@
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
-            <dt>Dtb directory</dt>
+            <dt>Dtb</dt>
             <dd class="loading-content" id="dtb-dir">
                 <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
             </dd>
@@ -194,8 +198,9 @@
 <input type="hidden" id="defconfig-id" value="{{ defconfig_id }}">
 {# Beware the single quotes on this variable! #}
 <input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
-{%- endblock %} {%- block scripts %}
-{{ super() }}
-<script type="text/javascript" src="/static/js/linaro-bisect-0.0.2.js"></script>
-<script type="text/javascript" src="/static/js/linaro-builds-job-kernel-defconfig-1.1.2.js"></script>
+{%- endblock %}
+{%- block scripts %}
+{# URI does not work very well with require.js, load it here. #}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
+<script data-main="/static/js/kci-builds-job-kernel-defconfig" src="/static/js/lib/require.js"></script>
 {%- endblock %}
