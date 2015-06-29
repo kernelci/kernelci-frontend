@@ -23,10 +23,8 @@ define([
         bisectBuildComparisonDescription,
         bisectScriptElementF,
         bootTooltipTitleF,
-        buildTooltipLinkF,
         buildTooltipTitleF,
         commitCellF,
-        gitDescribeCellF,
         // How many rows are too many?
         bisectMaxElements = 6;
 
@@ -41,15 +39,11 @@ define([
         '&#171;%s&#187; tree is based on the build reports with the same ' +
         'architecture and defconfig values.';
     bootTooltipTitleF = 'Boot report details for %s &dash; %s';
-    gitDescribeCellF = '<td><span class="bisect-tooltip"><span ' +
-        'rel="tooltip" data-toggle="tooltip" title="%s"><span ' +
-        'class="bisect-text">%s</span></span></span></td>';
     commitCellF = '<td class="%s"><a href="%s">%s&nbsp;' +
         '<i class="fa fa-external-link"></i></a></td>';
     bisectScriptElementF = '<span rel="tooltip" data-toggle="tooltip"' +
         'title="%s"><a download="%s" href="%s">' +
         '<i class="fa fa-download"></i></a></span>';
-    buildTooltipLinkF = '<a href="/build/%s/kernel/%s">%s</a>';
     buildTooltipTitleF = 'Build details for %s &dash; %s';
 
     // Create a simple bash script for git bisection.
@@ -146,13 +140,15 @@ define([
             board = null,
             lab = null,
             defconfigFull = null,
-            bootId = null;
+            docId = null;
 
+        defconfigFull = bisectData.defconfig_full;
         if (bisectType === 'boot') {
             board = bisectData.board;
             lab = bisectData.lab_name;
-            defconfigFull = bisectData.defconfig_full;
-            bootId = bisectData.boot_id.$oid;
+            docId = bisectData.boot_id.$oid;
+        } else {
+            docId = bisectData._id.$oid;
         }
 
         if (bisectData.hasOwnProperty('status')) {
@@ -170,20 +166,23 @@ define([
                 tooltipLink = '<a href="/boot/' + board + '/job/' + job +
                     '/kernel/' + gitDescribeVal + '/defconfig/' +
                     defconfigFull + '/lab/' + lab +
-                    '/?_id=' + bootId + '">' + gitDescribeVal + '</a>';
+                    '/?_id=' + docId + '">' + gitDescribeVal + '</a>';
                 tooltipTitle = p.sprintf(
                     bootTooltipTitleF, job, gitDescribeVal);
             } else if (bisectType === 'build') {
-                tooltipLink = p.sprintf(
-                    buildTooltipLinkF, job, gitDescribeVal, gitDescribeVal);
+                tooltipLink = '<a href="/build/' + job + '/kernel/' +
+                    gitDescribeVal + '/defconfig/' + defconfigFull +
+                    '/?_id=' + docId + '">' + gitDescribeVal + '</a>';
                 tooltipTitle = p.sprintf(
                     buildTooltipTitleF, job, gitDescribeVal);
             } else {
                 tooltipLink = gitDescribeVal;
             }
 
-            gitDescribeCell = p.sprintf(
-                gitDescribeCellF, tooltipTitle, tooltipLink);
+            gitDescribeCell = '<td><span class="bisect-tooltip"> ' +
+                '<span rel="tooltip" data-toggle="tooltip" title="' +
+                tooltipTitle + '"><span class="bisect-text">' + tooltipLink +
+                '</span></span></span></td>';
 
             gitURLs = u.translateCommit(gitURL, gitCommit, tRules);
 
