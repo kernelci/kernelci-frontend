@@ -105,48 +105,8 @@
     </footer>
 <input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}">
 {%- block scripts %}
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.11.2/URI.min.js"></script>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sprintf/1.0.1/sprintf.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.hotkeys-1.0.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.hotkeymap-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/linaro-base-1.0.8.js"></script>
-<script type="text/javascript">
-function apiVersionLinkSuccess(data) {
-    'use strict';
-    var localData = data.result,
-        dataLen = localData.length,
-        version = null,
-        apiHref = $('#api-version');
-    if (dataLen > 0) {
-        version = localData[0].version;
-        apiHref.empty().append(
-            '<a href="' +
-            'https://github.com/kernelci/kernelci-backend/tree/' +
-            version + '">' + version + '</a>');
-    } else {
-        apiHref.empty().append('&infin;');
-    }
-}
-function apiVersionLinkFail() {
-    'use strict';
-    $('#api-version').empty().append('<i class="fa fa-question"><i>');
-}
-$(document).ready(function() {
-    var ajaxDeferred = JSBase.createDeferredCall(
-        '/_ajax/version',
-        'GET',
-        null,
-        null,
-        null,
-        'Error loading API version number'
-    );
-    // Activate common options.
-    JSBase.init();
-    $.when(ajaxDeferred).then(apiVersionLinkSuccess, apiVersionLinkFail);
-});
-</script>
 {%- endblock %}{# Scripts block #}
 {%- block analytics %}
 {%- if analytics %}
