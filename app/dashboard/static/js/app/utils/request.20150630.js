@@ -29,7 +29,7 @@ define([
         'traditional': true,
         'cache': true,
         'dataType': 'json',
-        'timeout': 12000,
+        'timeout': 35000,
         'beforeSend': function(jqXHR) {
             jqXHR.setRequestHeader('X-CSRFToken', token);
         }
@@ -47,9 +47,10 @@ define([
         settings.headers = {'Content-Type': 'application/json'};
         settings.type = method;
 
-        if (data !== null && data !== undefined) {
-            settings.data = data;
+        if (data === null || data === undefined) {
+            data = {};
         }
+        settings.data = data;
 
         return $.ajax(url, settings);
     };

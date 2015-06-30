@@ -67,6 +67,7 @@ require.config({
             'charts/passpie': 'charts/passpie.20150626',
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150629',
+            'utils/request': 'utils/request.20150630',
             'utils/show-hide-btns': 'utils/show-hide-btns.20150626'
         }
     },
