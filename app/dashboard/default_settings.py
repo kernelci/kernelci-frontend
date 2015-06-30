@@ -87,6 +87,13 @@ CACHE_REDIS_PORT = 6379
 CACHE_REDIS_DB = 0
 CACHE_DEFAULT_TIMEOUT = 420
 
+# Timeout seconds to connect and read from the remote server.
+REQUEST_CONNECT_TIMEOUT = 10.0
+REQUEST_READ_TIMEOUT = 30.0
+# Backend requests pool size.
+REQUEST_MIN_POOL_SIZE = 25
+REQUEST_MAX_POOL_SIZE = 100
+
 DEBUG = True
 TESTING = DEBUG
 THREADED = False
