@@ -21,8 +21,11 @@ define([
     'use strict';
     var table,
         dom,
-        lengthMenu,
+        lengthMenu = null,
         zeroRecords,
+        lengthChange = true,
+        paging = true,
+        info = true,
         menu,
         menuFmt,
         zeroR,
@@ -54,7 +57,7 @@ define([
         '<i class="fa fa-search"></i></span>_INPUT_</div>';
 
     menuFmt = '_MENU_&nbsp;<strong>%s</strong>';
-    zeroRFmt = '<h4>%s</h4>';
+    zeroRFmt = '<strong>%s</strong>';
 
     menu = 'reports per page';
     zeroR = 'No reports to display';
@@ -107,6 +110,8 @@ define([
 
         tTable = $(tElement[1]).DataTable({
             'dom': dom,
+            'paging': paging,
+            'info': info,
             'language': {
                 'lengthMenu': that.lengthMenu(),
                 'zeroRecords': that.zeroRecords(),
@@ -325,7 +330,11 @@ define([
             lengthMenu = value;
             returnData = table;
         } else {
-            returnData = s.sprintf(menuFmt, menu);
+            if (lengthMenu !== null) {
+                returnData = lengthMenu;
+            } else {
+                returnData = s.sprintf(menuFmt, menu);
+            }
         }
         return returnData;
     };
@@ -334,6 +343,33 @@ define([
         var returnData = noIDUrl;
         if (arguments.length) {
             noIDUrl = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.lengthChange = function(value) {
+        var returnData = lengthChange;
+        if (arguments.length) {
+            lengthChange = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.paging = function(value) {
+        var returnData = paging;
+        if (arguments.length) {
+            paging = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.info = function(value) {
+        var returnData = paging;
+        if (arguments.length) {
+            info = value;
             returnData = table;
         }
         return returnData;
