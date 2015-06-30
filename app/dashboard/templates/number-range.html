@@ -1,0 +1,10 @@
+<div class="row date-range">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h3>{{ body_title|default('Latest Results')|safe }}</h3>
+        </div>
+        <p>
+            Showing at most the last <strong>{{ config["NUMBER_RANGE"] }}</strong> results of available data.
+        </p>
+    </div>
+</div>
