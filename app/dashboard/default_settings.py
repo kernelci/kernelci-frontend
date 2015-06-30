@@ -73,6 +73,9 @@ VERSION_API_ENDPOINT = '/version'
 # for the browser to show it all.
 DATE_RANGE = 5
 
+# Default range of how many results should be shown.
+NUMBER_RANGE = 20
+
 # Google Analytics code.
 GOOGLE_ANALYTICS_ID = None
 
