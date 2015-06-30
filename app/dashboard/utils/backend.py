@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import datetime
 import hashlib
 import re
@@ -31,8 +32,8 @@ from requests.exceptions import (
 CONFIG_GET = app.config.get
 
 # Timeout seconds to connect and read from the remote server.
-CONNECT_TIMEOUT = 6.0
-READ_TIMEOUT = 10.0
+CONNECT_TIMEOUT = CONFIG_GET("REQUEST_CONNECT_TIMEOUT")
+READ_TIMEOUT = CONFIG_GET("REQUEST_READ_TIMEOUT")
 CACHE_DEFAULT_TIMEOUT = CONFIG_GET("CACHE_DEFAULT_TIMEOUT")
 
 AUTH_HEADER = CONFIG_GET("BACKEND_TOKEN_HEADER")
@@ -41,6 +42,12 @@ BACKEND_URL = CONFIG_GET("BACKEND_URL")
 
 # The requests session object.
 req_session = requests.Session()
+http_adapter = requests.adapters.HTTPAdapter(
+    pool_connections=CONFIG_GET("REQUEST_MIN_POOL_SIZE"),
+    pool_maxsize=CONFIG_GET("REQUEST_MAX_POOL_SIZE")
+)
+req_session.mount("http://", http_adapter)
+req_session.mount("https://", http_adapter)
 req_session.headers.update({AUTH_HEADER: AUTH_TOKEN})
 
 
@@ -241,7 +248,6 @@ def request_get(url, params=[], timeout=None):
     :return The server response.
     """
     return_data = status_code = headers = None
-
     cache_key = hashlib.md5("%s%s" % (url, str(params))).digest()
 
     cached = app.cache.get(cache_key)
@@ -249,16 +255,15 @@ def request_get(url, params=[], timeout=None):
         return_data, status_code, headers = cached
     else:
         try:
-            r = req_session.get(
-                url,
-                params=params,
-                timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
-                stream=True
-            )
-
-            return_data = r.raw.data or r.text
-            status_code = r.status_code
-            headers = r.headers
+            with contextlib.closing(
+                    req_session.get(
+                        url,
+                        params=params,
+                        timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
+                        stream=True)) as r:
+                return_data = r.raw.data or r.text
+                status_code = r.status_code
+                headers = r.headers
 
             if timeout is None:
                 timeout = CACHE_DEFAULT_TIMEOUT
@@ -289,17 +294,16 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
         return_data, status_code, r_headers = cached
     else:
         try:
-            r = req_session.post(
-                url,
-                data=data,
-                params=params,
-                headers=headers,
-                stream=stream,
-                timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
-            )
-            return_data = r.raw.data or r.text
-            status_code = r.status_code
-            r_headers = r.headers
+            with contextlib.closing(req_session.post(
+                    url,
+                    data=data,
+                    params=params,
+                    headers=headers,
+                    stream=stream,
+                    timeout=(CONNECT_TIMEOUT, READ_TIMEOUT))) as r:
+                return_data = r.raw.data or r.text
+                status_code = r.status_code
+                r_headers = r.headers
 
             if timeout is None:
                 timeout = CACHE_DEFAULT_TIMEOUT
