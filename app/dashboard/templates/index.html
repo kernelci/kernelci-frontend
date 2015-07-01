@@ -4,11 +4,11 @@
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
-{% include "date-range.html" %}
+{% include "number-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-        <h4>Failed Builds <small>(last 25 results)</small></h4>
+        <h4>Failed Builds <small>(last {{ config["NUMBER_RANGE"] }} results)</small></h4>
         </div>
     {%- if is_mobile %}
         <div class="table-responsive">
@@ -48,7 +48,7 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-        <h4>Failed Boot Reports <small>(last 25 results)</small></h4>
+        <h4>Failed Boot Reports <small>(last {{ config["NUMBER_RANGE"] }} results)</small></h4>
         </div>
     {%- if is_mobile %}
         <div class="table-responsive">

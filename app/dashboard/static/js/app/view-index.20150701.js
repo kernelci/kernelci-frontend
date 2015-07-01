@@ -2,15 +2,15 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-define([
+require([
     'jquery',
     'sprintf',
     'utils/base',
@@ -19,7 +19,7 @@ define([
     'utils/request'
 ], function($, p, b, e, i, r) {
     'use strict';
-    var dateRange = 14,
+    var numberRange = 20,
         buildColumns = 5,
         bootColumns = 8,
         errorData,
@@ -78,7 +78,7 @@ define([
     }
 
     function getDefconfigsCount(defconfigResponse) {
-        var results = defconfigResponse[0].result,
+        var results = defconfigResponse.result,
             resLen = results.length,
             idx = 0,
             deferred,
@@ -114,8 +114,13 @@ define([
         }
     }
 
+    function getDefconfigsFail() {
+        b.replaceById(
+            'failed-builds-body', p.sprintf(errorData, buildColumns));
+    }
+
     function getDefconfigsDone(defconfigResponse) {
-        var results = defconfigResponse[0].result,
+        var results = defconfigResponse.result,
             resLen = results.length,
             idx = 0,
             defconf = null,
@@ -181,8 +186,12 @@ define([
         }
     }
 
-    function getBootsDone(_, bootResponse) {
-        var results = bootResponse[0].result,
+    function getBootsFail() {
+        b.replaceById('failed-boots-body', p.sprintf(errorData, bootColumns));
+    }
+
+    function getBootsDone(bootResponse) {
+        var results = bootResponse.result,
             resLen = results.length,
             row = '',
             idx = 0,
@@ -296,25 +305,17 @@ define([
         }
     }
 
-    function getOpsFail() {
-        b.replaceById(
-            'failed-builds-body', p.sprintf(errorData, buildColumns));
-        b.replaceById('failed-boots-body', p.sprintf(errorData, bootColumns));
-    }
-
     $(document).ready(function() {
         var deferred1,
             deferred2,
             data1,
             data2;
-
+        document.getElementById('li-home').setAttribute('class', 'active');
         // Setup and perform base operations.
         i();
 
-        document.getElementById('li-home').setAttribute('class', 'active');
-
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
+        if (document.getElementById('number-range') !== null) {
+            numberRange = document.getElementById('number-range').value;
         }
 
         data1 = {
@@ -322,30 +323,23 @@ define([
             'status': 'FAIL',
             'sort': 'created_on',
             'sort_order': -1,
-            'limit': 25,
-            'date_range': dateRange,
+            'limit': numberRange,
             'field': ['job', 'kernel', 'created_on', 'git_branch']
         };
         deferred1 = r.get('/_ajax/defconf', data1);
+        $.when(deferred1)
+            .fail(e.error, getDefconfigsFail, getDefconfigsCountFail)
+            .done(getDefconfigsDone, getDefconfigsCount);
 
         data2 = {
             'status': 'FAIL',
             'sort_order': -1,
             'sort': 'created_on',
-            'limit': 25,
-            'date_range': dateRange,
-            'field': [
-                'board', 'job', 'kernel', 'defconfig', 'created_on',
-                'boot_result_description', 'lab_name', '_id',
-                'defconfig_full', 'git_branch'
-            ]
+            'limit': numberRange
         };
         deferred2 = r.get('/_ajax/boot', data2);
-
-        $.when(deferred1, deferred2)
-            .fail(e.error, getOpsFail)
-            .done(getBootsDone)
-            .done(getDefconfigsDone)
-            .done(getDefconfigsCount);
+        $.when(deferred2)
+            .fail(e.error, getBootsFail)
+            .done(getBootsDone);
     });
 });
