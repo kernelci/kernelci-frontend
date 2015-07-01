@@ -2,15 +2,14 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 require([
     'jquery',
     'sprintf',
@@ -224,9 +223,8 @@ require([
     function getBootDoneUnique(response) {
         var deferred,
             data;
-
         if (response.count > 0) {
-            data = {'job_id': response.result[0].job_id.$oid};
+            data = {'job': jobName, 'kernel': kernelName};
             deferred = r.get('/_ajax/count/defconfig', data);
 
             $.when(deferred, uniq.countUniqueBootD(response))
@@ -552,9 +550,7 @@ require([
             deferred = r.get('/_ajax/boot', data);
             $.when(deferred)
                 .fail(e.error, getBootFailed)
-                .done(getBootDone)
-                .done(getBootDoneChart)
-                .done(getBootDoneUnique);
+                .done(getBootDone, getBootDoneChart, getBootDoneUnique);
         } else {
             getBootFailed();
         }
@@ -647,8 +643,7 @@ require([
         deferred = r.get('/_ajax/job', data);
         $.when(deferred)
             .fail(e.error, getJobFailed)
-            .done(getJobDone)
-            .done(getBoot);
+            .done(getJobDone, getBoot);
     }
 
     function registerEvents() {
@@ -720,10 +715,13 @@ require([
     }
 
     $(document).ready(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
         // Setup and perform base operations.
         i();
 
-        document.getElementById('li-boot').setAttribute('class', 'active');
+        $('.btn-group > .btn').click(function() {
+            $(this).addClass('active').siblings().removeClass('active');
+        });
 
         if (document.getElementById('job-name') !== null) {
             jobName = document.getElementById('job-name').value;
