@@ -2,15 +2,15 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-define([
+require([
     'jquery',
     'sprintf',
     'utils/init',
@@ -32,8 +32,11 @@ define([
         buildLabel,
         passLabel,
         failLabel,
-        unknownLabel;
+        unknownLabel,
+        nonAvail;
 
+    nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
+        'title="Not available"><i class="fa fa-ban"></i></span>';
     eDiv = '<div class="pull-center"><h4>%s</h4></div>';
     jobURL = '/job/%s';
     rowURLFmt = '/job/%(job)s/';
@@ -227,8 +230,13 @@ define([
                     'type': 'date',
                     'className': 'pull-center',
                     'render': function(data) {
-                        var created = new Date(data.$date);
-                        return created.getCustomISODate();
+                        var created;
+                        if (data === null) {
+                            created = nonAvail;
+                        } else {
+                            created = (new Date(data.$date)).getCustomISODate();
+                        }
+                        return created;
                     }
                 },
                 {
@@ -311,7 +319,7 @@ define([
             'sort_order': -1,
             'date_range': dateRange,
             'field': [
-                'job', 'created_on', 'status', 'git_branch', 'kernel'
+                'job', 'kernel', 'status', 'created_on', 'git_branch'
             ]
         };
 
