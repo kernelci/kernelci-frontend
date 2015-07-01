@@ -559,6 +559,10 @@ require([
         // Setup and perform base operations.
         i();
 
+        $('.btn-group > .btn').click(function() {
+            $(this).addClass('active').siblings().removeClass('active');
+        });
+
         if (document.getElementById('file-server') !== null) {
             fileServer = document.getElementById('file-server').value;
         }
