@@ -52,7 +52,7 @@ require.config({
     map: {
         '*': {
             'app/view-boots-all': 'app/view-boots-all.20150701',
-            'app/view-boots-all-job': 'app/view-boots-all-job.20150625',
+            'app/view-boots-all-job': 'app/view-boots-all-job.20150701',
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.20150625',
             'app/view-boots-all-lab': 'app/view-boots-all-lab.20150626',
             'app/view-boots-board': 'app/view-boots-board.20150626',
