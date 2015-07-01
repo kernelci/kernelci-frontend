@@ -63,6 +63,7 @@ require.config({
             'app/view-builds-all': 'app/view-builds-all.20150626',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.20150626',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.20150629',
+            'app/view-index': 'app/view-index.20150701',
             'app/view-jobs-all': 'app/view-jobs-all.20150622',
             'app/view-jobs-job': 'app/view-jobs-job.20150626',
             'charts/passpie': 'charts/passpie.20150626',
