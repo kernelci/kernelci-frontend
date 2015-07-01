@@ -2,51 +2,35 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-define([
+require([
     'jquery',
     'utils/init',
     'utils/base',
     'utils/error',
     'utils/request',
-    'utils/tables',
-    'sprintf'
-], function($, i, b, e, r, t, p) {
+    'utils/tables'
+], function($, i, b, e, r, t) {
     'use strict';
     var searchFilter = null,
         pageLen = null,
         bootsTable = null,
         dateRange = 14,
-        eDiv,
         rowURLFmt,
-        hrefFmt,
-        bootAllUrl,
-        bootAllJKUrl,
-        bootBoardJKUrl,
-        bootDefconfigUrl,
-        tooltipFmt,
         successLabel,
         failLabel,
         offlineLabel,
         unknownLabel;
 
-    eDiv = '<div class="pull-center"><h4>%s</h4></div>';
     rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
         '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-    bootAllUrl = '/boot/all/job/%s/';
-    bootAllJKUrl = '/boot/all/job/%s/kernel/%s/';
-    bootBoardJKUrl = '/boot/%s/job/%s/kernel/%s/';
-    bootDefconfigUrl = '/boot/%s/job/%s/kernel/%s/defconfig/%s/';
-    hrefFmt = '<a class="table-link" href="%s">%s</a>';
-    tooltipFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="%s">%s</span>';
     successLabel = '<span rel="tooltip" data-toggle="tooltip" ' +
         'title="Boot completed"><span class="label label-success">' +
         '<i class="fa fa-check"></i></span></span>';
@@ -61,19 +45,24 @@ define([
         '<i class="fa fa-question"></i></span></span>';
 
     function getBootsFail() {
-        b.replaceById('table-loading', p.sprintf(eDiv, 'Error loading data.'));
+        b.replaceById(
+            'table-loading',
+            '<div class="pull-center"><strong>' +
+            'Error loading data.</strong></div>'
+        );
     }
 
     function getBootsDone(response) {
         var results = response.result,
             len = results.length,
-            tableDiv,
             columns;
 
         if (len === 0) {
-            tableDiv = b.checkElement('table-div');
             b.replaceById(
-                tableDiv[0], p.sprintf(eDiv, 'No boots data available.'));
+                'table-div',
+                '<div class="pull-center"><strong>' +
+                'No boots data available.</strong></div>'
+            );
         } else {
             columns = [
                 {
@@ -88,27 +77,19 @@ define([
                     'type': 'string',
                     'className': 'tree-column',
                     'render': function(data, type, object) {
-                        var display,
-                            hrefData,
-                            tTitle,
+                        var hrefData = data,
+                            tTitle = data,
                             branch = object.git_branch;
-
-                        hrefData = data;
-                        tTitle = data;
                         if (branch !== null && branch !== undefined) {
                             tTitle = data + '&nbsp;&dash;&nbsp;' + branch;
                             hrefData = data + '&nbsp;&dash;&nbsp;<small>' +
                                 branch + '</small>';
                         }
-                        display = p.sprintf(
-                            tooltipFmt,
-                            tTitle,
-                            p.sprintf(
-                                hrefFmt,
-                                p.sprintf(bootAllUrl, data), hrefData)
-                        );
-
-                        return display;
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + tTitle + '">' +
+                            '<a class="table-link" href="' +
+                            '/boot/all/job/' + data + '/">' + hrefData +
+                            '</a></span>';
                     }
                 },
                 {
@@ -117,15 +98,11 @@ define([
                     'type': 'string',
                     'className': 'kernel-column',
                     'render': function(data, type, object) {
-                        var display = p.sprintf(
-                            tooltipFmt,
-                            data,
-                            p.sprintf(
-                                hrefFmt,
-                                p.sprintf(bootAllJKUrl, object.job, data),
-                                data)
-                        );
-                        return display;
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="' +
+                            '/boot/all/job/' + object.job +
+                            '/kernel/' + data + '/">' + data + '</a></span>';
                     }
                 },
                 {
@@ -134,20 +111,12 @@ define([
                     'type': 'string',
                     'className': 'board-column',
                     'render': function(data, type, object) {
-                        var display = p.sprintf(
-                            tooltipFmt,
-                            data,
-                            p.sprintf(
-                                hrefFmt,
-                                p.sprintf(
-                                    bootBoardJKUrl,
-                                    data,
-                                    object.job,
-                                    object.kernel),
-                                data
-                            )
-                        );
-                        return display;
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="' +
+                            '/boot/' + data + '/job/' + object.job +
+                            '/kernel/' + object.kernel + '/">' +
+                            data + '</a></span>';
                     }
                 },
                 {
@@ -155,20 +124,18 @@ define([
                     'title': 'Defconfig',
                     'className': 'defconfig-column',
                     'render': function(data, type, object) {
-                        var display = null,
-                            href = null,
+                        var href = null,
                             board = object.board,
                             job = object.job,
                             kernel = object.kernel;
 
-                        href = p.sprintf(
-                            bootDefconfigUrl, board, job, kernel, data);
-                        display = p.sprintf(
-                            tooltipFmt,
-                            data,
-                            p.sprintf(hrefFmt, href, data)
-                        );
-                        return display;
+                        href = '/boot/' + board + '/job/' + job +
+                            '/kernel/' + kernel + '/defconfig/' + data + '/';
+
+                        return '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="' + href + '">' +
+                            data + '</a></span>';
                     }
                 },
                 {
@@ -266,15 +233,10 @@ define([
     function getBoots() {
         var deferred,
             data;
-
         data = {
             'sort': 'created_on',
             'sort_order': -1,
-            'date_range': dateRange,
-            'field': [
-                '_id', 'job', 'kernel', 'board', 'created_on',
-                'status', 'lab_name', 'defconfig_full', 'arch', 'git_branch'
-            ]
+            'date_range': dateRange
         };
         deferred = r.get('/_ajax/boot', data);
         $.when(deferred)
@@ -283,10 +245,9 @@ define([
     }
 
     $(document).ready(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
         // Setup and perform base operations.
         i();
-
-        document.getElementById('li-boot').setAttribute('class', 'active');
 
         if (document.getElementById('search-filter') !== null) {
             searchFilter = document.getElementById('search-filter').value;
