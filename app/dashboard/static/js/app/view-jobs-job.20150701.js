@@ -2,16 +2,15 @@
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
-
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-define([
+require([
     'jquery',
     'utils/init',
     'utils/base',
@@ -22,22 +21,24 @@ define([
 ], function($, i, b, r, e, t, chart) {
     'use strict';
     var jobName = null,
-        dateRange = null,
+        numberRange = 20,
         buildsTable = null,
         searchFilter = null,
         pageLen = null;
 
     function getBootStatsFail() {
-        var content = '<div class="pull-center">' +
-            '<h4>Error loading boot data.</h4></div>';
-        b.replaceById('boot-pass-rate', content);
+        b.replaceById(
+            'boot-pass-rate',
+            '<div class="pull-center">' +
+            '<strong>Error loading boot data.</strong></div>'
+        );
     }
 
     function getBootStatsDone(response) {
         chart.bootpassrate('boot-pass-rate', response);
     }
 
-    function getBootStats() {
+    function getBootStats(startDate, dateRange) {
         var deferred,
             data;
 
@@ -45,7 +46,8 @@ define([
             job: jobName,
             sort: 'created_on',
             sort_order: 1,
-            date_range: dateRange * 2,
+            created_on: startDate,
+            date_range: dateRange,
             field: ['status', 'kernel', 'created_on', 'job']
         };
 
@@ -56,16 +58,16 @@ define([
     }
 
     function getDefconfigsStatsFail() {
-        var content = '<div class="pull-center">' +
-            '<h4>Error loading build data.</h4></div>';
-        b.replaceById('build-pass-rate', content);
+        b.replaceById('build-pass-rate',
+            '<div class="pull-center">' +
+            '<strong>Error loading build data.</strong></div>');
     }
 
     function getDefconfigsStatsDone(response) {
         chart.buildpassrate('build-pass-rate', response);
     }
 
-    function getDefconfigsStats() {
+    function getDefconfigsStats(startDate, dateRange) {
         var deferred,
             data;
 
@@ -73,7 +75,8 @@ define([
             job: jobName,
             sort: 'created_on',
             sort_order: 1,
-            date_range: dateRange * 2,
+            created_on: startDate,
+            date_range: dateRange,
             field: ['status', 'kernel', 'created_on', 'job']
         };
 
@@ -81,6 +84,35 @@ define([
         $.when(deferred)
             .fail(e.error, getDefconfigsStatsFail)
             .done(getDefconfigsStatsDone);
+    }
+
+    function getTrendsData(response) {
+        var results = response.result,
+            resLen = results.length,
+            firstDate,
+            lastDate,
+            lDateRange = 0;
+
+        if (resLen > 0) {
+            firstDate = new Date(results[0].created_on.$date);
+            if (resLen > 1) {
+                lastDate = new Date(results[resLen - 1].created_on.$date);
+                lDateRange = Math.round((firstDate - lastDate) / 86400000);
+            }
+
+            getDefconfigsStats(firstDate.getCustomISODate(), lDateRange);
+            getBootStats(firstDate.getCustomISODate(), lDateRange);
+        } else {
+            b.replaceById(
+                'build-pass-rate',
+                '<div class="pull-center">' +
+                '<strong>No build data available.</strong></div>');
+            b.replaceById(
+                'boot-pass-rate',
+                '<div class="pull-center">' +
+                '<strong>No boot data available.</strong></div>'
+            );
+        }
     }
 
     function getBuildBootCountFail() {
@@ -130,7 +162,7 @@ define([
                     'operation_id': 'build-success-count-' + k,
                     'collection': 'count',
                     'document_id': 'defconfig',
-                    'query': 'status=PASS&date_range=' + dateRange +
+                    'query': 'status=PASS&limit=' + numberRange +
                         '&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -140,7 +172,7 @@ define([
                     'operation_id': 'build-fail-count-' + k,
                     'collection': 'count',
                     'document_id': 'defconfig',
-                    'query': 'status=FAIL&date_range=' + dateRange +
+                    'query': 'status=FAIL&limit=' + numberRange +
                         '&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -150,7 +182,7 @@ define([
                     'operation_id': 'boot-success-count-' + k,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=PASS&date_range=' + dateRange +
+                    'query': 'status=PASS&limit=' + numberRange +
                         '&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -160,7 +192,7 @@ define([
                     'operation_id': 'boot-fail-count-' + k,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=FAIL&date_range=' + dateRange +
+                    'query': 'status=FAIL&limit=' + numberRange +
                         '&job=' + jobName + '&kernel=' + kernel
                 };
             }
@@ -313,6 +345,9 @@ define([
                 .order([6, 'desc'])
                 .menu('builds per page')
                 .rowURLElements(['job', 'kernel'])
+                .lengthChange(false)
+                .paging(false)
+                .info(false)
                 .draw();
         }
     }
@@ -334,7 +369,7 @@ define([
             'job': jobName,
             'sort': 'created_on',
             'sort_order': -1,
-            'date_range': dateRange,
+            'limit': numberRange,
             'field': [
                 'job', 'kernel', 'created_on', 'git_branch', 'git_commit'
             ]
@@ -342,9 +377,10 @@ define([
 
         deferred = r.get('/_ajax/defconf', data);
         $.when(deferred)
-            .fail(e.error, getDefconfigsFailed)
-            .done(getDefconfigsDone)
-            .done(getBuildBootCount);
+            .fail(
+                e.error,
+                getDefconfigsFailed, getDefconfigsStats, getBootStatsFail)
+            .done(getTrendsData, getDefconfigsDone, getBuildBootCount);
     }
 
     function getDetailsDone(data) {
@@ -370,7 +406,7 @@ define([
             b.replaceById(secondResult.operation_id, secondCount);
             b.replaceById(thirdResult.operation_id, thirdCount);
         } else {
-            b.replaceByClass('.count-list-badge', '?');
+            b.replaceByClass('count-list-badge', '?');
         }
     }
 
@@ -379,7 +415,7 @@ define([
     }
 
     function getDetails() {
-        var queryString = 'job=' + jobName + '&date_range=' + dateRange,
+        var queryString = 'job=' + jobName + '&limit=' + numberRange,
             batchQueries = new Array(3),
             data,
             deferred;
@@ -418,37 +454,26 @@ define([
             .done(getDetailsDone);
     }
 
-    // Setup and perform base operations.
-    i();
+    $(document).ready(function() {
+        document.getElementById('li-job').setAttribute('class', 'active');
+        // Setup and perform base operations.
+        i();
 
-    document.getElementById('li-job').setAttribute('class', 'active');
+        if (document.getElementById('number-name') !== null) {
+            numberRange = document.getElementById('number-name').value;
+        }
+        if (document.getElementById('job-name') !== null) {
+            jobName = document.getElementById('job-name').value;
+        }
+        if (document.getElementById('page-len') !== null) {
+            pageLen = document.getElementById('page-len').value;
+        }
+        if (document.getElementById('search-filter') !== null) {
+            searchFilter = document.getElementById('search-filter').value;
+        }
 
-    if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
-    }
-
-    if (document.getElementById('date-range') !== null) {
-        dateRange = document.getElementById('date-range').value;
-    }
-
-    if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
-    }
-
-    if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
-    }
-
-    if (jobName !== null && dateRange !== null) {
         buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
         getDetails();
         getDefconfigs();
-        getDefconfigsStats();
-        getBootStats();
-    } else {
-        getDetailsFailed();
-        getDefconfigsFailed();
-        getBuildBootCountFail();
-        getBootStatsFail();
-    }
+    });
 });
