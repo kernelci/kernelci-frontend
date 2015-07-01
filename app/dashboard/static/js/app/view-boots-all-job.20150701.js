@@ -20,10 +20,10 @@ define([
 ], function($, b, e, i, r, t) {
     'use strict';
     var bootsTable,
-        jobId = null,
+        jobName = null,
         pageLen = null,
         searchFilter = null,
-        dateRange = 14;
+        numberRange = 20;
 
     function getDetailsCountFail() {
         b.replaceById('boot-reports-count', '&infin;');
@@ -59,14 +59,14 @@ define([
             'operation_id': 'boot-reports-count',
             'collection': 'count',
             'document_id': 'boot',
-            'query': 'job=' + jobId + '&date_range=' + dateRange
+            'query': 'job=' + jobName + '&limit=' + numberRange
         };
 
         batchQueries[1] = {
             'method': 'GET',
             'operation_id': 'boot-boards-count',
             'collection': 'boot',
-            'query': 'job=' + jobId + '&date_range=' + dateRange +
+            'query': 'job=' + jobName + '&limit=' + numberRange +
                 '&aggregate=board&field=board'
         };
 
@@ -129,7 +129,7 @@ define([
                     'operation_id': 'success-count-' + kernel,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=PASS&job=' + jobId + '&kernel=' +
+                    'query': 'status=PASS&job=' + jobName + '&kernel=' +
                         kernel
                 };
                 batchQueries[jdx + 1] = {
@@ -137,7 +137,7 @@ define([
                     'operation_id': 'fail-count-' + kernel,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=FAIL&job=' + jobId + '&kernel=' +
+                    'query': 'status=FAIL&job=' + jobName + '&kernel=' +
                         kernel
                 };
             }
@@ -248,6 +248,9 @@ define([
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job', 'kernel'])
                 .noIDUrl(true)
+                .lengthChange(false)
+                .paging(false)
+                .info(false)
                 .draw();
         }
     }
@@ -256,12 +259,12 @@ define([
         var deferred,
             data;
         data = {
-            'aggregate': 'kernel',
-            'job': jobId,
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': dateRange,
-            'field': ['job', 'kernel', 'created_on']
+            aggregate: 'kernel',
+            job: jobName,
+            sort: 'created_on',
+            sort_order: -1,
+            limit: numberRange,
+            field: ['job', 'kernel', 'created_on']
         };
         deferred = r.get('/_ajax/boot', data);
         $.when(deferred)
@@ -274,11 +277,11 @@ define([
         // Setup and perform base operations.
         i();
 
-        if (document.getElementById('job-id') !== null) {
-            jobId = document.getElementById('job-id').value;
+        if (document.getElementById('job-name') !== null) {
+            jobName = document.getElementById('job-name').value;
         }
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
+        if (document.getElementById('number-range') !== null) {
+            numberRange = document.getElementById('number-range').value;
         }
         if (document.getElementById('search-filter') !== null) {
             searchFilter = document.getElementById('search-filter').value;

@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 {%- endblock %}
 {%- block content %}
-{%- include "date-range.html" %}
+{%- include "number-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <ul class="list-group">
@@ -49,7 +49,7 @@
         </div>
     </div>
 </div>
-<input type="hidden" id="job-id" value="{{ job }}">
+<input type="hidden" id="job-name" value="{{ job_name }}">
 <input type="hidden" id="page-len" value="{{ page_len }}">
 <input type="hidden" id="search-filter" value="{{ search_filter }}">
 {%- endblock %}

@@ -145,15 +145,15 @@ class BootJobView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
 
-        job = kwargs["job"]
-        body_title = "Boot details for&nbsp;&#171;%s&#187;" % job
+        job_name = kwargs["job"]
+        body_title = "Boot details for&nbsp;&#171;%s&#187;" % job_name
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "boots-job.html",
             page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
-            job=job,
+            job_name=job_name,
             search_filter=search_filter,
             page_len=page_len
         )
