@@ -51,7 +51,7 @@ require.config({
             'utils/bisect': 'utils/bisect.20150629',
             'utils/init': 'utils/init.20150701',
             'utils/request': 'utils/request.20150630',
-            'utils/tables': 'utils/tables.20150630',
+            'utils/tables': 'utils/tables.20150702',
             'utils/show-hide-btns': 'utils/show-hide-btns.20150626'
         }
     },
