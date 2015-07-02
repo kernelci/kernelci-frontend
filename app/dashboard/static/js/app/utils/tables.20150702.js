@@ -23,7 +23,6 @@ define([
     var table,
         dom,
         lengthMenu = null,
-        zeroRecords,
         lengthChange = true,
         paging = true,
         info = true,
