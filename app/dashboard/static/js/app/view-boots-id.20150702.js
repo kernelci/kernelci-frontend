@@ -148,17 +148,11 @@ require([
         }
 
         col0 = '<td class="lab-column">' + lab + '</td>';
-        // TODO: fix width on CSS.
         if (resultDescription !== null) {
             col1 = '<td class="failure-column">';
-            if (resultDescription.length > 64) {
-                col1 += '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="' + resultDescription + '">' +
-                    resultDescription.slice(0, 65) + '&hellip;' +
-                    '</span>';
-            } else {
-                col1 += resultDescription;
-            }
+            col1 += '<span rel="tooltip" data-toggle="tooltip"' +
+                'title="' + resultDescription + '">' +
+                resultDescription + '</span>';
             col1 += '</td>';
         } else {
             col1 = '<td class="failure-column">&nbsp;</td>';
