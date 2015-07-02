@@ -527,27 +527,27 @@ require([
                 '.df-unknown': {
                     'type': 'attr',
                     'name': 'style',
-                    'value:': b.getAttrBySelector('.df-unknown', 'style')
+                    'value': b.getAttrBySelector('.df-unknown', 'style')
                 },
                 '#all-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value:': b.getAttrById('all-btn', 'class')
+                    'value': b.getAttrById('all-btn', 'class')
                 },
                 '#success-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value:': b.getAttrById('success-btn', 'class')
+                    'value': b.getAttrById('success-btn', 'class')
                 },
                 '#fail-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value:': b.getAttrById('fail-btn', 'class')
+                    'value': b.getAttrById('fail-btn', 'class')
                 },
                 '#unknown-btn': {
                     'type': 'class',
                     'name': 'class',
-                    'value:': b.getAttrById('unknown-btn', 'class')
+                    'value': b.getAttrById('unknown-btn', 'class')
                 }
             };
 
