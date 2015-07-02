@@ -23,7 +23,7 @@ require([
     'use strict';
     var bootsTable,
         boardName,
-        dateRang,
+        dateRange,
         pageLen,
         searchFilter;
 
