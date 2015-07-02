@@ -12,6 +12,7 @@
     - python-virtualenv
     - uwsgi
     - uwsgi-plugin-python
+    - nodejs
   tags:
     - install
 

@@ -27,10 +27,40 @@
   tags:
     - web-server
 
-- name: Copy static content
+# There is not enough memory on staging to minify and merge the static assets.
+# We just copy everything in the static/ directory. To use the minified versions
+# we better run the node.js command locally and upload the file.
+- name: Copy static assests (for staging)
   command: rsync -a -u --delete {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
+  when: ansible_lsb.id == "Ubuntu"
   tags:
     - web-server
+    - app
+
+- name: Build static assets
+  command: nodejs {{ install_base }}/{{ hostname }}/app/dashboard/static/js/lib/r.js -o {{ install_base }}/{{ hostname }}/app/dashboard/static/js/build.js
+  when: ansible_lsb.id == "Debian"
+  tags:
+    - web-server
+    - app
+
+- name: Fix assets permissions
+  file: path=/tmp/assets-build
+        state=directory
+        recurse=yes
+        owner={{ app_user }}
+        group={{ app_user }}
+  when: ansible_lsb.id == "Debian"
+  tags:
+    - web-server
+    - app
+
+- name: Copy static assets
+  command: rsync -a -u --delete /tmp/assets-build/ {{ web_root }}/{{ hostname }}/static
+  when: ansible_lsb.id == "Debian"
+  tags:
+    - web-server
+    - app
 
 - name: Install frontend nginx configuration
   template: src=kernelci-frontend.conf
