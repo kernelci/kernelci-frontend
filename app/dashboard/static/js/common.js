@@ -37,7 +37,7 @@ require.config({
             'app/view-boots-board-job': 'app/view-boots-board-job.20150625',
             'app/view-boots-board-job-kernel': 'app/view-boots-board-job-kernel.20150626',
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.20150701',
-            'app/view-boots-id': 'app/view-boots-id.20150624',
+            'app/view-boots-id': 'app/view-boots-id.20150702',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.20150701',
             'app/view-builds-all': 'app/view-builds-all.20150626',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.20150701',
