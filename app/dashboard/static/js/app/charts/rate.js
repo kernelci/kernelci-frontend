@@ -195,7 +195,7 @@ define([
                         });
 
                     xaxisg.selectAll('text' + '.' + gType)
-                        .attr('data-' + value, function(d, i) {
+                        .attr('data-' + value, function(d) {
                             var returnData = null;
                             if (d < dataLength) {
                                 returnData = tData[dataKeys[d]][value];
