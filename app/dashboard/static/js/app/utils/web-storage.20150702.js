@@ -18,7 +18,7 @@ define([
     'use strict';
     var storage = {};
 
-    function addClass(element, value) {
+    function setClass(element, value) {
         $(element).each(function() {
             $(this).addClass(value);
         });
@@ -60,18 +60,18 @@ define([
                     for (key in sessionState) {
                         if (sessionState.hasOwnProperty(key)) {
                             data = sessionState[key];
-                            if (data.value !== null) {
+                            if (data.value !== null && data.value !== '') {
                                 switch (data.type) {
                                     case 'attr':
-                                        loaded = loaded | true;
+                                        loaded = loaded || true;
                                         setAttr(key, data.name, data.value);
                                         break;
                                     case 'class':
-                                        loaded = loaded | true;
-                                        addClass(key, data.value);
+                                        loaded = loaded || true;
+                                        setClass(key, data.value);
                                         break;
                                     default:
-                                        loaded = loaded & false;
+                                        loaded = loaded && false;
                                         break;
                                 }
                             }
