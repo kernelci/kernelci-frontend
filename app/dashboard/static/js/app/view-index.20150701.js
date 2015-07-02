@@ -37,7 +37,7 @@ require([
         jobBuildLinkFmt;
 
     errorData = '<tr><td colspan="%d" align="center" valign="middle">' +
-        '<h4>Error loading data.</h4></td></tr>';
+        '<strong>Error loading data.</strong></td></tr>';
     noBoots = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
         'No failed boot reports.</h4></td></tr>';
     noBuilds = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
