@@ -106,7 +106,6 @@ require([
                     'className': 'defconfig-column',
                     'render': function(data, type, object) {
                         var href = null,
-                            linkEl = null,
                             board = object.board,
                             job = object.job,
                             kernel = object.kernel;
