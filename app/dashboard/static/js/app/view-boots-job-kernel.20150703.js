@@ -30,7 +30,6 @@ require([
     var kernelName = null,
         jobName = null,
         searchFilter = null,
-        tRules = null,
         fileServer = null,
         sNonAvail,
         failLabel,
@@ -581,7 +580,7 @@ require([
             gitCommit = localResult.git_commit;
             gitURL = localResult.git_url;
 
-            tURLs = u.translateCommit(gitURL, gitCommit, tRules);
+            tURLs = u.translateCommit(gitURL, gitCommit);
 
             b.replaceById(
                 'tree',
@@ -728,19 +727,12 @@ require([
         if (document.getElementById('job-name') !== null) {
             jobName = document.getElementById('job-name').value;
         }
-
         if (document.getElementById('kernel-name') !== null) {
             kernelName = document.getElementById('kernel-name').value;
         }
-
         if (document.getElementById('search-filter') !== null) {
             searchFilter = document.getElementById('search-filter').value;
         }
-
-        if (document.getElementById('url-translation') !== null) {
-            tRules = document.getElementById('url-translation').value;
-        }
-
         if (document.getElementById('file-server') !== null) {
             fileServer = document.getElementById('file-server').value;
         }

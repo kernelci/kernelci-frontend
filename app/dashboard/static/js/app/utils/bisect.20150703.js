@@ -20,7 +20,6 @@ define([
 ], function(p, b, u, btns) {
     'use strict';
     var bisect,
-        tRules = null,
         bisectBootComparisonDescription,
         bisectBuildComparisonDescription,
         bisectScriptElementF,
@@ -29,10 +28,6 @@ define([
         commitCellF,
         // How many rows are too many?
         bisectMaxElements = 6;
-
-    if (document.getElementById('url-translation') !== null) {
-        tRules = document.getElementById('url-translation').value;
-    }
 
     bisectBootComparisonDescription = 'The comparison with the ' +
         '&#171;%s&#187; tree is based on the boot reports with the same ' +
@@ -186,7 +181,7 @@ define([
                 tooltipTitle + '"><span class="bisect-text">' + tooltipLink +
                 '</span></span></span></td>';
 
-            gitURLs = u.translateCommit(gitURL, gitCommit, tRules);
+            gitURLs = u.translateCommit(gitURL, gitCommit);
 
             switch (bisectStatus) {
                 case 'PASS':

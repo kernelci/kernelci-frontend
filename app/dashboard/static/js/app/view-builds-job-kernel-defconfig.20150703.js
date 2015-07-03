@@ -27,7 +27,6 @@ require([
         jobName,
         defconfigFull,
         kernelName,
-        tRules,
         defconfigId,
         nonAvail,
         failLabel,
@@ -379,7 +378,7 @@ require([
             fileServerURI = translatedURI[0];
             pathURI = translatedURI[1];
 
-            gitURLs = u.translateCommit(gitURL, gitCommit, tRules);
+            gitURLs = u.translateCommit(gitURL, gitCommit);
 
             b.addContent('details', '&nbsp<small>(' + defconfig + ')</small>');
 
@@ -640,9 +639,6 @@ require([
         }
         if (document.getElementById('defconfig-full') !== null) {
             defconfigFull = document.getElementById('defconfig-full').value;
-        }
-        if (document.getElementById('url-translation') !== null) {
-            tRules = document.getElementById('url-translation').value;
         }
         if (document.getElementById('defconfig-id') !== null) {
             defconfigId = document.getElementById('defconfig-id').value;

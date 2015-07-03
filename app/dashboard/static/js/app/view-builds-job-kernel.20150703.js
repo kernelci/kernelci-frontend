@@ -26,7 +26,6 @@ require([
     'use strict';
     var jobName,
         kernelName,
-        tRules,
         nonAvail,
         failLabel,
         successLabel,
@@ -419,7 +418,7 @@ require([
             localResult = results[0];
             gitURL = localResult.git_url;
             gitCommit = localResult.git_commit;
-            tURLs = u.translateCommit(gitURL, gitCommit, tRules);
+            tURLs = u.translateCommit(gitURL, gitCommit);
 
             b.replaceById(
                 'tree',
@@ -573,9 +572,6 @@ require([
         }
         if (document.getElementById('kernel-name') !== null) {
             kernelName = document.getElementById('kernel-name').value;
-        }
-        if (document.getElementById('url-translation') !== null) {
-            tRules = document.getElementById('url-translation').value;
         }
 
         getJob();
