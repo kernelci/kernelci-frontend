@@ -51,7 +51,7 @@ require.config({
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150703',
             'utils/git-rules': 'utils/git-rules.20150702',
-            'utils/init': 'utils/init.20150701',
+            'utils/init': 'utils/init.20150703',
             'utils/request': 'utils/request.20150630',
             'utils/show-hide-btns': 'utils/show-hide-btns.20150626',
             'utils/tables': 'utils/tables.20150702',
