@@ -88,6 +88,11 @@ def init():
         view_func=vjob.JobsJobView.as_view("job-name"),
         methods=["GET"]
     )
+    add_rule(
+        "/job/<string:job>/branch/<string:branch>/",
+        view_func=vjob.JobsJobBranchView.as_view("job-branch"),
+        methods=["GET"]
+    )
 
     # Boots related URLs.
     add_rule(

@@ -54,3 +54,25 @@ class JobsJobView(GeneralJobsView):
             page_title=page_title,
             search_filter=search_filter
         )
+
+
+class JobsJobBranchView(GeneralJobsView):
+    def dispatch_request(self, **kwargs):
+        job_name = kwargs["job"]
+        branch_name = kwargs["branch"]
+        branch_name = branch_name.replace(":", "/")
+        search_filter, page_len = get_search_parameters(request)
+        body_title = (
+            "Details for &#171;%s&#187; <small>"
+            "(branch %s)</small>" % (job_name, branch_name))
+        page_title = (
+            "%s &mdash; &#171;%s&#187; job (branch %s)" %
+            (self.PAGE_TITLE, job_name, branch_name))
+
+        return render_template(
+            "jobs-job-branch.html",
+            body_title=body_title,
+            branch_name=branch_name,
+            job_name=job_name,
+            page_title=page_title
+        )
