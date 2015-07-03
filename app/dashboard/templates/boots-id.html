@@ -142,8 +142,6 @@
 <input type="hidden" id="defconfig-name" value="{{ defconfig }}">
 <input type="hidden" id="lab-name" value="{{ lab_name }}">
 <input type="hidden" id="boot-id" value="{{ boot_id }}">
-{# Beware the single quotes on this variable! #}
-<input type="hidden" id="url-translation" value='{{ config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
 {# URI does not work very well with require.js, load it here. #}

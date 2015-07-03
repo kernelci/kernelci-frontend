@@ -94,16 +94,12 @@ class BootIdView(BootGeneralView):
         page_title = (
             self.BOOT_PAGES_TITLE +
             "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
-            kwargs
-        )
+            kwargs)
         body_title = (
             "Boot details for board&nbsp;&#171;%(board)s&#187;&nbsp;"
-            "<small>(%(lab_name)s)</small>" % kwargs
-        )
-
+            "<small>(%(lab_name)s)</small>" % kwargs)
         boot_id = request.args.get("_id", None)
 
-        url_translation = app.config.get("KNOWN_GIT_URLS")
         return render_template(
             "boots-id.html",
             page_title=page_title,
@@ -112,7 +108,6 @@ class BootIdView(BootGeneralView):
             job=kwargs["job"],
             kernel=kwargs["kernel"],
             defconfig=kwargs["defconfig"],
-            url_translation=url_translation,
             lab_name=kwargs["lab_name"],
             boot_id=boot_id
         )

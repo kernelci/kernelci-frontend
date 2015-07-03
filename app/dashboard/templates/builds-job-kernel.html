@@ -88,8 +88,6 @@
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
-{# Beware the single quotes on this variable! #}
-<input type="hidden" id="url-translation" value='{{config["KNOWN_GIT_URLS"]|tojson|safe }}'>
 {%- endblock %}
 {%- block scripts %}
 {# URI does not work very well with require.js, load it here. #}
