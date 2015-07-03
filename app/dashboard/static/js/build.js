@@ -99,6 +99,7 @@
         {name: 'kci-index'},
         {name: 'kci-info-faq'},
         {name: 'kci-jobs-all'},
-        {name: 'kci-jobs-job'}
+        {name: 'kci-jobs-job'},
+        {name: 'kci-jobs-job-branch'}
     ]
 })
