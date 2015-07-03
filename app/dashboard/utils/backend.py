@@ -11,9 +11,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+try:
+    import simple_json as json
+except ImportError:
+    import json
+
 import contextlib
 import datetime
+import gzip
 import hashlib
+import io
 import re
 import requests
 import types
@@ -49,6 +56,33 @@ http_adapter = requests.adapters.HTTPAdapter(
 req_session.mount("http://", http_adapter)
 req_session.mount("https://", http_adapter)
 req_session.headers.update({AUTH_HEADER: AUTH_TOKEN})
+
+
+def extract_gzip_data(data, headers):
+    """Extract and json-serialize gzipped data from a response.
+
+    :param data: The data from the response.
+    :param headers: The headers of the response.
+    :return The data itself or a json object.
+    """
+    read_data = None
+    if "content-encoding" in headers:
+        if "gzip" in headers["content-encoding"]:
+            in_buffer = io.BytesIO()
+            in_buffer.write(data)
+            in_buffer.seek(io.SEEK_SET)
+
+            with gzip.GzipFile(mode="rb", fileobj=in_buffer) as g_data:
+                read_data = g_data.read()
+
+    if read_data:
+        json_data = None
+        json_data = json.loads(read_data, encoding="utf_8")
+        read_data = data = None
+    else:
+        json_data = data
+
+    return json_data
 
 
 def is_mobile_browser(request):
@@ -371,3 +405,19 @@ def ajax_batch_post(request, api_path, timeout=None):
     )
 
     return data, status_code, headers.items()
+
+
+@app.cache.memoize(timeout=60*60*8)
+def get_version():
+    """Get the backend API version."""
+    url = create_url(CONFIG_GET("VERSION_API_ENDPOINT"))
+    data, status_code, headers = request_get(url)
+
+    backend_version = None
+    if status_code == 200:
+        read_data = extract_gzip_data(data, headers)
+
+        if read_data:
+            backend_version = read_data["result"][0]["version"]
+
+    return backend_version

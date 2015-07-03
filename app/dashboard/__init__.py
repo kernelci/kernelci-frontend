@@ -88,6 +88,7 @@ def inject_variables():
         is_old_browser=backend.is_old_browser(request),
         server_date=backend.today_date(),
         front_version=__version__,
+        back_version=backend.get_version(),
         info_email=app_conf_get("INFO_EMAIL", "info@example.org")
     )
 

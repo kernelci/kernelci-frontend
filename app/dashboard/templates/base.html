@@ -90,7 +90,11 @@
                             </span>
                             &nbsp;|&nbsp;
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
-                                <i class="fa fa-cog fa-spin"></i>
+                            {%- if back_version %}
+                                <a href="https://github.com/kernelci/kernelci-backend/tree/{{ back_version }}">{{ back_version }}</a>
+                            {%- else %}
+                                ?
+                            {%- endif %}
                             </span>
                         </li>
                         <li>

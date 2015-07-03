@@ -14,35 +14,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 define([
     'jquery',
-    'utils/base',
-    'utils/request',
     'bootstrap',
     'jquery.hotkeys',
     'jquery.hotkeymap'
-], function($, b, r) {
+], function($) {
     'use strict';
     var start;
-
-    function getVersionFail() {
-        b.replaceById('api-version', '<i class="fa fa-question"><i>');
-    }
-
-    function getVersionDone(response) {
-        var localData = response.result,
-            dataLen = localData.length,
-            gitURL = 'https://github.com/kernelci/kernelci-backend/tree/',
-            version,
-            content;
-
-        if (dataLen > 0) {
-            version = localData[0].version;
-            content = '<a href="' + gitURL + version + '">' +
-                version + '</a>';
-        } else {
-            content = '&infin;';
-        }
-        b.replaceById('api-version', content);
-    }
 
     function setHotKeys() {
         var selectSearch,
@@ -105,12 +82,9 @@ define([
     }
 
     start = function() {
-        var body = $('body'),
-            deferred;
-
         setHotKeys();
 
-        body.tooltip({
+        $('body').tooltip({
             'selector': '[rel=tooltip]',
             'placement': 'auto top'
         });
@@ -121,11 +95,6 @@ define([
                 window.location = url;
             }
         });
-
-        deferred = r.get('/_ajax/version');
-        $.when(deferred)
-            .fail(getVersionFail)
-            .done(getVersionDone);
     };
 
     return start;
