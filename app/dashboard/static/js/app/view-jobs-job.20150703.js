@@ -383,7 +383,8 @@ require([
             sort_order: -1,
             limit: numberRange,
             field: [
-                'job', 'kernel', 'created_on', 'git_branch', 'git_commit'
+                'job',
+                'kernel', 'created_on', 'git_branch', 'git_commit', 'git_url'
             ]
         };
 
