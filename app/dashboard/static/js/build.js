@@ -36,6 +36,7 @@
             'app/view-info-faq': 'app/view-info-faq.20150702',
             'app/view-jobs-all': 'app/view-jobs-all.20150701',
             'app/view-jobs-job': 'app/view-jobs-job.20150701',
+            'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20150702',
             'charts/passpie': 'charts/passpie.20150626',
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150629',
