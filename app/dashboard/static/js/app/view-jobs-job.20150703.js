@@ -19,14 +19,20 @@ require([
     'utils/request',
     'utils/error',
     'utils/tables',
+    'utils/urls',
     'charts/passrate'
-], function($, i, b, r, e, t, chart) {
+], function($, i, b, r, e, t, u, chart) {
     'use strict';
     var jobName = null,
         numberRange = 20,
         buildsTable = null,
         searchFilter = null,
-        pageLen = null;
+        pageLen = null,
+        branchRegEx;
+
+    // Needed to translate git branch refnames from x/y into x:y or the
+    // forward slash will not work with URLs.
+    branchRegEx = new RegExp('/+', 'g');
 
     function getBootStatsFail() {
         b.replaceById(
@@ -164,8 +170,7 @@ require([
                     'operation_id': 'build-success-count-' + k,
                     'collection': 'count',
                     'document_id': 'defconfig',
-                    'query': 'status=PASS&limit=' + numberRange +
-                        '&job=' + jobName + '&kernel=' + kernel
+                    'query': 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get failed defconfig count.
@@ -174,8 +179,7 @@ require([
                     'operation_id': 'build-fail-count-' + k,
                     'collection': 'count',
                     'document_id': 'defconfig',
-                    'query': 'status=FAIL&limit=' + numberRange +
-                        '&job=' + jobName + '&kernel=' + kernel
+                    'query': 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get successful boot reports count.
@@ -184,8 +188,7 @@ require([
                     'operation_id': 'boot-success-count-' + k,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=PASS&limit=' + numberRange +
-                        '&job=' + jobName + '&kernel=' + kernel
+                    'query': 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get failed boot reports count.
@@ -194,13 +197,12 @@ require([
                     'operation_id': 'boot-fail-count-' + k,
                     'collection': 'count',
                     'document_id': 'boot',
-                    'query': 'status=FAIL&limit=' + numberRange +
-                        '&job=' + jobName + '&kernel=' + kernel
+                    'query': 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
             }
 
             data = JSON.stringify({
-                'batch': batchQueries
+                batch: batchQueries
             });
 
             deferred = r.post('/_ajax/batch', data);
@@ -239,7 +241,9 @@ require([
                     'className': 'kernel-column',
                     'render': function(data) {
                         return '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="' + data + '">' + data + '</span>';
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="/build/' + jobName +
+                            '/kernel/' + data + '">' + data + '</a></span>';
                     }
                 },
                 {
@@ -248,8 +252,12 @@ require([
                     'type': 'string',
                     'className': 'branch-column',
                     'render': function(data) {
+                        var branch = data.replace(branchRegEx, ':', 'g');
                         return '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="' + data + '">' + data + '</span>';
+                            'title="' + data + '">' +
+                            '<a class="table-link" href="/job/' + jobName +
+                            '/branch/' + branch + '">' +
+                            data + '</a></span>';
                     }
                 },
                 {
@@ -257,9 +265,16 @@ require([
                     'title': 'Commit',
                     'type': 'string',
                     'className': 'commit-column',
-                    'render': function(data) {
+                    'render': function(data, type, object) {
+                        var gitURLs,
+                            href = data;
+                        gitURLs = u.translateCommit(object.git_url, data);
+                        if (gitURLs[1] !== null) {
+                            href = '<a class="table-link" href="' +
+                                gitURLs[1] + '">' + data + '</a>';
+                        }
                         return '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="' + data + '">' + data + '</span>';
+                            'title="' + data + '">' + href + '</span>';
                     }
                 },
                 {
@@ -270,9 +285,8 @@ require([
                     'type': 'string',
                     'className': 'build-count pull-center',
                     'render': function(data, type, object, meta) {
-                        var idx = meta.row,
-                            rend;
-                        rend = '<span ' +
+                        var idx = meta.row;
+                        return '<span ' +
                             'class="badge alert-success extra-margin">' +
                             '<span id="build-success-count-' + idx +
                             '" class="count-badge">' +
@@ -281,7 +295,6 @@ require([
                             '<span id="build-fail-count-' + idx +
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i></span></span>';
-                        return rend;
                     }
                 },
                 {
@@ -293,11 +306,10 @@ require([
                     'className': 'boot-count pull-center',
                     'render': function(data, type, object, meta) {
                         var href,
-                            rend,
                             idx = meta.row;
                         href = '/boot/all/job/' + object.job + '/kernel/' +
                             data + '/';
-                        rend = '<a href="' + href + '">' +
+                        return '<a href="' + href + '">' +
                             '<span class="badge alert-success extra-margin">' +
                             '<span id="boot-success-count-' + idx +
                             '" class="count-badge">' +
@@ -307,8 +319,6 @@ require([
                             '" class="count-badge">' +
                             '<i class="fa fa-cog fa-spin"></i></span></span>' +
                             '</a>';
-
-                        return rend;
                     }
                 },
                 {
@@ -367,12 +377,12 @@ require([
             deferred;
 
         data = {
-            'aggregate': 'kernel',
-            'job': jobName,
-            'sort': 'created_on',
-            'sort_order': -1,
-            'limit': numberRange,
-            'field': [
+            aggregate: 'kernel',
+            job: jobName,
+            sort: 'created_on',
+            sort_order: -1,
+            limit: numberRange,
+            field: [
                 'job', 'kernel', 'created_on', 'git_branch', 'git_commit'
             ]
         };
@@ -423,31 +433,31 @@ require([
             deferred;
 
         batchQueries[0] = {
-            'operation_id': 'builds-count',
-            'method': 'GET',
-            'collection': 'count',
-            'document_id': 'job',
-            'query': queryString
+            operation_id: 'builds-count',
+            method: 'GET',
+            collection: 'count',
+            document_id: 'job',
+            query: queryString
         };
 
         batchQueries[1] = {
-            'operation_id': 'defconfs-count',
-            'method': 'GET',
-            'collection': 'count',
-            'document_id': 'defconfig',
-            'query': queryString
+            operation_id: 'defconfs-count',
+            method: 'GET',
+            collection: 'count',
+            document_id: 'defconfig',
+            query: queryString
         };
 
         batchQueries[2] = {
-            'operation_id': 'boot-reports-count',
-            'method': 'GET',
-            'collection': 'count',
-            'document_id': 'boot',
-            'query': queryString
+            operation_id: 'boot-reports-count',
+            method: 'GET',
+            collection: 'count',
+            document_id: 'boot',
+            query: queryString
         };
 
         data = JSON.stringify({
-            'batch': batchQueries
+            batch: batchQueries
         });
 
         deferred = r.post('/_ajax/batch', data);
