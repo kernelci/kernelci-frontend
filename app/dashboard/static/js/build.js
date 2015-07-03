@@ -39,10 +39,12 @@
             'charts/passpie': 'charts/passpie.20150626',
             'utils/base': 'utils/base.20150623',
             'utils/bisect': 'utils/bisect.20150629',
+            'utils/git-rules': 'utils/git-rules.20150702',
             'utils/init': 'utils/init.20150701',
             'utils/request': 'utils/request.20150630',
             'utils/show-hide-btns': 'utils/show-hide-btns.20150626',
             'utils/tables': 'utils/tables.20150702',
+            'utils/urls': 'utils/urls.20150703',
             'utils/web-storage': 'utils/web-storage.20150702'
         }
     },
@@ -78,6 +80,7 @@
         {name: 'app/view-index.20150701'},
         {name: 'app/view-info-faq.20150702'},
         {name: 'app/view-jobs-all.20150701'},
+        {name: 'app/view-jobs-job-branch.20150702'},
         {name: 'app/view-jobs-job.20150701'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
