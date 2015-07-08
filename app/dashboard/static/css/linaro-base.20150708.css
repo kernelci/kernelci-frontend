@@ -260,3 +260,7 @@ hr.blurred {
     background-image: -ms-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
     background-image: -o-linear-gradient(left, rgba(0,0,0,0.03), rgba(0,0,0,0.10), rgba(0,0,0,0.03));
 }
+textarea.build-logs {
+    font-size: 83%;
+    font-family: monospace;
+}
