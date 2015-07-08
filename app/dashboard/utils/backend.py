@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""All the necessary functions to interact with the backend or server side."""
+
 try:
     import simple_json as json
 except ImportError:
@@ -48,14 +50,14 @@ AUTH_TOKEN = CONFIG_GET("BACKEND_TOKEN")
 BACKEND_URL = CONFIG_GET("BACKEND_URL")
 
 # The requests session object.
-req_session = requests.Session()
-http_adapter = requests.adapters.HTTPAdapter(
+REQ_SESSION = requests.Session()
+HTTP_ADAPTER = requests.adapters.HTTPAdapter(
     pool_connections=CONFIG_GET("REQUEST_MIN_POOL_SIZE"),
     pool_maxsize=CONFIG_GET("REQUEST_MAX_POOL_SIZE")
 )
-req_session.mount("http://", http_adapter)
-req_session.mount("https://", http_adapter)
-req_session.headers.update({AUTH_HEADER: AUTH_TOKEN})
+REQ_SESSION.mount("http://", HTTP_ADAPTER)
+REQ_SESSION.mount("https://", HTTP_ADAPTER)
+REQ_SESSION.headers.update({AUTH_HEADER: AUTH_TOKEN})
 
 
 def extract_gzip_data(data, headers):
@@ -151,7 +153,7 @@ def _is_old_browser(browser, version):
     :return True or False.
     """
     is_old = False
-    if (browser == "msie" and version < 9):
+    if all([browser == "msie", version < 9]):
         is_old = True
 
     return is_old
@@ -204,11 +206,14 @@ def _create_api_path(api_path, other_path=None):
     :type other_path: list or str
     """
     def _check_and_add_trailing_slash(path):
+        """Check if the path is missing the trailing /."""
         if path[-1] != "/":
             path += "/"
         return path
 
+    # pylint: disable=invalid-name
     def _check_and_remove_trailing_slash(path):
+        """Remove the trailing / from the path."""
         if path[-1] == "/":
             path = path[:-1]
         return path
@@ -241,11 +246,14 @@ def _get_request_headers():
     return headers
 
 
-def request_get(url, params=[], timeout=None):
+def request_get(url, params=None, timeout=None):
     """Perform a GET request on the provided URL.
 
     :return The server response.
     """
+    if not params:
+        params = []
+
     return_data = status_code = headers = None
     cache_key = hashlib.md5("%s%s" % (url, str(params))).digest()
 
@@ -255,14 +263,14 @@ def request_get(url, params=[], timeout=None):
     else:
         try:
             with contextlib.closing(
-                    req_session.get(
+                    REQ_SESSION.get(
                         url,
                         params=params,
                         timeout=(CONNECT_TIMEOUT, READ_TIMEOUT),
-                        stream=True)) as r:
-                return_data = r.raw.data or r.text
-                status_code = r.status_code
-                headers = r.headers
+                        stream=True)) as req:
+                return_data = req.raw.data or req.text
+                status_code = req.status_code
+                headers = req.headers
 
             if timeout is None:
                 timeout = CACHE_DEFAULT_TIMEOUT
@@ -280,11 +288,18 @@ def request_get(url, params=[], timeout=None):
     return return_data, status_code, headers
 
 
-def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
+# pylint: disable=too-many-arguments
+def request_post(
+        url, data, params=None, headers=None, stream=True, timeout=None):
     """Perform a POST request on the provided URL with the given data.
 
     :return The server response.
     """
+    if not params:
+        params = []
+    if not headers:
+        headers = {}
+
     return_data = status_code = r_headers = None
     cache_key = hashlib.md5("%s%s%s" % (url, data, str(params))).digest()
 
@@ -293,16 +308,16 @@ def request_post(url, data, params=[], headers={}, stream=True, timeout=None):
         return_data, status_code, r_headers = cached
     else:
         try:
-            with contextlib.closing(req_session.post(
+            with contextlib.closing(REQ_SESSION.post(
                     url,
                     data=data,
                     params=params,
                     headers=headers,
                     stream=stream,
-                    timeout=(CONNECT_TIMEOUT, READ_TIMEOUT))) as r:
-                return_data = r.raw.data or r.text
-                status_code = r.status_code
-                r_headers = r.headers
+                    timeout=(CONNECT_TIMEOUT, READ_TIMEOUT))) as req:
+                return_data = req.raw.data or req.text
+                status_code = req.status_code
+                r_headers = req.headers
 
             if timeout is None:
                 timeout = CACHE_DEFAULT_TIMEOUT

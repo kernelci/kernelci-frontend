@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Main module."""
+
 import os
 import random
 
@@ -50,6 +52,7 @@ def generate_csrf_token():
     return generate_csrf(time_limit=random.randint(60, 180))
 
 
+# pylint: disable=invalid-name
 app = Flask("kernelci-frontend")
 
 app.root_path = os.path.abspath(os.path.dirname(__file__))
@@ -74,7 +77,7 @@ app.jinja_env.globals["csrf_token_r"] = generate_csrf_token
 # The app context here is needed since we are using variables defined in the
 # config files and we need to access them.
 with app.app_context():
-    import utils.backend as backend
+    import dashboard.utils.backend as backend
     import dashboard.utils.route as route
 
     route.init()
@@ -82,6 +85,7 @@ with app.app_context():
 
 @app.context_processor
 def inject_variables():
+    """Inject some often used variables."""
     return dict(
         analytics=app_conf_get("GOOGLE_ANALYTICS_ID"),
         is_mobile=backend.is_mobile_browser(request),
@@ -93,8 +97,10 @@ def inject_variables():
     )
 
 
+# pylint: disable=unused-argument
 @app.errorhandler(404)
 def page_not_found(e):
+    """Handle 404."""
     path = os.path.join(app.root_path, "static", "html", "404-content.html")
     page_content = ""
 
@@ -106,6 +112,7 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
+    """Handle 500."""
     path = os.path.join(app.root_path, "static", "html", "500-content.html")
     page_content = ""
 
@@ -117,6 +124,7 @@ def internal_server_error(e):
 
 @app.errorhandler(400)
 def bad_request_error(e):
+    """Handle 400."""
     path = os.path.join(app.root_path, "static", "html", "400-content.html")
     page_content = ""
 
@@ -126,6 +134,7 @@ def bad_request_error(e):
     return render_template("400.html", page_content=page_content), 400
 
 
+# pylint: disable=missing-docstring
 @app.route("/static/js/<path:path>")
 def static_js_proxy(path):
     return app.send_static_file(os.path.join("js", path))

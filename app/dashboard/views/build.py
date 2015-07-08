@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""All the build class based views."""
+
 from flask import (
     current_app as app,
     render_template,
@@ -22,6 +24,7 @@ from dashboard.utils.backend import get_search_parameters
 
 
 class GeneralBuildsView(View):
+    """Generic view for all the build ones."""
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
@@ -30,6 +33,7 @@ class GeneralBuildsView(View):
 
 class BuildsAllView(GeneralBuildsView):
 
+    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
         body_title = u"Available Builds"
         search_filter, page_len = get_search_parameters(request)
@@ -45,6 +49,7 @@ class BuildsAllView(GeneralBuildsView):
 
 class BuildsJobKernelView(GeneralBuildsView):
 
+    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
@@ -65,6 +70,7 @@ class BuildsJobKernelView(GeneralBuildsView):
 
 class BuildsJobKernelDefconfigView(GeneralBuildsView):
 
+    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
@@ -89,6 +95,7 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
 
 class BuildsLogsView(GeneralBuildsView):
 
+    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
