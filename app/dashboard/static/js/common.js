@@ -42,6 +42,7 @@ require.config({
             'app/view-builds-all': 'app/view-builds-all.20150626',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.20150703',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.20150703',
+            'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.20150708',
             'app/view-index': 'app/view-index.20150701',
             'app/view-info-faq': 'app/view-info-faq.20150702',
             'app/view-jobs-all': 'app/view-jobs-all.20150701',

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3 id="details">{{ body_title|safe }}</h3>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd class="loading-content" id="tree">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git branch</dt>
+            <dd class="loading-content" id="git-branch">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git describe</dt>
+            <dd class="loading-content" id="git-describe">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Defconfig</dt>
+            <dd class="loading-content" id="build-defconfig">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git URL</dt>
+            <dd class="loading-content" id="git-url">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Git commit</dt>
+            <dd class="loading-content" id="git-commit">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Date</dt>
+            <dd class="loading-content" id="build-date">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <dl class="dl-horizontal">
+            <dt>Status</dt>
+            <dd class="loading-content" id="build-status">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Architecture</dt>
+            <dd class="loading-content" id="build-arch">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Build time</dt>
+            <dd class="loading-content" id="build-time">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Build log</dt>
+            <dd class="loading-content" id="build-log">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>Build errors</dt>
+            <dd class="logs-loading-content" id="build-errors">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Build warnings</dt>
+            <dd class="logs-loading-content" id="build-warnings">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+            <dt>Mismatched sections</dt>
+            <dd class="logs-loading-content" id="build-mismatches">
+                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            </dd>
+        </dl>
+    </div>
+</div>
+<div class="row">
+    <div class="page-header">
+        <h4>Logs</h4>
+    </div>
+    <div id="build-logs-loading" class="pull-center">
+        <i class="fa fa-cog fa-spin"></i>&nbsp;loading build logs&hellip;
+    </div>
+    <div id="build-logs"></div>
+</div>
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+<input type="hidden" id="job-name" value="{{ job_name }}">
+<input type="hidden" id="kernel-name" value="{{ kernel_name }}">
+<input type="hidden" id="defconfig-full" value="{{ defconfig_full }}">
+<input type="hidden" id="defconfig-id" value="{{ defconfig_id }}">
+{%- endblock %}
+{%- block scripts %}
+{# URI does not work very well with require.js, load it here. #}
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/URI.js/1.15.1/URI.min.js"></script>
+<script data-main="/static/js/kci-builds-job-kernel-defconfig-logs" src="/static/js/lib/require.js"></script>
+{%- endblock %}
