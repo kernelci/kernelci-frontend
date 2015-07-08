@@ -72,6 +72,14 @@ def init():
         methods=["GET"]
     )
     add_rule(
+        (
+            "/build/<string:job>/kernel/<string:kernel>"
+            "/defconfig/<string:defconfig>/logs/"
+        ),
+        view_func=vbuild.BuildsLogsView.as_view("job-kernel-defconf-logs"),
+        methods=["GET"]
+    )
+    add_rule(
         "/build/<string:job>/",
         view_func=vjob.JobsJobView.as_view("build-job"),
         methods=["GET"]

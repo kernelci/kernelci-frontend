@@ -381,7 +381,6 @@ def ajax_bisect(request, doc_id, api_path, timeout=None):
     else:
         api_path = _create_api_path(api_path)
     url = create_url(api_path)
-    print url
 
     data, status_code, headers = request_get(
         url, params=params_list, timeout=timeout)
@@ -421,3 +420,23 @@ def get_version():
             backend_version = read_data["result"][0]["version"]
 
     return backend_version
+
+
+def ajax_defconfig_logs(request, doc_id, api_path, timeout=None):
+    """Get the build logs.
+
+    :param request: The request performed.
+    :param doc_id: The ID of the bisect document.
+    :param api_path: The API endpoint where to perform the request.
+    """
+    params_list = request.args.lists()
+
+    if doc_id:
+        api_path = _create_api_path(api_path % doc_id)
+    else:
+        api_path = _create_api_path(api_path)
+    url = create_url(api_path)
+
+    data, status_code, headers = request_get(
+        url, params=params_list, timeout=timeout)
+    return (data, status_code, headers.items())

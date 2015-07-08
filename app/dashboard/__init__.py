@@ -205,13 +205,15 @@ def ajax_bisect_call(doc_id=None):
         abort(400)
 
 
-@app.route("/_ajax/version", methods=["GET"])
-def ajax_version():
+@app.route("/_ajax/defconf/logs", methods=["GET"])
+@app.route("/_ajax/defconf/<string:doc_id>/logs", methods=["GET"])
+def ajax_defconf_logs(doc_id=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
-        # Cache the version for two days, hard for it to change that often.
-        return backend.ajax_get(
-            request,
-            app_conf_get("VERSION_API_ENDPOINT"),
-            timeout=60*60*24*2)
+        if doc_id:
+            api_path = app_conf_get("DEFCONFIG_ID_LOGS_ENPOINT")
+        else:
+            api_path = app_conf_get("DEFCONFIG_LOGS_ENPOINT")
+        return backend.ajax_defconfig_logs(
+            request, doc_id, api_path, timeout=60*60*3)
     else:
         abort(400)
