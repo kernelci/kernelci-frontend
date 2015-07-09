@@ -62,9 +62,6 @@ require([
             '<div class="pull-center"><strong>' +
             'Error loading build logs.</strong></div>'
         );
-        b.replaceByClass(
-            'logs-loading-content', nonAvail
-        );
     }
 
     function getBuildLogsDone(response) {
@@ -106,7 +103,7 @@ require([
                 rows = calculateRowCount(warningsCount);
                 logsContent +=
                     '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h4>Errors</h4>';
+                    '<h5>Errors</h5>';
                 logsContent += '<textarea class="build-logs form-control" ' +
                     'readonly="true" cols="105" rows="' + 5 + '">';
 
@@ -121,7 +118,7 @@ require([
                 rows = calculateRowCount(warningsCount);
                 logsContent +=
                     '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h4>Warnings</h4>';
+                    '<h5>Warnings</h5>';
                 logsContent += '<textarea class="build-logs form-control" ' +
                     'readonly="true" cols="105" rows="' + rows + '">';
 
@@ -136,7 +133,7 @@ require([
                 rows = calculateRowCount(warningsCount);
                 logsContent +=
                     '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h4>Mismatched sections</h4>';
+                    '<h5>Mismatched sections</h5>';
                 logsContent += '<textarea class="build-logs form-control" ' +
                     'readonly="true" cols="105" rows="' + rows + '">';
 
