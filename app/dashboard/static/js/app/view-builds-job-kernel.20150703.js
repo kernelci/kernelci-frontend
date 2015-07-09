@@ -72,6 +72,7 @@ require([
             job,
             kernel,
             arch,
+            docId,
             lFileServer = fileServer,
             fileServerData,
             translatedURI,
@@ -101,7 +102,7 @@ require([
         } else {
             for (idx; idx < resLen; idx = idx + 1) {
                 localResult = results[idx];
-
+                docId = localResult._id.$oid;
                 defconfigFull = localResult.defconfig_full;
                 job = localResult.job;
                 kernel = localResult.kernel;
@@ -176,24 +177,38 @@ require([
                 warnErrCount = warningString +
                     '&nbsp;&mdash;&nbsp;' + errorString;
 
-                if (localResult.build_log !== null) {
-                    buildLogURI = fileServerURI.path(pathURI +
-                        '/' + localResult.build_log).normalizePath().href();
+                if (warningsCount === 0 && errorsCount === 0) {
+                    if (localResult.build_log !== null) {
+                        buildLogURI = fileServerURI.path(pathURI +
+                            '/' + localResult.build_log).normalizePath().href();
+                        warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
+                            'Click to view the build log';
+                        warnErrLabel = '<small>' +
+                            '<span class="build-warnings">' +
+                            '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + warnErrTooltip + '">' +
+                            '<a href="' + buildLogURI + '">' +
+                            warnErrCount + '</a></span><span></small>';
+                    } else {
+                        warnErrLabel = '<small>' +
+                            '<span class="build-warnings">' +
+                            '<span rel="tooltip" data-toggle="tooltip" ' +
+                            'title="' + warnErrString + '">' + warnErrCount +
+                            '</span><span></small>';
+                    }
+                } else {
                     warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
-                        'Click to view the build log';
+                        'Click to view detailed build log information';
                     warnErrLabel = '<small>' +
                         '<span class="build-warnings">' +
                         '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="' + warnErrTooltip + '">' +
-                        '<a href="' + buildLogURI + '">' +
+                        '<a href="/build/' + job + '/kernel/' + kernel +
+                        '/defconfig/' + defconfigFull +
+                        '/logs/?_id=' + docId + '">' +
                         warnErrCount + '</a></span><span></small>';
-                } else {
-                    warnErrLabel = '<small>' +
-                        '<span class="build-warnings">' +
-                        '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="' + warnErrString + '">' + warnErrCount +
-                        '</span><span></small>';
                 }
+
 
                 if (arch !== null) {
                     archLabel = '&nbsp;&dash;&nbsp;' +
@@ -410,7 +425,8 @@ require([
             localResult,
             gitCommit,
             gitURL,
-            tURLs;
+            tURLs,
+            createdOn;
 
         if (resLen === 0) {
             b.replaceByClass('loading-content', '?');
@@ -419,6 +435,7 @@ require([
             gitURL = localResult.git_url;
             gitCommit = localResult.git_commit;
             tURLs = u.translateCommit(gitURL, gitCommit);
+            createdOn = new Date(localResult.created_on.$date);
 
             b.replaceById(
                 'tree',
@@ -472,6 +489,11 @@ require([
                     b.replaceById('git-commit', nonAvail);
                 }
             }
+
+            b.replaceById(
+                'build-date',
+                '<time>' + createdOn.getCustomISODate() + '</time>'
+            );
         }
     }
 
