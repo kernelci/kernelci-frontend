@@ -40,7 +40,7 @@ require.config({
             'app/view-boots-id': 'app/view-boots-id.20150702',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.20150703',
             'app/view-builds-all': 'app/view-builds-all.20150626',
-            'app/view-builds-job-kernel': 'app/view-builds-job-kernel.20150703',
+            'app/view-builds-job-kernel': 'app/view-builds-job-kernel.20150709',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.20150703',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.20150708',
             'app/view-index': 'app/view-index.20150701',
