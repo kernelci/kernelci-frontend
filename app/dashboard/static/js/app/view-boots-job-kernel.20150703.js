@@ -535,18 +535,15 @@ require([
     function getBoot(response) {
         var result = response.result,
             resultLen = result.length,
-            localResult = null,
             deferred,
             data;
 
         if (resultLen > 0) {
-            localResult = result[0];
             data = {
                 'sort': ['board', 'defconfig_full', 'arch'],
                 'sort_order': 1,
                 'job': jobName,
-                'kernel': kernelName,
-                'job_id': localResult._id.$oid
+                'kernel': kernelName
             };
             deferred = r.get('/_ajax/boot', data);
             $.when(deferred)
