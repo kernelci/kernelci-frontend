@@ -190,7 +190,7 @@ require([
                 'arch', 'created_on', 'git_branch', 'defconfig_full'
             ]
         };
-        deferred = r.get('/_ajax/defconf', data);
+        deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone);

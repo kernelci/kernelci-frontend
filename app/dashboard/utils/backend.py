@@ -79,7 +79,7 @@ def extract_gzip_data(data, headers):
 
     if read_data:
         json_data = None
-        json_data = json.loads(read_data, encoding="utf_8")
+        json_data = json.loads(read_data, encoding="utf-8")
         read_data = data = None
     else:
         json_data = data
@@ -136,7 +136,7 @@ def is_old_browser(request):
     browser = request.user_agent.browser
     version = (
         request.user_agent.version and
-        int(request.user_agent.version.split('.')[0])
+        int(request.user_agent.version.split(".")[0])
     )
     return _is_old_browser(browser, version)
 

@@ -100,7 +100,7 @@ require([
         };
 
         deferred = r.get(
-            '/_ajax/bisect?collection=defconfig&' +
+            '/_ajax/bisect?collection=build&' +
                 'compare_to=mainline&defconfig_id=' + build,
             {}
         );
@@ -171,7 +171,7 @@ require([
                 b.removeClass('bisect-div', 'hidden');
 
                 deferred = r.get(
-                    '/_ajax/bisect?collection=defconfig&defconfig_id=' +
+                    '/_ajax/bisect?collection=build&defconfig_id=' +
                     results._id.$oid,
                     {}
                 );
@@ -617,7 +617,7 @@ require([
             data.kernel = kernelName;
             data.defconfig_full = defconfigFull;
         }
-        deferred = r.get('/_ajax/defconf', data);
+        deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone, getBoots, getBisect);

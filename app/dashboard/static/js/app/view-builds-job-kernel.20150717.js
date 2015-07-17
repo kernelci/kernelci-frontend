@@ -403,7 +403,7 @@ require([
                 'sort': ['defconfig_full', 'arch'],
                 'sort_order': 1
             };
-            deferred = r.get('/_ajax/defconf', data);
+            deferred = r.get('/_ajax/build', data);
             $.when(deferred)
                 .fail(e.error, getBuildsFail)
                 .done(getBuildsDone, getBuildsDoneChart);

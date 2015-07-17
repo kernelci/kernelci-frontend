@@ -96,21 +96,21 @@ require([
                 job = results[idx / batchElements].job;
                 kernel = results[idx / batchElements].kernel;
 
-                // Get successful defconfig count.
+                // Get successful build count.
                 batchOps[idx] = {
                     'method': 'GET',
                     'operation_id': 'defconf-success-count-' + job,
                     'collection': 'count',
-                    'document_id': 'defconfig',
+                    'document_id': 'build',
                     'query': 'status=PASS&job=' + job + '&kernel=' + kernel
                 };
 
-                // Get failed defconfig count.
+                // Get failed build count.
                 batchOps[j + 1] = {
                     'method': 'GET',
                     'operation_id': 'defconf-fail-count-' + job,
                     'collection': 'count',
-                    'document_id': 'defconfig',
+                    'document_id': 'build',
                     'query': 'status=FAIL&job=' + job + '&kernel=' + kernel
                 };
 

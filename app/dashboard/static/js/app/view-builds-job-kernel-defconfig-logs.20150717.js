@@ -165,12 +165,12 @@ require([
         } else {
             if (defconfigId !== 'None') {
                 deferred = r.get(
-                    '/_ajax/defconf/' + defconfigId + '/logs', data);
+                    '/_ajax/build/' + defconfigId + '/logs', data);
             } else {
                 data.job = jobName;
                 data.kernel = kernelName;
                 data.defconfig_full = defconfigFull;
-                deferred = r.get('/_ajax/defconf/logs', data);
+                deferred = r.get('/_ajax/build/logs', data);
             }
             $.when(deferred)
                 .fail(e.error, getBuildLogsFail)
@@ -362,7 +362,7 @@ require([
             data.kernel = kernelName;
             data.defconfig_full = defconfigFull;
         }
-        deferred = r.get('/_ajax/defconf', data);
+        deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getBuildFail)
             .done(getBuildDone, getBuildLogs);

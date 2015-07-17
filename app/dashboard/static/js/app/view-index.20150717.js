@@ -94,14 +94,14 @@ require([
                     'job': results[0].job,
                     'kernel': results[0].kernel
                 };
-                deferred = r.get('/_ajax/count/defconfig', data);
+                deferred = r.get('/_ajax/count/build', data);
             } else {
                 for (idx; idx < resLen; idx = idx + 1) {
                     batchOps[idx] = {
                         'method': 'GET',
                         'operation_id': 'fail-count-' + idx,
                         'collection': 'count',
-                        'document_id': 'defconfig',
+                        'document_id': 'build',
                         'query': 'status=FAIL&job=' + results[idx].job +
                             '&kernel=' + results[idx].kernel
                     };
@@ -328,7 +328,7 @@ require([
             'limit': numberRange,
             'field': ['job', 'kernel', 'created_on', 'git_branch']
         };
-        deferred1 = r.get('/_ajax/defconf', data1);
+        deferred1 = r.get('/_ajax/build', data1);
         $.when(deferred1)
             .fail(e.error, getDefconfigsFail, getDefconfigsCountFail)
             .done(getDefconfigsDone, getDefconfigsCount);

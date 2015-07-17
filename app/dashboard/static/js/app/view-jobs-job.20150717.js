@@ -88,7 +88,7 @@ require([
             field: ['status', 'kernel', 'created_on', 'job']
         };
 
-        deferred = r.get('/_ajax/defconf', data);
+        deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getDefconfigsStatsFail)
             .done(getDefconfigsStatsDone);
@@ -164,21 +164,21 @@ require([
                 k = z / batchElements;
                 kernel = localData[k].kernel;
 
-                // Get successful defconfig count.
+                // Get successful build count.
                 batchQueries[z] = {
                     'method': 'GET',
                     'operation_id': 'build-success-count-' + k,
                     'collection': 'count',
-                    'document_id': 'defconfig',
+                    'document_id': 'build',
                     'query': 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
-                // Get failed defconfig count.
+                // Get failed build count.
                 batchQueries[j + 1] = {
                     'method': 'GET',
                     'operation_id': 'build-fail-count-' + k,
                     'collection': 'count',
-                    'document_id': 'defconfig',
+                    'document_id': 'build',
                     'query': 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -388,7 +388,7 @@ require([
             ]
         };
 
-        deferred = r.get('/_ajax/defconf', data);
+        deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(
                 e.error,
@@ -445,7 +445,7 @@ require([
             operation_id: 'defconfs-count',
             method: 'GET',
             collection: 'count',
-            document_id: 'defconfig',
+            document_id: 'build',
             query: queryString
         };
 
