@@ -153,11 +153,11 @@ def ajax_job():
         abort(400)
 
 
-@app.route("/_ajax/defconf")
-def ajax_defconf():
+@app.route("/_ajax/build")
+def ajax_build():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(
-            request, app_conf_get("DEFCONFIG_API_ENDPOINT"))
+            request, app_conf_get("BUILD_API_ENDPOINT"))
     else:
         abort(400)
 
@@ -214,15 +214,15 @@ def ajax_bisect_call(doc_id=None):
         abort(400)
 
 
-@app.route("/_ajax/defconf/logs", methods=["GET"])
-@app.route("/_ajax/defconf/<string:doc_id>/logs", methods=["GET"])
-def ajax_defconf_logs(doc_id=None):
+@app.route("/_ajax/build/logs", methods=["GET"])
+@app.route("/_ajax/build/<string:doc_id>/logs", methods=["GET"])
+def ajax_build_logs(doc_id=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         if doc_id:
             api_path = app_conf_get("DEFCONFIG_ID_LOGS_ENPOINT")
         else:
             api_path = app_conf_get("DEFCONFIG_LOGS_ENPOINT")
-        return backend.ajax_defconfig_logs(
+        return backend.ajax_build_logs(
             request, doc_id, api_path, timeout=60*60*3)
     else:
         abort(400)

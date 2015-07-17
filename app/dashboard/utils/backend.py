@@ -437,7 +437,7 @@ def get_version():
     return backend_version
 
 
-def ajax_defconfig_logs(request, doc_id, api_path, timeout=None):
+def ajax_build_logs(request, doc_id, api_path, timeout=None):
     """Get the build logs.
 
     :param request: The request performed.

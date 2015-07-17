@@ -46,7 +46,7 @@ AUTHOR = {
 }
 
 # Necessary URLs for the feed.
-BUILD_URL = backend.create_url(CONFIG_GET("DEFCONFIG_API_ENDPOINT"))
+BUILD_URL = backend.create_url(CONFIG_GET("BUILD_API_ENDPOINT"))
 BUILD_FRONTEND_URL = (
     CONFIG_GET("BASE_URL") +
     "/build/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig_full)s/"

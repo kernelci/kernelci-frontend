@@ -226,7 +226,7 @@ require([
             data;
         if (response.count > 0) {
             data = {'job': jobName, 'kernel': kernelName};
-            deferred = r.get('/_ajax/count/defconfig', data);
+            deferred = r.get('/_ajax/count/build', data);
 
             $.when(deferred, uniq.countUniqueBootD(response))
                 .fail(e.error, uniqueCountFail)
