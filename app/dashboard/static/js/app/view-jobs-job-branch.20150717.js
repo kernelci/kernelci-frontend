@@ -166,8 +166,8 @@ require([
                 batchQueries[z] = {
                     method: 'GET',
                     operation_id: 'build-success-count-' + k,
-                    collection: 'count',
-                    document_id: 'build',
+                    resource: 'count',
+                    document: 'build',
                     query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -175,8 +175,8 @@ require([
                 batchQueries[j + 1] = {
                     method: 'GET',
                     operation_id: 'build-fail-count-' + k,
-                    collection: 'count',
-                    document_id: 'build',
+                    resource: 'count',
+                    document: 'build',
                     query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -184,8 +184,8 @@ require([
                 batchQueries[j + 2] = {
                     method: 'GET',
                     operation_id: 'boot-success-count-' + k,
-                    collection: 'count',
-                    document_id: 'boot',
+                    resource: 'count',
+                    document: 'boot',
                     query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
@@ -193,8 +193,8 @@ require([
                 batchQueries[j + 3] = {
                     method: 'GET',
                     operation_id: 'boot-fail-count-' + k,
-                    collection: 'count',
-                    document_id: 'boot',
+                    resource: 'count',
+                    document: 'boot',
                     query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
             }
@@ -424,24 +424,24 @@ require([
         batchQueries[0] = {
             operation_id: 'builds-count',
             method: 'GET',
-            collection: 'count',
-            document_id: 'job',
+            resource: 'count',
+            document: 'job',
             query: queryString
         };
 
         batchQueries[1] = {
             operation_id: 'defconfs-count',
             method: 'GET',
-            collection: 'count',
-            document_id: 'build',
+            resource: 'count',
+            document: 'build',
             query: queryString
         };
 
         batchQueries[2] = {
             operation_id: 'boot-reports-count',
             method: 'GET',
-            collection: 'count',
-            document_id: 'boot',
+            resource: 'count',
+            document: 'boot',
             query: queryString
         };
 

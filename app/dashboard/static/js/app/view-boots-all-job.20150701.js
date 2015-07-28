@@ -57,23 +57,23 @@ require([
 
         batchQueries = new Array(2);
         batchQueries[0] = {
-            'method': 'GET',
-            'operation_id': 'boot-reports-count',
-            'collection': 'count',
-            'document_id': 'boot',
-            'query': 'job=' + jobName + '&limit=' + numberRange
+            method: 'GET',
+            operation_id: 'boot-reports-count',
+            resource: 'count',
+            document: 'boot',
+            query: 'job=' + jobName + '&limit=' + numberRange
         };
 
         batchQueries[1] = {
-            'method': 'GET',
-            'operation_id': 'boot-boards-count',
-            'collection': 'boot',
-            'query': 'job=' + jobName + '&limit=' + numberRange +
+            method: 'GET',
+            operation_id: 'boot-boards-count',
+            resource: 'boot',
+            query: 'job=' + jobName + '&limit=' + numberRange +
                 '&aggregate=board&field=board'
         };
 
         data = JSON.stringify({
-            'batch': batchQueries
+            batch: batchQueries
         });
         deferred = r.post('/_ajax/batch', data);
         $.when(deferred)
@@ -127,25 +127,25 @@ require([
                 jdx = idx;
                 kernel = results[idx / batchElements].kernel;
                 batchQueries[idx] = {
-                    'method': 'GET',
-                    'operation_id': 'success-count-' + kernel,
-                    'collection': 'count',
-                    'document_id': 'boot',
-                    'query': 'status=PASS&job=' + jobName + '&kernel=' +
+                    method: 'GET',
+                    operation_id: 'success-count-' + kernel,
+                    resource: 'count',
+                    document: 'boot',
+                    query: 'status=PASS&job=' + jobName + '&kernel=' +
                         kernel
                 };
                 batchQueries[jdx + 1] = {
-                    'method': 'GET',
-                    'operation_id': 'fail-count-' + kernel,
-                    'collection': 'count',
-                    'document_id': 'boot',
-                    'query': 'status=FAIL&job=' + jobName + '&kernel=' +
+                    method: 'GET',
+                    operation_id: 'fail-count-' + kernel,
+                    resource: 'count',
+                    document: 'boot',
+                    query: 'status=FAIL&job=' + jobName + '&kernel=' +
                         kernel
                 };
             }
 
             data = JSON.stringify({
-                'batch': batchQueries
+                batch: batchQueries
             });
             deferred = r.post('/_ajax/batch', data);
             $.when(deferred)

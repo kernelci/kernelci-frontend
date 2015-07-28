@@ -98,42 +98,42 @@ require([
 
                 // Get successful build count.
                 batchOps[idx] = {
-                    'method': 'GET',
-                    'operation_id': 'defconf-success-count-' + job,
-                    'collection': 'count',
-                    'document_id': 'build',
-                    'query': 'status=PASS&job=' + job + '&kernel=' + kernel
+                    method: 'GET',
+                    operation_id: 'defconf-success-count-' + job,
+                    resource: 'count',
+                    document: 'build',
+                    query: 'status=PASS&job=' + job + '&kernel=' + kernel
                 };
 
                 // Get failed build count.
                 batchOps[j + 1] = {
-                    'method': 'GET',
-                    'operation_id': 'defconf-fail-count-' + job,
-                    'collection': 'count',
-                    'document_id': 'build',
-                    'query': 'status=FAIL&job=' + job + '&kernel=' + kernel
+                    method: 'GET',
+                    operation_id: 'defconf-fail-count-' + job,
+                    resource: 'count',
+                    document: 'build',
+                    query: 'status=FAIL&job=' + job + '&kernel=' + kernel
                 };
 
                 // Get successful boot reports count.
                 batchOps[j + 2] = {
-                    'method': 'GET',
-                    'operation_id': 'boot-success-count-' + job,
-                    'collection': 'count',
-                    'document_id': 'boot',
-                    'query': 'status=PASS&job=' + job + '&kernel=' + kernel
+                    method: 'GET',
+                    operation_id: 'boot-success-count-' + job,
+                    resource: 'count',
+                    document: 'boot',
+                    query: 'status=PASS&job=' + job + '&kernel=' + kernel
                 };
 
                 // Get failed boot reports count.
                 batchOps[j + 3] = {
-                    'method': 'GET',
-                    'operation_id': 'boot-fail-count-' + job,
-                    'collection': 'count',
-                    'document_id': 'boot',
-                    'query': 'status=FAIL&job=' + job + '&kernel=' + kernel
+                    method: 'GET',
+                    operation_id: 'boot-fail-count-' + job,
+                    resource: 'count',
+                    document: 'boot',
+                    query: 'status=FAIL&job=' + job + '&kernel=' + kernel
                 };
             }
 
-            data = JSON.stringify({'batch': batchOps});
+            data = JSON.stringify({batch: batchOps});
             deferred = r.post('/_ajax/batch', data);
         }
 

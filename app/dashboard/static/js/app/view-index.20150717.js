@@ -90,23 +90,23 @@ require([
         if (resLen > 0) {
             if (resLen === 1) {
                 data = {
-                    'status': 'FAIL',
-                    'job': results[0].job,
-                    'kernel': results[0].kernel
+                    status: 'FAIL',
+                    job: results[0].job,
+                    kernel: results[0].kernel
                 };
                 deferred = r.get('/_ajax/count/build', data);
             } else {
                 for (idx; idx < resLen; idx = idx + 1) {
                     batchOps[idx] = {
-                        'method': 'GET',
-                        'operation_id': 'fail-count-' + idx,
-                        'collection': 'count',
-                        'document_id': 'build',
-                        'query': 'status=FAIL&job=' + results[idx].job +
+                        method: 'GET',
+                        operation_id: 'fail-count-' + idx,
+                        resource: 'count',
+                        document: 'build',
+                        query: 'status=FAIL&job=' + results[idx].job +
                             '&kernel=' + results[idx].kernel
                     };
                 }
-                data = JSON.stringify({'batch': batchOps});
+                data = JSON.stringify({batch: batchOps});
                 deferred = r.post('/_ajax/batch', data);
             }
 
