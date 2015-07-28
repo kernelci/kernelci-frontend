@@ -259,7 +259,7 @@ require([
 
         b.replaceById(
             'boot-reports-loading-div',
-            '<i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;' +
+            '<i class="fa fa-cog fa-spin"></i>&nbsp;' +
             '<span>analyzing boot reports data&hellip;</span>'
         );
 
@@ -333,7 +333,7 @@ require([
 
         b.replaceById(
             'boot-reports-compared-to-load',
-            '<i class="fa fa-cog fa-spin fa-2x"></i>&nbsp;' +
+            '<i class="fa fa-cog fa-spin"></i>&nbsp;' +
             '<span id="boot-reports-loading-content">' +
             'searching for similar boot reports&hellip;</span>'
         );
