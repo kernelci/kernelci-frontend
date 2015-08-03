@@ -27,7 +27,7 @@ require([
         jobName,
         defconfigFull,
         kernelName,
-        defconfigId,
+        buildId,
         nonAvail,
         failLabel,
         successLabel,
@@ -101,7 +101,7 @@ require([
 
         deferred = r.get(
             '/_ajax/bisect?collection=build&' +
-                'compare_to=mainline&defconfig_id=' + build,
+                'compare_to=mainline&build_id=' + build,
             {}
         );
         $.when(deferred)
@@ -122,7 +122,7 @@ require([
 
         if (resLen > 0) {
             bisectData = result[0];
-            lBuildId = bisectData.defconfig_id.$oid;
+            lBuildId = bisectData.build_id.$oid;
             if (bisectData.job !== 'mainline') {
                 b.removeClass('bisect-compare-div', 'hidden');
                 getBisectToMainline(bisectData, lBuildId);
@@ -171,7 +171,7 @@ require([
                 b.removeClass('bisect-div', 'hidden');
 
                 deferred = r.get(
-                    '/_ajax/bisect?collection=build&defconfig_id=' +
+                    '/_ajax/bisect?collection=build&build_id=' +
                     results._id.$oid,
                     {}
                 );
@@ -265,7 +265,7 @@ require([
         if (resLen > 0) {
             results = response.result[0];
             if (results._id !== null) {
-                data.defconfig_id = results._id.$oid;
+                data.build_id = results._id.$oid;
             } else {
                 data.defconfig = results.defconfig;
                 data.defconfig_full = results.defconfig_full;
@@ -610,8 +610,8 @@ require([
     function getBuilds() {
         var deferred,
             data = {};
-        if (defconfigId !== 'None') {
-            data.id = defconfigId;
+        if (buildId !== 'None') {
+            data.id = buildId;
         } else {
             data.job = jobName;
             data.kernel = kernelName;
@@ -640,8 +640,8 @@ require([
         if (document.getElementById('defconfig-full') !== null) {
             defconfigFull = document.getElementById('defconfig-full').value;
         }
-        if (document.getElementById('defconfig-id') !== null) {
-            defconfigId = document.getElementById('defconfig-id').value;
+        if (document.getElementById('build-id') !== null) {
+            buildId = document.getElementById('build-id').value;
         }
 
         getBuilds();

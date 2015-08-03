@@ -25,7 +25,7 @@ require([
         jobName,
         defconfigFull,
         kernelName,
-        defconfigId,
+        buildId,
         nonAvail,
         failLabel,
         successLabel,
@@ -163,9 +163,9 @@ require([
                 'No data available.</strong></div>'
             );
         } else {
-            if (defconfigId !== 'None') {
+            if (buildId !== 'None') {
                 deferred = r.get(
-                    '/_ajax/build/' + defconfigId + '/logs', data);
+                    '/_ajax/build/' + buildId + '/logs', data);
             } else {
                 data.job = jobName;
                 data.kernel = kernelName;
@@ -355,8 +355,8 @@ require([
     function getBuild() {
         var deferred,
             data = {};
-        if (defconfigId !== 'None') {
-            data.id = defconfigId;
+        if (buildId !== 'None') {
+            data.id = buildId;
         } else {
             data.job = jobName;
             data.kernel = kernelName;
@@ -385,8 +385,8 @@ require([
         if (document.getElementById('defconfig-full') !== null) {
             defconfigFull = document.getElementById('defconfig-full').value;
         }
-        if (document.getElementById('defconfig-id') !== null) {
-            defconfigId = document.getElementById('defconfig-id').value;
+        if (document.getElementById('build-id') !== null) {
+            buildId = document.getElementById('build-id').value;
         }
 
         getBuild();

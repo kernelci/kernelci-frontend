@@ -75,7 +75,7 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
         defconfig = kwargs["defconfig"]
-        defconfig_id = request.args.get("_id", None)
+        build_id = request.args.get("_id", None)
 
         body_title = (
             "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
@@ -86,7 +86,7 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
             "builds-job-kernel-defconfig.html",
             body_title=body_title,
             defconfig_full=defconfig,
-            defconfig_id=defconfig_id,
+            build_id=build_id,
             job_name=job,
             kernel_name=kernel,
             page_title=self.BUILD_PAGES_TITLE
@@ -100,7 +100,7 @@ class BuildsLogsView(GeneralBuildsView):
         job = kwargs["job"]
         kernel = kwargs["kernel"]
         defconfig = kwargs["defconfig"]
-        defconfig_id = request.args.get("_id", None)
+        build_id = request.args.get("_id", None)
 
         body_title = (
             "Build logs for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
@@ -111,7 +111,7 @@ class BuildsLogsView(GeneralBuildsView):
             "builds-job-kernel-defconfig-logs.html",
             body_title=body_title,
             defconfig_full=defconfig,
-            defconfig_id=defconfig_id,
+            build_id=build_id,
             job_name=job,
             kernel_name=kernel,
             page_title=self.BUILD_PAGES_TITLE

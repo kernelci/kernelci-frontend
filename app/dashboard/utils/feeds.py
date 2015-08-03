@@ -50,7 +50,7 @@ BUILD_URL = backend.create_url(CONFIG_GET("BUILD_API_ENDPOINT"))
 BUILD_FRONTEND_URL = (
     CONFIG_GET("BASE_URL") +
     "/build/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig_full)s/"
-    "?_id=%(defconfig_id)s"
+    "?_id=%(build_id)s"
 )
 STORAGE_URL = (
     CONFIG_GET("FILE_SERVER_URL") +
@@ -75,7 +75,7 @@ BUILD_HTML_CONTENT = u"""
 <dt>Full defconfig</dt><dd>%(defconfig_full)s</dd>
 <dt>Architecture</dt><dd>%(arch)s</dd>
 <dt>Job ID</dt><dd>%(job_id)s</dd>
-<dt>Defconfig ID</dt><dd>%(defconfig_id)s</dd>
+<dt>Defconfig ID</dt><dd>%(build_id)s</dd>
 <dt>DTB directory</dt><dd>%(dtb_dir)s</dd>
 <dt>Kernel image</dt><dd>%(kernel_image)s</dd>
 <dt>System map</dt><dd>%(system_map)s</dd>
@@ -164,7 +164,7 @@ def _parse_build_results(data):
             "arch": res_get("arch"),
             "defconfig": res_get("defconfig"),
             "defconfig_full": res_get("defconfig_full"),
-            "defconfig_id": d_id,
+            "build_id": d_id,
             "job": res_get("job"),
             "job_id": j_id,
             "kernel": res_get("kernel"),
