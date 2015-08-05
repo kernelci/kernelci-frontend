@@ -31,7 +31,7 @@
 # We just copy everything in the static/ directory. To use the minified versions
 # we better run the node.js command locally and upload the file.
 - name: Copy static assests (for staging)
-  command: rsync -a -u --delete {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
+  command: rsync -a -u {{ install_base }}/{{ hostname }}/app/dashboard/static/ {{ web_root }}/{{ hostname }}/static
   when: ansible_lsb.id == "Ubuntu"
   tags:
     - web-server
@@ -56,7 +56,7 @@
     - app
 
 - name: Copy static assets
-  command: rsync -a -u --delete /tmp/assets-build/ {{ web_root }}/{{ hostname }}/static
+  command: rsync -a -u /tmp/assets-build/ {{ web_root }}/{{ hostname }}/static
   when: ansible_lsb.id == "Debian"
   tags:
     - web-server
