@@ -62,6 +62,16 @@
     - web-server
     - app
 
+- name: Copy maintenance page
+  copy: src=maintenance.html
+        dest={{ web_root }}/{{ hostname }}/maintenance.html.not
+        owner={{ app_user }}
+        group={{ app_user }}
+        mode=0644
+  tags:
+      - web-server
+      - app
+
 - name: Install frontend nginx configuration
   template: src=kernelci-frontend.conf
             dest=/etc/nginx/sites-available/{{ hostname }}
