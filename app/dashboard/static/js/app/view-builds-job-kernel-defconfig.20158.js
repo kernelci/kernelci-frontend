@@ -317,6 +317,10 @@ require([
             gitURLs,
             gitCommit,
             createdOn,
+            buildModulesLink,
+            buildModulesSize,
+            kernelImageLink,
+            kernelImageSize,
             statusDisplay = '';
 
         if (resLen === 0) {
@@ -342,10 +346,12 @@ require([
             buildTime = results.build_time;
             dtb = results.dtb_dir;
             buildModules = results.modules;
+            buildModulesSize = results.modules_size;
             modulesDirectory = results.modules_dir;
             textOffset = results.text_offset;
             configFragments = results.kconfig_fragments;
             kernelImage = results.kernel_image;
+            kernelImageSize = results.kernel_image_size;
             kernelConfig = results.kernel_config;
             buildLog = results.build_log;
             buildPlatform = results.build_platform;
@@ -497,14 +503,17 @@ require([
             }
 
             if (buildModules !== null) {
-                b.replaceById(
-                    'build-modules',
-                    '<a href="' +
+                buildModulesLink = '<a href="' +
                     fileServerURI.path(pathURI + '/' + buildModules)
-                        .normalizePath().href() +
-                    '">' + buildModules +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                        .normalizePath().href() + '">' + buildModules +
+                    '&nbsp;<i class="fa fa-external-link"></i></a>';
+
+                if (buildModulesSize !== null) {
+                    buildModulesLink += '&nbsp;<small>(' +
+                        b.bytesToHuman(buildModulesSize, 2) + ')</small>';
+                }
+
+                b.replaceById('build-modules', buildModulesLink);
             } else {
                 b.replaceById('build-modules', nonAvail);
             }
@@ -541,13 +550,17 @@ require([
             }
 
             if (kernelImage !== null) {
-                b.replaceById('kernel-image',
-                    '<a href="' +
+                kernelImageLink = '<a href="' +
                     fileServerURI.path(pathURI + '/' + kernelImage)
-                        .normalizePath().href() +
-                    '">' + kernelImage +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                        .normalizePath().href() + '">' + kernelImage +
+                    '&nbsp;<i class="fa fa-external-link"></i></a>';
+
+                if (kernelImageSize !== null) {
+                    kernelImageLink += '&nbsp;<small>(' +
+                        b.bytesToHuman(kernelImageSize, 2) + ')</small>';
+                }
+
+                b.replaceById('kernel-image', kernelImageLink);
             } else {
                 b.replaceById('kernel-image', nonAvail);
             }

@@ -1,7 +1,10 @@
 /*! Kernel CI Dashboard v2015.8 | Licensed under the GNU GPL v3 (or later) */
 define(function() {
     'use strict';
-    var base = {};
+    var base = {},
+        sizes;
+
+    sizes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
 
     base.getAttrBySelector = function(selector, attribute) {
         var el = document.querySelector(selector),
@@ -120,6 +123,28 @@ define(function() {
 
     Element.prototype.remove = function() {
         this.parentElement.removeChild(this);
+    };
+
+    // Round a number down to 2 decimal positions.
+    // This should work even when a integer is passed and should be returned
+    // unchanged.
+    function roundToTwo(value) {
+        return +(Math.round(value + 'e+2') + 'e-2');
+    }
+
+    // Parse a byte number and return its human-readable form.
+    base.bytesToHuman = function(bytes) {
+        var retVal,
+            base = 1024,
+            idx;
+        if (bytes === 0) {
+            retVal = '0 bytes';
+        } else {
+            idx = Math.floor(Math.log(bytes) / Math.log(base));
+            retVal = roundToTwo(bytes / Math.pow(base, idx)) +
+                ' ' + sizes[idx];
+        }
+        return retVal;
     };
 
     /*
