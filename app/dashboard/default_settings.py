@@ -43,6 +43,7 @@ LAB_API_ENDPOINT = "/lab"
 VERSION_API_ENDPOINT = "/version"
 DEFCONFIG_LOGS_ENPOINT = "/build/logs"
 DEFCONFIG_ID_LOGS_ENPOINT = "/build/%s/logs"
+STATISTICS_API_ENDPOINT = "/statistics"
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
