@@ -37,7 +37,8 @@
             'app/view-info-faq': 'app/view-info-faq.20158',
             'app/view-jobs-all': 'app/view-jobs-all.20158',
             'app/view-jobs-job': 'app/view-jobs-job.20158',
-            'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20158'
+            'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20158',
+            'app/view-stats': 'app/view-stats.20158'
         }
     },
     shim: {
@@ -75,6 +76,7 @@
         {name: 'app/view-jobs-all.20158'},
         {name: 'app/view-jobs-job-branch.20158'},
         {name: 'app/view-jobs-job.20158'},
+        {name: 'app/view-stats.20158'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
         {name: 'kci-boots-all-job-kernel-defconfig'},

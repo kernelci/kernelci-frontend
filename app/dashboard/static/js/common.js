@@ -34,7 +34,8 @@ require.config({
             'app/view-info-faq': 'app/view-info-faq.20158',
             'app/view-jobs-all': 'app/view-jobs-all.20158',
             'app/view-jobs-job': 'app/view-jobs-job.20158',
-            'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20158'
+            'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20158',
+            'app/view-stats': 'app/view-stats.20158'
         }
     },
     shim: {

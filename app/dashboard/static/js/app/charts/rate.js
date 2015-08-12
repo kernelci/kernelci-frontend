@@ -69,11 +69,11 @@ define([
 
         function setupTooltips() {
             $('svg .pass-dot').tooltip({
-                'html': true,
-                'trigger': 'hover',
-                'container': 'body',
-                'placement': 'top',
-                'title': function() {
+                html: true,
+                trigger: 'hover',
+                container: 'body',
+                placement: 'top',
+                title: function() {
                     var el = $(this),
                         kernel = el.data('kernel') || 'unknown',
                         pass = el.data('pass') || 0,

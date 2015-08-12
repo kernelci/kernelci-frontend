@@ -16,7 +16,7 @@ define([
             width = 200,
             height = 200,
             w = width - margin.right - margin.left,
-            h = height - margin.top - margin.left,
+            h = height - margin.top - margin.bottom,
             radius,
             gLayout,
             gArc,
