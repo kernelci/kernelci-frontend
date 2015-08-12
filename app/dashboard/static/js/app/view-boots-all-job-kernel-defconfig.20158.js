@@ -66,7 +66,7 @@ require([
         b.replaceById(
             'table-div',
             '<div class="pull-center"><strong>' +
-            'Error loading data..</strong></div>'
+            'Error loading data.</strong></div>'
         );
     }
 
