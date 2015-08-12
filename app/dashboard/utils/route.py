@@ -45,6 +45,11 @@ def init():
         view_func=vgeneric.ContactView.as_view("contact"),
         methods=["GET"]
     )
+    add_rule(
+        "/stats/",
+        view_func=vgeneric.StatisticsView.as_view("stats"),
+        methods=["GET"]
+    )
 
     # Builds related URLs.
     add_rule(
