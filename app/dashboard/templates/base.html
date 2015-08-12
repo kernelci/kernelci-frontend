@@ -16,7 +16,7 @@
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-3.3.5.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/bootstrap-theme-3.3.5.min.css">
     <link rel="stylesheet" type="text/css" href="/static/css/font-awesome-4.4.0.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/linaro-base.20158.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/linaro-base.201582.css">
     {%- endblock %}
 </head>
 <body>
@@ -79,6 +79,9 @@
                         <li>
                             <a title="Contact us" href="/contact/">Contact us</a>
                         </li>
+                        <li>
+                            <a title="Statistics" href="/stats/">Statistics</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
@@ -110,8 +113,6 @@
 <input type="hidden" id="date-range" value="{{ config['DATE_RANGE'] }}">
 <input type="hidden" id="number-range" value="{{ config['NUMBER_RANGE'] }}">
 {%- block scripts %}
-<script type="text/javascript" src="/static/js/jquery.hotkeys-1.0.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery.hotkeymap-1.0.min.js"></script>
 {%- endblock %}{# Scripts block #}
 {%- block analytics %}
 {%- if analytics %}
