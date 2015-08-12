@@ -8,9 +8,14 @@ require([
     'charts/statsbar'
 ], function($, i, b, e, r, chart) {
     'use strict';
-    var numFormat = new Intl.NumberFormat(['en-US']),
-        oneDay = 86400000,
-        startDate = null;
+    var oneDay = 86400000,
+        startDate = null,
+        numFormat,
+        dateFormat;
+
+    numFormat = new Intl.NumberFormat(['en-US']);
+    dateFormat = new Intl.DateTimeFormat(
+        ['en-US'], {month: 'long', year: 'numeric'});
 
     function getStatsFail() {
         b.replaceByClass('loading-stats', '&infin;');
@@ -101,7 +106,6 @@ require([
             resLen = results.length,
             localResult,
             createdOn,
-            startTime,
             totalDays,
             totalJobs,
             totalBuilds,
@@ -110,13 +114,19 @@ require([
             b.replaceByClass('loading-stats', '?');
         } else {
             localResult = results[0];
+            startDate = new Date(localResult.start_date.$date);
             createdOn = new Date(localResult.created_on.$date);
-            startTime = new Date(startDate);
-            totalDays = (createdOn - startTime) / oneDay;
+            totalDays = (createdOn - startDate) / oneDay;
 
             totalJobs = localResult.total_jobs;
             totalBuilds = localResult.total_builds;
             totalBoots = localResult.total_boots;
+
+            b.replaceById(
+                'start-date',
+                '<time datetime="' + startDate.toISOString() + '">' +
+                    dateFormat.format(startDate) + '<time>'
+            );
 
             b.replaceById(
                 'total-jobs', numFormat.format(totalJobs));
@@ -178,10 +188,6 @@ require([
         document.getElementById('li-info').setAttribute('class', 'active');
         // Setup and perform base operations.
         i();
-
-        if (document.getElementById('start-date') !== null) {
-            startDate = document.getElementById('start-date').value;
-        }
 
         getStats();
     });

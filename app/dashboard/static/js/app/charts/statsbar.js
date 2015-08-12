@@ -8,7 +8,9 @@ define([
 ], function($, d3, b, k) {
     'use strict';
     var statsbar = {},
-        numFormat = new Intl.NumberFormat(['en-US']);
+        numFormat;
+
+    numFormat = new Intl.NumberFormat(['en-US']);
 
     function setupTooltips(element) {
         $(element + ' .bar').tooltip({
