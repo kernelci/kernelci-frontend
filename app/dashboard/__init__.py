@@ -231,6 +231,6 @@ def ajax_build_logs(doc_id=None):
 def ajax_statistics():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(
-            request, app_conf_get("STATISTICS_API_ENDPOINT"), timeout=60*60*4)
+            request, app_conf_get("STATISTICS_API_ENDPOINT"), timeout=60*60*1)
     else:
         abort(403)
