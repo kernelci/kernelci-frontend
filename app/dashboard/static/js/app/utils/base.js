@@ -2,9 +2,15 @@
 define(function() {
     'use strict';
     var base = {},
-        sizes;
+        sizes,
+        numFormat;
 
     sizes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    numFormat = new Intl.NumberFormat(['en-US']);
+
+    base.formatNumber = function(value) {
+        return numFormat.format(value);
+    };
 
     base.getAttrBySelector = function(selector, attribute) {
         var el = document.querySelector(selector),
@@ -141,7 +147,7 @@ define(function() {
             retVal = '0 bytes';
         } else {
             idx = Math.floor(Math.log(bytes) / Math.log(base));
-            retVal = roundToTwo(bytes / Math.pow(base, idx)) +
+            retVal = formatNumber(roundToTwo(bytes / Math.pow(base, idx))) +
                 ' ' + sizes[idx];
         }
         return retVal;

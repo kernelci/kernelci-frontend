@@ -387,9 +387,12 @@ require([
             secondCount = secondResult.result[0].count;
             thirdCount = thirdResult.result[0].count;
 
-            b.replaceById(firstResult.operation_id, firstCount);
-            b.replaceById(secondResult.operation_id, secondCount);
-            b.replaceById(thirdResult.operation_id, thirdCount);
+            b.replaceById(
+                firstResult.operation_id, b.formatNumber(firstCount));
+            b.replaceById(
+                secondResult.operation_id, b.formatNumber(secondCount));
+            b.replaceById(
+                thirdResult.operation_id, b.formatNumber(thirdCount));
         } else {
             b.replaceByClass('count-list-badge', '?');
         }

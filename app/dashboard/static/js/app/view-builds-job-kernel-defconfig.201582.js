@@ -508,7 +508,8 @@ require([
                         .normalizePath().href() + '">' + buildModules +
                     '&nbsp;<i class="fa fa-external-link"></i></a>';
 
-                if (buildModulesSize !== null) {
+                if (buildModulesSize !== null &&
+                        buildModulesSize !== undefined) {
                     buildModulesLink += '&nbsp;<small>(' +
                         b.bytesToHuman(buildModulesSize, 2) + ')</small>';
                 }
@@ -555,7 +556,8 @@ require([
                         .normalizePath().href() + '">' + kernelImage +
                     '&nbsp;<i class="fa fa-external-link"></i></a>';
 
-                if (kernelImageSize !== null) {
+                if (kernelImageSize !== null &&
+                        kernelImageSize !== undefined) {
                     kernelImageLink += '&nbsp;<small>(' +
                         b.bytesToHuman(kernelImageSize, 2) + ')</small>';
                 }

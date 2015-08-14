@@ -10,10 +10,8 @@ require([
     'use strict';
     var oneDay = 86400000,
         startDate = null,
-        numFormat,
         dateFormat;
 
-    numFormat = new Intl.NumberFormat(['en-US']);
     dateFormat = new Intl.DateTimeFormat(
         ['en-US'], {month: 'long', year: 'numeric'});
 
@@ -129,43 +127,43 @@ require([
             );
 
             b.replaceById(
-                'total-jobs', numFormat.format(totalJobs));
+                'total-jobs', b.formatNumber(totalJobs));
             b.replaceById(
                 'total-trees',
-                numFormat.format(localResult.total_unique_trees));
+                b.formatNumber(localResult.total_unique_trees));
             b.replaceById(
                 'total-kernels',
-                numFormat.format(localResult.total_unique_kernels));
+                b.formatNumber(localResult.total_unique_kernels));
 
             b.replaceById(
-                'total-builds', numFormat.format(totalBuilds));
+                'total-builds', b.formatNumber(totalBuilds));
             b.replaceById(
                 'total-defconfigs',
-                numFormat.format(localResult.total_unique_defconfigs));
+                b.formatNumber(localResult.total_unique_defconfigs));
 
             b.replaceById(
-                'total-boots', numFormat.format(totalBoots));
+                'total-boots', b.formatNumber(totalBoots));
             b.replaceById(
                 'total-boards',
-                numFormat.format(localResult.total_unique_boards));
+                b.formatNumber(localResult.total_unique_boards));
             b.replaceById(
                 'total-archs',
-                numFormat.format(localResult.total_unique_archs));
+                b.formatNumber(localResult.total_unique_archs));
             b.replaceById(
                 'total-socs',
-                numFormat.format(localResult.total_unique_machs));
+                b.formatNumber(localResult.total_unique_machs));
 
             b.replaceById(
                 'jobs-avg',
-                numFormat.format(Math.round(totalJobs / totalDays))
+                b.formatNumber(Math.round(totalJobs / totalDays))
             );
             b.replaceById(
                 'builds-avg',
-                numFormat.format(Math.round(totalBuilds / totalDays))
+                b.formatNumber(Math.round(totalBuilds / totalDays))
             );
             b.replaceById(
                 'boots-avg',
-                numFormat.format(Math.round(totalBoots / totalDays))
+                b.formatNumber(Math.round(totalBoots / totalDays))
             );
         }
     }
