@@ -557,12 +557,14 @@ require([
             gitCommit = null,
             gitURL = null,
             tURLs = null,
-            sContent;
+            sContent,
+            createdOn;
 
         if (resultLen > 0) {
             localResult = result[0];
             gitCommit = localResult.git_commit;
             gitURL = localResult.git_url;
+            createdOn = new Date(localResult.created_on.$date);
 
             tURLs = u.translateCommit(gitURL, gitCommit);
 
@@ -613,6 +615,7 @@ require([
                 }
             }
             b.replaceById('git-commit', sContent);
+            b.replaceById('job-date', createdOn.getCustomISODate());
         } else {
             getJobFailed('No data available');
         }
