@@ -3,10 +3,31 @@ define(function() {
     'use strict';
     var base = {},
         sizes,
-        numFormat;
+        numFormat,
+        entityMap;
+
+    entityMap = {
+        '"': '&#34;',
+        '#': '&#35;',
+        '$': '&#36;',
+        '%': '&#37;',
+        '&': '&#38;',
+        '\'': '&#39;',
+        '/': '&#47;',
+        '<': '&#60;',
+        '=': '&#61;',
+        '>': '&#62;',
+        '?': '&#63;'
+    };
 
     sizes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
     numFormat = new Intl.NumberFormat(['en-US']);
+
+    base.escapeHtml = function(string) {
+        return String(string).replace(/[&<>"'\/]/g, function fromMap(s) {
+            return entityMap[s];
+        });
+    };
 
     base.formatNumber = function(value) {
         return numFormat.format(value);
