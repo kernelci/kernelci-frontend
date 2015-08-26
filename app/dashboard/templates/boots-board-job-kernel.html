@@ -50,7 +50,5 @@
 <input type="hidden" id="board-name" value="{{ board }}">
 {%- endblock %}
 {%- block scripts %}
-{# URI does not work very well with require.js, load it here. #}
-<script type="text/javascript" src="/static/js/lib/URI-1.16.0.min.js"></script>
 <script data-main="/static/js/kci-boots-board-job-kernel" src="/static/js/lib/require.js"></script>
 {%- endblock %}

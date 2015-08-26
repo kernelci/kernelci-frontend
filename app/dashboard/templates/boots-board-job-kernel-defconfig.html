@@ -35,7 +35,5 @@
 <input type="hidden" id="defconfig-full" value="{{ defconfig }}">
 {%- endblock %}
 {%- block scripts %}
-{# URI does not work very well with require.js, load it here. #}
-<script type="text/javascript" src="/static/js/lib/URI-1.16.0.min.js"></script>
 <script data-main="/static/js/kci-boots-board-job-kernel-defconfig" src="/static/js/lib/require.js"></script>
 {%- endblock %}

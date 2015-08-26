@@ -97,7 +97,5 @@
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
 {%- endblock %}
 {%- block scripts %}
-{# URI does not work very well with require.js, load it here. #}
-<script type="text/javascript" src="/static/js/lib/URI-1.16.0.min.js"></script>
 <script data-main="/static/js/kci-boots-job-kernel" src="/static/js/lib/require.js"></script>
 {%- endblock %}

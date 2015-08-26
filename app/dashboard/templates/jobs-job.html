@@ -90,7 +90,5 @@
 <input type="hidden" id="page-len" value="{{ page_len }}">
 {%- endblock %}{# content block #}
 {%- block scripts %}
-{# URI does not work very well with require.js, load it here. #}
-<script type="text/javascript" src="/static/js/lib/URI-1.16.0.min.js"></script>
 <script data-main="/static/js/kci-jobs-job" src="/static/js/lib/require.js"></script>
 {%- endblock %}
