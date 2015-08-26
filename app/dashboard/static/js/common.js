@@ -12,7 +12,11 @@ require.config({
         'sprintf': 'lib/sprintf-1.0.1',
         'd3': 'lib/d3-3.5.5',
         'datatables': 'lib/dataTables-1.10.7',
-        'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.7'
+        'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.7',
+        'URI': 'lib/URI-1.16.0',
+        'punycode': 'lib/punycode-1.16.0',
+        'IPv6': 'lib/IPv6-1.16.0',
+        'SecondLevelDomains': 'lib/SecondLevelDomains-1.16.0'
     },
     map: {
         '*': {

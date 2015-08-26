@@ -1,8 +1,9 @@
 /*! Kernel CI Dashboard v2015.8.3 | Licensed under the GNU GPL v3 (or later) */
 define([
     'sprintf',
-    'utils/git-rules'
-], function(p, gitRules) {
+    'utils/git-rules',
+    'URI'
+], function(p, gitRules, URI) {
     'use strict';
     var urls = {};
 
