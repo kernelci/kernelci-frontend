@@ -225,7 +225,7 @@ require([
                 } else {
                     col6Content = '<td class="pull-center">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="' + failReason + '">' +
+                        'title="' + b.escapeHtml(failReason) + '">' +
                         '<i class="fa fa-exclamation-triangle red-font">' +
                         '</i></span></td>';
                 }
