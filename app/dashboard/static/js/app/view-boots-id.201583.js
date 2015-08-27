@@ -136,6 +136,7 @@ require([
 
         col0 = '<td class="lab-column">' + lab + '</td>';
         if (resultDescription !== null) {
+            resultDescription = b.escapeHtml(resultDescription);
             col1 = '<td class="failure-column">';
             col1 += '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="' + resultDescription + '">' +
@@ -654,8 +655,17 @@ require([
         }
 
         if (resultDescription !== null && status !== 'PASS') {
-            statusDispl += '&nbsp;<small>' + resultDescription +
-                '</small>';
+            statusDispl += '&nbsp;';
+            resultDescription = b.escapeHtml(resultDescription);
+
+            if (resultDescription.length > 40) {
+                statusDispl += '<span rel="tooltip" data-toggle="tooltip"' +
+                    'title="' + resultDescription + '">' +
+                    '<small>' + resultDescription.slice(0, 39) +
+                    '&nbsp;&hellip;</small></span>';
+            } else {
+                statusDispl += '<small>' + resultDescription + '</small>';
+            }
         }
         b.replaceById('dd-board-status', statusDispl);
         b.replaceById('dd-board-arch', arch);

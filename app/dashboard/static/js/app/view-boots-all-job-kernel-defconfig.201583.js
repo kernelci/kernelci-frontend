@@ -118,6 +118,7 @@ require([
                         var display = '&nbsp;',
                             status = object.status;
                         if (data !== null && status !== 'PASS') {
+                            data = b.escapeHtml(data);
                             display = '<span rel="tooltip" ' +
                                 'data-toggle="tooltip"' +
                                 'title="' + data + '">' + data + '</span>';

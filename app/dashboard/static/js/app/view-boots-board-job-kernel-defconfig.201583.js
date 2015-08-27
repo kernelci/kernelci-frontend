@@ -161,6 +161,7 @@ require([
                     'href="/boot/all/lab/' + labName + '/">' + labName +
                     '</a></td>';
                 if (resultDescription !== null && status !== 'PASS') {
+                    resultDescription = b.escapeHtml(resultDescription);
                     col1 = '<td class="failure-column">' +
                         '<span rel="tooltip" data-toggle="tooltip"' +
                         'title="' + resultDescription + '">' +
