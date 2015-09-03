@@ -168,8 +168,8 @@ define(function() {
             retVal = '0 bytes';
         } else {
             idx = Math.floor(Math.log(bytes) / Math.log(base));
-            retVal = formatNumber(roundToTwo(bytes / Math.pow(base, idx))) +
-                ' ' + sizes[idx];
+            retVal = numFormat.format(
+                roundToTwo(bytes / Math.pow(base, idx))) + ' ' + sizes[idx];
         }
         return retVal;
     };
