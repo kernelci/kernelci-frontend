@@ -15,6 +15,7 @@ define([
             goToJob,
             goToBuild,
             goToBoot,
+            goToCompare,
             goToInfo,
             showHelp;
 
@@ -36,6 +37,10 @@ define([
 
         goToBoot = function() {
             window.location = document.getElementById('boot-l').href;
+        };
+
+        goToCompare = function() {
+            window.location = document.getElementById('compare-l').href;
         };
 
         goToInfo = function() {
@@ -63,6 +68,7 @@ define([
                 $.mapHotKeys.createSequence('g', 'j', $(document), goToJob),
                 $.mapHotKeys.createSequence('g', 'b', $(document), goToBuild),
                 $.mapHotKeys.createSequence('g', 't', $(document), goToBoot),
+                $.mapHotKeys.createSequence('g', 'c', $(document), goToCompare),
                 $.mapHotKeys.createSequence('g', 'i', $(document), goToInfo)
             ]
         );
