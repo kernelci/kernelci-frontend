@@ -39,6 +39,7 @@
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.201584',
             'app/view-index': 'app/view-index.201584',
             'app/view-info-faq': 'app/view-info-faq.201584',
+            'app/view-job-compare': 'app/view-job-compare.201584',
             'app/view-jobs-all': 'app/view-jobs-all.201584',
             'app/view-jobs-job': 'app/view-jobs-job.201584',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.201584',
@@ -77,6 +78,7 @@
         {name: 'app/view-builds-job-kernel.201584'},
         {name: 'app/view-index.201584'},
         {name: 'app/view-info-faq.201584'},
+        {name: 'app/view-job-compare.201584'},
         {name: 'app/view-jobs-all.201584'},
         {name: 'app/view-jobs-job-branch.201584'},
         {name: 'app/view-jobs-job.201584'},
@@ -96,6 +98,7 @@
         {name: 'kci-builds-job-kernel-defconfig'},
         {name: 'kci-index'},
         {name: 'kci-info-faq'},
+        {name: 'kci-job-compare'},
         {name: 'kci-jobs-all'},
         {name: 'kci-jobs-job'},
         {name: 'kci-jobs-job-branch'}
