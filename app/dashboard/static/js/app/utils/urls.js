@@ -33,6 +33,11 @@ define([
         return [tURI, tURIp];
     };
 
+    /*
+        Return a list with:
+        0. The base git URL
+        1. The git commit URL
+    */
     urls.translateCommit = function(url, sha) {
         var bURL = null,
             cURL = null,
