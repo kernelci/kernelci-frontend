@@ -34,6 +34,7 @@ DEFAULT_PAGE_TITLE = "Kernel CI Dashboard"
 
 # Backend API endpoints.
 JOB_API_ENDPOINT = "/job"
+JOB_COMPARE_API_ENDPOINT = "/job/compare"
 BUILD_API_ENDPOINT = "/build"
 BOOT_API_ENDPOINT = "/boot"
 COUNT_API_ENDPOINT = "/count"

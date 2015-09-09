@@ -359,7 +359,7 @@ def ajax_count_get(request, api_path, collection, timeout=None):
     return data, status_code, headers.items()
 
 
-def ajax_get(request, api_path, timeout=None):
+def ajax_get(request, api_path, doc_id=None, timeout=None):
     """Handle general AJAX calls from the client.
 
     :param request: The request performed.
@@ -371,9 +371,10 @@ def ajax_get(request, api_path, timeout=None):
 
     if "id" in request.args:
         doc_id = request.args["id"]
-        api_path = _create_api_path(api_path, doc_id)
-
         params_list.remove(("id", [doc_id]))
+
+    if doc_id:
+        api_path = _create_api_path(api_path, doc_id)
 
     url = create_url(api_path)
 

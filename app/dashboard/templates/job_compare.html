@@ -1,0 +1,93 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.7.css">
+<link rel="stylesheet" type="text/css" href="/static/css/kci-compare.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3>Job Comparison&nbsp;<span id="body-title"></span></h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+{#         <div>
+            <h4>Comparison Summary</h4>
+        </div> #}
+        <div class="summary">
+            <div class="summary-baseline">
+{#                 <p>
+                    The baseline job is:
+                </p> #}
+                <div>
+                    <dl class="dl-horizontal">
+                        <dt>Tree</dt>
+                        <dd id="dd-tree" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Branch</dt>
+                        <dd id="dd-branch" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Kernel</dt>
+                        <dd id="dd-kernel" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Git URL</dt>
+                        <dd id="dd-url" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Git commit</dt>
+                        <dd id="dd-commit" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Total builds</dt>
+                        <dd id="dd-total" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                        <dt>Date</dt>
+                        <dd id="dd-date" class="loading-content">
+                            <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="summary-against">
+                <div>
+                    <h4>Compared Jobs</h4>
+                </div>
+                <div>
+{%- if is_mobile %}
+                    <div class="table-responsive no-data" id="summary-table-div">
+{%- else %}
+                    <div class="table no-data" id="summary-table-div">
+{%- endif %}
+                        <table class="table table-hover table-striped table-condensed clickable-table big-table" id="compared-against">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div>
+            <h4>Builds Differences</h4>
+        </div>
+{%- if is_mobile %}
+        <div class="table-responsive no-data" id="differences-table-div">
+{%- else %}
+        <div class="table no-data" id="differences-table-div">
+{%- endif %}
+            <table class="table table-striped table-compare" id="compare-table">
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="compare-id" value="{{ compare_id }}"></input>
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-job-compare" src="/static/js/lib/require.js"></script>
+{%- endblock %}

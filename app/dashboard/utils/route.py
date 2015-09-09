@@ -15,6 +15,7 @@ from flask import current_app as app
 
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
+import dashboard.views.compare as vcompare
 import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
@@ -171,5 +172,11 @@ def init():
     add_rule(
         "/boot/<string:board>/job/<string:job>/",
         view_func=vboot.BootBoardJobView.as_view("boot-board-job"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/compare/job/<string:compare_id>/",
+        view_func=vcompare.JobCompareView.as_view("job-compare"),
         methods=["GET"]
     )
