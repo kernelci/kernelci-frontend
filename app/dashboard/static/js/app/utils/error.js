@@ -5,7 +5,7 @@ define([
     'bootstrap'
 ], function(p, $) {
     'use strict';
-    var error,
+    var err = {},
         errorElement = document.getElementById('errors-container'),
         text,
         elementId;
@@ -17,23 +17,40 @@ define([
         '&nbsp;Please contact the website administrators.</div>';
     elementId = 'error-%d';
 
+    // Create random ID value for the error notification.
+    function randId(code) {
+        return 'error-' + (Math.random() * ((code + 100) - code) + code);
+    }
+
     function createError(code) {
         var id,
             err;
 
-        id = p.sprintf(
-            elementId, Math.random() * ((code + 100) - code) + code);
+        id = randId(code);
         err = p.sprintf(text, id, code);
 
         errorElement.innerHTML = errorElement.innerHTML + err;
         $('#' + id).alert();
     }
 
-    error = function(response) {
+    err.error = function(response) {
         createError(response.status);
     };
 
-    return {
-        error: error
+    err.customError = function(code, message) {
+        var id,
+            err;
+
+        id = randId(code);
+        err = '<div id="' + id +
+            '" class="alert alert-danger alert-dismissable">' +
+            '<button type="button" class="close" data-dismiss="alert" ' +
+            'aria-hidden="true">&times;</button>' +
+            message + '&nbsp;(error code: ' + code + ').' + '</div>';
+
+        errorElement.innerHTML = errorElement.innerHTML + err;
+        $('#' + id).alert();
     };
+
+    return err;
 });
