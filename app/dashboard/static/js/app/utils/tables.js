@@ -21,15 +21,14 @@ define([
 ], function($, s, b) {
     'use strict';
     var table,
-        dom,
+        tableDom,
         lengthMenu = null,
         lengthChange = true,
         paging = true,
         info = true,
         menu,
         menuFmt,
-        zeroR,
-        zeroRFmt,
+        zeroRec,
         columns,
         order,
         tTable,
@@ -43,9 +42,10 @@ define([
         searchType,
         oldSearch = null,
         disableIn = false,
-        noIDUrl = false;
+        noIDUrl = false,
+        elementsPerPage = [25, 50, 75, 100];
 
-    dom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
+    tableDom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
             '<"length-menu"l>>' +
             '<"col-xs-12 col-sm-12 col-md-4 col-lg-6"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
@@ -57,15 +57,13 @@ define([
         '<i class="fa fa-search"></i></span>_INPUT_</div>';
 
     menuFmt = '_MENU_&nbsp;<strong>%s</strong>';
-    zeroRFmt = '<strong>%s</strong>';
-
     menu = 'reports per page';
-    zeroR = 'No reports to display';
+    zeroRec = '<strong>No reports to display.</strong>';
 
     order = [1, 'desc'];
     searchType = {
-        'regex': true,
-        'smart': true
+        regex: true,
+        smart: true
     };
 
     table = function(elements, d) {
@@ -109,7 +107,7 @@ define([
         }
 
         tTable = $(tElement[1]).DataTable({
-            'dom': dom,
+            'dom': that.dom(),
             'paging': paging,
             'info': info,
             'language': {
@@ -118,7 +116,7 @@ define([
                 'search': that.searchLanguage(),
                 'searchPlaceholder': 'Filter the results'
             },
-            'lengthMenu': [25, 50, 75, 100],
+            'lengthMenu': that.elementsLength(),
             'order': order,
             'deferRender': true,
             'ordering': true,
@@ -242,15 +240,6 @@ define([
         return returnData;
     };
 
-    table.zeroR = function(value) {
-        var returnData = zeroR;
-        if (arguments.length) {
-            zeroR = value;
-            returnData = table;
-        }
-        return returnData;
-    };
-
     table.columns = function(value) {
         var returnData = columns;
         if (arguments.length) {
@@ -315,11 +304,10 @@ define([
     };
 
     table.zeroRecords = function(value) {
-        var returnData = table;
+        var returnData = zeroRec;
         if (arguments.length) {
-            zeroRecords = value;
-        } else {
-            returnData = s.sprintf(zeroRFmt, zeroR);
+            zeroRec = value;
+            returnData = table;
         }
         return returnData;
     };
@@ -370,6 +358,24 @@ define([
         var returnData = paging;
         if (arguments.length) {
             info = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.elementsLength = function(value) {
+        var returnData = elementsPerPage;
+        if (arguments.length) {
+            elementsPerPage = value;
+            returnData = table;
+        }
+        return returnData;
+    };
+
+    table.dom = function(value) {
+        var returnData = tableDom;
+        if (arguments.length) {
+            tableDom = value;
             returnData = table;
         }
         return returnData;
