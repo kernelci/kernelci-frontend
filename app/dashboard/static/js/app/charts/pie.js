@@ -6,17 +6,18 @@ define([
     'charts/base'
 ], function($, d3, p, k) {
     'use strict';
-    var pie,
+    var piechart,
         sTooltipFmt;
     sTooltipFmt = '<span ' +
         'rel="tooltip" data-toggle="tooltip" title="%s">%d</span>';
 
-    k.charts.pie = function() {
+    k.charts.piechart = function() {
         var margin = {top: 0, right: 0, bottom: 0, left: 0},
             width = 200,
             height = 200,
             w = width - margin.right - margin.left,
             h = height - margin.top - margin.bottom,
+            defaultText,
             radius,
             gLayout,
             gArc,
@@ -29,8 +30,9 @@ define([
         gArc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
         // pass, fail, unknown
         color = ['#5cb85c', '#d9534f', '#f0ad4e'];
+        defaultText = 'total reports';
 
-        pie = function(selection) {
+        piechart = function(selection) {
             selection.each(function(data) {
                 svg = d3.select(this).append('svg:svg')
                     .attr('width', w)
@@ -59,7 +61,7 @@ define([
                     .attr('dy', '1.5em')
                     .style('text-anchor', 'middle')
                     .attr('class', 'pie-chart-data')
-                    .text('total boots');
+                    .text(piechart.innerText());
 
                 $('#success-cell')
                     .empty()
@@ -79,6 +81,15 @@ define([
             });
         };
 
-        return pie;
+        piechart.innerText = function(value) {
+            var ret = defaultText;
+            if (arguments.length) {
+                defaultText = value;
+                ret = piechart;
+            }
+            return ret;
+        };
+
+        return piechart;
     };
 });
