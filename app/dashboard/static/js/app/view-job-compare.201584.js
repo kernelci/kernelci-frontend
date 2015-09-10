@@ -115,13 +115,13 @@ require([
                 kernel = localCompData.kernel;
                 status = deltaStatus[ydx];
 
+                buildS += '<td>';
                 if (status !== null) {
                     buildLink = '/build/' + job +
                         '/kernel/' + kernel +
                         '/defconfig/' + defconfigFull + '/' +
                         '?_id=' + status[1].$oid;
 
-                    buildS += '<td>';
                     switch (status[0]) {
                         case 'PASS':
                             buildS += '<span rel="tooltip" ' +
@@ -154,7 +154,6 @@ require([
                             break;
                     }
                 } else {
-                    buildS += '<td>';
                     buildS += '<span rel="tooltip" ' +
                         'data-toggle="tooltip" title=' +
                         '"Build not available for &#171;' + job +
