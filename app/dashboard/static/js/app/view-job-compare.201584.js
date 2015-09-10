@@ -6,8 +6,9 @@ require([
     'utils/init',
     'utils/request',
     'utils/tables',
-    'utils/urls'
-], function($, b, e, i, r, t, u) {
+    'utils/urls',
+    'charts/passpie'
+], function($, b, e, i, r, t, u, chart) {
     'use strict';
     var compareId = null,
         comparedTable,
@@ -20,22 +21,6 @@ require([
 
     tableDom = '<"row"' +
         '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
-
-    function rotateHeadings() {
-        var rotates,
-            idx;
-
-        rotates = document.getElementsByClassName('rotate');
-        idx = 0;
-        for (idx; idx < rotates.length; idx = idx + 1) {
-            // rotates[idx].style.transform = 'rotate(-90.0deg)';
-            rotates[idx].style.transform = 'rotate(-90.0deg) translateY(' +
-                Math.round(rotates[idx].offsetWidth / 2) + 'px)';
-            rotates[idx].style.height = '9em';
-            console.log(rotates[idx].offsetWidth);
-            console.log(Math.round(rotates[idx].offsetWidth / 2));
-        }
-    }
 
     function createHeadCellContent(job, kernel) {
         var str;
@@ -52,7 +37,14 @@ require([
         return str;
     }
 
-    function createCompareTable(tableId, baseline, compared, deltas) {
+    function createBuildsChart(total, otherCounts) {
+        chart.buildpie(
+            'build-chart', [total, otherCounts], function(response) {
+            return response;
+        });
+    }
+
+    function createDiffTable(tableId, baseline, compared, deltas) {
         var baseJob,
             baseKernel,
             comparedLen,
@@ -66,7 +58,6 @@ require([
             deltaStatus,
             deltaRes,
             deltaResData,
-            defconfig,
             defconfigFull,
             job,
             kernel,
@@ -109,15 +100,12 @@ require([
         for (idx; idx < deltaLen; idx = idx + 1) {
             deltaRes = deltas[idx];
             deltaResData = deltaRes[0];
-            defconfig = deltaResData[0];
             defconfigFull = deltaResData[1];
             arch = deltaResData[2];
 
             buildS += '<tr class="compare-row">' +
-                '<td class="compare-field compare-content"><div>' +
-                '<span>' + defconfig + '</span><br/>' +
-                '<small>' + defconfigFull + ' &mdash; ' +
-                arch + '</small></div></td>';
+                '<td class="compare-content"><div>' +
+                defconfigFull + ' &dash; ' + arch + '</div></td>';
 
             ydx = 0;
             deltaStatus = deltaRes[1];
@@ -361,9 +349,12 @@ require([
                 title: 'Date',
                 type: 'date',
                 className: 'date-column pull-center',
-                render: function(data) {
+                render: function(data, type) {
                     var created = new Date(data.$date);
-                    return created.getCustomISODate();
+                    if (type === 'display' || type === 'filter') {
+                        created = created.getCustomISODate();
+                    }
+                    return created;
                 }
             },
             {
@@ -392,13 +383,12 @@ require([
             .tableData(comparedData)
             .columns(columns)
             .order([4, 'desc'])
-            .menu('jobs per page')
-            .elementsLength([5, 10, 15])
             .noIDUrl(true)
             .rowURLElements(['job', 'kernel'])
             .draw();
 
-        createCompareTable(tableId, baseline, comparedData, deltaResult);
+        createBuildsChart(baseTotalBuilds, baseline.build_counts);
+        createDiffTable(tableId, baseline, comparedData, deltaResult);
     }
 
     function getJobCompareFail() {
@@ -425,7 +415,7 @@ require([
             b.replaceById(
                 'body-title',
                 'for &#171;' + baseline.job +
-                '&nbsp;&dash;&nbsp;' + baseline.kernel + '&#187;'
+                '&#187;&nbsp;&dash;&nbsp;' + baseline.kernel
             );
 
             parseCompareData(
