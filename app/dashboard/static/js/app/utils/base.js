@@ -185,9 +185,10 @@ define(function() {
     */
     Date.prototype.getCustomISODate = function() {
         var year = this.getUTCFullYear().toString(),
-            month = (this.getUTCMonth() + 1).toString(),
+            month = this.getUTCMonth() + 1,
             day = this.getUTCDate().toString();
 
+        month = month.toString();
         month = month[1] ? month : '0' + month[0];
         day = day[1] ? day : '0' + day[0];
 
@@ -200,12 +201,13 @@ define(function() {
     */
     Date.prototype.getCustomISOFormat = function() {
         var year = this.getUTCFullYear().toString(),
-            month = (this.getUTCMonth() + 1).toString(),
+            month = this.getUTCMonth() + 1,
             day = this.getUTCDate().toString(),
             hour = this.getUTCHours().toString(),
             minute = this.getUTCMinutes().toString(),
             seconds = this.getUTCSeconds().toString();
 
+        month = month.toString();
         month = month[1] ? month : '0' + month[0];
         day = day[1] ? day : '0' + day[0];
 
