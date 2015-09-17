@@ -167,14 +167,15 @@ define(function() {
     // Parse a byte number and return its human-readable form.
     base.bytesToHuman = function(bytes) {
         var retVal,
-            base = 1024,
+            calcBase = 1024,
             idx;
         if (bytes === 0) {
             retVal = '0 bytes';
         } else {
-            idx = Math.floor(Math.log(bytes) / Math.log(base));
-            retVal = formatNumber(roundToTwo(bytes / Math.pow(base, idx))) +
-                ' ' + sizes[idx];
+            idx = Math.floor(Math.log(bytes) / Math.log(calcBase));
+            retVal = numFormat.format(
+                roundToTwo(
+                    bytes / Math.pow(calcBase, idx))) + ' ' + sizes[idx];
         }
         return retVal;
     };
