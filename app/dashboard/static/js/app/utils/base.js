@@ -29,6 +29,14 @@ define(function() {
         });
     };
 
+    base.sliceText = function(text, max) {
+        var sliced = text;
+        if (text.length > max) {
+            sliced = text.slice(0, max - 1) + '\u2026';
+        }
+        return sliced;
+    };
+
     base.formatNumber = function(value) {
         return numFormat.format(value);
     };
