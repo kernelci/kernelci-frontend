@@ -60,24 +60,21 @@ define(function() {
     };
 
     // Concatenate objects into a single one.
-    base.collectObjects = function() {
-        var fObject = {},
-            i = 0,
-            argLen = arguments.length,
-            arg,
-            key;
+    // objects := an array of objects to concatenate.
+    base.collectObjects = function(objects) {
+        var collected = {};
 
-        for (i; i < argLen; i = i + 1) {
-            arg = arguments[i];
-            if (typeof arg === 'object') {
-                for (key in arg) {
-                    if (arg.hasOwnProperty(key)) {
-                        fObject[key] = arg[key];
-                    }
+        if (objects !== null && objects.constructor === Array) {
+            objects.forEach(function(obj) {
+                if (obj !== null && obj === Object(obj)) {
+                    Object.keys(obj).forEach(function(key) {
+                        collected[key] = obj[key];
+                    });
                 }
-            }
+            });
         }
-        return fObject;
+
+        return collected;
     };
 
     base.replaceByClass = function(name, content) {

@@ -559,7 +559,7 @@ require([
                 }
             };
 
-            session.objects = b.collectObjects(panelState, pageState);
+            session.objects = b.collectObjects([panelState, pageState]);
             ws.save(session);
         });
     }
