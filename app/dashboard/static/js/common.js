@@ -36,7 +36,7 @@ require.config({
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.20159',
             'app/view-index': 'app/view-index.20159',
             'app/view-info-faq': 'app/view-info-faq.20159',
-            'app/view-job-compare': 'app/view-job-compare.201584',
+            'app/view-job-compare': 'app/view-job-compare.20159',
             'app/view-jobs-all': 'app/view-jobs-all.20159',
             'app/view-jobs-job': 'app/view-jobs-job.20159',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.20159',

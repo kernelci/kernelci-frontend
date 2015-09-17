@@ -27,7 +27,7 @@ class JobCompareView(GenericCompareView):
     def dispatch_request(self, compare_id):
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, "Job comparison")
         return render_template(
-            "job_compare.html",
+            "job-compare.html",
             page_title=page_title,
             compare_id=compare_id
         )
