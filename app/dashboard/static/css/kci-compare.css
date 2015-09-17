@@ -31,3 +31,23 @@ tr.compare-row > td:first-child {
     transform-origin: center;
     transform: rotate(-90deg) translateY(40%);
 }
+svg > g.matrix {
+    cursor: pointer;
+}
+svg > g.matrix > g.matrix-line-group .unclickable {
+    cursor: not-allowed;
+}
+svg > g.matrix rect {
+    stroke: #fff;
+    stroke-width: 1.25;
+}
+svg > g.legend text {
+    font-size: smaller;
+}
+svg > g.legend .legend-title text {
+    font-weight: bold;
+}
+svg > g.legend .legend-para text,
+svg > g.legend .legend-line text {
+    dominant-baseline: central;
+}

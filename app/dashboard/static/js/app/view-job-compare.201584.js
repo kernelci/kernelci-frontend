@@ -7,8 +7,9 @@ require([
     'utils/request',
     'utils/tables',
     'utils/urls',
-    'charts/passpie'
-], function($, b, e, i, r, t, u, chart) {
+    'charts/passpie',
+    'charts/diffmatrix'
+], function($, b, e, i, r, t, u, pie, matrix) {
     'use strict';
     var compareId = null,
         comparedTable,
@@ -21,156 +22,6 @@ require([
 
     tableDom = '<"row"' +
         '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
-
-    function createHeadCellContent(job, kernel) {
-        var str;
-
-        str = job + ' - ' + kernel;
-        if (str.length > 21) {
-            str = '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="' + str + '">' +
-                '<div class="rotate">' + str.slice(0, 21) + '&hellip;' +
-                '</div></span>';
-        } else {
-            str = '<div class="rotate">' + str + '</div>';
-        }
-        return str;
-    }
-
-    function createBuildsChart(total, otherCounts) {
-        chart.buildpie(
-            'build-chart', [total, otherCounts], function(response) {
-            return response;
-        });
-    }
-
-    function createDiffTable(tableId, baseline, compared, deltas) {
-        var baseJob,
-            baseKernel,
-            comparedLen,
-            deltaLen,
-            tHead,
-            tBody,
-            buildS,
-            tableS,
-            idx,
-            ydx,
-            deltaStatus,
-            deltaRes,
-            deltaResData,
-            defconfigFull,
-            job,
-            kernel,
-            arch,
-            status,
-            buildLink,
-            localCompData,
-            allData = [],
-            dataLen;
-
-        // Hold baseline and all the other comparison jobs.
-        allData.push(baseline);
-        Array.prototype.push.apply(allData, compared);
-        dataLen = allData.length;
-
-        tHead = '<thead><tr><th>&nbsp;</th>';
-        tBody = '<tbody>';
-        tableS = '';
-
-        comparedLen = compared.length;
-        deltaLen = deltas.length;
-
-        baseJob = baseline.job;
-        baseKernel = baseline.kernel;
-
-        tHead += '<th><div class="rotate-container">' +
-            createHeadCellContent(baseJob, baseKernel) + '</div></th>';
-
-        idx = 0;
-        for (idx; idx < comparedLen; idx = idx + 1) {
-            tHead += '<th><div class="rotate-container">' +
-                createHeadCellContent(
-                    compared[idx].job, compared[idx].kernel) +
-                '</div></th>';
-        }
-        tHead += '</thead>';
-
-        idx = 0;
-        buildS = '';
-        for (idx; idx < deltaLen; idx = idx + 1) {
-            deltaRes = deltas[idx];
-            deltaResData = deltaRes[0];
-            defconfigFull = deltaResData[1];
-            arch = deltaResData[2];
-
-            buildS += '<tr class="compare-row">' +
-                '<td class="compare-content"><div>' +
-                defconfigFull + ' &dash; ' + arch + '</div></td>';
-
-            ydx = 0;
-            deltaStatus = deltaRes[1];
-            for (ydx; ydx < dataLen; ydx = ydx + 1) {
-                localCompData = allData[ydx];
-                job = localCompData.job;
-                kernel = localCompData.kernel;
-                status = deltaStatus[ydx];
-
-                buildS += '<td>';
-                if (status !== null) {
-                    buildLink = '/build/' + job +
-                        '/kernel/' + kernel +
-                        '/defconfig/' + defconfigFull + '/' +
-                        '?_id=' + status[1].$oid;
-
-                    switch (status[0]) {
-                        case 'PASS':
-                            buildS += '<span rel="tooltip" ' +
-                                'data-toggle="tooltip" title=' +
-                                '"Build successful &dash; Click to see build ' +
-                                'details">' +
-                                '<a href="' + buildLink + '">' +
-                                '<span class="label label-success">' +
-                                '<i class="fa fa-check"></i></span></a></span>';
-                            break;
-                        case 'FAIL':
-                            buildS += '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Build failed &dash; Click to see ' +
-                                'build details">' +
-                                '<a href="' + buildLink + '">' +
-                                '<span class="label label-danger">' +
-                                '<i class="fa fa-exclamation-triangle"></i>' +
-                                '</span></a></span>';
-                            break;
-                        default:
-                            buildS += '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="Build status unknown &dash; Click ' +
-                                'to see build details">' +
-                                '<a href="' + buildLink + '">' +
-                                '<span class="label label-warning">' +
-                                '<li class="fa fa-question">' +
-                                '</li></span></a></span>';
-                            break;
-                    }
-                } else {
-                    buildS += '<span rel="tooltip" ' +
-                        'data-toggle="tooltip" title=' +
-                        '"Build not available for &#171;' + job +
-                        ' &dash; ' + kernel + '&#187;">' +
-                        '<span class="label label-default">' +
-                        '<i class="fa fa-ban"></i></span></span>';
-                }
-                buildS += '</td>';
-            }
-            buildS += '</tr>';
-        }
-
-        tBody += buildS + '</tbody>';
-        tableS = tHead + tBody;
-
-        b.replaceById(tableId, tableS);
-    }
 
     // Calculate total diff between the baseline and what is being compared
     // against.
@@ -191,84 +42,8 @@ require([
         return display;
     }
 
-    function parseCompareData(tableId, baseline, comparedData, deltaResult) {
-        var baseCreatedOn,
-            baseGitCommit,
-            baseGitUrl,
-            baseJob,
-            baseKernel,
-            baseTotalBuilds,
-            columns,
-            translatedGitUrl;
-
-        baseGitCommit = baseline.git_commit;
-        baseGitUrl = baseline.git_url;
-        baseTotalBuilds = baseline.total_builds;
-        baseJob = baseline.job;
-        baseKernel = baseline.kernel;
-
-        translatedGitUrl = u.translateCommit(baseGitUrl, baseGitCommit);
-
-        b.replaceById(
-            'dd-tree',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for tree ' + baseJob + '">' +
-            '<a href="/job/' + baseJob + '/">' + baseJob + '</a>' +
-            '</span>&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot reports details for ' + baseJob + '">' +
-            '<a href="/boot/all/job/' + baseJob + '/">' +
-            '<i class="fa fa-hdd-o"></i>' +
-            '</a></span>'
-        );
-        b.replaceById('dd-branch', baseline.git_branch);
-        b.replaceById(
-            'dd-kernel',
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + baseJob + '&nbsp;&dash;&nbsp;' +
-                baseKernel + '">' +
-                '<a href="/build/' + baseJob + '/kernel/' +
-                baseKernel + '/">' + baseKernel + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="All boot reports for ' + baseJob +
-                '&nbsp;&dash;&nbsp;' + baseKernel + '">' +
-                '<a href="/boot/all/job/' + baseJob + '/kernel/' +
-                baseKernel + '/">' + '<i class="fa fa-hdd-o"></i></a></span>'
-        );
-
-        if (translatedGitUrl[0] !== null) {
-            b.replaceById(
-                'dd-url',
-                '<a href="' + translatedGitUrl[0] + '">' + baseGitUrl +
-                '&nbsp;<i class="fa fa-external-link"></i></a>'
-            );
-        } else {
-            if (baseGitUrl !== null) {
-                b.replaceById('dd-url', baseGitUrl);
-            } else {
-                b.replaceById('dd-url', nonAvail);
-            }
-        }
-
-        if (translatedGitUrl[1] !== null) {
-            b.replaceById(
-                'dd-commit',
-                '<a href="' + translatedGitUrl[1] + '">' + baseGitCommit +
-                '&nbsp;<i class="fa fa-external-link"></i></a>'
-            );
-        } else {
-            if (baseGitCommit !== null) {
-                b.replaceById('dd-commit', baseGitCommit);
-            } else {
-                b.replaceById('dd-commit', nonAvail);
-            }
-        }
-
-        b.replaceById('dd-total', baseTotalBuilds);
-        baseCreatedOn = new Date(baseline.created_on.$date);
-        b.replaceById('dd-date', baseCreatedOn.getCustomISODate());
-
+    function setupCompareToTable(comparedData, baseline) {
+        var columns;
         columns = [
             {
                 data: 'job',
@@ -338,7 +113,7 @@ require([
                 render: function(data, type) {
                     var rend = data;
                     if (type === 'display' || type === 'filter') {
-                        rend = calculateTotalDiff(baseTotalBuilds, data);
+                        rend = calculateTotalDiff(baseline.total_builds, data);
                     }
                     return rend;
                 }
@@ -385,9 +160,84 @@ require([
             .noIDUrl(true)
             .rowURLElements(['job', 'kernel'])
             .draw();
+    }
 
-        createBuildsChart(baseTotalBuilds, baseline.build_counts);
-        createDiffTable(tableId, baseline, comparedData, deltaResult);
+    function setupBaselineData(baseline) {
+        var baseCreatedOn,
+            baseGitCommit,
+            baseGitUrl,
+            baseJob,
+            baseKernel,
+            baseTotalBuilds,
+            translatedGitUrl;
+
+        baseGitCommit = baseline.git_commit;
+        baseGitUrl = baseline.git_url;
+        baseTotalBuilds = baseline.total_builds;
+        baseJob = baseline.job;
+        baseKernel = baseline.kernel;
+
+        translatedGitUrl = u.translateCommit(baseGitUrl, baseGitCommit);
+
+        b.replaceById(
+            'dd-tree',
+            '<span rel="tooltip" data-toggle="tooltip"' +
+            'title="Details for tree ' + baseJob + '">' +
+            '<a href="/job/' + baseJob + '/">' + baseJob + '</a>' +
+            '</span>&nbsp;&mdash;&nbsp;' +
+            '<span rel="tooltip" data-toggle="tooltip" ' +
+            'title="Boot reports details for ' + baseJob + '">' +
+            '<a href="/boot/all/job/' + baseJob + '/">' +
+            '<i class="fa fa-hdd-o"></i>' +
+            '</a></span>'
+        );
+        b.replaceById('dd-branch', baseline.git_branch);
+        b.replaceById(
+            'dd-kernel',
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="Details for build ' + baseJob + '&nbsp;&dash;&nbsp;' +
+                baseKernel + '">' +
+                '<a href="/build/' + baseJob + '/kernel/' +
+                baseKernel + '/">' + baseKernel + '</a>' +
+                '</span>&nbsp;&mdash;&nbsp;' +
+                '<span rel="tooltip" data-toggle="tooltip" ' +
+                'title="All boot reports for ' + baseJob +
+                '&nbsp;&dash;&nbsp;' + baseKernel + '">' +
+                '<a href="/boot/all/job/' + baseJob + '/kernel/' +
+                baseKernel + '/">' + '<i class="fa fa-hdd-o"></i></a></span>'
+        );
+
+        if (translatedGitUrl[0] !== null) {
+            b.replaceById(
+                'dd-url',
+                '<a href="' + translatedGitUrl[0] + '">' + baseGitUrl +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (baseGitUrl !== null) {
+                b.replaceById('dd-url', baseGitUrl);
+            } else {
+                b.replaceById('dd-url', nonAvail);
+            }
+        }
+
+        if (translatedGitUrl[1] !== null) {
+            b.replaceById(
+                'dd-commit',
+                '<a href="' + translatedGitUrl[1] + '">' + baseGitCommit +
+                '&nbsp;<i class="fa fa-external-link"></i></a>'
+            );
+        } else {
+            if (baseGitCommit !== null) {
+                b.replaceById('dd-commit', baseGitCommit);
+            } else {
+                b.replaceById('dd-commit', nonAvail);
+            }
+        }
+
+        b.replaceById('dd-total', baseTotalBuilds);
+        baseCreatedOn = new Date(baseline.created_on.$date);
+        b.replaceById('dd-date', baseCreatedOn.getCustomISODate());
     }
 
     function getJobCompareFail() {
@@ -404,6 +254,7 @@ require([
             resLen = result.length,
             baseline,
             comparedData,
+            matrixData,
             deltaResult;
 
         if (resLen > 0) {
@@ -417,8 +268,32 @@ require([
                 '&#187;&nbsp;&dash;&nbsp;' + baseline.kernel
             );
 
-            parseCompareData(
-                'compare-table', baseline, comparedData, deltaResult);
+            setupBaselineData(baseline);
+            setupCompareToTable(comparedData, baseline);
+
+            pie.buildpie(
+                'build-chart',
+                [baseline.total_builds, baseline.build_counts],
+                function(response) {
+                    return response;
+                }
+            );
+
+            if (deltaResult.length > 0) {
+                matrixData = {
+                    xdata: [baseline],
+                    ydata: deltaResult
+                };
+
+                Array.prototype.push.apply(matrixData.xdata, comparedData);
+                matrix.builds('builds-matrix', matrixData);
+            } else {
+                b.replaceById(
+                    'builds-matrix',
+                    '<div class="pull-center">' +
+                    '<strong>No differences to show.</strong></div>'
+                );
+            }
         } else {
             b.replaceByClass('loading-content', nonAvail);
             b.replaceByClass(
@@ -454,7 +329,7 @@ require([
                 '<strong>No data available.</strong></div>'
             );
             e.customError(
-                400, 'Missing job comparison ID value: please specify one');
+                400, 'Missing job comparison ID value: please specify one.');
         }
     });
 });
