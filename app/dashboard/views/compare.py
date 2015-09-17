@@ -22,6 +22,16 @@ class GenericCompareView(View):
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
 
 
+class ChooseCompareView(GenericCompareView):
+
+    def dispatch_request(self):
+        page_title = "%s &mdash; %s" % \
+            (self.PAGE_TITLE, "Compare jobs, builds and boots")
+        return render_template(
+            "choose-compare.html",
+            page_title=page_title)
+
+
 class JobCompareView(GenericCompareView):
 
     def dispatch_request(self, compare_id):

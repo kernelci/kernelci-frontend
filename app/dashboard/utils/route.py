@@ -176,6 +176,11 @@ def init():
     )
 
     add_rule(
+        "/compare/",
+        view_func=vcompare.ChooseCompareView.as_view("choose-compare"),
+        methods=["GET"]
+    )
+    add_rule(
         "/compare/job/<string:compare_id>/",
         view_func=vcompare.JobCompareView.as_view("job-compare"),
         methods=["GET"]

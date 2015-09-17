@@ -1,0 +1,156 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block head %}
+{{ super() }}
+<style type="text/css">
+    .input-group-addon {
+        min-width: 70px;
+        text-align: left;
+    }
+    .comparison-choice {
+        padding-left: 1em;
+    }
+    .form-submit {
+        padding-top: 2em;
+    }
+    .comparison-choice > div:first-child {
+        padding-bottom: 0.5em;
+    }
+    .input-reduced {
+        width: 70%;
+    }
+    div.wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+    div.first {
+        float: left;
+    }
+    div.second {
+        padding-left: 1em;
+        padding-top: 1.6em;
+        overflow: hidden;
+    }
+    div.comparison-group {
+        padding-left: 0.5em;
+    }
+    label {
+        font-weight: normal;
+    }
+</style>
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3>Compare Jobs, Builds and Boots <small>(beta)</small></h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-bottom: 1em;">
+        <p>
+            This feature is in <strong>beta</strong>: its functions and appearances can change in the future.
+            <br>
+            <br>
+            At the moment only the job comparison type is supported, and can be compared to
+            only one other job.
+            <br>
+            The other comparison types, as well as multiple compare targets, are in development.
+        </p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="compare-form">
+            <form method="POST" accept-charset="UTF-8" id="comparison" autocomplete="off">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="type">
+                    <h5>What type of comparison to perform?</h5>
+                    <div class="comparison-group">
+                        <label for="comparison-type">Select the comparison type:</label>
+                        <div id="comparison-type" class="comparison-choice">
+                            <ul class="list-unstyled">
+                                <li>
+                                    <input type="radio" value="build" name="comp-type">
+                                    &nbsp;job
+                                </li>
+                                <li>
+                                    <input type="radio" value="build" name="comp-type" disabled>
+                                    &nbsp;build
+                                </li>
+                                <li>
+                                    <input type="radio" value="boot" name="comp-type" disabled>
+                                    &nbsp;boot
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" id="baseline">
+                    <h5>Which is the starting point of the comparison?</h5>
+                    <div class="comparison-group">
+                        <label for="baseline-choice">
+                            Select the baseline for the comparison:
+                        </label>
+                        <div class="wrapper">
+                            <div id="baseline-choice" class="comparison-choice input-reduced first">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon" id="baseline-tree">Tree</span>
+                                    <input type="text" class="form-control" aria-describedby="baseline-tree" list="trees" name="baseline-choice-tree" required>
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-addon" id="baseline-kernel">Kernel</span>
+                                    <input type="text" class="form-control" aria-describedby="baseline-kernel" name="baseline-choice-kernel" required>
+                                </div>
+                            </div>
+                            <div class="second">
+                                <span><small>loading kernels...</small></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" id="compare-to">
+                    <h5>Which target should be compared?</h5>
+                    <div class="comparison-group">
+                        <label for="compare-choice-group">
+                            Select the target to compare against:
+                        </label>
+                        <div id="compare-choice-group">
+                            <div class="wrapper">
+                                <div id="compare-choice0" class="comparison-choice input-reduced first">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-addon" id="compare-tree0">Tree</span>
+                                        <input type="text" class="form-control" aria-describedby="compare-tree0" list="trees" name="compare-tree0" required>
+                                    </div>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-addon" id="compare-kernel0">Kernel</span>
+                                        <input type="text" class="form-control" aria-describedby="compare-kernel0" name="compare-kernel0" required>
+                                    </div>
+                                </div>
+                                <div class="second">
+                                    <span><small>loading kernels...</small></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <div class="form-submit pull-right">
+                        <button type="submit" class="btn btn-default">Compare</button>
+                    </div>
+                </div>
+                <div id="data-list-bucket">
+                    <datalist id="trees">
+                        <option value="next"></option>
+                        <option value="mainline"></option>
+                        <option value="tbaker"></option>
+                        <option value="collabora"></option>
+                    </datalist>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-compare" src="/static/js/lib/require.js"></script>
+{%- endblock %}
