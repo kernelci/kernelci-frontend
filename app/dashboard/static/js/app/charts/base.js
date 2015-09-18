@@ -22,7 +22,7 @@ define(function() {
     }
 
     function rateNumber(num, den) {
-        if (num === Math.NaN) {
+        if (isNaN(num)) {
             num = 0;
         }
         return (num / den) * 100;
