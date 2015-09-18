@@ -254,3 +254,12 @@ def ajax_compare(doc_id=None):
             abort(405)
     else:
         abort(403)
+
+
+@app.route("/_ajax/<string:resource>/distinct/<string:field>", methods=["GET"])
+def ajax_distinct(resource, field):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        return backend.ajax_get(
+            request, "/%s/distinct" % resource, doc_id=field, timeout=60*30)
+    else:
+        abort(403)
