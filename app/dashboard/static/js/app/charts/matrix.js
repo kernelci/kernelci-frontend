@@ -109,8 +109,11 @@ define([
                     .append('g')
                     .attr('class', 'matrix-line-group')
                     .attr('transform', function(ignore, idx) {
-                        return 'translate(0,' +
-                            (yScale(idx) - (sHeight / 2)) + ')';
+                        var yDx = yScale(idx) - (sHeight / 2);
+                        if (isNaN(yDx)) {
+                            yDx = 0;
+                        }
+                        return 'translate(0,' + yDx + ')';
                     });
 
                 // Then select each group, and add the rect elements.

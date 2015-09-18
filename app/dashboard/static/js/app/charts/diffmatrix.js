@@ -153,7 +153,11 @@ define([
             .enter()
             .append('text')
             .attr('y', function(ignore, idx) {
-                return chart.yScale(idx);
+                var yDx = chart.yScale(idx);
+                if (isNaN(yDx)) {
+                    yDx = chart.square().height / 2;
+                }
+                return yDx;
             })
             .text(function(datum) {
                 var localData = datum[0];
