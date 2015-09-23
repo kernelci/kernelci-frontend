@@ -384,11 +384,11 @@ require([
             );
         } else {
             data = {
-                'job_id': results[0]._id.$oid,
-                'job': jobName,
-                'kernel': kernelName,
-                'sort': ['defconfig_full', 'arch'],
-                'sort_order': 1
+                job_id: results[0]._id.$oid,
+                job: jobName,
+                kernel: kernelName,
+                sort: ['defconfig_full', 'arch'],
+                sort_order: 1
             };
             deferred = r.get('/_ajax/build', data);
             $.when(deferred)
@@ -484,12 +484,147 @@ require([
         }
     }
 
+    function getLogsFail() {
+        b.replaceById(
+            'logs-summary',
+            '<div class="pull-center"><strong>' +
+            'Error loading logs summary data.</strong></div>'
+        );
+    }
+
+    function getLogsDone(response) {
+        var result,
+            resLen,
+            errors,
+            warnings,
+            mismatches,
+            summaryDiv,
+            sectionDiv,
+            sectionDivTitle,
+            sectionTitle,
+            sectionTable,
+            tableRow,
+            tableCell;
+
+        result = response.result;
+        resLen = result.length;
+
+        if (resLen > 0) {
+            summaryDiv = document.getElementById('logs-summary');
+            summaryDiv.innerHTML = '';
+
+            errors = result[0].errors;
+            warnings = result[0].warnings;
+            mismatches = result[0].mismatches;
+
+            if (errors.length > 0) {
+                sectionDiv = document.createElement('div');
+                sectionDivTitle = document.createElement('div');
+                sectionTitle = document.createElement('h5');
+
+                sectionTitle.appendChild(
+                    document.createTextNode('Errors Summary'));
+                sectionDivTitle.appendChild(sectionTitle);
+                sectionDiv.appendChild(sectionDivTitle);
+
+                sectionTable = document.createElement('table');
+                sectionTable.className = 'table table-condensed summary-table';
+
+                errors.forEach(function(value) {
+                    tableRow = sectionTable.insertRow();
+                    tableCell = tableRow.insertCell();
+                    tableCell.className = 'summary-numbers';
+                    tableCell.appendChild(document.createTextNode(value[0]));
+
+                    tableCell = tableRow.insertCell();
+                    tableCell.appendChild(document.createTextNode(value[1]));
+                });
+
+                sectionDiv.appendChild(sectionTable);
+                summaryDiv.appendChild(sectionDiv);
+            }
+
+            if (warnings.length > 0) {
+                sectionDiv = document.createElement('div');
+                sectionDivTitle = document.createElement('div');
+                sectionTitle = document.createElement('h5');
+
+                sectionTitle.appendChild(
+                    document.createTextNode('Warnings Summary'));
+                sectionDivTitle.appendChild(sectionTitle);
+                sectionDiv.appendChild(sectionDivTitle);
+
+                sectionTable = document.createElement('table');
+                sectionTable.className = 'table table-condensed summary-table';
+
+                warnings.forEach(function(value) {
+                    tableRow = sectionTable.insertRow();
+                    tableCell = tableRow.insertCell();
+                    tableCell.className = 'summary-numbers';
+                    tableCell.appendChild(document.createTextNode(value[0]));
+
+                    tableCell = tableRow.insertCell();
+                    tableCell.appendChild(document.createTextNode(value[1]));
+                });
+
+                sectionDiv.appendChild(sectionTable);
+                summaryDiv.appendChild(sectionDiv);
+            }
+
+            if (mismatches.length > 0) {
+                sectionDiv = document.createElement('div');
+                sectionDivTitle = document.createElement('div');
+                sectionTitle = document.createElement('h5');
+
+                sectionTitle.appendChild(
+                    document.createTextNode('Mismatches Summary'));
+                sectionDivTitle.appendChild(sectionTitle);
+                sectionDiv.appendChild(sectionDivTitle);
+
+                sectionTable = document.createElement('table');
+                sectionTable.className = 'table table-condensed summary-table';
+
+                mismatches.forEach(function(value) {
+                    tableRow = sectionTable.insertRow();
+                    tableCell = tableRow.insertCell();
+                    tableCell.className = 'summary-numbers';
+                    tableCell.appendChild(document.createTextNode(value[0]));
+
+                    tableCell = tableRow.insertCell();
+                    tableCell.appendChild(document.createTextNode(value[1]));
+                });
+
+                sectionDiv.appendChild(sectionTable);
+                summaryDiv.appendChild(sectionDiv);
+            }
+        } else {
+            b.replaceById(
+                'logs-summary',
+                '<div class="pull-center"><strong>' +
+                'No logs summary data.</strong></div>'
+            );
+        }
+    }
+
+    function getLogs() {
+        var deferred,
+            data;
+        data = {
+            job: jobName,
+            kernel: kernelName
+        };
+        deferred = r.get('/_ajax/job/logs', data);
+        $.when(deferred)
+            .fail(e.error, getLogsFail)
+            .done(getLogsDone);
+    }
+
     function getJob() {
         var deferred,
             data;
         data = {
-            'job': jobName,
-            'kernel': kernelName
+            job: jobName,
+            kernel: kernelName
         };
         deferred = r.get('/_ajax/job', data);
         $.when(deferred)
@@ -507,55 +642,55 @@ require([
 
             $('[id^="panel-defconf"]').each(function(id) {
                 panelState['#panel-defconf' + id] = {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': $('#panel-defconf' + id).attr('class')
+                    type: 'class',
+                    name: 'class',
+                    value: $('#panel-defconf' + id).attr('class')
                 };
             });
 
             $('[id^="collapse-defconf"]').each(function(id) {
                 panelState['#collapse-defconf' + id] = {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': $('#collapse-defconf' + id).attr('class')
+                    type: 'class',
+                    name: 'class',
+                    value: $('#collapse-defconf' + id).attr('class')
                 };
             });
 
             pageState = {
                 '.df-success': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-success', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-success', 'style')
                 },
                 '.df-failed': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-failed', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-failed', 'style')
                 },
                 '.df-unknown': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-unknown', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-unknown', 'style')
                 },
                 '#all-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('all-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('all-btn', 'class')
                 },
                 '#success-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('success-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('success-btn', 'class')
                 },
                 '#fail-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('fail-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('fail-btn', 'class')
                 },
                 '#unknown-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('unknown-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('unknown-btn', 'class')
                 }
             };
 
@@ -584,6 +719,7 @@ require([
         }
 
         getJob();
+        getLogs();
         registerEvents();
     });
 });
