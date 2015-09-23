@@ -221,10 +221,24 @@ def ajax_build_logs(doc_id=None):
             api_path = app_conf_get("DEFCONFIG_ID_LOGS_ENPOINT")
         else:
             api_path = app_conf_get("DEFCONFIG_LOGS_ENPOINT")
-        return backend.ajax_build_logs(
-            request, doc_id, api_path, timeout=60*60*3)
+        return backend.ajax_logs(
+            request, api_path, doc_id=doc_id, timeout=60*60*3)
     else:
-        abort(400)
+        abort(403)
+
+
+@app.route("/_ajax/job/logs", methods=["GET"])
+@app.route("/_ajax/job/<string:doc_id>/logs", methods=["GET"])
+def ajax_job_logs(doc_id=None):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        if doc_id:
+            api_path = app_conf_get("JOB_ID_LOGS_ENPOINT")
+        else:
+            api_path = app_conf_get("JOB_LOGS_ENPOINT")
+        return backend.ajax_logs(
+            request, api_path, doc_id=doc_id, timeout=60*60*3)
+    else:
+        abort(403)
 
 
 @app.route("/_ajax/statistics", methods=["GET"])

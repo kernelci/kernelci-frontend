@@ -438,12 +438,12 @@ def get_version():
     return backend_version
 
 
-def ajax_build_logs(request, doc_id, api_path, timeout=None):
-    """Get the build logs.
+def ajax_logs(request, api_path, doc_id=None, timeout=None):
+    """Get logs from the backend.
 
     :param request: The request performed.
-    :param doc_id: The ID of the bisect document.
     :param api_path: The API endpoint where to perform the request.
+    :param doc_id: The ID of the bisect document.
     """
     params_list = request.args.lists()
 
