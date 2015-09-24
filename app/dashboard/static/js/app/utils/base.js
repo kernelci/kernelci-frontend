@@ -78,10 +78,21 @@ define(function() {
     };
 
     base.replaceByClass = function(name, content) {
-        var elements = document.getElementsByClassName(name);
-        Array.prototype.filter.call(elements, function(element) {
-            element.innerHTML = content;
-        });
+        [].forEach
+            .call(
+                document.getElementsByClassName(name),
+                function(element) {
+                    element.innerHTML = content;
+            });
+    };
+
+    base.replaceElementContent = function(parent, newChild) {
+        if (parent !== null) {
+            while (parent.firstChild) {
+                parent.removeChild(parent.firstChild);
+            }
+            parent.appendChild(newChild);
+        }
     };
 
     base.replaceById = function(name, content) {
@@ -131,9 +142,16 @@ define(function() {
     };
 
     base.addClass = function(id, className) {
-        var el = document.getElementById(id);
-        if (el !== null) {
-            el.className = el.className + ' ' + className;
+        var element;
+        element = document.getElementById(id);
+        if (element !== null) {
+            element.className = element.className + ' ' + className;
+        }
+    };
+
+    base.elementAddClass = function(element, className) {
+        if (element !== null) {
+            element.className = element.className + ' ' + className;
         }
     };
 
@@ -146,15 +164,23 @@ define(function() {
         }
     };
 
-    base.removeElement = function(id) {
-        var el = document.getElementById(id);
-        if (el !== null) {
-            el.remove();
+    base.elementRemoveClass = function(element, className) {
+        var regEx;
+        if (element !== null && className !== '') {
+            regEx = new RegExp('(?:^|\\s)' + className + '(?!\\S)', 'g');
+            element.className = element.className.replace(regEx, '');
         }
     };
 
     Element.prototype.remove = function() {
         this.parentElement.removeChild(this);
+    };
+
+    base.removeElement = function(id) {
+        var el = document.getElementById(id);
+        if (el !== null) {
+            el.remove();
+        }
     };
 
     // Round a number down to 2 decimal positions.
@@ -166,10 +192,11 @@ define(function() {
 
     // Parse a byte number and return its human-readable form.
     base.bytesToHuman = function(bytes) {
-        var retVal,
-            calcBase = 1024,
-            idx;
-        if (bytes === 0) {
+        var calcBase,
+            idx,
+            retVal;
+        calcBase = 1024;
+        if (bytes === 0 || isNaN(bytes)) {
             retVal = '0 bytes';
         } else {
             idx = Math.floor(Math.log(bytes) / Math.log(calcBase));
