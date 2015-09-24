@@ -511,7 +511,7 @@ require([
                 if (buildModulesSize !== null &&
                         buildModulesSize !== undefined) {
                     buildModulesLink += '&nbsp;<small>(' +
-                        b.bytesToHuman(buildModulesSize, 2) + ')</small>';
+                        b.bytesToHuman(buildModulesSize) + ')</small>';
                 }
 
                 b.replaceById('build-modules', buildModulesLink);
@@ -559,7 +559,7 @@ require([
                 if (kernelImageSize !== null &&
                         kernelImageSize !== undefined) {
                     kernelImageLink += '&nbsp;<small>(' +
-                        b.bytesToHuman(kernelImageSize, 2) + ')</small>';
+                        b.bytesToHuman(kernelImageSize) + ')</small>';
                 }
 
                 b.replaceById('kernel-image', kernelImageLink);
