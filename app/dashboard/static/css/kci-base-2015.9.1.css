@@ -72,7 +72,6 @@ body {
     min-width: 30%;
     float: left;
     left: 50%;
-    padding-top: 0.5em;
 }
 .warn-err-dropdown {
     float: right;
