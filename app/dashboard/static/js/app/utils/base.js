@@ -86,15 +86,6 @@ define(function() {
             });
     };
 
-    base.replaceElementContent = function(parent, newChild) {
-        if (parent !== null) {
-            while (parent.firstChild) {
-                parent.removeChild(parent.firstChild);
-            }
-            parent.appendChild(newChild);
-        }
-    };
-
     base.replaceById = function(name, content) {
         var el = document.getElementById(name);
         if (el !== null) {
