@@ -14,11 +14,11 @@ define([
     }
 
     settings = {
-        'traditional': true,
-        'cache': true,
-        'dataType': 'json',
-        'timeout': 35000,
-        'beforeSend': function(jqXHR) {
+        traditional: true,
+        cache: true,
+        dataType: 'json',
+        timeout: 35000,
+        beforeSend: function(jqXHR) {
             jqXHR.setRequestHeader('X-CSRFToken', token);
         }
     };
