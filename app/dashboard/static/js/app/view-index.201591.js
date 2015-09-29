@@ -1,79 +1,64 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'sprintf',
-    'utils/base',
     'utils/error',
     'utils/init',
-    'utils/request'
-], function($, p, b, e, i, r) {
+    'utils/request',
+    'utils/html',
+    'utils/base'
+], function($, e, init, r, html) {
     'use strict';
-    var numberRange = 20,
-        buildColumns = 5,
-        bootColumns = 8,
-        errorData,
-        noBoots,
-        noBuilds,
-        tooltipFmt,
-        kernelBootLinkFmt,
-        defconfigBootLinkFmt,
-        boardBootLinkFmt,
-        fullBootLinkFmt,
-        jobBootLinkFmt,
-        fullBuildLinkFmt,
-        jobBuildLinkFmt;
+    var bootColumns,
+        bootsTable,
+        bootsTableBody,
+        buildColumns,
+        buildsTable,
+        buildsTableBody,
+        data,
+        deferred,
+        numberRange;
 
-    errorData = '<tr><td colspan="%d" align="center" valign="middle">' +
-        '<strong>Error loading data.</strong></td></tr>';
-    noBoots = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
-        'No failed boot reports.</h4></td></tr>';
-    noBuilds = '<tr><td colspan="%d" align="center" valign="middle"><h4>' +
-        'No failed build reports.</h4></td></tr>';
-    tooltipFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="%s">%s</span>';
-    kernelBootLinkFmt = '<a class="table-link" ' +
-        'href="/boot/all/job/%s/kernel/%s/">%s</a>';
-    defconfigBootLinkFmt = '<a class="table-link" ' +
-        'href="/boot/%s/job/%s/kernel/%s/defconfig/%s/">%s</a>';
-    boardBootLinkFmt = '<a class="table-link" ' +
-        'href="/boot/%s/job/%s/kernel/%s/">%s</a>';
-    jobBootLinkFmt = '<a class="table-link" href="/boot/all/job/%s/">%s</a>';
-    fullBootLinkFmt = '/boot/%s/job/%s/kernel/%s/defconfig/%s/lab/%s/?_id=%s';
-    fullBuildLinkFmt = '/build/%s/kernel/%s/';
-    jobBuildLinkFmt = '<a class="table-link" href="/job/%s/">%s</a>';
+    numberRange = 20;
+    buildColumns = 5;
+    bootColumns = 8;
 
-    function getDefconfigsCountFail() {
-        b.replaceByClass('fail-badge', '&infin;');
+    function getBuildsCountFail() {
+        html.replaceByClass('fail-badge', '&infin;');
     }
 
-    function getDefconfigsCountDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            idx = 0,
-            batchRes = null;
+    function getBuildsCountDone(response) {
+        var batchRes,
+            resLen,
+            results;
 
+        results = response.result;
+        resLen = results.length;
+        batchRes = null;
         if (resLen > 0) {
             if (resLen === 1) {
-                b.replaceById('fail-count-0', results[0].count);
+                html.replaceContent(
+                    document.getElementById('fail-count-0'),
+                    document.createTextNode(results[0].count));
             } else {
-                for (idx; idx < resLen; idx = idx + 1) {
-                    batchRes = results[idx].result[0];
-                    b.replaceById(results[idx].operation_id, batchRes.count);
-                }
+                results.forEach(function(batch) {
+                    batchRes = batch.result[0];
+                    html.replaceContent(
+                        document.getElementById(batch.operation_id),
+                        document.createTextNode(batchRes.count));
+                });
             }
         } else {
-            b.replaceByClass('fail-badge', '?');
+            html.replaceByClass('fail-badge', '?');
         }
     }
 
-    function getDefconfigsCount(defconfigResponse) {
-        var results = defconfigResponse.result,
-            resLen = results.length,
-            idx = 0,
-            deferred,
-            data,
-            batchOps = new Array(resLen);
+    function getBuildsCount(defconfigResponse) {
+        var batchOps,
+            resLen,
+            results;
 
+        results = defconfigResponse.result;
+        resLen = results.length;
         if (resLen > 0) {
             if (resLen === 1) {
                 data = {
@@ -83,252 +68,405 @@ require([
                 };
                 deferred = r.get('/_ajax/count/build', data);
             } else {
-                for (idx; idx < resLen; idx = idx + 1) {
+                batchOps = new Array(resLen);
+                results.forEach(function(value, idx) {
                     batchOps[idx] = {
                         method: 'GET',
                         operation_id: 'fail-count-' + idx,
                         resource: 'count',
                         document: 'build',
-                        query: 'status=FAIL&job=' + results[idx].job +
-                            '&kernel=' + results[idx].kernel
+                        query: 'status=FAIL&job=' + value.job +
+                            '&kernel=' + value.kernel
                     };
-                }
+                });
                 data = JSON.stringify({batch: batchOps});
                 deferred = r.post('/_ajax/batch', data);
             }
 
             $.when(deferred)
-                .fail(e.error, getDefconfigsCountFail)
-                .done(getDefconfigsCountDone);
+                .fail(e.error, getBuildsCountFail)
+                .done(getBuildsCountDone);
         }
     }
 
-    function getDefconfigsFail() {
-        b.replaceById(
-            'failed-builds-body', p.sprintf(errorData, buildColumns));
+    function getBuildsFail() {
+        var cellNode,
+            noDataNode,
+            rowNode;
+
+        buildsTableBody.deleteRow(0);
+
+        rowNode = buildsTableBody.insertRow();
+        cellNode = rowNode.insertCell();
+        cellNode.setAttribute('colspan', buildColumns);
+        cellNode.setAttribute('align', 'center');
+        cellNode.setAttribute('valign', 'middle');
+
+        noDataNode = html.strong();
+        noDataNode.appendChild(
+            document.createTextNode('Error loading data.'));
+
+        cellNode.appendChild(noDataNode);
     }
 
-    function getDefconfigsDone(defconfigResponse) {
-        var results = defconfigResponse.result,
-            resLen = results.length,
-            idx = 0,
-            defconf = null,
+    function getBuildsDone(defconfigResponse) {
+        var aNode,
+            badgeNode,
+            branch,
+            branchNode,
+            cellNode,
+            countNode,
+            created,
+            iNode,
             job,
             kernel,
-            branch,
-            created,
-            href,
-            col1,
-            col2,
-            col3,
-            col4,
-            col5,
-            jobDispl,
-            kernelDispl,
-            row = '';
+            noDataNode,
+            resLen,
+            results,
+            rowHref,
+            rowNode,
+            tooltipNode;
+
+        results = defconfigResponse.result;
+        resLen = results.length;
+
+        buildsTableBody.deleteRow(0);
 
         if (resLen === 0) {
-            b.replaceById(
-                'failed-builds-body', p.sprintf(noBuilds, buildColumns));
+            rowNode = buildsTableBody.insertRow();
+            cellNode = rowNode.insertCell();
+            cellNode.setAttribute('colspan', buildColumns);
+            cellNode.setAttribute('align', 'center');
+            cellNode.setAttribute('valign', 'middle');
+
+            noDataNode = html.strong();
+            noDataNode.appendChild(
+                document.createTextNode('No failed build reports.'));
+
+            cellNode.appendChild(noDataNode);
         } else {
-            for (idx; idx < resLen; idx = idx + 1) {
-                defconf = results[idx];
-                job = defconf.job;
-                kernel = defconf.kernel;
-                branch = defconf.git_branch;
-                created = new Date(defconf.created_on.$date);
-                href = p.sprintf(fullBuildLinkFmt, job, kernel);
+            results.forEach(function(build, idx) {
+                job = build.job;
+                kernel = build.kernel;
+                branch = build.git_branch;
+                created = new Date(build.created_on.$date);
 
-                jobDispl = p.sprintf(
-                    tooltipFmt,
-                    job + ' &dash; ' + branch,
-                    p.sprintf(
-                        jobBuildLinkFmt,
-                        job,
-                        job +
-                        '&nbsp;&dash;&nbsp;<small>' + branch + '</small>')
-                );
+                rowHref = '/build/' + job + '/kernel/' + kernel + '/';
 
-                kernelDispl = p.sprintf(tooltipFmt, kernel, kernel);
+                rowNode = buildsTableBody.insertRow();
+                rowNode.setAttribute('data-url', rowHref);
 
-                col1 = '<td class="tree-column">' + jobDispl + '</td>';
-                col2 = '<td class="kernel-column">' + kernelDispl + '</td>';
-                col3 = '<td class="pull-center">' +
-                    '<span class="badge alert-danger">' +
-                    '<span id="fail-count-' + idx + '" ' +
-                    'class="fail-badge">' +
-                    '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                    '</td>';
-                col4 = '<td class="date-column pull-center">' +
-                    created.getCustomISODate() + '</td>';
-                col5 = '<td class="pull-center">' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for job&nbsp;' + job +
-                    '&nbsp;&dash;&nbsp;' + kernel + '">' +
-                    '<a href="' + href + '">' +
-                    '<i class="fa fa-search"></i></a>' +
-                    '</span></td>';
-                row += '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + col5 + '</tr>';
-            }
-            b.replaceById('failed-builds-body', row);
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'tree-column';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', job + '&nbsp;&dash;&nbsp;' + branch);
+
+                branchNode = html.small();
+                branchNode.appendChild(document.createTextNode(branch));
+
+                aNode = html.a();
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', '/job/' + job + '/');
+                aNode.innerHTML = job + '&nbsp;&dash;&nbsp;';
+
+                aNode.appendChild(branchNode);
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'kernel-column';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', kernel);
+                tooltipNode.appendChild(document.createTextNode(kernel));
+
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'pull-center';
+
+                badgeNode = html.span();
+                badgeNode.className = 'badge alert-danger';
+
+                countNode = html.span();
+                countNode.className = 'fail-count';
+                countNode.id = 'fail-count-' + idx;
+
+                iNode = html.i();
+                iNode.className = 'fa fa-cog fa-spin';
+
+                countNode.appendChild(iNode);
+                badgeNode.appendChild(countNode);
+                cellNode.appendChild(badgeNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'date-column pull-center';
+                cellNode.appendChild(
+                    document.createTextNode(created.getCustomISODate()));
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'pull-center';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title',
+                    'Details for job&nbsp;' + job +
+                    '&nbsp;&dash;&nbsp;' + kernel);
+
+                aNode = html.a();
+                aNode.setAttribute('href', rowHref);
+
+                iNode = html.i();
+                iNode.className = 'fa fa-search';
+
+                aNode.appendChild(iNode);
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+            });
         }
     }
 
     function getBootsFail() {
-        b.replaceById('failed-boots-body', p.sprintf(errorData, bootColumns));
+        var cellNode,
+            noDataNode,
+            rowNode;
+
+        bootsTableBody.deleteRow(0);
+
+        rowNode = bootsTableBody.insertRow();
+        cellNode = rowNode.insertCell();
+        cellNode.setAttribute('colspan', bootColumns);
+        cellNode.setAttribute('align', 'center');
+        cellNode.setAttribute('valign', 'middle');
+
+        noDataNode = html.strong();
+        noDataNode.appendChild(
+            document.createTextNode('Error loading data.'));
+
+        cellNode.appendChild(noDataNode);
     }
 
-    function getBootsDone(bootResponse) {
-        var results = bootResponse.result,
-            resLen = results.length,
-            row = '',
-            idx = 0,
-            boot = null,
-            failReason = null,
-            col6Content,
-            created,
-            job,
-            kernel,
+    function getBootsDone(response) {
+        var aNode,
             board,
-            defconfigFull,
-            labName,
             bootId,
             branch,
-            kernelDispl,
-            defconfigDispl,
-            boardDispl,
-            jobDispl,
-            href,
-            col1,
-            col2,
-            col3,
-            col4,
-            col5,
-            col6,
-            col7,
-            col8;
+            branchNode,
+            cellNode,
+            created,
+            defconfigFull,
+            failReason,
+            iNode,
+            job,
+            kernel,
+            labName,
+            labNode,
+            noDataNode,
+            resLen,
+            results,
+            rowHref,
+            rowNode,
+            tooltipNode;
+
+        results = response.result;
+        resLen = results.length;
+
+        bootsTableBody.deleteRow(0);
 
         if (resLen === 0) {
-            b.replaceById(
-                'failed-boots-body', p.sprintf(noBoots, bootColumns));
-        } else {
-            for (idx; idx < resLen; idx = idx + 1) {
-                boot = results[idx];
-                failReason = boot.boot_result_description;
-                if (failReason === null) {
-                    col6Content = '<td class="pull-center">' +
-                        '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="Failure reason unknown">' +
-                        '<i class="fa fa-question-circle"></i>' +
-                        '</span></td>';
-                } else {
-                    col6Content = '<td class="pull-center">' +
-                        '<span rel="tooltip" data-toggle="tooltip"' +
-                        'title="' + b.escapeHtml(failReason) + '">' +
-                        '<i class="fa fa-exclamation-triangle red-font">' +
-                        '</i></span></td>';
-                }
+            rowNode = bootsTableBody.insertRow();
+            cellNode = rowNode.insertCell();
+            cellNode.setAttribute('colspan', bootColumns);
+            cellNode.setAttribute('align', 'center');
+            cellNode.setAttribute('valign', 'middle');
 
-                created = new Date(boot.created_on.$date);
+            noDataNode = html.strong();
+            noDataNode.appendChild(
+                document.createTextNode('No failed boot reports.'));
+
+            cellNode.appendChild(noDataNode);
+        } else {
+            results.forEach(function(boot) {
+                board = boot.board;
+                bootId = boot._id;
                 branch = boot.git_branch;
+                created = new Date(boot.created_on.$date);
+                defconfigFull = boot.defconfig_full;
+                failReason = boot.boot_result_description;
                 job = boot.job;
                 kernel = boot.kernel;
-                board = boot.board;
-                defconfigFull = boot.defconfig_full;
                 labName = boot.lab_name;
-                bootId = boot._id;
-                href = p.sprintf(
-                    fullBootLinkFmt,
-                    board,
-                    job, kernel, defconfigFull, labName, bootId.$oid);
 
-                jobDispl = p.sprintf(
-                    tooltipFmt,
-                    job + ' &dash; ' + branch,
-                    p.sprintf(
-                        jobBootLinkFmt,
-                        job,
-                        job +
-                        '&nbsp;&dash;&nbsp;<small>' + branch + '</small>')
+                rowHref = '/boot/' + board + '/job/' + job + '/kernel/' +
+                    kernel + '/defconfig/' + defconfigFull + '/lab/' +
+                    labName + '/?_id=' + bootId.$oid;
+
+                rowNode = bootsTableBody.insertRow();
+                rowNode.setAttribute('data-url', rowHref);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'tree-column';
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', job + '&nbsp;&dash;&nbsp;' + branch);
+
+                aNode = html.a();
+                aNode.className = 'table-link';
+                aNode.setAttribute('href',
+                    '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+
+                aNode.appendChild(document.createTextNode(job));
+                aNode.innerHTML = aNode.innerHTML + '&nbsp;&dash;&nbsp;';
+
+                branchNode = html.small();
+                branchNode.appendChild(document.createTextNode(branch));
+
+                aNode.appendChild(branchNode);
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'kernel-column';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', kernel);
+
+                aNode = html.a();
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+
+                aNode.appendChild(document.createTextNode(kernel));
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'board-column';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', board);
+
+                aNode = html.a();
+                aNode.className = 'table-link';
+                aNode.setAttribute(
+                    'href',
+                    '/boot/' + board + '/job/' + job + '/kernel/' +
+                    kernel + '/'
                 );
 
-                kernelDispl = p.sprintf(
-                    tooltipFmt,
-                    kernel,
-                    p.sprintf(kernelBootLinkFmt, job, kernel, kernel));
+                aNode.appendChild(document.createTextNode(board));
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
 
-                defconfigDispl = p.sprintf(
-                    tooltipFmt,
-                    defconfigFull,
-                    p.sprintf(
-                        defconfigBootLinkFmt,
-                        board, job, kernel, defconfigFull, defconfigFull));
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'defconfig-column';
 
-                boardDispl = p.sprintf(
-                    tooltipFmt,
-                    board,
-                    p.sprintf(boardBootLinkFmt, board, job, kernel, board));
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', defconfigFull);
 
-                col1 = '<td class="tree-column">' + jobDispl + '</td>';
-                col2 = '<td class="kernel-column">' + kernelDispl + '</td>';
-                col3 = '<td class="board-column">' + boardDispl + '</a></td>';
-                col4 = '<td class="defconfig-column">' +
-                    defconfigDispl + '</td>';
-                col5 = '<td class="lab-column"><small>' +
-                    labName + '</small></td>';
-                col6 = col6Content;
-                col7 = '<td class="date-column pull-center">' +
-                    created.getCustomISODate() + '</td>';
-                col8 = '<td class="pull-center">' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for board&nbsp;' + board + '">' +
-                    '<a href="' + href + '">' +
-                    '<i class="fa fa-search"></i></a>' +
-                    '</span></td>';
-                row += '<tr data-url="' + href + '">' +
-                    col1 + col2 + col3 + col4 + col5 + col6 + col7 + col8 +
-                    '</tr>';
-            }
-            b.replaceById('failed-boots-body', row);
+                aNode = html.a();
+                aNode.className = 'table-link';
+                aNode.setAttribute(
+                    'href',
+                    '/boot/' + board + '/job/' + job + '/kernel/' +
+                    kernel + '/defconfig/' + defconfigFull + '/'
+                );
+
+                aNode.appendChild(document.createTextNode(defconfigFull));
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'lab-column';
+
+                labNode = html.small();
+
+                labNode.appendChild(document.createTextNode(labName));
+                cellNode.appendChild(labNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'pull-center';
+
+                tooltipNode = html.tooltip();
+
+                if (failReason === null || failReason === undefined) {
+                    tooltipNode.setAttribute('title', 'Failure reason unknown');
+
+                    iNode = html.i();
+                    iNode.className = 'fa fa-question-circle';
+
+                    tooltipNode.appendChild(iNode);
+                } else {
+                    tooltipNode.setAttribute('title', html.escape(failReason));
+                    iNode = html.i();
+                    iNode.className = 'fa fa-exclamation-triangle red-font';
+
+                    tooltipNode.appendChild(iNode);
+                }
+
+                cellNode.appendChild(tooltipNode);
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'date-column pull-center';
+
+                cellNode.appendChild(
+                    document.createTextNode(created.getCustomISODate()));
+
+                cellNode = rowNode.insertCell();
+                cellNode.className = 'pull-center';
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', 'Details for board&nbsp;' + board);
+
+                aNode = html.a();
+                aNode.setAttribute('href', rowHref);
+
+                iNode = html.i();
+                iNode.className = 'fa fa-search';
+
+                aNode.appendChild(iNode);
+                tooltipNode.appendChild(aNode);
+                cellNode.appendChild(tooltipNode);
+            });
         }
     }
 
-    $(document).ready(function() {
-        var deferred1,
-            deferred2,
-            data1,
-            data2;
-        document.getElementById('li-home').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    document.getElementById('li-home').setAttribute('class', 'active');
+    init();
 
-        if (document.getElementById('number-range') !== null) {
-            numberRange = document.getElementById('number-range').value;
-        }
+    if (document.getElementById('number-range') !== null) {
+        numberRange = document.getElementById('number-range').value;
+    }
 
-        data1 = {
-            'aggregate': 'kernel',
-            'status': 'FAIL',
-            'sort': 'created_on',
-            'sort_order': -1,
-            'limit': numberRange,
-            'field': ['job', 'kernel', 'created_on', 'git_branch']
-        };
-        deferred1 = r.get('/_ajax/build', data1);
-        $.when(deferred1)
-            .fail(e.error, getDefconfigsFail, getDefconfigsCountFail)
-            .done(getDefconfigsDone, getDefconfigsCount);
+    buildsTable = document.getElementById('failed-builds');
+    buildsTableBody = buildsTable.tBodies[0];
 
-        data2 = {
-            'status': 'FAIL',
-            'sort_order': -1,
-            'sort': 'created_on',
-            'limit': numberRange
-        };
-        deferred2 = r.get('/_ajax/boot', data2);
-        $.when(deferred2)
-            .fail(e.error, getBootsFail)
-            .done(getBootsDone);
-    });
+    bootsTable = document.getElementById('failed-boots');
+    bootsTableBody = bootsTable.tBodies[0];
+
+    data = {
+        aggregate: 'kernel',
+        status: 'FAIL',
+        sort: 'created_on',
+        sort_order: -1,
+        limit: numberRange,
+        field: ['job', 'kernel', 'created_on', 'git_branch']
+    };
+    deferred = r.get('/_ajax/build', data);
+    $.when(deferred)
+        .fail(e.error, getBuildsFail, getBuildsCountFail)
+        .done(getBuildsDone, getBuildsCount);
+
+    data = {
+        status: 'FAIL',
+        sort_order: -1,
+        sort: 'created_on',
+        limit: numberRange
+    };
+    deferred = r.get('/_ajax/boot', data);
+    $.when(deferred)
+        .fail(e.error, getBootsFail)
+        .done(getBootsDone);
 });
