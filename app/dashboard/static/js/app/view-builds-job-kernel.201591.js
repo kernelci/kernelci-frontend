@@ -820,7 +820,7 @@ require([
                 sectionDivTitle.appendChild(sectionTitle);
                 sectionDiv.appendChild(sectionDivTitle);
 
-                sectionTable = document.createElement('table');
+                sectionTable = html.table();
                 sectionTable.className = 'table table-condensed summary-table';
 
                 errors.forEach(function(value) {
