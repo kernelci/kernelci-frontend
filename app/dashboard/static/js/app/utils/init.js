@@ -78,8 +78,9 @@ define([
         setHotKeys();
 
         $('body').tooltip({
-            'selector': '[rel=tooltip]',
-            'placement': 'auto top'
+            selector: '[rel=tooltip]',
+            placement: 'auto top',
+            html: true
         });
 
         $('.clickable-table tbody').on('click', 'tr', function() {
