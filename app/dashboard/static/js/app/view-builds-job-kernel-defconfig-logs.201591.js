@@ -5,7 +5,8 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/urls'
+    'utils/urls',
+    'utils/date'
 ], function($, b, e, i, r, u) {
     'use strict';
     var fileServer,
@@ -293,7 +294,7 @@ require([
 
             b.replaceById(
                 'build-date',
-                '<time>' + createdOn.getCustomISODate() + '</time>');
+                '<time>' + createdOn.toCustomISODate() + '</time>');
 
             switch (results.status) {
                 case 'PASS':

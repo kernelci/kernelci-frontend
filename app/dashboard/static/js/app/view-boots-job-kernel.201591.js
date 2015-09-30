@@ -11,6 +11,7 @@ require([
     'utils/web-storage',
     'charts/passpie',
     'utils/unique-count',
+    'utils/date',
     'bootstrap'
 ], function($, p, i, b, r, e, u, btns, ws, chart, uniq) {
     'use strict';
@@ -364,7 +365,7 @@ require([
                 sPanel += '<dt>Boot time</dt>';
                 if (bootObj.time !== null) {
                     bootTime = new Date(bootObj.time.$date);
-                    sPanel += '<dd>' + bootTime.getCustomTime() + '</dd>';
+                    sPanel += '<dd>' + bootTime.toCustomTime() + '</dd>';
                 } else {
                     sPanel += '<dd>' + sNonAvail + '</dd>';
                 }
@@ -615,7 +616,7 @@ require([
                 }
             }
             b.replaceById('git-commit', sContent);
-            b.replaceById('job-date', createdOn.getCustomISODate());
+            b.replaceById('job-date', createdOn.toCustomISODate());
         } else {
             getJobFailed('No data available');
         }

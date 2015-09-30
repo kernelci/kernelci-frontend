@@ -5,7 +5,8 @@ require([
     'utils/base',
     'utils/error',
     'utils/request',
-    'utils/tables'
+    'utils/tables',
+    'utils/date'
 ], function($, i, b, e, r, t) {
     'use strict';
     var bootsTable,
@@ -91,7 +92,7 @@ require([
                     'className': 'date-column pull-center',
                     'render': function(data) {
                         var created = new Date(data.$date);
-                        return created.getCustomISODate();
+                        return created.toCustomISODate();
                     }
                 },
                 {

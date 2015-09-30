@@ -9,7 +9,8 @@ require([
     'utils/web-storage',
     'utils/show-hide-btns',
     'charts/passpie',
-    'utils/html'
+    'utils/html',
+    'utils/date'
 ], function($, b, e, init, r, u, ws, btns, chart, html) {
     'use strict';
     var fileServer,
@@ -774,7 +775,7 @@ require([
 
             tNode = html.time();
             tNode.appendChild(
-                document.createTextNode(createdOn.getCustomISODate()));
+                document.createTextNode(createdOn.toCustomISODate()));
             html.replaceContent(document.getElementById('build-date'), tNode);
         }
     }

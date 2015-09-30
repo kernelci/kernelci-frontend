@@ -6,7 +6,8 @@ require([
     'utils/base',
     'utils/error',
     'utils/request',
-    'utils/tables'
+    'utils/tables',
+    'utils/date'
 ], function($, p, i, b, e, r, t) {
     'use strict';
     var searchFilter = null,
@@ -223,7 +224,7 @@ require([
                         if (data === null) {
                             created = nonAvail;
                         } else {
-                            created = (new Date(data.$date)).getCustomISODate();
+                            created = (new Date(data.$date)).toCustomISODate();
                         }
                         return created;
                     }

@@ -7,7 +7,8 @@ require([
     'utils/request',
     'utils/urls',
     'utils/bisect',
-    'utils/show-hide-btns'
+    'utils/show-hide-btns',
+    'utils/date'
 ], function($, i, b, e, r, u, bisect, btns) {
     'use strict';
     var boardName = null,
@@ -152,7 +153,7 @@ require([
         col2 += '</td>';
 
         col3 = '<td class="date-column pull-center">' +
-            createdOn.getCustomISODate() + '</td>';
+            createdOn.toCustomISODate() + '</td>';
         col4 = '<td class="pull-center">' + statusDisplay + '</td>';
 
         rowHref = '/boot/' + boardName + '/job/' + job +
@@ -337,7 +338,7 @@ require([
 
         if (resLen > 0) {
             createdOn = new Date(result[0].created_on.$date);
-            data.created_on = createdOn.getCustomISODate();
+            data.created_on = createdOn.toCustomISODate();
         }
 
         // Compare to mainline, if it is not mainline.
@@ -626,7 +627,7 @@ require([
             kernel + '/defconfig/' + defconfigFull +
             '"><i class="fa fa-cube"></i></a></span>'
         );
-        b.replaceById('dd-date', createdOn.getCustomISODate());
+        b.replaceById('dd-date', createdOn.toCustomISODate());
 
         switch (status) {
             case 'PASS':
@@ -682,7 +683,7 @@ require([
             b.replaceById('dd-board-warnings', 0);
         }
 
-        b.replaceById('dd-board-boot-time', bootTime.getCustomTime());
+        b.replaceById('dd-board-boot-time', bootTime.toCustomTime());
         b.replaceById(
             'dd-board-boot-log',
             createBootLogContent(

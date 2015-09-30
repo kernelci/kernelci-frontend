@@ -5,7 +5,8 @@ require([
     'utils/base',
     'utils/error',
     'utils/request',
-    'charts/statsbar'
+    'charts/statsbar',
+    'utils/date'
 ], function($, i, b, e, r, chart) {
     'use strict';
     var oneDay = 86400000,
@@ -52,10 +53,10 @@ require([
             oneWeek = new Date(createdOn - (oneDay * 7));
             twoWeeks = new Date(createdOn - (oneDay * 14));
 
-            createdOn = createdOn.getCustomISODate();
-            yesterday = yesterday.getCustomISODate();
-            oneWeek = oneWeek.getCustomISODate();
-            twoWeeks = twoWeeks.getCustomISODate();
+            createdOn = createdOn.toCustomISODate();
+            yesterday = yesterday.toCustomISODate();
+            oneWeek = oneWeek.toCustomISODate();
+            twoWeeks = twoWeeks.toCustomISODate();
 
             jobDiffs[createdOn] = localResult.total_jobs -
                 localResult.daily_total_jobs;

@@ -238,7 +238,7 @@ require([
         if (resLen === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
-                createErrorDiv('No builds data available.'));
+                html.errorDiv('No builds data available.'));
         } else {
             columns = [
                 {

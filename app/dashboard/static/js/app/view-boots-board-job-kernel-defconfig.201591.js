@@ -5,7 +5,8 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/urls'
+    'utils/urls',
+    'utils/date'
 ], function($, b, e, i, r, u) {
     'use strict';
     var jobName,
@@ -178,7 +179,7 @@ require([
                 col2 += '</td>';
 
                 col3 = '<td class="date-column pull-center">' +
-                    createdOn.getCustomISODate() + '</td>';
+                    createdOn.toCustomISODate() + '</td>';
                 col4 = '<td class="pull-center">' + statusDisplay + '</td>';
 
                 rowHref = '/boot/' + boardName + '/job/' + jobName +

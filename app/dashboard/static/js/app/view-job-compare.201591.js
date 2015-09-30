@@ -8,7 +8,8 @@ require([
     'utils/tables',
     'utils/urls',
     'charts/passpie',
-    'charts/diffmatrix'
+    'charts/diffmatrix',
+    'utils/date'
 ], function($, b, e, i, r, t, u, pie, matrix) {
     'use strict';
     var compareId = null,
@@ -126,7 +127,7 @@ require([
                 render: function(data, type) {
                     var created = new Date(data.$date);
                     if (type === 'display' || type === 'filter') {
-                        created = created.getCustomISODate();
+                        created = created.toCustomISODate();
                     }
                     return created;
                 }
@@ -237,7 +238,7 @@ require([
 
         b.replaceById('dd-total', baseTotalBuilds);
         baseCreatedOn = new Date(baseline.created_on.$date);
-        b.replaceById('dd-date', baseCreatedOn.getCustomISODate());
+        b.replaceById('dd-date', baseCreatedOn.toCustomISODate());
     }
 
     function getJobCompareFail() {

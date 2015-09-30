@@ -7,7 +7,8 @@ require([
     'utils/request',
     'utils/urls',
     'utils/bisect',
-    'utils/show-hide-btns'
+    'utils/show-hide-btns',
+    'utils/date'
 ], function($, b, e, i, r, u, bisect, btns) {
     'use strict';
     var fileServer,
@@ -473,7 +474,7 @@ require([
                 '<i class="fa fa-hdd-o"></i></a></span>'
             );
 
-            b.replaceById('build-date', createdOn.getCustomISODate());
+            b.replaceById('build-date', createdOn.toCustomISODate());
 
             switch (results.status) {
                 case 'PASS':
