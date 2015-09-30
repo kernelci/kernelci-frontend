@@ -34,21 +34,6 @@ require([
             '<"col-xs-6 col-sm-6 col-md-12 col-lg-12"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
 
-    function createErrorDiv(text) {
-        var divNode,
-            strongNode;
-
-        divNode = html.div();
-        divNode.className = 'pull-center';
-
-        strongNode = html.strong();
-        strongNode.appendChild(document.createTextNode(text));
-
-        divNode.appendChild(strongNode);
-
-        return divNode;
-    }
-
     function getBootStatsFail() {
         html.replaceContent(
             document.getElementById('boot-pass-rate'),
@@ -81,7 +66,7 @@ require([
     function getBuildsStatsFail() {
         html.replaceContent(
             document.getElementById('build-pass-rate'),
-            createErrorDiv('Error loading build data.'));
+            html.errorDiv('Error loading build data.'));
     }
 
     function getBuildsStatsDone(response) {
@@ -253,7 +238,7 @@ require([
         if (resLen === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
-                createErrorDiv('No builds data available.'));
+                html.errorDiv('No builds data available.'));
         } else {
             columns = [
                 {
