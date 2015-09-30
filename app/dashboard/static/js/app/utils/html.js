@@ -159,6 +159,18 @@ define(function() {
         );
     };
 
+    html.replaceByClassNode = function(className, node) {
+        [].forEach.call(
+            document.getElementsByClassName(className),
+            function(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.appendChild(child);
+            }
+        );
+    };
+
     html.replaceContent = function(element, child) {
         if (element !== null) {
             while (element.firstChild) {
