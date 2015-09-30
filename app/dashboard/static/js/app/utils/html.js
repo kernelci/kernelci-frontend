@@ -73,6 +73,21 @@ define(function() {
         return document.createElement('dd');
     };
 
+    html.errorDiv = function(text) {
+        var divNode,
+            strongNode;
+
+        divNode = document.createElement('div');
+        divNode.className = 'pull-center';
+
+        strongNode = document.createElement('strong');
+        strongNode.appendChild(document.createTextNode(text));
+
+        divNode.appendChild(strongNode);
+
+        return divNode;
+    };
+
     html.fail = function() {
         var spanNode,
             iNode;
