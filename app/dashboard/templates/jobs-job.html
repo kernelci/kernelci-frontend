@@ -17,7 +17,7 @@
                 Total unique builds
                 <span class="badge">
                 <span id="builds-count" class="count-list-badge">
-                    <i class="fa fa-cog fa-spin"></i>
+                    <small><i class="fa fa-cog fa-spin"></i></small>
                 </span>
                 </span>
             </li>
@@ -25,7 +25,7 @@
                 Total defconfigs
                 <span class="badge">
                 <span id="defconfs-count" class="count-list-badge">
-                    <i class="fa fa-cog fa-spin"></i>
+                    <small><i class="fa fa-cog fa-spin"></i></small>
                 </span>
                 </span>
             </li>
@@ -33,7 +33,7 @@
                 Total boot reports
                 <span class="badge">
                 <span id="boot-reports-count" class="count-list-badge">
-                    <i class="fa fa-cog fa-spin"></i>
+                    <small><i class="fa fa-cog fa-spin"></i></small>
                 </span>
                 </span>
             </li>
@@ -46,7 +46,10 @@
             <h3>Available Builds</h3>
         </div>
         <div id="table-loading" class="pull-center">
-            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+            <small>
+                <i class="fa fa-cog fa-spin"></i>
+                &nbsp;retrieving build data&hellip;
+            </small>
         </div>
     {%- if is_mobile %}
         <div class="table-responsive" id="table-div">
@@ -68,7 +71,10 @@
             <div id="build-pass-rate">
                 <div class="pull-center">
                     <span id="boot-reports-count">
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>
+                            &nbsp;calculating build pass rate&hellip;
+                        </small>
                     </span>
                 </div>
             </div>
@@ -78,7 +84,10 @@
             <div id="boot-pass-rate">
                 <div class="pull-center">
                     <span id="boot-reports-count">
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>
+                            &nbsp;calculating boot pass rate&hellip;
+                        </small>
                     </span>
                 </div>
             </div>
