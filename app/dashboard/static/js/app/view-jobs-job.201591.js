@@ -52,7 +52,7 @@ require([
     function getBootStatsFail() {
         html.replaceContent(
             document.getElementById('boot-pass-rate'),
-            createErrorDiv('Error loading boot data.'));
+            html.errorDiv('Error loading boot data.'));
     }
 
     function getBootStatsDone(response) {
@@ -130,11 +130,11 @@ require([
         } else {
             html.replaceContent(
                 document.getElementById('build-pass-rate'),
-                createErrorDiv('No build data available.'));
+                html.errorDiv('No build data available.'));
 
             html.replaceContent(
                 document.getElementById('boot-pass-rate'),
-                createErrorDiv('No boot data available.'));
+                html.errorDiv('No boot data available.'));
         }
     }
 
@@ -273,7 +273,7 @@ require([
                             tooltipNode;
 
                         rendered = data;
-                        if (type === 'display' || type === 'filter') {
+                        if (type === 'display') {
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute('title', data);
 
@@ -305,7 +305,7 @@ require([
 
                         branch = data.replace(branchRegEx, ':', 'g');
                         rendered = data;
-                        if (type === 'display' || type === 'filter') {
+                        if (type === 'display') {
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute('title', data);
 
@@ -336,7 +336,7 @@ require([
                             tooltipNode;
 
                         rendered = data;
-                        if (type === 'display' || type === 'filter') {
+                        if (type === 'display') {
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute('title', data);
 
@@ -545,10 +545,10 @@ require([
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('table-div'),
-            createErrorDiv('Error loading build data.'));
+            html.errorDiv('Error loading build data.'));
     }
 
-    function getDefconfigs() {
+    function getBuilds() {
         var data,
             deferred;
 
@@ -675,5 +675,5 @@ require([
 
     buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
     getDetails();
-    getDefconfigs();
+    getBuilds();
 });
