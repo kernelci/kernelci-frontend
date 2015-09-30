@@ -5,7 +5,7 @@ require([
     'utils/init',
     'utils/request',
     'utils/html',
-    'utils/base'
+    'utils/date'
 ], function($, e, init, r, html) {
     'use strict';
     var bootColumns,
@@ -204,7 +204,7 @@ require([
                 cellNode = rowNode.insertCell();
                 cellNode.className = 'date-column pull-center';
                 cellNode.appendChild(
-                    document.createTextNode(created.getCustomISODate()));
+                    document.createTextNode(created.toCustomISODate()));
 
                 cellNode = rowNode.insertCell();
                 cellNode.className = 'pull-center';
@@ -411,7 +411,7 @@ require([
                 cellNode.className = 'date-column pull-center';
 
                 cellNode.appendChild(
-                    document.createTextNode(created.getCustomISODate()));
+                    document.createTextNode(created.toCustomISODate()));
 
                 cellNode = rowNode.insertCell();
                 cellNode.className = 'pull-center';
