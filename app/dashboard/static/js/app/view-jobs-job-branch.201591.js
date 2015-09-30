@@ -7,22 +7,35 @@ require([
     'utils/error',
     'utils/tables',
     'utils/urls',
-    'charts/passrate'
-], function($, i, b, r, e, t, u, chart) {
+    'charts/passrate',
+    'utils/html',
+    'utils/date'
+], function($, init, b, r, e, t, u, chart, html) {
     'use strict';
-    var jobName = null,
-        branchName = null,
-        numberRange = 20,
-        buildsTable = null,
-        searchFilter = null,
-        pageLen = null;
+    var branchName,
+        buildsTable,
+        jobName,
+        numberRange,
+        pageLen,
+        searchFilter,
+        tableDom;
+
+    branchName = null;
+    buildsTable = null;
+    jobName = null;
+    pageLen = null;
+    searchFilter = null;
+
+    numberRange = 20;
+
+    tableDom = '<"row"' +
+            '<"col-xs-6 col-sm-6 col-md-12 col-lg-12"f>r' +
+            '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
 
     function getBootStatsFail() {
-        b.replaceById(
-            'boot-pass-rate',
-            '<div class="pull-center">' +
-            '<strong>Error loading boot data.</strong></div>'
-        );
+        html.replaceContent(
+            document.getElementById('boot-pass-rate'),
+            html.errorDiv('Error loading boot data.'));
     }
 
     function getBootStatsDone(response) {
@@ -49,17 +62,17 @@ require([
             .done(getBootStatsDone);
     }
 
-    function getDefconfigsStatsFail() {
-        b.replaceById('build-pass-rate',
-            '<div class="pull-center">' +
-            '<strong>Error loading build data.</strong></div>');
+    function getBuildsStatsFail() {
+        html.replaceContent(
+            document.getElementById('build-pass-rate'),
+            html.errorDiv('Error loading build data.'));
     }
 
-    function getDefconfigsStatsDone(response) {
+    function getBuildsStatsDone(response) {
         chart.buildpassrate('build-pass-rate', response);
     }
 
-    function getDefconfigsStats(startDate, dateRange) {
+    function getBuildsStats(startDate, dateRange) {
         var deferred,
             data;
 
@@ -75,16 +88,20 @@ require([
 
         deferred = r.get('/_ajax/build', data);
         $.when(deferred)
-            .fail(e.error, getDefconfigsStatsFail)
-            .done(getDefconfigsStatsDone);
+            .fail(e.error, getBuildsStatsFail)
+            .done(getBuildsStatsDone);
     }
 
     function getTrendsData(response) {
-        var results = response.result,
-            resLen = results.length,
-            firstDate,
+        var firstDate,
+            lDateRange,
             lastDate,
-            lDateRange = 0;
+            resLen,
+            results;
+
+        results = response.result;
+        resLen = results.length;
+        lDateRange = 0;
 
         if (resLen > 0) {
             firstDate = new Date(results[0].created_on.$date);
@@ -93,36 +110,36 @@ require([
                 lDateRange = Math.round((firstDate - lastDate) / 86400000);
             }
 
-            getDefconfigsStats(firstDate.getCustomISODate(), lDateRange);
-            getBootStats(firstDate.getCustomISODate(), lDateRange);
+            getBuildsStats(firstDate.toCustomISODate(), lDateRange);
+            getBootStats(firstDate.toCustomISODate(), lDateRange);
         } else {
-            b.replaceById(
-                'build-pass-rate',
-                '<div class="pull-center">' +
-                '<strong>No build data available.</strong></div>');
-            b.replaceById(
-                'boot-pass-rate',
-                '<div class="pull-center">' +
-                '<strong>No boot data available.</strong></div>'
-            );
+            html.replaceContent(
+                document.getElementById('build-pass-rate'),
+                html.errorDiv('No build data available.'));
+
+            html.replaceContent(
+                document.getElementById('boot-pass-rate'),
+                html.errorDiv('No boot data available.'));
         }
     }
 
     function getBuildBootCountFail() {
-        b.replaceByClass('.count-badge', '&infin;');
+        html.replaceByClass('count-badge', '&infin;');
     }
 
     function getBuildBootCountDone(response) {
-        var batchData = response.result,
-            batchLen = batchData.length,
-            batchCount = null,
-            idx = 0;
+        var batchCount,
+            batchData;
 
-        if (batchLen > 0) {
-            for (idx; idx < batchLen; idx = idx + 1) {
-                batchCount = batchData[idx].result[0].count;
-                b.replaceById(batchData[idx].operation_id, batchCount);
-            }
+        batchData = response.result;
+
+        if (batchData.length > 0) {
+            batchData.forEach(function(batchRes) {
+                batchCount = batchRes.result[0].count;
+                html.replaceContent(
+                    document.getElementById(batchRes.operation_id),
+                    document.createTextNode(batchCount));
+            });
         }
         // Perform the table search now, after completing all operations.
         buildsTable
@@ -131,55 +148,65 @@ require([
     }
 
     function getBuildBootCount(response) {
-        var localData = response.result,
-            len = localData.length,
-            queriesLen = len * 4,
-            batchElements = 4,
+        var batchElements,
+            batchQueries,
             data,
-            kernel,
             deferred,
-            z = 0,
-            j = 0,
-            k = 0,
-            batchQueries = new Array(queriesLen);
+            jdx,
+            kdx,
+            kernel,
+            resLen,
+            results,
+            queriesLen,
+            zdx;
 
-        if (len > 0) {
-            for (z; z < queriesLen; z += batchElements) {
-                j = z;
-                k = z / batchElements;
-                kernel = localData[k].kernel;
+        results = response.result;
+        resLen = results.length;
+        batchElements = 4;
+
+        if (resLen > 0) {
+            queriesLen = resLen * 4;
+            batchQueries = new Array(queriesLen);
+            zdx = 0;
+            jdx = 0;
+            kdx = 0;
+
+            for (zdx; zdx < queriesLen; zdx = zdx + batchElements) {
+                jdx = zdx;
+                kdx = zdx / batchElements;
+                kernel = results[kdx].kernel;
 
                 // Get successful build count.
-                batchQueries[z] = {
+                batchQueries[zdx] = {
                     method: 'GET',
-                    operation_id: 'build-success-count-' + k,
+                    operation_id: 'build-success-count-' + kdx,
                     resource: 'count',
                     document: 'build',
                     query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get failed build count.
-                batchQueries[j + 1] = {
+                batchQueries[jdx + 1] = {
                     method: 'GET',
-                    operation_id: 'build-fail-count-' + k,
+                    operation_id: 'build-fail-count-' + kdx,
                     resource: 'count',
                     document: 'build',
                     query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get successful boot reports count.
-                batchQueries[j + 2] = {
+                batchQueries[jdx + 2] = {
                     method: 'GET',
-                    operation_id: 'boot-success-count-' + k,
+                    operation_id: 'boot-success-count-' + kdx,
                     resource: 'count',
                     document: 'boot',
                     query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
                 };
 
                 // Get failed boot reports count.
-                batchQueries[j + 3] = {
+                batchQueries[jdx + 3] = {
                     method: 'GET',
-                    operation_id: 'boot-fail-count-' + k,
+                    operation_id: 'boot-fail-count-' + kdx,
                     resource: 'count',
                     document: 'boot',
                     query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
@@ -196,137 +223,268 @@ require([
                 .fail(e.error, getBuildBootCountFail)
                 .done(getBuildBootCountDone);
         } else {
-            b.replaceByClass('count-badge', '?');
+            html.replaceByClass('count-badge', '?');
         }
     }
 
-    function getDefconfigsDone(data) {
-        var localData = data.result,
-            len = localData.length,
-            columns;
+    function getBuildsDone(data) {
+        var columns,
+            resLen,
+            results;
 
-        if (len === 0) {
-            b.replaceById(
-                'table-div',
-                '<div class="pull-center"><strong>' +
-                'No builds data available.</strong></div>'
-            );
+        results = data.result;
+        resLen = results.length;
+
+        if (resLen === 0) {
+            html.replaceContent(
+                document.getElementById('table-div'),
+                createErrorDiv('No builds data available.'));
         } else {
             columns = [
                 {
-                    'data': '_id',
-                    'visible': false,
-                    'searchable': false,
-                    'orderable': false
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
                 },
                 {
-                    'data': 'kernel',
-                    'title': 'Kernel',
-                    'type': 'string',
-                    'className': 'kernel-column',
-                    'render': function(data) {
-                        return '<span rel="tooltip" data-toggle="tooltip" ' +
-                            'title="' + data + '">' +
-                            '<a class="table-link" href="/build/' + jobName +
-                            '/kernel/' + data + '">' + data + '</a></span>';
-                    }
-                },
-                {
-                    'data': 'git_commit',
-                    'title': 'Commit',
-                    'type': 'string',
-                    'className': 'commit-column',
-                    'render': function(data, type, object) {
-                        var gitURLs,
-                            href = data;
-                        gitURLs = u.translateCommit(object.git_url, data);
-                        if (gitURLs[1] !== null) {
-                            href = '<a class="table-link" href="' +
-                                gitURLs[1] + '">' + data + '</a>';
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string',
+                    className: 'kernel-column',
+                    render: function(data, type) {
+                        var aNode,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute('title', data);
+
+                            aNode = html.a();
+                            aNode.className = 'table-link';
+                            aNode.setAttribute(
+                                'href',
+                                '/build/' + jobName + '/kernel/' + data);
+
+                            aNode.appendChild(document.createTextNode(data));
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
                         }
-                        return '<span rel="tooltip" data-toggle="tooltip" ' +
-                            'title="' + data + '">' + href + '</span>';
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'kernel',
-                    'title': '<span rel="tooltip" data-toggle="tooltip" ' +
+                    data: 'git_commit',
+                    title: 'Commit',
+                    type: 'string',
+                    className: 'commit-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            gitURLs,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute('title', data);
+
+                            gitURLs = u.translateCommit(object.git_url, data);
+
+                            if (gitURLs[1] !== null) {
+                                aNode = html.a();
+                                aNode.className = 'table-link';
+                                aNode.setAttribute(
+                                    'href', gitURLs[1]);
+
+                                aNode.appendChild(
+                                    document.createTextNode(data));
+                            } else {
+                                aNode = document.createTextNode(data);
+                            }
+
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'kernel',
+                    title: '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Successful/Failed defconfigs built">' +
                         'Build Status</span>',
-                    'type': 'string',
-                    'className': 'build-count pull-center',
-                    'render': function(data, type, object, meta) {
-                        var idx = meta.row,
-                            rend;
-                        return '<span ' +
-                            'class="badge alert-success extra-margin">' +
-                            '<span id="build-success-count-' + idx +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                            '<span class="badge alert-danger">' +
-                            '<span id="build-fail-count-' + idx +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i></span></span>';
+                    type: 'string',
+                    className: 'build-count pull-center',
+                    render: function(data, type, object, meta) {
+                        var badgeNode,
+                            divNode,
+                            iNode,
+                            idx,
+                            rendered;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            idx = meta.row;
+                            divNode = html.div();
+
+                            badgeNode = html.span();
+                            badgeNode.className =
+                                'badge alert-success extra-margin count-badge';
+                            badgeNode.id = 'build-success-count-' + idx;
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+
+                            divNode.appendChild(badgeNode);
+
+                            badgeNode = html.span();
+                            badgeNode.className =
+                                'badge alert-danger extra-margin count-badge';
+                            badgeNode.id = 'build-fail-count-' + idx;
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            divNode.appendChild(badgeNode);
+
+                            rendered = divNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'kernel',
-                    'title': '<span rel="tooltip" data-toggle="tooltip" ' +
+                    data: 'kernel',
+                    title: '<span rel="tooltip" data-toggle="tooltip" ' +
                         'title="Successful/Failed boot reports">' +
                         'Boot Status</span>',
-                    'type': 'string',
-                    'className': 'boot-count pull-center',
-                    'render': function(data, type, object, meta) {
-                        var href,
+                    type: 'string',
+                    className: 'boot-count pull-center',
+                    render: function(data, type, object, meta) {
+                        var aNode,
+                            badgeNode,
+                            divNode,
+                            iNode,
+                            idx,
+                            rendered;
+
+                        rendered = null;
+                        if (type === 'display') {
                             idx = meta.row;
-                        href = '/boot/all/job/' + object.job + '/kernel/' +
-                            data + '/';
-                        return '<a href="' + href + '">' +
-                            '<span class="badge alert-success extra-margin">' +
-                            '<span id="boot-success-count-' + idx +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                            '<span class="badge alert-danger">' +
-                            '<span id="boot-fail-count-' + idx +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i></span></span>' +
-                            '</a>';
+                            divNode = html.div();
+                            aNode = html.a();
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/all/job/' + object.job +
+                                '/kernel/' + data
+                            );
+
+                            badgeNode = html.span();
+                            badgeNode.className =
+                                'badge alert-success extra-margin count-badge';
+                            badgeNode.id = 'boot-success-count-' + idx;
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+
+                            aNode.appendChild(badgeNode);
+
+                            badgeNode = html.span();
+                            badgeNode.className =
+                                'badge alert-danger extra-margin count-badge';
+                            badgeNode.id = 'boot-fail-count-' + idx;
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            aNode.appendChild(badgeNode);
+                            divNode.appendChild(aNode);
+
+                            rendered = divNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'created_on',
-                    'title': 'Date',
-                    'type': 'date',
-                    'className': 'date-column pull-center',
-                    'render': function(data) {
-                        var created = new Date(data.$date);
-                        return created.getCustomISODate();
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'date-column pull-center',
+                    render: function(data, type) {
+                        var created;
+
+                        created = new Date(data.$date);
+                        if (type === 'display' || type === 'filter') {
+                            created = created.toCustomISODate();
+                        }
+
+                        return created;
                     }
                 },
                 {
-                    'data': 'kernel',
-                    'title': '',
-                    'orderable': false,
-                    'searchable': false,
-                    'width': '30px',
-                    'className': 'pull-center',
-                    'render': function(data, type, object) {
-                        var job = object.job,
-                            href = '/build/' + job + '/kernel/' + data + '/';
-                        return '<span rel="tooltip" data-toggle="tooltip" ' +
-                            'title="Details for build&nbsp;' + job +
-                            '&nbsp;&dash;&nbsp;' + data + '">' +
-                            '<a href="' + href + '">' +
-                            '<i class="fa fa-search"></i></a></span>';
+                    data: 'kernel',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: function(data, type, object) {
+                        var aNode,
+                            iNode,
+                            job,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            job = object.job;
+
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title',
+                                'Details for build&nbsp;' + job +
+                                '&nbsp;&dash;&nbsp;' + data
+                            );
+
+                            aNode = html.a();
+                            aNode.setAttribute(
+                                'href',
+                                '/build/' + job + '/kernel/' + data + '/');
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-search';
+
+                            aNode.appendChild(iNode);
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 }
             ];
 
             buildsTable
+                .dom(tableDom)
                 .noIDUrl(true)
-                .tableData(localData)
+                .tableData(results)
                 .columns(columns)
-                .order([6, 'desc'])
+                .order([5, 'desc'])
                 .menu('builds per page')
                 .rowURLElements(['job', 'kernel'])
                 .lengthChange(false)
@@ -336,15 +494,14 @@ require([
         }
     }
 
-    function getDefconfigsFailed() {
-        var content = '<div class="pull-center">' +
-            '<h4>Error loading builds data.</h4>' +
-            '</div>';
-        b.replaceById('table-loading', '');
-        b.replaceById('table-div', content);
+    function getBuildsFailed() {
+        html.removeElement(document.getElementById('table-loading'));
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('Error loading build data.'));
     }
 
-    function getDefconfigs() {
+    function getBuilds() {
         var data,
             deferred;
 
@@ -364,52 +521,61 @@ require([
         $.when(deferred)
             .fail(
                 e.error,
-                getDefconfigsFailed, getDefconfigsStats, getBootStatsFail)
-            .done(getTrendsData, getDefconfigsDone, getBuildBootCount);
+                getBuildsFailed, getBuildsStatsFail, getBootStatsFail)
+            .done(getTrendsData, getBuildsDone, getBuildBootCount);
     }
 
-    function getDetailsDone(data) {
-        var localData = data.result,
-            dataLen = localData.length,
-            firstResult = null,
-            secondResult = null,
-            thirdResult = null,
-            firstCount = 0,
-            secondCount = 0,
-            thirdCount = 0;
+    function getDetailsDone(response) {
+        var firstCount,
+            firstResult,
+            resLen,
+            results,
+            secondCount,
+            secondResult,
+            thirdCount,
+            thirdResult;
 
-        if (dataLen === 3) {
-            firstResult = localData[0];
-            secondResult = localData[1];
-            thirdResult = localData[2];
+        results = response.result;
+        resLen = results.length;
+
+        if (resLen === 3) {
+            firstResult = results[0];
+            secondResult = results[1];
+            thirdResult = results[2];
 
             firstCount = firstResult.result[0].count;
             secondCount = secondResult.result[0].count;
             thirdCount = thirdResult.result[0].count;
 
-            b.replaceById(
-                firstResult.operation_id, b.formatNumber(firstCount));
-            b.replaceById(
-                secondResult.operation_id, b.formatNumber(secondCount));
-            b.replaceById(
-                thirdResult.operation_id, b.formatNumber(thirdCount));
+            html.replaceContent(
+                document.getElementById(firstResult.operation_id),
+                document.createTextNode(b.formatNumber(firstCount)));
+
+            html.replaceContent(
+                document.getElementById(secondResult.operation_id),
+                document.createTextNode(b.formatNumber(secondCount)));
+
+            html.replaceContent(
+                document.getElementById(thirdResult.operation_id),
+                document.createTextNode(b.formatNumber(thirdCount)));
         } else {
-            b.replaceByClass('count-list-badge', '?');
+            html.replaceByClass('count-list-badge', '?');
         }
     }
 
     function getDetailsFailed() {
-        b.replaceByClass('count-list-badge', '&infin;');
+        html.replaceByClass('count-list-badge', '&infin;');
     }
 
     function getDetails() {
-        var queryString,
-            batchQueries = new Array(3),
+        var batchQueries,
             data,
-            deferred;
+            deferred,
+            queryString;
 
         queryString = 'job=' + jobName + '&git_branch=' + branchName +
             '&limit=' + numberRange;
+        batchQueries = new Array(3);
 
         batchQueries[0] = {
             operation_id: 'builds-count',
@@ -445,29 +611,27 @@ require([
             .done(getDetailsDone);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-job').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    document.getElementById('li-job').setAttribute('class', 'active');
+    init();
 
-        if (document.getElementById('number-name') !== null) {
-            numberRange = document.getElementById('number-name').value;
-        }
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-        if (document.getElementById('branch-name') !== null) {
-            branchName = document.getElementById('branch-name').value;
-        }
-        if (document.getElementById('page-len') !== null) {
-            pageLen = document.getElementById('page-len').value;
-        }
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
+    if (document.getElementById('number-name') !== null) {
+        numberRange = document.getElementById('number-name').value;
+    }
+    if (document.getElementById('job-name') !== null) {
+        jobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('branch-name') !== null) {
+        branchName = document.getElementById('branch-name').value;
+    }
+    if (document.getElementById('page-len') !== null) {
+        pageLen = document.getElementById('page-len').value;
+    }
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
 
-        buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
-        getDetails();
-        getDefconfigs();
-    });
+    buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    getDetails();
+    getBuilds();
+
 });
