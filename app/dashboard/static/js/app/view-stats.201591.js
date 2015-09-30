@@ -6,46 +6,54 @@ require([
     'utils/error',
     'utils/request',
     'charts/statsbar',
+    'utils/html',
     'utils/date'
-], function($, i, b, e, r, chart) {
+], function($, init, b, e, r, chart, html) {
     'use strict';
-    var oneDay = 86400000,
-        startDate = null,
-        dateFormat;
+    var dateFormat,
+        oneDay,
+        startDate;
+
+    oneDay = 86400000;
+    startDate = null;
 
     dateFormat = new Intl.DateTimeFormat(
         ['en-US'], {month: 'long', year: 'numeric'});
 
     function getStatsFail() {
-        b.replaceByClass('loading-stats', '&infin;');
-        b.replaceByClass(
-            'stat-graph',
-            '<div class="pull-center">' +
-            '<strong>Error loading data.</strong></div>'
-        );
+        html.replaceByClass('loading-stats', '&infin;');
+        html.replaceByClassNode(
+            'stat-graph', html.errorDiv('Error loading data'));
     }
 
     function createGraphs(response) {
-        var results = response.result,
-            resLen = results.length,
-            localResult,
+        var bootData,
+            bootDiffs,
+            buildData,
+            buildDiffs,
             createdOn,
-            yesterday,
+            jobData,
+            jobDiffs,
+            localResult,
             oneWeek,
+            resLen,
+            results,
             twoWeeks,
-            jobData = {},
-            buildData = {},
-            bootData = {},
-            jobDiffs = {},
-            buildDiffs = {},
-            bootDiffs = {};
+            yesterday;
+
+        results = response.result;
+        resLen = results.length;
+        jobData = {};
+        buildData = {};
+        bootData = {};
+        jobDiffs = {};
+        buildDiffs = {};
+        bootDiffs = {};
 
         if (resLen === 0) {
-            b.replaceByClass(
+            html.replaceByClassNode(
                 'stat-graph',
-                '<div class="pull-center">' +
-                '<strong>No data available.</strong></div>'
-            );
+                html.errorDiv('No data available'));
         } else {
             localResult = results[0];
             createdOn = new Date(localResult.created_on.$date);
@@ -101,16 +109,21 @@ require([
     }
 
     function getStatsDone(response) {
-        var results = response.result,
-            resLen = results.length,
+        var createdOn,
             localResult,
-            createdOn,
-            totalDays,
-            totalJobs,
+            resLen,
+            results,
+            startNode,
+            totalBoots,
             totalBuilds,
-            totalBoots;
+            totalDays,
+            totalJobs;
+
+        results = response.result;
+        resLen = results.length;
+
         if (resLen === 0) {
-            b.replaceByClass('loading-stats', '?');
+            html.replaceByClass('loading-stats', '?');
         } else {
             localResult = results[0];
             startDate = new Date(localResult.start_date.$date);
@@ -121,57 +134,82 @@ require([
             totalBuilds = localResult.total_builds;
             totalBoots = localResult.total_boots;
 
-            b.replaceById(
-                'start-date',
-                '<time datetime="' + startDate.toISOString() + '">' +
-                    dateFormat.format(startDate) + '<time>'
+            startNode = html.time();
+            startNode.setAttribute('datetime', startDate.toISOString());
+            startNode.appendChild(
+                document.createTextNode(dateFormat.format(startDate)));
+
+            html.replaceContent(
+                document.getElementById('start-date'), startNode);
+
+            html.replaceContent(
+                document.getElementById('total-jobs'),
+                document.createTextNode(b.formatNumber(totalJobs)));
+
+            html.replaceContent(
+                document.getElementById('total-trees'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_trees))
             );
 
-            b.replaceById(
-                'total-jobs', b.formatNumber(totalJobs));
-            b.replaceById(
-                'total-trees',
-                b.formatNumber(localResult.total_unique_trees));
-            b.replaceById(
-                'total-kernels',
-                b.formatNumber(localResult.total_unique_kernels));
-
-            b.replaceById(
-                'total-builds', b.formatNumber(totalBuilds));
-            b.replaceById(
-                'total-defconfigs',
-                b.formatNumber(localResult.total_unique_defconfigs));
-
-            b.replaceById(
-                'total-boots', b.formatNumber(totalBoots));
-            b.replaceById(
-                'total-boards',
-                b.formatNumber(localResult.total_unique_boards));
-            b.replaceById(
-                'total-archs',
-                b.formatNumber(localResult.total_unique_archs));
-            b.replaceById(
-                'total-socs',
-                b.formatNumber(localResult.total_unique_machs));
-
-            b.replaceById(
-                'jobs-avg',
-                b.formatNumber(Math.round(totalJobs / totalDays))
+            html.replaceContent(
+                document.getElementById('total-kernels'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_kernels))
             );
-            b.replaceById(
-                'builds-avg',
-                b.formatNumber(Math.round(totalBuilds / totalDays))
+
+            html.replaceContent(
+                document.getElementById('total-builds'),
+                document.createTextNode(b.formatNumber(totalBuilds)));
+
+            html.replaceContent(
+                document.getElementById('total-defconfigs'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_defconfigs))
             );
-            b.replaceById(
-                'boots-avg',
-                b.formatNumber(Math.round(totalBoots / totalDays))
+
+            html.replaceContent(
+                document.getElementById('total-boots'),
+                document.createTextNode(b.formatNumber(totalBoots)));
+
+            html.replaceContent(document.getElementById('total-boards'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_boards))
+            );
+
+            html.replaceContent(document.getElementById('total-archs'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_archs))
+            );
+
+            html.replaceContent(document.getElementById('total-socs'),
+                document.createTextNode(
+                    b.formatNumber(localResult.total_unique_machs))
+            );
+
+            html.replaceContent(
+                document.getElementById('jobs-avg'),
+                document.createTextNode(
+                    b.formatNumber(Math.round(totalJobs / totalDays)))
+            );
+
+            html.replaceContent(document.getElementById('builds-avg'),
+                document.createTextNode(
+                    b.formatNumber(Math.round(totalBuilds / totalDays)))
+            );
+
+            html.replaceContent(
+                document.getElementById('boots-avg'),
+                document.createTextNode(
+                    b.formatNumber(Math.round(totalBoots / totalDays)))
             );
         }
     }
 
     function getStats() {
-        var deferred,
-            data;
+        var data,
+            deferred;
+
         data = {
             sort: 'created_on',
             sort_order: -1,
@@ -183,11 +221,8 @@ require([
             .done(getStatsDone, createGraphs);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-info').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    document.getElementById('li-info').setAttribute('class', 'active');
+    init();
 
-        getStats();
-    });
+    getStats();
 });
