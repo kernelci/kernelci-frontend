@@ -9,18 +9,18 @@ define([
     var start;
 
     function setHotKeys() {
-        var selectSearch,
-            selectTableLength,
-            goToHome,
-            goToJob,
+        var goToBoot,
             goToBuild,
-            goToBoot,
             goToCompare,
+            goToHome,
             goToInfo,
+            goToJob,
+            selectSearch,
+            selectTableLength,
             showHelp;
 
         selectTableLength = function() {
-            $('.length-menu .input-sm').focus();
+            document.querySelector('select.input-sm').focus();
         };
 
         goToHome = function() {
@@ -52,7 +52,7 @@ define([
         };
 
         selectSearch = function() {
-            $('.input-sm').focus();
+            document.querySelector('input.input-sm').focus();
         };
 
         $(document).mapHotKeys(
@@ -81,13 +81,6 @@ define([
             selector: '[rel=tooltip]',
             placement: 'auto top',
             html: true
-        });
-
-        $('.clickable-table tbody').on('click', 'tr', function() {
-            var url = $(this).data('url');
-            if (url) {
-                window.location = url;
-            }
         });
     };
 
