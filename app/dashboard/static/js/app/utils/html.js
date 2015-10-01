@@ -88,6 +88,19 @@ define(function() {
         return divNode;
     };
 
+    html.build = function() {
+        var spanNode,
+            iNode;
+
+        spanNode = document.createElement('span');
+        spanNode.className = 'label label-info';
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-cogs';
+        spanNode.appendChild(iNode);
+
+        return spanNode;
+    };
+
     html.fail = function() {
         var spanNode,
             iNode;
