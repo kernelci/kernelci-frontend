@@ -7,30 +7,43 @@ define([
     'datatables.bootstrap'
 ], function($, s, b) {
     'use strict';
-    var table,
-        tableDom,
-        lengthMenu = null,
-        lengthChange = true,
-        paging = true,
-        info = true,
+    var columns,
+        disableIn,
+        elementsPerPage,
+        info,
+        lengthChange,
+        lengthMenu,
         menu,
         menuFmt,
-        zeroRec,
-        columns,
+        noIDUrl,
+        oldSearch,
         order,
-        tTable,
-        tElement,
-        tLoading = null,
-        tDiv = null,
-        rowURL = '/build/%(job)s/kernel/%(kernel)s/',
+        paging,
+        rowURL,
         rowURLElements,
-        tableData = [],
         searchLanguage,
         searchType,
-        oldSearch = null,
-        disableIn = false,
-        noIDUrl = false,
-        elementsPerPage = [25, 50, 75, 100];
+        tDiv,
+        tElement,
+        tLoading,
+        tTable,
+        table,
+        tableData,
+        tableDom,
+        zeroRec;
+
+    lengthMenu = null;
+    lengthChange = true;
+    paging = true;
+    info = true;
+    tLoading = null;
+    tDiv = null;
+    rowURL = '/build/%(job)s/kernel/%(kernel)s/';
+    tableData = [];
+    oldSearch = null;
+    disableIn = false;
+    noIDUrl = false;
+    elementsPerPage = [25, 50, 75, 100];
 
     tableDom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
             '<"length-menu"l>>' +
@@ -84,8 +97,12 @@ define([
     };
 
     table.draw = function() {
-        var target,
-            that = this;
+        var selectNode,
+            inputNode,
+            that;
+
+        that = this;
+
         function stateLoad(s, d) {
             if (disableIn && d.search.search.length > 0) {
                 oldSearch = d.search.search;
@@ -124,26 +141,31 @@ define([
             stateLoadParams: stateLoad
         });
 
-        target = document.querySelector('input.input-sm');
+        inputNode = document.querySelector('input.input-sm');
+        selectNode = document.querySelector('select.input-sm');
 
-        // Remove focus from input when Esc is pressed.
-        target.addEventListener('keyup', function(event) {
-            if (event.keyCode === 27) {
-                this.blur();
-            }
-        });
-
-        // Remove focus from the table length selection on Esc.
-        document.querySelector('select.input-sm').addEventListener(
-            'keyup', function(event) {
+        if (inputNode !== null) {
+            // Remove focus from input when Esc is pressed.
+            inputNode.addEventListener('keyup', function(event) {
                 if (event.keyCode === 27) {
                     this.blur();
                 }
-            }
-        );
+            });
+        }
 
-        if (disableIn) {
-            target.setAttribute('disabled', true);
+        if (selectNode !== null) {
+            // Remove focus from the table length selection on Esc.
+            selectNode.addEventListener(
+                'keyup', function(event) {
+                    if (event.keyCode === 27) {
+                        this.blur();
+                    }
+                }
+            );
+        }
+
+        if (disableIn && inputNode !== null) {
+            inputNode.setAttribute('disabled', true);
         }
 
         tTable.on('click', 'tbody tr', function() {
@@ -168,10 +190,10 @@ define([
                 obsCfg;
             if (disableIn && oldSearch !== null) {
                 if (window.MutationObserver) {
-                    if (target.getAttribute('disabled')) {
+                    if (inputNode.getAttribute('disabled')) {
                         obs = new MutationObserver(function(muts) {
                             muts.forEach(function(mut) {
-                                if (mut.target === target) {
+                                if (mut.target === inputNode) {
                                     if (mut.attributeName === 'disabled') {
                                         if (oldSearch !== null) {
                                             tTable
@@ -188,7 +210,7 @@ define([
                             attributes: true,
                             attributeOldValue: true
                         };
-                        obs.observe(target, obsCfg);
+                        obs.observe(inputNode, obsCfg);
                     }
                 } else {
                     // No support for MutationObserver.
@@ -200,118 +222,150 @@ define([
     };
 
     table.search = function(value) {
-        document.querySelector('input.input-sm').removeAttribute('disabled');
-        if (arguments.length) {
-            if (value !== null && value !== undefined) {
-                if (value.length > 0) {
-                    oldSearch = null;
-                    tTable.search(value, true, true).draw();
-                }
+        var inputNode;
+        inputNode = document.querySelector('input.input-sm');
+
+        if (inputNode !== null) {
+            inputNode.removeAttribute('disabled');
+        }
+
+        if (value !== null && value !== undefined) {
+            if (value.length > 0) {
+                oldSearch = null;
+                tTable.search(value, true, true).draw();
             }
         }
+
         return table;
     };
 
     table.pageLen = function(value) {
         var pLen;
-        if (arguments.length) {
-            if (value !== undefined && value !== null) {
-                if (value.length > 0) {
-                    pLen = Number(value);
-                    if (isNaN(pLen)) {
-                        pLen = 25;
-                    }
-                    tTable.page.len(pLen).draw();
+        if (value !== null && value !== undefined) {
+            if (value.length > 0) {
+                pLen = Number(value);
+                if (isNaN(pLen)) {
+                    pLen = 25;
                 }
+                tTable.page.len(pLen).draw();
             }
         }
         return table;
     };
 
     table.menu = function(value) {
-        var returnData = menu;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = menu;
+        if (value !== null && value !== undefined) {
             menu = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.columns = function(value) {
-        var returnData = columns;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = columns;
+        if (value !== null && value !== undefined) {
             columns = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.order = function(value) {
-        var returnData = order;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = order;
+        if (value !== null && value !== undefined) {
             order = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.tableData = function(value) {
-        var returnData = tableData;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = tableData;
+        if (value !== null && value !== undefined) {
             tableData = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.rowURL = function(value) {
-        var returnData = rowURL;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = rowURL;
+        if (value !== null && value !== undefined) {
             rowURL = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.rowURLElements = function(value) {
-        var returnData = rowURLElements;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = rowURLElements;
+        if (value !== null && value !== undefined) {
             rowURLElements = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.searchType = function(value) {
-        var returnData = searchType;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = searchType;
+        if (value !== null && value !== undefined) {
             searchType = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.searchLanguage = function(value) {
-        var returnData = searchLanguage;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = searchLanguage;
+        if (value !== null && value !== undefined) {
             searchLanguage = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.zeroRecords = function(value) {
-        var returnData = zeroRec;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = zeroRec;
+        if (value !== null && value !== undefined) {
             zeroRec = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.lengthMenu = function(value) {
-        var returnData = table;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = table;
+        if (value !== null && value !== undefined) {
             lengthMenu = value;
             returnData = table;
         } else {
@@ -321,60 +375,79 @@ define([
                 returnData = s.sprintf(menuFmt, menu);
             }
         }
+
         return returnData;
     };
 
     table.noIDUrl = function(value) {
-        var returnData = noIDUrl;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = noIDUrl;
+        if (value !== null && value !== undefined) {
             noIDUrl = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.lengthChange = function(value) {
-        var returnData = lengthChange;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = lengthChange;
+        if (value !== null && value !== undefined) {
             lengthChange = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.paging = function(value) {
-        var returnData = paging;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = paging;
+        if (value !== null && value !== undefined) {
             paging = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.info = function(value) {
         var returnData = paging;
-        if (arguments.length) {
+
+        returnData = paging;
+        if (value !== null && value !== undefined) {
             info = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.elementsLength = function(value) {
-        var returnData = elementsPerPage;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = elementsPerPage;
+        if (value !== null && value !== undefined) {
             elementsPerPage = value;
             returnData = table;
         }
+
         return returnData;
     };
 
     table.dom = function(value) {
-        var returnData = tableDom;
-        if (arguments.length) {
+        var returnData;
+
+        returnData = tableDom;
+        if (value !== null && value !== undefined) {
             tableDom = value;
             returnData = table;
         }
+
         return returnData;
     };
 
