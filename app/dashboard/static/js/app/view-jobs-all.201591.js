@@ -1,62 +1,69 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'sprintf',
     'utils/init',
-    'utils/base',
     'utils/error',
     'utils/request',
     'utils/tables',
+    'utils/html',
     'utils/date'
-], function($, p, i, b, e, r, t) {
+], function($, init, e, r, t, html) {
     'use strict';
-    var searchFilter = null,
-        pageLen = null,
-        dateRange = 14,
-        jobsTable = null,
-        eDiv,
-        jobURL,
-        rowURLFmt,
-        hrefFmt,
-        tooltipFmt,
-        buildLabel,
-        passLabel,
-        failLabel,
-        unknownLabel,
-        nonAvail;
+    var dateRange,
+        jobsTable,
+        pageLen,
+        searchFilter;
 
-    nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i></span>';
-    eDiv = '<div class="pull-center"><h4>%s</h4></div>';
-    jobURL = '/job/%s';
-    rowURLFmt = '/job/%(job)s/';
-    hrefFmt = '<a class="table-link" href="%s">%s</a>';
-    tooltipFmt =
-        '<span rel="tooltip" data-toggle="tooltip" title="%s">%s</span>';
-    buildLabel =
-        '<span class="label label-info"><i class="fa fa-cogs"></i></span>';
-    passLabel =
-        '<span class="label label-success"><i class="fa fa-check"></i></span>';
-    failLabel = '<span class="label label-danger">' +
-        '<i class="fa fa-exclamation-triangle"></i></span>';
-    unknownLabel = '<span class="label label-warning">' +
-        '<i class="fa fa-question"></i></span>';
+    document.getElementById('li-job').setAttribute('class', 'active');
+
+    dateRange = 14;
+    searchFilter = null;
+    pageLen = null;
+    jobsTable = null;
+
+    function bootColumnTitle() {
+        var tooltipNode;
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'Successful/Failed boot reports for latest job');
+        tooltipNode.appendChild(
+            document.createTextNode('Latest Boot Status'));
+
+        return tooltipNode.outerHTML;
+    }
+
+    function buildColumTitle() {
+        var tooltipNode;
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'Successful/Failed build reports for latest job');
+        tooltipNode.appendChild(
+            document.createTextNode('Latest Build Status'));
+
+        return tooltipNode.outerHTML;
+    }
 
     function getBatchCountFail() {
-        b.replaceByClass('count-badge', '&infin;');
+        html.replaceByClass('count-badge', '&infin;');
     }
 
     function getBatchCountDone(response) {
-        var results = response[0].result,
-            len = results.length,
-            bResult,
-            idx = 0;
+        var bResult,
+            resLen,
+            results;
 
-        if (len > 0) {
-            for (idx; idx < len; idx = idx + 1) {
-                bResult = results[idx].result[0];
-                b.replaceById(results[idx].operation_id, bResult.count);
-            }
+        results = response[0].result;
+        resLen = results.length;
+
+        if (resLen > 0) {
+            results.forEach(function(result) {
+                bResult = result.result[0];
+                html.replaceContent(
+                    document.getElementById(result.operation_id),
+                    document.createTextNode(bResult.count));
+            });
         }
 
         // Perform the table search now, after completing all operations.
@@ -66,21 +73,33 @@ require([
     }
 
     function getBatchCount(response) {
-        var results = response.result,
-            len = results.length,
-            idx = 0,
-            j = 0,
-            batchElements = 4,
-            queriesLen = len * 4,
-            batchOps = new Array(queriesLen),
-            job = '',
-            kernel = '',
-            deferred = null,
-            data;
+        var batchElements,
+            batchOps,
+            data,
+            deferred,
+            idx,
+            jdx,
+            job,
+            kernel,
+            queriesLen,
+            resLen,
+            results;
 
-        if (len > 0) {
+        results = response.result;
+        resLen = results.length;
+        deferred = null;
+
+        if (resLen > 0) {
+            idx = 0;
+            jdx = 0;
+            batchElements = 4;
+            queriesLen = resLen * 4;
+            batchOps = new Array(queriesLen);
+            job = '';
+            kernel = '';
+
             for (idx; idx < queriesLen; idx += batchElements) {
-                j = idx;
+                jdx = idx;
                 job = results[idx / batchElements].job;
                 kernel = results[idx / batchElements].kernel;
 
@@ -94,7 +113,7 @@ require([
                 };
 
                 // Get failed build count.
-                batchOps[j + 1] = {
+                batchOps[jdx + 1] = {
                     method: 'GET',
                     operation_id: 'defconf-fail-count-' + job,
                     resource: 'count',
@@ -103,7 +122,7 @@ require([
                 };
 
                 // Get successful boot reports count.
-                batchOps[j + 2] = {
+                batchOps[jdx + 2] = {
                     method: 'GET',
                     operation_id: 'boot-success-count-' + job,
                     resource: 'count',
@@ -112,7 +131,7 @@ require([
                 };
 
                 // Get failed boot reports count.
-                batchOps[j + 3] = {
+                batchOps[jdx + 3] = {
                     method: 'GET',
                     operation_id: 'boot-fail-count-' + job,
                     resource: 'count',
@@ -129,146 +148,274 @@ require([
     }
 
     function getJobsFail() {
-        b.replaceById('table-loading', p.sprintf(eDiv, 'Error loading data.'));
+        html.replaceContent(
+            document.getElementById('table-loading'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getJobsDone(response) {
-        var results = response.result,
-            len = response.count,
-            tableDiv = null,
-            columns;
+        var columns,
+            len,
+            results;
+
+        results = response.result;
+        len = response.count;
 
         if (len === 0) {
-            tableDiv = b.checkElement('table-div');
-            b.replaceById(
-                tableDiv[0], p.sprintf(eDiv, 'No jobs data available.'));
+            html.replaceContent(
+                document.getElementById('table-div'),
+                html.errorDiv('No jobs data available.'));
         } else {
             columns = [
                 {
-                    'data': 'job',
-                    'title': 'Tree &dash; Branch',
-                    'type': 'string',
-                    'render': function(data, type, object) {
-                        var display,
-                            hrefData,
-                            branch = object.git_branch;
+                    data: 'job',
+                    title: 'Tree &dash; Branch',
+                    type: 'string',
+                    render: function(data, type, object) {
+                        var aNode,
+                            branch,
+                            branchNode,
+                            rendered;
 
-                        hrefData = data;
+                        branch = object.git_branch;
+                        rendered = data;
+
                         if (branch !== null && branch !== undefined) {
-                            hrefData = data + '&nbsp;&dash;&nbsp;<small>' +
-                                branch + '</small>';
+                            rendered = rendered + ' ' + branch;
                         }
-                        display = p.sprintf(
-                            hrefFmt, p.sprintf(jobURL, data), hrefData);
 
-                        return display;
-                    }
-                },
-                {
-                    'data': 'job',
-                    'title': p.sprintf(
-                        tooltipFmt,
-                        'Successful/Failed defconfigs built for latest job',
-                        'Latest Build Status'),
-                    'type': 'string',
-                    'searchable': false,
-                    'orderable': false,
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        return '<a class="clean-link" href="/job/' + data +
-                            '"><span class="badge alert-success ' +
-                            'extra-margin">' +
-                            '<span id="defconf-success-count-' + data +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span>' +
-                            '<span class="badge alert-danger">' +
-                            '<span id="defconf-fail-count-' + data +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span></a>';
-                    }
-                },
-                {
-                    'data': 'job',
-                    'title': p.sprintf(
-                        tooltipFmt,
-                        'Successful/Failed boot reports for latest job',
-                        'Latest Boot Status'),
-                    'type': 'string',
-                    'searchable': false,
-                    'orderable': false,
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        return '<a class="clean-link" href="/boot/all/job/' +
-                            data + '"><span class="badge alert-success ' +
-                            'extra-margin">' +
-                            '<span id="boot-success-count-' + data +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span>' +
-                            '<span class="badge alert-danger">' +
-                            '<span id="boot-fail-count-' + data +
-                            '" class="count-badge">' +
-                            '<i class="fa fa-cog fa-spin"></i>' +
-                            '</span></span></a>';
-                    }
-                },
-                {
-                    'data': 'created_on',
-                    'title': 'Date',
-                    'type': 'date',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        var created;
-                        if (data === null) {
-                            created = nonAvail;
-                        } else {
-                            created = (new Date(data.$date)).toCustomISODate();
+                        if (type === 'display') {
+                            aNode = html.a();
+                            aNode.className = 'table-link';
+                            aNode.setAttribute('href', '/job/' + data + '/');
+
+                            aNode.appendChild(document.createTextNode(data));
+
+                            if (branch !== null && branch !== undefined) {
+                                branchNode = html.small();
+                                branchNode.appendChild(
+                                    document.createTextNode(branch));
+
+                                aNode.innerHTML = aNode.innerHTML +
+                                    '&nbsp;&dash;&nbsp;';
+                                aNode.appendChild(branchNode);
+                            }
+
+                            rendered = aNode.outerHTML;
                         }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'job',
+                    title: buildColumTitle(),
+                    type: 'string',
+                    searchable: false,
+                    orderable: false,
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var aNode,
+                            badgeNode,
+                            divNode,
+                            iNode,
+                            rendered;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            divNode = html.div();
+                            aNode = html.a();
+                            aNode.className = 'clean-link';
+                            aNode.setAttribute('href', '/job/' + data + '/');
+
+                            badgeNode = html.span();
+                            badgeNode.id = 'defconf-success-count-' + data;
+                            badgeNode.className =
+                                'badge alert-success extra-margin count-badge';
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            aNode.appendChild(badgeNode);
+
+                            badgeNode = html.span();
+                            badgeNode.id = 'defconf-fail-count-' + data;
+                            badgeNode.className =
+                                'badge alert-danger extra-margin count-badge';
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            aNode.appendChild(badgeNode);
+
+                            divNode.appendChild(aNode);
+
+                            rendered = divNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'job',
+                    title: bootColumnTitle(),
+                    type: 'string',
+                    searchable: false,
+                    orderable: false,
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var aNode,
+                            badgeNode,
+                            divNode,
+                            iNode,
+                            rendered;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            divNode = html.div();
+                            aNode = html.a();
+                            aNode.className = 'clean-link';
+                            aNode.setAttribute(
+                                'href', '/boot/all/job/' + data + '/');
+
+                            badgeNode = html.span();
+                            badgeNode.id = 'boot-success-count-' + data;
+                            badgeNode.className =
+                                'badge alert-success extra-margin count-badge';
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            aNode.appendChild(badgeNode);
+
+                            badgeNode = html.span();
+                            badgeNode.id = 'boot-fail-count-' + data;
+                            badgeNode.className =
+                                'badge alert-danger extra-margin count-badge';
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-cog fa-spin';
+
+                            badgeNode.appendChild(iNode);
+                            aNode.appendChild(badgeNode);
+
+                            divNode.appendChild(aNode);
+
+                            rendered = divNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            created,
+                            iNode;
+
+                        if (data === null) {
+                            created = data;
+                            if (type === 'display') {
+                                tooltipNode = html.tooltip();
+                                tooltipNode.setAttribute('Not available');
+
+                                iNode = html.i();
+                                iNode.className = 'fa fa-ban';
+
+                                tooltipNode.appendChild(iNode);
+                                created = tooltipNode.outerHTML;
+                            }
+                        } else {
+                            created = new Date(data.$date);
+                            if (type === 'display' || type === 'filter') {
+                                created = created.toCustomISODate();
+                            }
+                        }
+
                         return created;
                     }
                 },
                 {
-                    'data': 'status',
-                    'title': 'Status',
-                    'type': 'string',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        var displ;
-                        switch (data) {
-                            case 'BUILD':
-                                displ = p.sprintf(
-                                    tooltipFmt, 'Building', buildLabel);
-                                break;
-                            case 'PASS':
-                                displ = p.sprintf(
-                                    tooltipFmt, 'Build complete', passLabel);
-                                break;
-                            case 'FAIL':
-                                displ = p.sprintf(
-                                    tooltipFmt, 'Build failed', failLabel);
-                                break;
-                            default:
-                                displ = p.sprintf(
-                                    tooltipFmt, 'Unknown status', unknownLabel);
-                                break;
+                    data: 'status',
+                    title: 'Status',
+                    type: 'string',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+
+                            switch (data) {
+                                case 'BUILD':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Building');
+                                    tooltipNode.appendChild(html.build());
+                                    break;
+                                case 'PASS':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Build complete');
+                                    tooltipNode.appendChild(html.success());
+                                    break;
+                                case 'FAIL':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Build failed');
+                                    tooltipNode.appendChild(html.fail());
+                                    break;
+                                default:
+                                    tooltipNode.setAttribute(
+                                        'title', 'Unknown status');
+                                    tooltipNode.appendChild(html.unknown());
+                                    break;
+                            }
+
+                            rendered = tooltipNode.outerHTML;
                         }
-                        return displ;
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'job',
-                    'title': '',
-                    'searchable': false,
-                    'orderable': false,
-                    'width': '30px',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="Details for&nbsp;' + data + '">' +
-                            '<a href="/job/' + data + '">' +
-                            '<i class="fa fa-search"></i></a></span>';
+                    data: 'job',
+                    title: '',
+                    searchable: false,
+                    orderable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var aNode,
+                            iNode,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title', 'Details for&nbsp;' + data);
+
+                            aNode = html.a();
+                            aNode.setAttribute('href', '/job/' + data + '/');
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-search';
+
+                            aNode.appendChild(iNode);
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 }
             ];
@@ -278,7 +425,7 @@ require([
                 .columns(columns)
                 .order([3, 'desc'])
                 .menu('jobs per page')
-                .rowURL(rowURLFmt)
+                .rowURL('/job/%(job)s/')
                 .rowURLElements(['job'])
                 .noIDUrl(true)
                 .draw();
@@ -288,8 +435,10 @@ require([
     // A deferred version of getJobsDone.
     function getJobsDoneD(response) {
         var deferred;
+
         deferred = $.Deferred();
         deferred.resolve(getJobsDone(response));
+
         return deferred.promise();
     }
 
@@ -300,15 +449,15 @@ require([
     }
 
     function getJobs() {
-        var deferred,
-            data;
+        var data,
+            deferred;
 
         data = {
-            'aggregate': 'job',
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': dateRange,
-            'field': [
+            aggregate: 'job',
+            sort: 'created_on',
+            sort_order: -1,
+            date_range: dateRange,
+            field: [
                 'job', 'kernel', 'status', 'created_on', 'git_branch'
             ]
         };
@@ -319,23 +468,18 @@ require([
             .done(getJobsDoneMulti);
     }
 
-    $(document).ready(function() {
-        // Setup and perform base operations.
-        i();
+    init();
 
-        document.getElementById('li-job').setAttribute('class', 'active');
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
+    if (document.getElementById('page-len') !== null) {
+        pageLen = document.getElementById('page-len').value;
+    }
+    if (document.getElementById('date-range') !== null) {
+        dateRange = document.getElementById('date-range').value;
+    }
 
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
-        if (document.getElementById('page-len') !== null) {
-            pageLen = document.getElementById('page-len').value;
-        }
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
-        }
-
-        jobsTable = t(['jobstable', 'table-loading', 'table-div'], true);
-        getJobs();
-    });
+    jobsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    getJobs();
 });
