@@ -94,24 +94,24 @@ define([
         }
 
         tTable = $(tElement[1]).DataTable({
-            'dom': that.dom(),
-            'paging': paging,
-            'info': info,
-            'language': {
-                'lengthMenu': that.lengthMenu(),
-                'zeroRecords': that.zeroRecords(),
-                'search': that.searchLanguage(),
-                'searchPlaceholder': 'Filter the results'
+            dom: that.dom(),
+            paging: paging,
+            info: info,
+            language: {
+                lengthMenu: that.lengthMenu(),
+                zeroRecords: that.zeroRecords(),
+                search: that.searchLanguage(),
+                searchPlaceholder: 'Filter the results'
             },
-            'lengthMenu': that.elementsLength(),
-            'order': order,
-            'deferRender': true,
-            'ordering': true,
-            'stateSave': true,
-            'stateDuration': -1,
-            'processing': true,
-            'search': that.searchType(),
-            'initComplete': function() {
+            lengthMenu: that.elementsLength(),
+            order: order,
+            deferRender: true,
+            ordering: true,
+            stateSave: true,
+            stateDuration: -1,
+            processing: true,
+            search: that.searchType(),
+            initComplete: function() {
                 if (tLoading !== null) {
                     $(tLoading[1]).remove();
                 }
@@ -119,18 +119,28 @@ define([
                     $(tDiv[1]).fadeIn('slow', 'linear');
                 }
             },
-            'data': that.tableData(),
-            'columns': that.columns(),
-            'stateLoadParams': stateLoad
+            data: that.tableData(),
+            columns: that.columns(),
+            stateLoadParams: stateLoad
         });
 
         target = document.querySelector('input.input-sm');
+
         // Remove focus from input when Esc is pressed.
-        $(target).keyup(function(key) {
-            if (key.keyCode === 27) {
-                $(this).blur();
+        target.addEventListener('keyup', function(event) {
+            if (event.keyCode === 27) {
+                this.blur();
             }
         });
+
+        // Remove focus from the table length selection on Esc.
+        document.querySelector('select.input-sm').addEventListener(
+            'keyup', function(event) {
+                if (event.keyCode === 27) {
+                    this.blur();
+                }
+            }
+        );
 
         if (disableIn) {
             target.setAttribute('disabled', true);
