@@ -22,6 +22,19 @@ require([
     buildColumns = 5;
     bootColumns = 8;
 
+    function registerRowEvent(element) {
+        [].forEach.call(element.getElementsByTagName('tr'), function(row) {
+            row.addEventListener('click', function() {
+                var dataURL;
+
+                dataURL = this.getAttribute('data-url');
+                if (dataURL !== null) {
+                    window.location = dataURL;
+                }
+            });
+        });
+    }
+
     function getBuildsCountFail() {
         html.replaceByClass('fail-badge', '&infin;');
     }
@@ -225,6 +238,8 @@ require([
                 tooltipNode.appendChild(aNode);
                 cellNode.appendChild(tooltipNode);
             });
+
+            registerRowEvent(buildsTableBody);
         }
     }
 
@@ -430,6 +445,8 @@ require([
                 tooltipNode.appendChild(aNode);
                 cellNode.appendChild(tooltipNode);
             });
+
+            registerRowEvent(bootsTableBody);
         }
     }
 
