@@ -236,6 +236,7 @@ define(function() {
             classes = element.className.split(' ');
 
             if (classes.indexOf(newClass) === -1) {
+                classes.push(newClass);
                 element.className = classes.join(' ');
             }
         }
