@@ -140,6 +140,19 @@ define(function() {
         return spanNode;
     };
 
+    html.offline = function() {
+        var spanNode,
+            iNode;
+
+        spanNode = document.createElement('span');
+        spanNode.className = 'label label-info';
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-power-off';
+        spanNode.appendChild(iNode);
+
+        return spanNode;
+    };
+
     html.tooltip = function() {
         var element;
 
