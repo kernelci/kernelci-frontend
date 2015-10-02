@@ -1,152 +1,250 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
     'utils/error',
     'utils/init',
     'utils/request',
     'utils/tables',
+    'utils/html',
     'utils/date'
-], function($, b, e, i, r, t) {
+], function($, e, init, r, t, html) {
     'use strict';
     var buildsTable,
-        searchFilter,
+        dateRange,
         pageLen,
-        dateRange = 14,
-        rowURLFmt;
+        searchFilter;
 
-    rowURLFmt = '/build/%(job)s/kernel/%(kernel)s' +
-        '/defconfig/%(defconfig_full)s/';
+    document.getElementById('li-build').setAttribute('class', 'active');
+
+    dateRange = 14;
 
     function getBuildsFail() {
-        b.removeElement('table-loading');
-        b.replaceById(
-            'table-div',
-            '<div class="pull-center"><strong>' +
-            'Error loading data.</strong></div>'
-        );
+        html.removeElement('table-loading');
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getBuildsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            columns;
+        var columns,
+            resLen,
+            results,
+            rowUrl;
 
+        results = response.result;
+        resLen = results.length;
         if (resLen === 0) {
-            b.removeElement('table-loading');
-            b.replaceById(
-                'table-div',
-                '<div class="pull-center"><strong>' +
-                'No data available.</strong></div>'
-            );
+            html.removeElement('table-loading');
+            html.replaceContent(
+                document.getElementById('table-div'),
+                html.errorDiv('No data available'));
         } else {
+            rowUrl = '/build/%(job)s/kernel/%(kernel)s/' +
+                'defconfig/%(defconfig_full)s/';
+
             columns = [
                 {
-                    'data': '_id',
-                    'visible': false,
-                    'searchable': false,
-                    'orderable': false
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
                 },
                 {
-                    'data': 'job',
-                    'title': 'Tree &dash; Branch',
-                    'className': 'tree-column',
-                    'render': function(data, type, object) {
-                        var display = '<a class="table-link" href="/job/' +
-                            data + '/">' + data;
+                    data: 'job',
+                    title: 'Tree &dash; Branch',
+                    className: 'tree-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            branch,
+                            branchNode,
+                            rendered;
 
-                        if (object.git_branch !== null) {
-                            display += '&nbsp;&dash;&nbsp;<small>' +
-                                object.git_branch + '</small>';
+                        branch = object.git_branch;
+                        rendered = data;
+
+                        if (branch !== null && branch !== undefined) {
+                            rendered = rendered + ' ' + branch;
                         }
-                        return display + '</a>';
-                    }
-                },
-                {
-                    'data': 'kernel',
-                    'title': 'Kernel',
-                    'type': 'string',
-                    'className': 'kernel-column',
-                    'render': function(data) {
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' + data + '</span>';
-                    }
-                },
-                {
-                    'data': 'defconfig_full',
-                    'title': 'Defconfig',
-                    'className': 'defconfig-column',
-                    'render': function(data) {
-                        return '<span rel="tooltip" data-toggle="tooltip" ' +
-                            'title="' + data + '">' + data + '</span>';
-                    }
-                },
-                {
-                    'data': 'arch',
-                    'title': 'Arch.'
-                },
-                {
-                    'data': 'created_on',
-                    'title': 'Date',
-                    'type': 'date',
-                    'className': 'date-column pull-center',
-                    'render': function(data) {
-                        var created = new Date(data.$date);
-                        return created.toCustomISODate();
-                    }
-                },
-                {
-                    'data': 'status',
-                    'title': 'Status',
-                    'type': 'string',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        var displ;
-                        switch (data) {
-                            case 'PASS':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Build completed">' +
-                                    '<span class="label label-success">' +
-                                    '<li class="fa fa-check"></li>' +
-                                    '</span></span>';
-                                break;
-                            case 'FAIL':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Build failed">' +
-                                    '<span class="label label-danger">' +
-                                    '<li class="fa fa-exclamation-triangle">' +
-                                    '</li></span></span>';
-                                break;
-                            default:
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<span class="label label-warning">' +
-                                    '<li class="fa fa-question">' +
-                                    '</li></span></span>';
-                                break;
+
+                        if (type === 'display') {
+                            aNode = html.a();
+                            aNode.className = 'table-link';
+                            aNode.setAttribute('href', '/job/' + data + '/');
+
+                            aNode.appendChild(document.createTextNode(data));
+
+                            if (branch !== null && branch !== undefined) {
+                                branchNode = html.small();
+                                branchNode.appendChild(
+                                    document.createTextNode(branch));
+
+                                aNode.innerHTML = aNode.innerHTML +
+                                    '&nbsp;&dash;&nbsp;';
+                                aNode.appendChild(branchNode);
+                            }
+
+                            rendered = aNode.outerHTML;
                         }
-                        return displ;
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'job',
-                    'title': '',
-                    'orderable': false,
-                    'searchable': false,
-                    'className': 'pull-center',
-                    'render': function(data, type, object) {
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="Details for&nbsp;' + data +
-                            '&nbsp;&dash;&nbsp;' + object.kernel +
-                            '&nbsp;&dash;&nbsp;' + object.defconfig_full +
-                            '">' +
-                            '<a href="/build/' + data +
-                            '/kernel/' + object.kernel + '/defconfig/' +
-                            object.defconfig_full + '/">' +
-                            '<i class="fa fa-search"></i></a></span>';
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string',
+                    className: 'kernel-column',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute('title', data);
+
+                            tooltipNode.appendChild(
+                                document.createTextNode(data));
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'defconfig_full',
+                    title: 'Defconfig',
+                    className: 'defconfig-column',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute('title', data);
+
+                            tooltipNode.appendChild(
+                                document.createTextNode(data));
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'arch',
+                    title: 'Arch.'
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'date-column pull-center',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            created,
+                            iNode;
+
+                        if (data === null) {
+                            created = data;
+                            if (type === 'display') {
+                                tooltipNode = html.tooltip();
+                                tooltipNode.setAttribute('Not available');
+
+                                iNode = html.i();
+                                iNode.className = 'fa fa-ban';
+
+                                tooltipNode.appendChild(iNode);
+                                created = tooltipNode.outerHTML;
+                            }
+                        } else {
+                            created = new Date(data.$date);
+                            if (type === 'display' || type === 'filter') {
+                                created = created.toCustomISODate();
+                            }
+                        }
+
+                        return created;
+                    }
+                },
+                {
+                    data: 'status',
+                    title: 'Status',
+                    type: 'string',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+
+                            switch (data) {
+                                case 'PASS':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Build completed');
+                                    tooltipNode.appendChild(html.success());
+                                    break;
+                                case 'FAIL':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Build failed');
+                                    tooltipNode.appendChild(html.fail());
+                                    break;
+                                default:
+                                    tooltipNode.setAttribute(
+                                        'title', 'Unknown status');
+                                    tooltipNode.appendChild(html.unknown());
+                                    break;
+                            }
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'job',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    className: 'pull-center',
+                    render: function(data, type, object) {
+                        var aNode,
+                            iNode,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title', 'Details for&nbsp;' + data +
+                                '&nbsp;&dash;&nbsp;' + object.kernel +
+                                '&nbsp;and;&nbsp;' + object.defconfig_full
+                            );
+
+                            aNode = html.a();
+                            aNode.setAttribute(
+                                'href',
+                                '/build/' + data + '/kernel/' + object.kernel +
+                                '/defconfig/' + object.defconfig_full + '/'
+                            );
+
+                            iNode = html.i();
+                            iNode.className = 'fa fa-search';
+
+                            aNode.appendChild(iNode);
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 }
             ];
@@ -156,7 +254,7 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .menu('build reports per page')
-                .rowURL(rowURLFmt)
+                .rowURL(rowUrl)
                 .rowURLElements(['job', 'kernel', 'defconfig_full'])
                 .draw();
 
@@ -167,39 +265,37 @@ require([
     }
 
     function getBuilds() {
-        var deferred,
-            data;
+        var data,
+            deferred;
+
         data = {
-            'sort': 'created_on',
-            'sort_order': -1,
-            'date_range': dateRange,
-            'field': [
+            sort: 'created_on',
+            sort_order: -1,
+            date_range: dateRange,
+            field: [
                 '_id', 'job', 'kernel', 'status',
                 'arch', 'created_on', 'git_branch', 'defconfig_full'
             ]
         };
+
         deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-build').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    init();
 
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
-        if (document.getElementById('page-len') !== null) {
-            pageLen = document.getElementById('page-len').value;
-        }
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
-        }
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
+    if (document.getElementById('page-len') !== null) {
+        pageLen = document.getElementById('page-len').value;
+    }
+    if (document.getElementById('date-range') !== null) {
+        dateRange = document.getElementById('date-range').value;
+    }
 
-        buildsTable = t(['builds-table', 'table-loading', 'table-div'], true);
-        getBuilds();
-    });
+    buildsTable = t(['builds-table', 'table-loading', 'table-div'], true);
+    getBuilds();
 });
