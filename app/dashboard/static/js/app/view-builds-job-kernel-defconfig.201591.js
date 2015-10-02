@@ -8,67 +8,67 @@ require([
     'utils/urls',
     'utils/bisect',
     'utils/show-hide-btns',
+    'utils/html',
     'utils/date'
-], function($, b, e, i, r, u, bisect, btns) {
+], function($, b, e, init, r, u, bisect, btns, html) {
     'use strict';
-    var fileServer,
-        jobName,
+    var buildId,
         defconfigFull,
-        kernelName,
-        buildId,
-        nonAvail,
-        failLabel,
-        successLabel,
-        unknownLabel;
+        fileServer,
+        jobName,
+        kernelName;
 
-    nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i></span>';
-    successLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Build completed"><span class="label ' +
-        'label-success"><i class="fa fa-check"></i></span></span>';
-    unknownLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Unknown status"><span class="label ' +
-        'label-warning"><i class="fa fa-question"></i></span></span>';
-    failLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Build failed"><span class="label label-danger">' +
-        '<i class="fa fa-exclamation-triangle"></i></span></span>';
+    document.getElementById('li-build').setAttribute('class', 'active');
 
     function bindBisectMoreLessBtns() {
-        $('.bisect-pm-btn-less').each(function() {
-            $(this).off().on('click', btns.showLessBisectRowsBtn);
-        });
-        $('.bisect-pm-btn-more').each(function() {
-            $(this).off().on('click', btns.showMoreBisectRowsBtn);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-less'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showLessBisectRowsBtn);
+            }
+        );
+
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-more'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showMoreBisectRowsBtn);
+            }
+        );
     }
 
     function bindBisectButtons() {
-        $('.bisect-click-btn').each(function() {
-            $(this).off().on('click', btns.showHideBisect);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('bisect-click-btn'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showHideBisect);
+            }
+        );
     }
 
     function getBisectFail() {
-        b.removeElement('bisect-loading-div');
-        b.replaceById(
-            'bisect-content',
-            '<div class="pull-center"><strong>' +
-            'Error loading bisect data from server.</strong></div>');
-        b.removeClass('bisect-content', 'hidden');
+        html.removeElement('bisect-loading-div');
+        html.replaceContent(
+            document.getElementById('bisect-content'),
+            html.errorDiv('Error loading bisect data.'));
+        html.removeClass(document.getElementById('bisect-content'), 'hidden');
     }
 
     function getBisectToMainlineFail() {
-        b.removeElement('bisect-compare-loading-div');
-        b.replaceById(
-            'bisect-compare-content',
-            '<div class="pull-center"><strong>' +
-            'Error loading bisect data from server.</strong></div>');
-        b.removeClass('bisect-compare-content', 'hidden');
+        html.removeElement('bisect-compare-loading-div');
+        html.replaceContent(
+            document.getElementById('bisect-compare-content'),
+            html.errorDiv('Error loading bisect data.'));
+        html.removeClass(
+            document.getElementById('bisect-compare-content'), 'hidden');
     }
 
     function getBisectToMainline(bisectData, build) {
         var deferred,
             elements;
+
         elements = {
             showHideID: 'buildb-compare-showhide',
             tableDivID: 'table-compare-div',
@@ -92,6 +92,7 @@ require([
                 'compare_to=mainline&build_id=' + build,
             {}
         );
+
         $.when(deferred)
             .fail(e.error, getBisectToMainlineFail)
             .done(function(data) {
@@ -103,27 +104,32 @@ require([
     }
 
     function getBisectCompareTo(response) {
-        var result = response.result,
-            resLen = result.length,
-            bisectData = null,
-            lBuildId = null;
+        var bisectData,
+            lBuildId,
+            resLen,
+            result;
 
+        result = response.result;
+        resLen = result.length;
         if (resLen > 0) {
             bisectData = result[0];
             lBuildId = bisectData.build_id.$oid;
             if (bisectData.job !== 'mainline') {
-                b.removeClass('bisect-compare-div', 'hidden');
+                html.removeClass(
+                    document.getElementById('bisect-compare-div'), 'hidden');
                 getBisectToMainline(bisectData, lBuildId);
             } else {
-                b.removeElement('bisect-compare-div');
+                html.removeElement(
+                    document.getElementById('bisect-compare-div'));
             }
         } else {
-            b.removeElement('bisect-compare-div');
+            html.removeElement(document.getElementById('bisect-compare-div'));
         }
     }
 
     function getBisectDone(response) {
         var elements;
+
         elements = {
             showHideID: 'buildb-showhide',
             tableDivID: 'table-div',
@@ -141,6 +147,7 @@ require([
             prevBisect: null,
             bisectShowHideID: 'bisect-hide-div'
         };
+
         bisect(response, elements, false);
         bindBisectButtons();
         bindBisectMoreLessBtns();
@@ -148,19 +155,22 @@ require([
     }
 
     function getBisect(response) {
-        var results = response.result,
-            resLen = results.length,
-            deferred;
+        var deferred,
+            resLen,
+            results;
 
+        results = response.result;
+        resLen = results.length;
         if (resLen > 0) {
             results = response.result[0];
             if (results.status === 'FAIL') {
-                b.removeClass('bisect', 'hidden');
-                b.removeClass('bisect-div', 'hidden');
+                html.removeClass(document.getElementById('bisect'), 'hidden');
+                html.removeClass(
+                    document.getElementById('bisect-div'), 'hidden');
 
                 deferred = r.get(
                     '/_ajax/bisect?collection=build&build_id=' +
-                    results._id.$oid,
+                        results._id.$oid,
                     {}
                 );
 
@@ -168,51 +178,53 @@ require([
                     .fail(e.error, getBisectFail)
                     .done(getBisectDone, getBisectCompareTo);
             } else {
-                b.removeElement('bisect-div');
+                html.removeElement(document.getElementById('bisect-div'));
             }
         } else {
-            b.removeElement('bisect-div');
+            html.removeElement(document.getElementById('bisect-div'));
         }
     }
 
     function getBootsFail() {
-        b.replaceById(
-            'boot-report',
-            '<div class="pull-center">' +
-            '<strong>Error loading boot reports data.</strong></div>'
+        html.replaceContent(
+            document.getElementById('boot-report'),
+            html.errorDiv('Error loading boot reports data.')
         );
     }
 
     function getBootsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            colData,
-            idx = 0,
-            totalColumns = 3,
-            columnIndex = 1,
-            columns;
+        var columnIndex,
+            columns,
+            resLen,
+            results,
+            totalColumns;
+
+        results = response.result;
+        resLen = results.length;
+
+        totalColumns = 3;
+        columnIndex = 1;
 
         columns = {
-            'col1': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+            col1: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
                 'col-lg-4"><ul class="list-unstyled">',
-            'col2': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+            col2: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
                 'col-lg-4">' + '<ul class="list-unstyled">',
-            'col3': '<div class="col-xs-4 col-sm-4 col-md-4 ' +
+            col3: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
                 'col-lg-4"><ul class="list-unstyled">'
         };
 
         if (resLen > 0) {
-            for (idx; idx < resLen; idx = idx + 1) {
+            results.forEach(function(result, idx) {
                 columnIndex = (idx % totalColumns) + 1;
-                colData = results[idx];
 
                 columns['col' + columnIndex] += '<li>' +
-                    '<a href="/boot/' + colData.board + '/job/' +
+                    '<a href="/boot/' + result.board + '/job/' +
                     jobName + '/kernel/' + kernelName + '/defconfig/' +
-                    defconfigFull + '/lab/' + colData.lab_name + '?_id=' +
-                    colData._id.$oid + '">' + colData.board +
+                    defconfigFull + '/lab/' + result.lab_name + '?_id=' +
+                    result._id.$oid + '">' + result.board +
                     '&nbsp;<i class="fa fa-search"></i></a></li>';
-            }
+            });
 
             columns.col1 += '</ul></div>';
             columns.col2 += '</ul></div>';
@@ -232,107 +244,124 @@ require([
                 '</div>'
             );
         } else {
-            b.replaceById(
-                'boot-report',
-                '<div class="pull-center">' +
-                '<strong>No boot reports available.</strong></div>'
-            );
+            html.replaceContent(
+                document.getElementById('boot-report'),
+                html.errorDiv('No boot reporst available.'));
         }
     }
 
     function getBoots(response) {
-        var results = response.result,
-            resLen = results.length,
+        var data,
             deferred,
-            data = {
-                'field': [
-                    '_id', 'board', 'lab_name'
-                ]
-            };
+            results,
+            resLen;
+
+        results = response.result;
+        resLen = results.length;
 
         if (resLen > 0) {
             results = response.result[0];
+
             if (results._id !== null) {
-                data.build_id = results._id.$oid;
+                data = {
+                    build_id: results._id.$oid,
+                    field: ['_id', 'board', 'lab_name']
+                };
             } else {
-                data.defconfig = results.defconfig;
-                data.defconfig_full = results.defconfig_full;
-                data.job = results.job;
-                data.kernel = results.kernel;
+                data = {
+                    defconfig: results.defconfig,
+                    defconfig_full: results.defconfig_full,
+                    field: ['_id', 'board', 'lab_name'],
+                    job: results.job,
+                    kernel: results.kernel
+                };
             }
+
             deferred = r.get('/_ajax/boot', data);
             $.when(deferred)
                 .fail(e.error, getBootsFail)
                 .done(getBootsDone);
         } else {
-            b.replaceById(
-                'boot-report',
-                '<div class="pull-center">' +
-                '<strong>No boot reports available.</strong></div>'
-            );
+            html.replaceContent(
+                document.getElementById('boot-report'),
+                html.errorDiv('No boot reporst found.'));
         }
     }
 
     function getBuildsFail() {
-        b.removeElement('bisect-div');
-        b.replaceById(
-            'boot-report',
-            '<div class="pull-center"><strong>' +
-            'Error loading data.</strong></div>'
-        );
-        b.replaceByClass(
-            'loading-content',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Not available"><i class="fa fa-ban"></i>' +
-            '</span>'
-        );
+        var tooltipNode,
+            iNode;
+
+        tooltipNode = document.createElement('span');
+        tooltipNode.setAttribute('title', 'Not available');
+        tooltipNode.setAttribute('rel', 'tooltip');
+        tooltipNode.setAttribute('data-toggle', 'tooltip');
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-ban';
+
+        tooltipNode.appendChild(iNode);
+
+        html.removeElement(document.getElementById('bisect-div'));
+        html.replaceContent(
+            document.getElementById('boot-report'),
+            html.errorDiv('Error loading data.'));
+        html.replaceByClassHTML('loading-content', tooltipNode.outerHTML);
     }
 
     function getBuildsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            job,
-            kernel,
+        var aNode,
             arch,
-            defconfig,
-            lDefconfigFull,
-            metadata,
-            buildTime,
-            dtb,
-            buildModules,
-            modulesDirectory,
-            textOffset,
-            configFragments,
-            kernelImage,
-            kernelConfig,
             buildLog,
+            buildModules,
+            buildModulesSize,
             buildPlatform,
-            fileServerURL,
+            buildTime,
+            configFragments,
+            createdOn,
+            defconfig,
+            defconfigNode,
+            detailNode,
+            divNode,
+            dtb,
+            fileServerData,
             fileServerResource,
             fileServerURI,
-            fileServerData,
-            translatedURI,
-            lFileServer = fileServer,
-            pathURI,
+            fileServerURL,
+            gitCommit,
             gitURL,
             gitURLs,
-            gitCommit,
-            createdOn,
-            buildModulesLink,
-            buildModulesSize,
-            kernelImageLink,
+            job,
+            kernel,
+            kernelConfig,
+            kernelImage,
             kernelImageSize,
-            statusDisplay = '';
+            lDefconfigFull,
+            lFileServer,
+            metadata,
+            modulesDirectory,
+            pathURI,
+            resLen,
+            results,
+            sizeNode,
+            spanNode,
+            textOffset,
+            timeNode,
+            tooltipNode,
+            translatedURI;
+
+        results = response.result;
+        resLen = results.length;
 
         if (resLen === 0) {
-            b.removeElement('bisect-div');
-            b.replaceById(
-                'boot-report',
-                '<div class="pull-center"><strong>' +
-                'No data available.</strong></div>'
-            );
-            b.replaceByClass('loading-content', '?');
+            html.removeElement('bisect-div');
+            html.replaceContent(
+                document.getElementById('boot-report'),
+                html.errorDiv('No data available.'));
+            html.replaceByClassTxt('loading-content', '?');
         } else {
+            lFileServer = fileServer;
+
             // We only have 1 result!
             results = response.result[0];
             job = results.job;
@@ -374,279 +403,462 @@ require([
 
             gitURLs = u.translateCommit(gitURL, gitCommit);
 
-            b.addContent('details', '&nbsp<small>(' + defconfig + ')</small>');
+            detailNode = document.getElementById('details');
+            detailNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-            b.replaceById(
-                'tree',
-                '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Details for tree ' + job + '">' +
-                '<a href="/job/' + job + '/">' + job + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Boot reports details for ' + job + '">' +
-                '<a href="/boot/all/job/' + job + '/">' +
-                '<i class="fa fa-hdd-o"></i>' +
-                '</a></span>'
+            defconfigNode = html.small();
+            defconfigNode.appendChild(
+                document.createTextNode('(' + defconfig + ')'));
+
+            detailNode.appendChild(defconfigNode);
+
+            spanNode = html.span();
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
+
+            aNode = html.a();
+            aNode.setAttribute('href', '/job/' + job + '/');
+            aNode.appendChild(document.createTextNode(job));
+
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for tree&nbsp;' + job);
+
+            aNode = html.a();
+            aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+            aNode.appendChild(html.boot());
+
+            tooltipNode.appendChild(aNode);
+
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
+
+            html.replaceContent(document.getElementById('tree'), spanNode);
+
+            html.replaceContent(
+                document.getElementById('git-branch'),
+                document.createTextNode(results.git_branch));
+
+            spanNode = html.span();
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Build details for&nbsp;' + job +
+                '&nbsp;&dash;&nbsp;' + kernel
             );
-            b.replaceById('git-branch', results.git_branch);
-            b.replaceById(
-                'git-describe',
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + job + '&nbsp;&dash;&nbsp;' +
-                kernel + '">' +
-                '<a href="/build/' + job + '/kernel/' +
-                kernel + '/">' + kernel + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="All boot reports for ' + job + '&nbsp;&dash;&nbsp;' +
-                kernel + '">' +
-                '<a href="/boot/all/job/' + job + '/kernel/' + kernel + '/">' +
-                '<i class="fa fa-hdd-o"></i></a></span>'
+
+            aNode = html.a();
+            aNode.setAttribute(
+                'href', '/build/' + job + '/kernel/' + kernel + '/');
+            aNode.appendChild(document.createTextNode(kernel));
+
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for&nbsp;' + job +
+                '&nbsp;&dash;&nbsp;' + kernel
             );
+
+            aNode = html.a();
+            aNode.setAttribute(
+                'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+            aNode.appendChild(html.boot());
+
+            tooltipNode.appendChild(aNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
+
+            html.replaceContent(
+                document.getElementById('git-describe'), spanNode);
 
             if (gitURLs[0] !== null) {
-                b.replaceById(
-                    'git-url',
-                    '<a href="' + gitURLs[0] + '">' + gitURL +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                aNode = html.a();
+                aNode.setAttribute('href', gitURLs[0]);
+                aNode.appendChild(document.createTextNode(gitURL));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('git-url'), aNode);
             } else {
                 if (gitURL !== null) {
-                    b.replaceById('git-url', gitURL);
+                    html.replaceContent(
+                        document.getElementById('git-url'),
+                        document.createTextNode(gitURL));
                 } else {
-                    b.replaceById('git-url', nonAvail);
+                    html.replaceContent(
+                        document.getElementById('git-url'), html.nonavail());
                 }
             }
 
             if (gitURLs[1] !== null) {
-                b.replaceById(
-                    'git-commit',
-                    '<a href="' + gitURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                aNode = html.a();
+                aNode.setAttribute('href', gitURLs[1]);
+                aNode.appendChild(document.createTextNode(gitCommit));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('git-commit'), aNode);
             } else {
                 if (gitCommit !== null) {
-                    b.replaceById('git-commit', gitCommit);
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
+                        document.createTextNode(gitCommit));
                 } else {
-                    b.replaceById('git-commit', nonAvail);
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
+                        html.nonavail());
                 }
             }
 
             if (metadata.hasOwnProperty('cross_compile')) {
-                b.replaceById(
-                    'build-cross-compile', metadata.cross_compile);
+                html.replaceContent(
+                    document.getElementById('build-cross-compile'),
+                    document.createTextNode(metadata.cross_compile));
             } else {
-                b.replaceById('build-cross-compile', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-cross-compile'),
+                    html.nonavail());
             }
 
             if (metadata.hasOwnProperty('compiler_version')) {
-                b.replaceById(
-                    'build-compiler', metadata.compiler_version);
+                html.replaceContent(
+                    document.getElementById('build-compiler'),
+                    document.createTextNode(metadata.compiler_version));
             } else {
-                b.replaceById('build-compiler', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-compiler'),
+                    html.nonavail());
             }
 
             if (arch !== null) {
-                b.replaceById('build-arch', arch);
+                html.replaceContent(
+                    document.getElementById('build-arch'),
+                    document.createTextNode(arch));
             } else {
-                b.replaceById('build-arch', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-arch'), html.nonavail());
             }
 
-            b.replaceById('build-errors', results.errors);
-            b.replaceById('build-warnings', results.warnings);
+            html.replaceContent(
+                document.getElementById('build-errors'),
+                document.createTextNode(results.errors));
+
+            html.replaceContent(
+                document.getElementById('build-warnings'),
+                document.createTextNode(results.warnings));
 
             if (buildTime !== null) {
-                b.replaceById('build-time', buildTime + '&nbsp;sec.');
+                html.replaceContent(
+                    document.getElementById('build-time'),
+                    document.createTextNode(buildTime + 'sec.'));
             } else {
-                b.replaceById('build-time', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-time'), html.nonavail());
             }
 
-            b.replaceById(
-                'build-defconfig',
-                lDefconfigFull +
-                '&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName +
-                '&nbsp;&dash;&nbsp;' + lDefconfigFull + '">' +
-                '<a href="/boot/all/job/' + jobName + '/kernel/' +
-                kernelName + '/defconfig/' + lDefconfigFull + '">' +
-                '<i class="fa fa-hdd-o"></i></a></span>'
+            spanNode = html.span();
+
+            spanNode.appendChild(document.createTextNode(lDefconfigFull));
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for&nbsp;' + jobName +
+                    '&nbsp;&dash;&nbsp;' + kernelName +
+                    '&nbsp;&dash;&nbsp;' + lDefconfigFull
+                );
+
+            aNode = html.a();
+            aNode.setAttribute(
+                'href',
+                '/boot/all/job/' + jobName + '/kernel/' +
+                kernelName + '/defconfig/' + lDefconfigFull + '/'
             );
+            aNode.appendChild(html.boot());
 
-            b.replaceById('build-date', createdOn.toCustomISODate());
+            tooltipNode.appendChild(aNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
 
+            html.replaceContent(
+                document.getElementById('build-defconfig'), spanNode);
+
+            timeNode = html.time();
+            timeNode.setAttribute('datetime', createdOn.toISOString());
+            timeNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODate()));
+
+            html.replaceContent(
+                document.getElementById('build-date'), timeNode);
+
+            tooltipNode = html.tooltip();
             switch (results.status) {
                 case 'PASS':
-                    statusDisplay = successLabel;
+                    tooltipNode.setAttribute('title', 'Build completed');
+                    tooltipNode.appendChild(html.success());
                     break;
                 case 'FAIL':
-                    statusDisplay = failLabel;
+                    tooltipNode.setAttribute('title', 'Build failed');
+                    tooltipNode.appendChild(html.fail());
                     break;
                 default:
-                    statusDisplay = unknownLabel;
+                    tooltipNode.setAttribute('title', 'Unknown status');
+                    tooltipNode.appendChild(html.unknown());
                     break;
             }
 
-            b.replaceById('build-status', statusDisplay);
+            html.replaceContent(
+                document.getElementById('build-status'), tooltipNode);
 
             if (dtb !== null) {
-                b.replaceById(
-                    'dtb-dir',
-                    '<a href="' +
-                    fileServerURI.path(pathURI + '/' + dtb + '/')
-                        .normalizePath().href() +
-                    '">' + dtb +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + dtb + '/')
+                        .normalizePath().href()
                 );
+                aNode.appendChild(document.createTextNode(dtb));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(document.getElementById('dtb-dir'), aNode);
             } else {
-                b.replaceById('dtb-dir', nonAvail);
+                html.replaceContent(
+                    document.getElementById('dtb-dir'), html.nonavail());
             }
 
             if (buildModules !== null) {
-                buildModulesLink = '<a href="' +
-                    fileServerURI.path(pathURI + '/' + buildModules)
-                        .normalizePath().href() + '">' + buildModules +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>';
+                spanNode = html.span();
+
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + buildModules)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode(buildModules));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                spanNode.appendChild(aNode);
 
                 if (buildModulesSize !== null &&
                         buildModulesSize !== undefined) {
-                    buildModulesLink += '&nbsp;<small>(' +
-                        b.bytesToHuman(buildModulesSize) + ')</small>';
+                    sizeNode = html.small();
+                    sizeNode.appendChild(
+                        document.createTextNode(
+                            '(' + b.bytesToHuman(buildModulesSize) + ')')
+                    );
+
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(sizeNode);
                 }
 
-                b.replaceById('build-modules', buildModulesLink);
+                html.replaceContent(
+                    document.getElementById('build-modules'), spanNode);
             } else {
-                b.replaceById('build-modules', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-modules'), html.nonavail());
             }
 
             if (modulesDirectory !== null) {
-                b.replaceById(
-                    'modules-directory',
-                    '<a href="' +
-                    fileServerURI.path(pathURI + '/' + modulesDirectory + '/')
-                        .normalizePath().href() +
-                    '">' + modulesDirectory +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + modulesDirectory + '/')
+                        .normalizePath().href()
                 );
+                aNode.appendChild(document.createTextNode(modulesDirectory));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('modules-directory'), aNode);
             } else {
-                b.replaceById('modules-directory', nonAvail);
+                html.replaceContent(
+                    document.getElementById('modules-directory'),
+                    html.nonavail());
             }
 
             if (textOffset !== null) {
-                b.replaceById('text-offset', textOffset);
+                html.replaceContent(
+                    document.getElementById('text-offset'),
+                    document.createTextNode(textOffset));
             } else {
-                b.replaceById('text-offset', nonAvail);
+                html.replaceContent(
+                    document.getElementById('text-offset'), html.nonavail());
             }
 
             if (configFragments !== null) {
-                if (configFragments.length > 40) {
-                    configFragments = '<span rel="tooltip" ' +
-                        'data-toggle="tooltip" ' +
-                        'title="' + configFragments + '">' +
-                        configFragments.slice(0, 39) + '&hellip;</span>';
-                }
-                b.replaceById('config-fragments', configFragments);
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', configFragments);
+                tooltipNode.appendChild(
+                    document.createTextNode(
+                        html.sliceText(configFragments, 40)));
+
+                html.replaceContent(
+                    document.getElementById('config-fragments'), tooltipNode);
             } else {
-                b.replaceById('config-fragments', nonAvail);
+                html.replaceContent(
+                    document.getElementById('config-fragments'),
+                    html.nonavail());
             }
 
             if (kernelImage !== null) {
-                kernelImageLink = '<a href="' +
-                    fileServerURI.path(pathURI + '/' + kernelImage)
-                        .normalizePath().href() + '">' + kernelImage +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>';
+                spanNode = html.span();
+
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + kernelImage)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode(kernelImage));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                spanNode.appendChild(aNode);
 
                 if (kernelImageSize !== null &&
                         kernelImageSize !== undefined) {
-                    kernelImageLink += '&nbsp;<small>(' +
-                        b.bytesToHuman(kernelImageSize) + ')</small>';
+                    sizeNode = html.small();
+                    sizeNode.appendChild(
+                        document.createTextNode(
+                            '(' + b.bytesToHuman(kernelImageSize) + ')')
+                    );
+
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(sizeNode);
                 }
 
-                b.replaceById('kernel-image', kernelImageLink);
+                html.replaceContent(
+                    document.getElementById('kernel-image'), spanNode);
             } else {
-                b.replaceById('kernel-image', nonAvail);
+                html.replaceContent(
+                    document.getElementById('kernel-image'), html.nonavail());
             }
 
             if (kernelConfig !== null) {
-                b.replaceById('kernel-config',
-                    '<a href="' +
-                    fileServerURI.path(pathURI + '/' + kernelConfig)
-                        .normalizePath().href() +
-                    '">' + kernelConfig +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + kernelConfig)
+                        .normalizePath().href()
                 );
+                aNode.appendChild(document.createTextNode(kernelConfig));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('kernel-config'), aNode);
             } else {
-                b.replaceById('kernel-config', nonAvail);
+                html.replaceContent(
+                    document.getElementById('kernel-config'), html.nonavail());
             }
 
             if (buildLog !== null) {
-                b.replaceById('build-log',
-                    '<a href="' +
-                    fileServerURI.path(pathURI + '/' + buildLog)
-                        .normalizePath().href() +
-                    '">' + buildLog +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + buildLog)
+                        .normalizePath().href()
                 );
+                aNode.appendChild(document.createTextNode(buildLog));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('build-log'), aNode);
             } else {
-                b.replaceById('build-log', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-log'), html.nonavail());
             }
 
             if (buildPlatform !== null && buildPlatform.length === 6) {
-                b.replaceById('platform-system', buildPlatform[0]);
-                b.replaceById('platform-node', buildPlatform[1]);
-                b.replaceById('platform-release', buildPlatform[2]);
-                b.replaceById('platform-full-release', buildPlatform[3]);
-                b.replaceById('platform-machine', buildPlatform[4]);
-                b.replaceById('platform-cpu', buildPlatform[5]);
+                html.replaceContent(
+                    document.getElementById('platform-system'),
+                    document.createTextNode(buildPlatform[0]));
+                html.replaceContent(
+                    document.getElementById('platform-node'),
+                    document.createTextNode(buildPlatform[1]));
+                html.replaceContent(
+                    document.getElementById('platform-release'),
+                    document.createTextNode(buildPlatform[2]));
+                html.replaceContent(
+                    document.getElementById('platform-full-release'),
+                    document.createTextNode(buildPlatform[3]));
+                html.replaceContent(
+                    document.getElementById('platform-machine'),
+                    document.createTextNode(buildPlatform[4]));
+                html.replaceContent(
+                    document.getElementById('platform-cpu'),
+                    document.createTextNode(buildPlatform[5]));
             } else {
-                b.replaceById('build-platform',
-                    '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<div class="pull-center">' +
-                    '<strong>No data available.</strong>' +
-                    '</div></div>'
-                );
+                divNode = html.div();
+                divNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+                divNode.appendChild(html.errorDiv('No data available.'));
+
+                html.replaceContent(
+                    document.getElementById('build-platform'), divNode);
             }
         }
     }
 
     function getBuilds() {
-        var deferred,
-            data = {};
+        var data,
+            deferred;
+
         if (buildId !== 'None') {
-            data.id = buildId;
+            data = {
+             id: buildId
+            };
         } else {
-            data.job = jobName;
-            data.kernel = kernelName;
-            data.defconfig_full = defconfigFull;
+            data = {
+                job: jobName,
+                kernel: kernelName,
+                defconfig_full: defconfigFull
+            };
         }
+
         deferred = r.get('/_ajax/build', data);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone, getBoots, getBisect);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-build').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    init();
 
-        if (document.getElementById('file-server') !== null) {
-            fileServer = document.getElementById('file-server').value;
-        }
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-        if (document.getElementById('kernel-name') !== null) {
-            kernelName = document.getElementById('kernel-name').value;
-        }
-        if (document.getElementById('defconfig-full') !== null) {
-            defconfigFull = document.getElementById('defconfig-full').value;
-        }
-        if (document.getElementById('build-id') !== null) {
-            buildId = document.getElementById('build-id').value;
-        }
+    if (document.getElementById('file-server') !== null) {
+        fileServer = document.getElementById('file-server').value;
+    }
+    if (document.getElementById('job-name') !== null) {
+        jobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('kernel-name') !== null) {
+        kernelName = document.getElementById('kernel-name').value;
+    }
+    if (document.getElementById('defconfig-full') !== null) {
+        defconfigFull = document.getElementById('defconfig-full').value;
+    }
+    if (document.getElementById('build-id') !== null) {
+        buildId = document.getElementById('build-id').value;
+    }
 
-        getBuilds();
-    });
+    getBuilds();
 });
