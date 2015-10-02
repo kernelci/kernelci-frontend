@@ -10,6 +10,7 @@ SECRET_KEY = '{{ secret_key }}'
 FILE_SERVER_URL = '{{ file_server }}'
 GOOGLE_ANALYTICS_ID = '{{ google_analytics }}'
 DATE_RANGE = 14
+INFO_EMAIL = '{{ info_email }}'
 
 CACHE_TYPE = 'redis'
 {% if role == "production" %}
