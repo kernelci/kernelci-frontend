@@ -225,14 +225,15 @@ require([
                             tooltipNode.setAttribute(
                                 'title', 'Details for&nbsp;' + data +
                                 '&nbsp;&dash;&nbsp;' + object.kernel +
-                                '&nbsp;and;&nbsp;' + object.defconfig_full
+                                '&nbsp;and&nbsp;' + object.defconfig_full
                             );
 
                             aNode = html.a();
                             aNode.setAttribute(
                                 'href',
                                 '/build/' + data + '/kernel/' + object.kernel +
-                                '/defconfig/' + object.defconfig_full + '/'
+                                '/defconfig/' + object.defconfig_full +
+                                '/?_id=' + object._id.$oid
                             );
 
                             iNode = html.i();
