@@ -363,7 +363,7 @@ require([
                                     break;
                                 case 'PASS':
                                     tooltipNode.setAttribute(
-                                        'title', 'Build complete');
+                                        'title', 'Build completed');
                                     tooltipNode.appendChild(html.success());
                                     break;
                                 case 'FAIL':
