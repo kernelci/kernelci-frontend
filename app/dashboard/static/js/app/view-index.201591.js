@@ -22,6 +22,8 @@ require([
     buildColumns = 5;
     bootColumns = 8;
 
+    document.getElementById('li-home').setAttribute('class', 'active');
+
     function registerRowEvent(element) {
         [].forEach.call(element.getElementsByTagName('tr'), function(row) {
             row.addEventListener('click', function() {
@@ -450,7 +452,6 @@ require([
         }
     }
 
-    document.getElementById('li-home').setAttribute('class', 'active');
     init();
 
     if (document.getElementById('number-range') !== null) {
