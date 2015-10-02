@@ -216,18 +216,31 @@ define(function() {
         return spanNode;
     };
 
-    html.addClass = function(element, className) {
+    html.addClass = function(element, newClass) {
+        var classes;
+
         if (element !== null) {
-            element.className = element.className + ' ' + className;
+            classes = element.className.split(' ');
+
+            if (classes.indexOf(newClass) === -1) {
+                element.className = classes.join(' ');
+            }
         }
     };
 
     html.removeClass = function(element, className) {
-        var regEx;
+        var classIdx,
+            classes;
 
         if (element !== null) {
-            regEx = new RegExp('(?:^|\\s)' + className + '(?!\\S)', 'g');
-            element.className = element.className.replace(regEx, '');
+            classes = element.className.split(' ');
+            classIdx = classes.indexOf(className);
+
+            if (classIdx !== -1) {
+                classes.splice(classIdx, 1);
+            }
+
+            element.className = classes.join(' ');
         }
     };
 
