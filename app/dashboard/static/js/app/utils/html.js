@@ -73,6 +73,41 @@ define(function() {
         return document.createElement('dd');
     };
 
+    html.boot = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-hdd-o';
+
+        return iNode;
+    };
+
+    html.external = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-external-link';
+
+        return iNode;
+    };
+
+    html.nonavail = function() {
+        var tooltipNode,
+            iNode;
+
+        tooltipNode = document.createElement('span');
+        tooltipNode.setAttribute('title', 'Not available');
+        tooltipNode.setAttribute('rel', 'tooltip');
+        tooltipNode.setAttribute('data-toggle', 'tooltip');
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-ban';
+
+        tooltipNode.appendChild(iNode);
+
+        return tooltipNode;
+    };
+
     html.errorDiv = function(text) {
         var divNode,
             strongNode;
@@ -167,11 +202,59 @@ define(function() {
         return document.createElement('time');
     };
 
+    html.replaceAllBySelectorHTML = function(selector, html) {
+        [].forEach.call(
+            document.querySelectorAll(selector),
+            function(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.insertAdjacentHTML('beforeend', html);
+            }
+        );
+    };
+
+    html.replaceAllBySelectorTxt = function(selector, txt) {
+        [].forEach.call(
+            document.querySelectorAll(selector),
+            function(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.appendChild(document.createTextNode(txt));
+            }
+        );
+    };
+
     html.replaceAllBySelector = function(selector, content) {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
                 element.innerHTML = content;
+            }
+        );
+    };
+
+    html.replaceByClassHTML = function(className, html) {
+        [].forEach.call(
+            document.getElementsByClassName(className),
+            function(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.insertAdjacentHTML('beforeend', html);
+            }
+        );
+    };
+
+    html.replaceByClassTxt = function(className, txt) {
+        [].forEach.call(
+            document.getElementsByClassName(className),
+            function(element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.appendChild(document.createTextNode(txt));
             }
         );
     };
@@ -185,7 +268,7 @@ define(function() {
         );
     };
 
-    html.replaceByClassNode = function(className, node) {
+    html.replaceByClassNode = function(className, child) {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
@@ -288,6 +371,16 @@ define(function() {
         if (element !== null) {
             element.parentElement.removeChild(element);
         }
+    };
+
+    html.sliceText = function(text, max) {
+        var sliced;
+
+        sliced = text;
+        if (text.length > max) {
+            sliced = text.slice(0, max - 1) + '\u2026';
+        }
+        return sliced;
     };
 
     return html;
