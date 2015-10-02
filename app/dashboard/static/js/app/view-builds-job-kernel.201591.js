@@ -17,19 +17,6 @@ require([
         jobName,
         kernelName;
 
-    function createErrorDiv(txt) {
-        var div,
-            text;
-
-        div = html.div();
-        div.className = 'pull-center';
-        text = html.strong();
-        text.appendChild(document.createTextNode(txt));
-        div.appendChild(text);
-
-        return div;
-    }
-
     function bindDetailButtons() {
         [].forEach
             .call(
@@ -52,7 +39,7 @@ require([
     function getBuildsFail() {
         html.replaceContent(
             document.getElementById('accordion-container'),
-            createErrorDiv('Error loading data.'));
+            html.errorDiv('Error loading data.'));
     }
 
     function getBuildsDone(response) {
@@ -116,7 +103,7 @@ require([
         if (resLen === 0) {
             html.replaceContent(
                 document.getElementById('accordion-container'),
-                createErrorDiv('No data available'));
+                html.errorDiv('No data available'));
         } else {
             accordionElement = document.getElementById('accordion');
             html.removeChildren(accordionElement);
@@ -621,7 +608,7 @@ require([
         if (resLen === 0) {
             html.replaceContent(
                 document.getElementById('accordion-container'),
-                createErrorDiv('No data available.'));
+                html.errorDiv('No data available.'));
         } else {
             data = {
                 job_id: results[0]._id.$oid,
@@ -640,7 +627,7 @@ require([
     function getJobFail() {
         html.replaceContent(
             document.getElementById('accordion-container'),
-            createErrorDiv('Error loading data.'));
+            html.errorDiv('Error loading data.'));
         html.replaceByClass('loading-content', '&infin;');
     }
 
@@ -783,7 +770,7 @@ require([
     function getLogsFail() {
         html.replaceContent(
             document.getElementById('logs-summary'),
-            createErrorDiv('Error loading logs summary data.'));
+            html.errorDiv('Error loading logs summary data.'));
     }
 
     function getLogsDone(response) {
@@ -891,7 +878,7 @@ require([
         } else {
             html.replaceContent(
                 document.getElementById('logs-summary'),
-                createErrorDiv('No logs summary data.'));
+                html.errorDiv('No logs summary data.'));
         }
     }
 

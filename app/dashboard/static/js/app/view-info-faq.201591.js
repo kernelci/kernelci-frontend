@@ -1,11 +1,8 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
-    'jquery',
     'utils/init'
-], function($, i) {
+], function(init) {
     'use strict';
-    $(document).ready(function() {
-        document.getElementById('li-info').setAttribute('class', 'active');
-        i();
-    });
+    document.getElementById('li-info').setAttribute('class', 'active');
+    init();
 });

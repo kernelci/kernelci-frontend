@@ -20,6 +20,8 @@ require([
         searchFilter,
         tableDom;
 
+    document.getElementById('li-job').setAttribute('class', 'active');
+
     branchName = null;
     buildsTable = null;
     jobName = null;
@@ -611,7 +613,6 @@ require([
             .done(getDetailsDone);
     }
 
-    document.getElementById('li-job').setAttribute('class', 'active');
     init();
 
     if (document.getElementById('number-name') !== null) {
