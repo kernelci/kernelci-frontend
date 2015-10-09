@@ -47,7 +47,6 @@ require([
             accordionElement,
             arch,
             archLabelNode,
-            buildLogURI,
             cls,
             colNode,
             collapseBodyNode,
@@ -189,14 +188,17 @@ require([
 
                 if (warningsCount === 0 && errorsCount === 0) {
                     if (value.build_log !== null) {
-                        buildLogURI = fileServerURI.path(pathURI +
-                            '/' + value.build_log).normalizePath().href();
                         warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
                             'Click to view the build log';
 
                         tooltipNode.setAttribute('title', warnErrTooltip);
                         aNode = html.a();
-                        aNode.setAttribute('href', buildLogURI);
+                        aNode.setAttribute(
+                            'href',
+                            fileServerURI
+                                .path(pathURI + '/' + value.build_log)
+                                .normalizePath().href()
+                        );
                         aNode.innerHTML = aNode.innerHTML + warnErrCount;
 
                         tooltipNode.appendChild(aNode);
@@ -420,7 +422,12 @@ require([
                     iNode.className = 'fa fa-external-link';
 
                     dtNode.appendChild(document.createTextNode('Build log'));
-                    aNode.setAttribute('href', buildLogURI);
+                    aNode.setAttribute(
+                        'href',
+                        fileServerURI
+                            .path(pathURI + '/' + value.build_log)
+                            .normalizePath().href()
+                    );
                     aNode.appendChild(
                         document.createTextNode(value.build_log));
                     aNode.innerHTML = aNode.innerHTML + '&nbsp;';
