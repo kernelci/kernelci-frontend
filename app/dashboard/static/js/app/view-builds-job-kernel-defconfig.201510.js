@@ -9,8 +9,9 @@ require([
     'utils/bisect',
     'utils/show-hide-btns',
     'utils/html',
+    'utils/tables',
     'utils/date'
-], function($, b, e, init, r, u, bisect, btns, html) {
+], function($, b, e, init, r, urls, bisect, btns, html, tables) {
     'use strict';
     var buildId,
         defconfigFull,
@@ -186,66 +187,282 @@ require([
     }
 
     function getBootsFail() {
+        html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
-            document.getElementById('boot-report'),
+            document.getElementById('table-div'),
             html.errorDiv('Error loading boot reports data.')
         );
     }
 
+    function createBootLogLinks(object) {
+        var aNode,
+            arch,
+            bootLogHtml,
+            bootLogTxt,
+            defconfig,
+            divNode,
+            fileServerData,
+            job,
+            kernel,
+            labName,
+            logPath,
+            serverResource,
+            serverUrl,
+            tooltipNode,
+            translatedUri;
+
+        arch = object.arch;
+        bootLogHtml = object.boot_log_html;
+        bootLogTxt = object.boot_log;
+        defconfig = object.defconfig_full;
+        job = object.job;
+        kernel = object.kernel;
+        labName = object.lab_name;
+        serverResource = object.file_server_resource;
+        serverUrl = object.file_server_url;
+
+        if (serverUrl === null || serverUrl === undefined) {
+            serverUrl = fileServer;
+        }
+
+        fileServerData = [job, kernel, arch + '-' + defconfig];
+        translatedUri = urls.translateServerURL(
+            serverUrl, serverResource, fileServerData);
+
+        divNode = null;
+        if (bootLogTxt !== null || bootLogHtml !== null) {
+            divNode = html.div();
+
+            if (bootLogTxt !== null) {
+                if (bootLogTxt.search(labName) === -1) {
+                    logPath = translatedUri[1] + '/' + labName +
+                        '/' + bootLogTxt;
+                } else {
+                    logPath = translatedUri[1] + '/' + bootLogTxt;
+                }
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', 'View raw text boot log');
+
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    translatedUri[0].path(logPath).normalizePath().href());
+
+                aNode.appendChild(document.createTextNode('txt'));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+                tooltipNode.appendChild(aNode);
+                divNode.appendChild(tooltipNode);
+            }
+
+            if (bootLogHtml !== null) {
+                if (bootLogTxt !== null) {
+                    divNode.insertAdjacentHTML(
+                        'beforeend', '&nbsp;&mdash;&nbsp;');
+                }
+
+                if (bootLogHtml.search(labName) === -1) {
+                    logPath = translatedUri[1] + '/' + labName +
+                        '/' + bootLogHtml;
+                } else {
+                    logPath = translatedUri[1] + '/' + bootLogHtml;
+                }
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', 'View HTML boot log');
+
+                aNode = html.a();
+                aNode.setAttribute(
+                    'href',
+                    translatedUri[0].path(logPath).normalizePath().href());
+
+                aNode.appendChild(document.createTextNode('html'));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+                tooltipNode.appendChild(aNode);
+                divNode.appendChild(tooltipNode);
+            }
+        }
+
+        return divNode;
+    }
+
     function getBootsDone(response) {
-        var columnIndex,
+        var bootsTable,
             columns,
             resLen,
             results,
-            totalColumns;
+            rowURL;
 
         results = response.result;
         resLen = results.length;
 
-        totalColumns = 3;
-        columnIndex = 1;
-
-        columns = {
-            col1: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                'col-lg-4"><ul class="list-unstyled">',
-            col2: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                'col-lg-4">' + '<ul class="list-unstyled">',
-            col3: '<div class="col-xs-4 col-sm-4 col-md-4 ' +
-                'col-lg-4"><ul class="list-unstyled">'
-        };
-
         if (resLen > 0) {
-            results.forEach(function(result, idx) {
-                columnIndex = (idx % totalColumns) + 1;
+            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
+                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
 
-                columns['col' + columnIndex] += '<li>' +
-                    '<a href="/boot/' + result.board + '/job/' +
-                    jobName + '/kernel/' + kernelName + '/defconfig/' +
-                    defconfigFull + '/lab/' + result.lab_name + '?_id=' +
-                    result._id.$oid + '">' + result.board +
-                    '&nbsp;<i class="fa fa-search"></i></a></li>';
-            });
+            bootsTable = tables(['bootstable', 'table-loading', 'table-div']);
 
-            columns.col1 += '</ul></div>';
-            columns.col2 += '</ul></div>';
-            columns.col3 += '</ul></div>';
+            columns = [
+                {
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
+                },
+                {
+                    data: 'board',
+                    title: 'Board Model',
+                    type: 'string',
+                    className: 'board-column'
+                },
+                {
+                    data: 'lab_name',
+                    title: 'Lab Name',
+                    className: 'lab-column'
+                },
+                {
+                    data: 'boot_result_description',
+                    title: 'Failure Reason',
+                    className: 'failure-column',
+                    render: function(data, type) {
+                        var rendered,
+                            tooltipNode;
 
-            b.replaceById(
-                'boot-report', columns.col1 + columns.col2 + columns.col3);
-            b.addContent(
-                'boot-report',
-                '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                '<span rel="tooltip" data-toggle="tooltip" title="' +
-                'More details on the boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName + '&nbsp;&dash;&nbsp;' +
-                defconfigFull + '">' +
-                '<a href="/boot/all/job/' + jobName + '/kernel/' + kernelName +
-                '/defconfig/' + defconfigFull + '">More details</a></span>' +
-                '</div>'
-            );
+                        rendered = data;
+                        if (data !== null) {
+                            rendered = html.escape(data);
+
+                            if (type === 'display') {
+                                tooltipNode = html.tooltip();
+                                tooltipNode.setAttribute('title', rendered);
+                                tooltipNode.appendChild(
+                                    document.createTextNode(rendered));
+
+                                rendered = tooltipNode.outerHTML;
+                            }
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'boot_log',
+                    title: 'Boot Log',
+                    searchable: false,
+                    orderable: false,
+                    className: 'pull-center',
+                    render: function(data, type, object) {
+                        var rendered;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            rendered = createBootLogLinks(object).outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'status',
+                    title: 'Status',
+                    type: 'string',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var rendered,
+                            tooltipNode;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+
+                            switch (data) {
+                                case 'PASS':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board booted successfully');
+                                    tooltipNode.appendChild(html.success());
+                                    break;
+                                case 'FAIL':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board boot failed');
+                                    tooltipNode.appendChild(html.fail());
+                                    break;
+                                case 'OFFLINE':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board offline');
+                                    tooltipNode.appendChild(html.offline());
+                                    break;
+                                default:
+                                    tooltipNode.setAttribute(
+                                        'href', 'Board boot status unknown');
+                                    tooltipNode.appendChild(html.unknown());
+                                    break;
+                            }
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'board',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: function(data, type, object) {
+                        var aNode,
+                            iNode,
+                            rendered,
+                            tooltipNode,
+                            lab;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            lab = object.lab_name;
+
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute('title', 'More details');
+                            aNode = html.a();
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/' + data + '/job/' + jobName +
+                                '/kernel/' + kernelName +
+                                '/defconfig/' + defconfigFull +
+                                '/lab/' + lab + '/?_id=' + object._id.$oid
+                            );
+                            iNode = html.i();
+                            iNode.className = 'fa fa-search';
+
+                            aNode.appendChild(iNode);
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                }
+            ];
+
+            bootsTable
+                .tableData(results)
+                .columns(columns)
+                .elementsLength([5, 10, 25, 50])
+                .order([1, 'asc'])
+                .menu('boot reports per page')
+                .rowURL(rowURL)
+                .rowURLElements(
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
+                )
+                .draw();
         } else {
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('boot-report'),
+                document.getElementById('table-div'),
                 html.errorDiv('No boot reporst available.'));
         }
     }
@@ -265,13 +482,33 @@ require([
             if (results._id !== null) {
                 data = {
                     build_id: results._id.$oid,
-                    field: ['_id', 'board', 'lab_name']
+                    field: [
+                        '_id',
+                        'arch',
+                        'board',
+                        'boot_result_description',
+                        'boot_log',
+                        'boot_log_html',
+                        'file_server_url',
+                        'file_server_resource',
+                        'job', 'kernel', 'defconfig_full', 'lab_name', 'status'
+                    ]
                 };
             } else {
                 data = {
                     defconfig: results.defconfig,
                     defconfig_full: results.defconfig_full,
-                    field: ['_id', 'board', 'lab_name'],
+                    field: [
+                        '_id',
+                        'arch',
+                        'board',
+                        'boot_result_description',
+                        'boot_log',
+                        'boot_log_html',
+                        'file_server_url',
+                        'file_server_resource',
+                        'job', 'kernel', 'defconfig_full', 'lab_name', 'status'
+                    ],
                     job: results.job,
                     kernel: results.kernel
                 };
@@ -282,8 +519,9 @@ require([
                 .fail(e.error, getBootsFail)
                 .done(getBootsDone);
         } else {
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('boot-report'),
+                document.getElementById('table-div'),
                 html.errorDiv('No boot reporst found.'));
         }
     }
@@ -303,8 +541,9 @@ require([
         tooltipNode.appendChild(iNode);
 
         html.removeElement(document.getElementById('bisect-div'));
+        html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
-            document.getElementById('boot-report'),
+            document.getElementById('table-div'),
             html.errorDiv('Error loading data.'));
         html.replaceByClassHTML('loading-content', tooltipNode.outerHTML);
     }
@@ -337,7 +576,6 @@ require([
             kernelImage,
             kernelImageSize,
             lDefconfigFull,
-            lFileServer,
             metadata,
             modulesDirectory,
             pathURI,
@@ -348,20 +586,19 @@ require([
             textOffset,
             timeNode,
             tooltipNode,
-            translatedURI;
+            translatedUri;
 
         results = response.result;
         resLen = results.length;
 
         if (resLen === 0) {
             html.removeElement('bisect-div');
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('boot-report'),
+                document.getElementById('table-div'),
                 html.errorDiv('No data available.'));
             html.replaceByClassTxt('loading-content', '?');
         } else {
-            lFileServer = fileServer;
-
             // We only have 1 result!
             results = response.result[0];
             job = results.job;
@@ -388,20 +625,19 @@ require([
             fileServerURL = results.file_server_url;
             fileServerResource = results.file_server_resource;
 
-            if (fileServerURL !== null && fileServerURL !== undefined) {
-                lFileServer = fileServerURL;
+            if (fileServerURL === null || fileServerURL === undefined) {
+                fileServerURL = fileServer;
             }
 
             fileServerData = [
                 job, kernel, arch + '-' + lDefconfigFull
             ];
-            translatedURI = u.translateServerURL(
-                fileServerURL,
-                lFileServer, fileServerResource, fileServerData);
-            fileServerURI = translatedURI[0];
-            pathURI = translatedURI[1];
+            translatedUri = urls.translateServerURL(
+                fileServerURL, fileServerResource, fileServerData);
+            fileServerURI = translatedUri[0];
+            pathURI = translatedUri[1];
 
-            gitURLs = u.translateCommit(gitURL, gitCommit);
+            gitURLs = urls.translateCommit(gitURL, gitCommit);
 
             detailNode = document.getElementById('details');
             detailNode.insertAdjacentHTML('beforeend', '&nbsp;');
