@@ -83,7 +83,6 @@ require([
             status,
             statusDisplay,
             fileServerData,
-            lFileServer = fileServer,
             allRows = '',
             col0,
             col1,
@@ -113,16 +112,15 @@ require([
                 bootLogHtml = localResult.boot_log_html;
                 status = localResult.status;
 
-                if (fileServerURL !== null && fileServerURL !== undefined) {
-                    lFileServer = fileServerURL;
+                if (fileServerURL === null || fileServerURL === undefined) {
+                    fileServerURL = fileServer;
                 }
 
                 fileServerData = [
                     jobName, kernelName, arch + '-' + defconfigFull
                 ];
                 translatedURI = u.translateServerURL(
-                    fileServerURL,
-                    lFileServer, fileServerResource, fileServerData);
+                    fileServerURL, fileServerResource, fileServerData);
                 fileServerURI = translatedURI[0];
                 pathURI = translatedURI[1];
 

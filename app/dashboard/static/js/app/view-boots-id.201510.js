@@ -88,18 +88,17 @@ require([
             col3,
             col4,
             col5,
-            lFileServer = fileServer,
             fileServerData,
             translatedURI;
 
-        if (fileServerURL !== null && fileServerURL !== undefined) {
-            lFileServer = fileServerURL;
+        if (fileServerURL === null || fileServerURL === undefined) {
+            fileServerURL = fileServer;
         }
         fileServerData = [
             job, kernel, arch + '-' + defconfigFull
         ];
         translatedURI = u.translateServerURL(
-            fileServerURL, lFileServer, fileServerResource, fileServerData);
+            fileServerURL, fileServerResource, fileServerData);
         fileServerURI = translatedURI[0];
         pathURI = translatedURI[1];
 
@@ -562,14 +561,14 @@ require([
         qemuData = results.qemu;
         qemuCommand = results.qemu_command;
 
-        if (fileServerURL !== null && fileServerURL !== undefined) {
-            fileServer = fileServerURL;
+        if (fileServerURL === null || fileServerURL === undefined) {
+            fileServerURL = fileServer;
         }
         fileServerData = [
             job, kernel, arch + '-' + defconfigFull
         ];
         translatedURI = u.translateServerURL(
-            fileServerURL, fileServer, fileServerResource, fileServerData);
+            fileServerURL, fileServerResource, fileServerData);
         fileServerURI = translatedURI[0];
         pathURI = translatedURI[1];
 

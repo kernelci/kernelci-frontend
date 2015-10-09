@@ -338,7 +338,6 @@ require([
                             job,
                             lab;
 
-
                         rendered = null;
                         if (type === 'display') {
                             defconfigFull = object.defconfig_full;

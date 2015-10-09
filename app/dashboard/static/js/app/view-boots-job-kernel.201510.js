@@ -282,14 +282,14 @@ require([
                 bootLogHtml = bootObj.boot_log_html;
                 board = bootObj.board;
 
-                if (fileServerURL !== null && fileServerURL !== undefined) {
-                    fileServer = fileServerURL;
+                if (fileServerURL === null || fileServerURL === undefined) {
+                    fileServerURL = fileServer;
                 }
                 fileServerData = [
                     job, kernel, arch + '-' + defconfigFull
                 ];
                 translatedURI = u.translateServerURL(
-                    fileServerURL, fileServer, fileServerRes, fileServerData);
+                    fileServerURL, fileServerRes, fileServerData);
                 fileServerURI = translatedURI[0];
                 pathURI = translatedURI[1];
 

@@ -133,37 +133,31 @@ require([
                     'type': 'string',
                     'render': function(data, type, object) {
                         var arch = object.arch,
-                            fileServerURI,
                             translatedURI,
                             fileServerURL = object.file_server_url,
                             fileServerResource = object.file_server_resource,
                             defconfig = object.defconfig_full,
                             lab = object.lab_name,
-                            pathURI = null,
                             bootLog = data,
                             bootLogHtml = object.boot_log_html,
                             display = '',
-                            lFileServer = fileServer,
                             fileServerData;
 
-                        if (fileServerURL !== null &&
-                                fileServerURL !== undefined) {
-                            lFileServer = fileServerURL;
+                        if (fileServerURL === null ||
+                                fileServerURL === undefined) {
+                            fileServerURL = fileServer;
                         }
 
                         fileServerData = [
                             jobName, kernelName, arch + '-' + defconfig
                         ];
                         translatedURI = u.translateServerURL(
-                            fileServerURL,
-                            lFileServer, fileServerResource, fileServerData);
-                        fileServerURI = translatedURI[0];
-                        pathURI = translatedURI[1];
+                            fileServerURL, fileServerResource, fileServerData);
 
                         display = createBootLogContent(
                             bootLog,
                             bootLogHtml,
-                            lab, fileServerURI, pathURI, '&nbsp;');
+                            lab, translatedURI[0], translatedURI[1], '&nbsp;');
 
                         return display;
                     }

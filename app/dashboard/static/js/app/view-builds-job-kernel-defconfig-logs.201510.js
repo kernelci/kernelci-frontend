@@ -181,7 +181,6 @@ require([
             fileServerURI,
             fileServerData,
             translatedURI,
-            lFileServer = fileServer,
             pathURI,
             gitURL,
             gitURLs,
@@ -207,16 +206,15 @@ require([
             fileServerURL = results.file_server_url;
             fileServerResource = results.file_server_resource;
 
-            if (fileServerURL !== null && fileServerURL !== undefined) {
-                lFileServer = fileServerURL;
+            if (fileServerURL === null || fileServerURL === undefined) {
+                fileServerURL = fileServer;
             }
 
             fileServerData = [
                 job, kernel, arch + '-' + lDefconfigFull
             ];
             translatedURI = u.translateServerURL(
-                fileServerURL,
-                lFileServer, fileServerResource, fileServerData);
+                fileServerURL, fileServerResource, fileServerData);
             fileServerURI = translatedURI[0];
             pathURI = translatedURI[1];
 

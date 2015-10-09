@@ -75,7 +75,6 @@ require([
             infoNode,
             job,
             kernel,
-            lFileServer,
             metadata,
             panelNode,
             pathURI,
@@ -96,7 +95,6 @@ require([
         hasFailed = false;
         hasSuccess = false;
         hasUnknown = false;
-        lFileServer = fileServer;
         results = response.result;
         resLen = results.length;
 
@@ -120,16 +118,15 @@ require([
                 warningsCount = value.warnings;
                 metadata = value.metadata;
 
-                if (fileServerURL !== null && fileServerURL !== undefined) {
-                    lFileServer = fileServerURL;
+                if (fileServerURL === null || fileServerURL === undefined) {
+                    fileServerURL = fileServer;
                 }
 
                 fileServerData = [
                     job, kernel, arch + '-' + defconfigFull
                 ];
                 translatedURI = u.translateServerURL(
-                    fileServerURL,
-                    lFileServer, fileServerResource, fileServerData);
+                    fileServerURL, fileServerResource, fileServerData);
                 fileServerURI = translatedURI[0];
                 pathURI = translatedURI[1];
 
