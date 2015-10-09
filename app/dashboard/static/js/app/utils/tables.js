@@ -169,9 +169,14 @@ define([
         }
 
         tTable.on('click', 'tbody tr', function() {
-            var localTable = tTable.row(this).data(),
-                location = '#',
-                substitutions = {};
+            var localTable,
+                location,
+                substitutions;
+
+            localTable = tTable.row(this).data();
+            location = '#';
+            substitutions = {};
+
             if (localTable) {
                 rowURLElements.forEach(function(value) {
                     substitutions[value] = localTable[value] || null;
