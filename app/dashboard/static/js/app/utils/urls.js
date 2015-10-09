@@ -7,30 +7,35 @@ define([
     'use strict';
     var urls = {};
 
-    urls.translateServerURL = function(vUrl, url, path, data) {
-        var sPath = '',
-            sURL,
-            tURI,
-            tURIp;
-        if (url !== null && url !== undefined) {
-            sURL = url;
-        } else {
-            sURL = vUrl;
-        }
+    // Translate a URL into a URI object.
+    // Return a 2-elements list:
+    //  0. The URI object
+    //  1. The URI path
+    // In case the server URL is not valid, it returns a 2-nulls list.
+    urls.translateServerURL = function(serverUrl, serverPath, data) {
+        var serverUri,
+            translatedUrl,
+            validPath;
 
-        if (path !== null && path !== undefined) {
-            sPath = path;
-        } else {
-            if (data !== null && data !== undefined) {
-                data.forEach(function(value) {
-                    sPath = sPath + value + '/';
-                });
+        if (serverUrl !== null && serverUrl !== undefined) {
+            if (serverPath !== null && serverPath !== undefined) {
+                validPath = serverPath;
+            } else {
+                validPath = '';
+                if (data !== null && data !== undefined) {
+                    data.forEach(function(value) {
+                        validPath = validPath + value + '/';
+                    });
+                }
             }
+
+            serverUri = new URI(serverUrl);
+            translatedUrl = [serverUri, serverUri.path() + '/' + validPath];
+        } else {
+            translatedUrl = [null, null];
         }
 
-        tURI = new URI(sURL);
-        tURIp = tURI.path() + '/' + sPath;
-        return [tURI, tURIp];
+        return translatedUrl;
     };
 
     /*
