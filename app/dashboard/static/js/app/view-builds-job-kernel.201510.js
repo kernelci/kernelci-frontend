@@ -199,15 +199,15 @@ require([
                                 .path(pathURI + '/' + value.build_log)
                                 .normalizePath().href()
                         );
-                        aNode.innerHTML = aNode.innerHTML + warnErrCount;
+                        aNode.insertAdjacentHTML('beforeend', warnErrCount);
 
                         tooltipNode.appendChild(aNode);
                         smallNode.appendChild(tooltipNode);
                         errNode.appendChild(smallNode);
                     } else {
                         tooltipNode.setAttribute('title', warnErrString);
-                        tooltipNode.innerHTML = tooltipNode.innerHTML +
-                            warnErrCount;
+                        tooltipNode.insertAdjacentHTML(
+                            'beforeend', warnErrCount);
 
                         smallNode.appendChild(tooltipNode);
                         errNode.appendChild(smallNode);
@@ -222,7 +222,7 @@ require([
                         'href',
                         '/build/' + job + '/kernel/' + kernel +
                         '/defconfig/' + defconfigFull + '/logs/?_id=' + docId);
-                    aNode.innerHTML = aNode.innerHTML + warnErrCount;
+                    aNode.insertAdjacentHTML('beforeend', warnErrCount);
 
                     tooltipNode.appendChild(aNode);
                     smallNode.appendChild(tooltipNode);
@@ -257,7 +257,8 @@ require([
                 hNode.appendChild(aNode);
 
                 if (arch !== null) {
-                    hNode.innerHTML = hNode.innerHTML + '&nbsp;&dash;&nbsp;';
+                    hNode.insertAdjacentHTML(
+                        'beforeend', '&nbsp;&dash;&nbsp;');
                     archLabelNode = html.span();
                     archLabelNode.setAttribute('class', 'arch-label');
                     archLabelNode.appendChild(document.createTextNode(arch));
@@ -302,7 +303,7 @@ require([
                             .normalizePath().href()
                     );
                     aNode.appendChild(document.createTextNode(value.dtb_dir));
-                    aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
                     iNode.className = 'fa fa-external-link';
 
@@ -324,7 +325,7 @@ require([
                          fileServerURI.path(pathURI + '/' + value.modules)
                             .normalizePath().href());
                     aNode.appendChild(document.createTextNode(value.modules));
-                    aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     iNode.className = 'fa fa-external-link';
 
                     aNode.appendChild(iNode);
@@ -333,10 +334,12 @@ require([
                     if (value.modules_size !== null &&
                             value.modules_size !== undefined) {
                         sizeNode = html.small();
-                        ddNode.innerHTML = ddNode.innerHTML + '&nbsp;';
                         sizeNode.appendChild(
-                            document.createTextNode(
-                                b.bytesToHuman(value.modules_size)));
+                            document.createTextNode('(' +
+                                b.bytesToHuman(value.modules_size) + ')'));
+
+                        ddNode.insertAdjacentHTML('beforeend', '&nbsp');
+                        ddNode.appendChild(sizeNode);
                     }
 
                     dlNode.appendChild(dtNode);
@@ -372,14 +375,14 @@ require([
                     );
                     aNode.appendChild(
                         document.createTextNode(value.kernel_image));
-                    aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     iNode.className = 'fa fa-external-link';
                     aNode.appendChild(iNode);
 
                     ddNode.appendChild(aNode);
                     if (value.kernel_image_size !== null &&
                             value.kernel_image_size !== undefined) {
-                        ddNode.innerHTML = ddNode.innerHTML + '&nbsp;';
+                        ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
                         sizeNode.appendChild(
                             document.createTextNode(
                                 b.bytesToHuman(value.kernel_image_size)));
@@ -405,7 +408,7 @@ require([
                     );
                     aNode.appendChild(
                         document.createTextNode(value.kernel_config));
-                    aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     iNode.className = 'fa fa-external-link';
                     aNode.appendChild(iNode);
                     ddNode.appendChild(aNode);
@@ -430,7 +433,7 @@ require([
                     );
                     aNode.appendChild(
                         document.createTextNode(value.build_log));
-                    aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     aNode.appendChild(iNode);
                     ddNode.appendChild(aNode);
                     dlNode.appendChild(dtNode);
@@ -468,7 +471,7 @@ require([
                     ddNode = html.dd();
                     ddNode.appendChild(
                         document.createTextNode(value.build_time));
-                    ddNode.innerHTML = ddNode.innerHTML + '&nbsp;sec.';
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;sec.');
                     dlNode.appendChild(dtNode);
                     dlNode.appendChild(ddNode);
                 }
@@ -523,7 +526,7 @@ require([
                     'href',
                     '/build/' + job + '/kernel/' + kernel +
                     '/defconfig/' + defconfigFull + '/?_id=' + value._id.$oid);
-                aNode.innerHTML = 'More info&nbsp;';
+                aNode.insertAdjacentHTML('beforeend', 'More info&nbsp;');
                 aNode.appendChild(iNode);
                 tooltipNode.appendChild(aNode);
                 infoNode.appendChild(tooltipNode);
@@ -673,8 +676,8 @@ require([
             html.removeChildren(updateElement);
 
             updateElement.appendChild(spanNode);
-            updateElement.innerHTML = updateElement.innerHTML +
-                '&nbsp;&mdash;&nbsp;';
+            updateElement.insertAdjacentHTML(
+                'beforeend', '&nbsp;&mdash;&nbsp;');
 
             spanNode = html.tooltip();
             spanNode.setAttribute(
@@ -700,8 +703,8 @@ require([
             html.removeChildren(updateElement);
 
             updateElement.appendChild(document.createTextNode(kernelName));
-            updateElement.innerHTML = updateElement.innerHTML +
-                '&nbsp;&mdash;&nbsp;';
+            updateElement.insertAdjacentHTML(
+                'beforeend', '&nbsp;&mdash;&nbsp;');
 
             spanNode = html.tooltip();
             spanNode.setAttribute(
@@ -727,7 +730,7 @@ require([
                 aNode = html.a();
                 aNode.setAttribute('href', tURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
-                aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
                 iNode = html.i();
                 iNode.className = 'fa fa-external-link';
@@ -748,7 +751,7 @@ require([
                 aNode = html.a();
                 aNode.setAttribute('href', tURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
-                aNode.innerHTML = aNode.innerHTML + '&nbsp;';
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
                 iNode = html.i();
                 iNode.className = 'fa fa-external-link';
