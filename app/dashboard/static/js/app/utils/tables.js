@@ -49,7 +49,7 @@ define([
             '<"length-menu"l>>' +
             '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
-            '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
+            '<"row paging"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
             '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>';
 
     searchLanguage = '<div id="search-area" class="input-group pull-right">' +
