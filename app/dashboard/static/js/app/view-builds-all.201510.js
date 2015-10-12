@@ -212,7 +212,7 @@ require([
                     title: '',
                     orderable: false,
                     searchable: false,
-                    className: 'pull-center',
+                    className: 'select-column pull-center',
                     render: function(data, type, object) {
                         var aNode,
                             iNode,
