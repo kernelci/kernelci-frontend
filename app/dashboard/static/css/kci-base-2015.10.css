@@ -27,26 +27,37 @@ body {
     text-align: center !important;
     vertical-align: middle !important;
 }
-.branch-column {
-    max-width: 100px;
+.log-column {
+    min-width: 115px;
 }
-.tree-column,
-.board-column {
-    max-width: 150px;
+.failure-column {
+    max-width: 275px;
+    width: 275px;
+}
+.commit-column,
+.kernel-column {
+    max-width: 225px;
+    min-width: 200px;
+}
+.defconfig-column {
+    max-width: 185px;
+    min-width: 150px;
+}
+.date-column {
+    max-width: 75px;
+    min-width: 75px;
+}
+.lab-column {
+    max-width: 100px;
+    min-width: 70px;
+}
+.select-column {
+    max-width: 32px;
+    width: 32px;
 }
 .boot-count,
 .build-count {
     min-width: 100px;
-}
-.lab-column,
-.date-column {
-    min-width: 75px;
-}
-.failure-column,
-.commit-column,
-.defconfig-column,
-.kernel-column {
-    max-width: 175px;
 }
 .branch-column,
 .failure-column,
@@ -244,9 +255,6 @@ div.dataTables_filter {
     margin-bottom: 15px;
     margin-left: 4px;
 }
-/*.other-header span span i {
-    cursor: pointer;
-}*/
 hr.subheader {
     margin-top: 7px;
     margin-bottom: 15px;
@@ -262,4 +270,12 @@ hr.blurred {
 textarea.build-logs {
     font-size: 83%;
     font-family: monospace;
+}
+/* Override some dataTables values. */
+div.dataTables_info,
+div.dataTables_paginate {
+    font-size: smaller;
+}
+div.paging {
+    padding-top: 0.5em;
 }
