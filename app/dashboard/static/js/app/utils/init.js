@@ -79,7 +79,6 @@ define([
 
         $('body').tooltip({
             selector: '[rel=tooltip]',
-            placement: 'auto top',
             html: true
         });
     };
