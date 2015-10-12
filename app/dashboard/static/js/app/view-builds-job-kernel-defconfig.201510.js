@@ -350,8 +350,10 @@ require([
                             if (type === 'display') {
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('title', rendered);
-                                tooltipNode.appendChild(
-                                    document.createTextNode(rendered));
+                                tooltipNode.setAttribute(
+                                    'data-placement', 'left');
+                                tooltipNode.insertAdjacentHTML(
+                                    'beforeend', rendered);
 
                                 rendered = tooltipNode.outerHTML;
                             }
@@ -365,7 +367,7 @@ require([
                     title: 'Boot Log',
                     searchable: false,
                     orderable: false,
-                    className: 'pull-center',
+                    className: 'log-column pull-center',
                     render: function(data, type, object) {
                         var rendered;
 
@@ -424,8 +426,7 @@ require([
                     title: '',
                     orderable: false,
                     searchable: false,
-                    width: '30px',
-                    className: 'pull-center',
+                    className: 'select-column pull-center',
                     render: function(data, type, object) {
                         var aNode,
                             iNode,
