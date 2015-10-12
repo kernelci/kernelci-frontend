@@ -320,7 +320,20 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
-                    className: 'lab-column'
+                    className: 'lab-column',
+                    render: function(data, type) {
+                        var rendered,
+                            node;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            node = html.small();
+                            node.appendChild(document.createTextNode(data));
+                            rendered = node.outerHTML;
+                        }
+
+                        return rendered;
+                    }
                 },
                 {
                     data: 'boot_result_description',
