@@ -86,8 +86,8 @@ require([
                                 branchNode.appendChild(
                                     document.createTextNode(branch));
 
-                                aNode.innerHTML = aNode.innerHTML +
-                                    '&nbsp;&dash;&nbsp;';
+                                aNode.insertAdjacentHTML(
+                                    'beforeend', '&nbsp;&dash;&nbsp;');
                                 aNode.appendChild(branchNode);
                             }
 
