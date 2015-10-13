@@ -230,7 +230,10 @@ define(function() {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
-                element.innerHTML = content;
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.insertAdjacentHTML('beforeend', content);
             }
         );
     };
@@ -263,7 +266,10 @@ define(function() {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
-                element.innerHTML = content;
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+                element.insertAdjacentHTML('beforeend', content);
             }
         );
     };
