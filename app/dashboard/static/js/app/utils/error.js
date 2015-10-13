@@ -1,36 +1,62 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'sprintf',
     'jquery',
+    'utils/html',
     'bootstrap'
-], function(p, $) {
+], function($, html) {
     'use strict';
-    var err = {},
-        errorElement = document.getElementById('errors-container'),
-        text,
-        elementId;
+    var err;
 
-    text = '<div id="%s" class="alert alert-danger alert-dismissable">' +
-        '<button type="button" class="close" data-dismiss="alert" ' +
-        'aria-hidden="true">&times;</button>' +
-        'Error while loading data from the server (error code: %d).' +
-        '&nbsp;Please contact the website administrators.</div>';
-    elementId = 'error-%d';
+    err = {};
 
     // Create random ID value for the error notification.
     function randId(code) {
         return 'error-' + (Math.random() * ((code + 100) - code) + code);
     }
 
+    function createErrorDiv(code, message) {
+        var buttonNode,
+            divNode;
+
+        divNode = html.div();
+        divNode.id = randId(code);
+        divNode.className = 'alert alert-danger alert-dismissable';
+
+        buttonNode = document.createElement('button');
+        buttonNode.className = 'close';
+        buttonNode.setAttribute('type', 'button');
+        buttonNode.setAttribute('data-dismiss', 'alert');
+        buttonNode.setAttribute('aria-hidden', 'true');
+        buttonNode.insertAdjacentHTML('beforeend', '&times;');
+
+        divNode.appendChild(buttonNode);
+
+        if (message !== '' && message !== undefined && message !== null) {
+            divNode.insertAdjacentHTML('beforeend', message);
+        } else {
+            divNode.appendChild(
+                document.createTextNode(
+                    'Error while loading data from the server ' +
+                    '(error code: ' + code + ').')
+            );
+            divNode.appendChild(document.createTextNode(' '));
+            divNode.appendChild(
+                document.createTextNode(
+                    'Please contanct the website administrator'));
+        }
+
+        return divNode;
+    }
+
     function createError(code) {
-        var id,
-            err;
+        var divNode,
+            errorElement;
 
-        id = randId(code);
-        err = p.sprintf(text, id, code);
+        errorElement = document.getElementById('errors-container');
+        divNode = createErrorDiv(code);
+        errorElement.appendChild(divNode);
 
-        errorElement.innerHTML = errorElement.innerHTML + err;
-        $('#' + id).alert();
+        $('#' + divNode.id).alert();
     }
 
     err.error = function(response) {
@@ -38,18 +64,14 @@ define([
     };
 
     err.customError = function(code, message) {
-        var id,
-            err;
+        var divNode,
+            errorElement;
 
-        id = randId(code);
-        err = '<div id="' + id +
-            '" class="alert alert-danger alert-dismissable">' +
-            '<button type="button" class="close" data-dismiss="alert" ' +
-            'aria-hidden="true">&times;</button>' +
-            message + '&nbsp;(error code: ' + code + ').' + '</div>';
+        errorElement = document.getElementById('errors-container');
+        divNode = createErrorDiv(code, message);
+        errorElement.appendChild(divNode);
 
-        errorElement.innerHTML = errorElement.innerHTML + err;
-        $('#' + id).alert();
+        $('#' + divNode.id).alert();
     };
 
     return err;
