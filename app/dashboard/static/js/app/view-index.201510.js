@@ -184,7 +184,8 @@ require([
                 aNode = html.a();
                 aNode.className = 'table-link';
                 aNode.setAttribute('href', '/job/' + job + '/');
-                aNode.innerHTML = job + '&nbsp;&dash;&nbsp;';
+                aNode.appendChild(document.createTextNode(job));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
 
                 aNode.appendChild(branchNode);
                 tooltipNode.appendChild(aNode);
@@ -335,7 +336,7 @@ require([
                     '/boot/all/job/' + job + '/kernel/' + kernel + '/');
 
                 aNode.appendChild(document.createTextNode(job));
-                aNode.innerHTML = aNode.innerHTML + '&nbsp;&dash;&nbsp;';
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
 
                 branchNode = html.small();
                 branchNode.appendChild(document.createTextNode(branch));
