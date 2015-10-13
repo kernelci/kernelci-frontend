@@ -302,7 +302,7 @@ require([
             rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
                 '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
 
-            bootsTable = tables(['bootstable', 'table-loading', 'table-div']);
+            bootsTable = tables(['bootstable', 'table-loading', 'boots-table-div']);
 
             columns = [
                 {
@@ -476,7 +476,7 @@ require([
         } else {
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('table-div'),
+                document.getElementById('boots-table-div'),
                 html.errorDiv('No boot reporst available.'));
         }
     }
@@ -535,7 +535,7 @@ require([
         } else {
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('table-div'),
+                document.getElementById('boots-table-div'),
                 html.errorDiv('No boot reporst found.'));
         }
     }
@@ -557,7 +557,7 @@ require([
         html.removeElement(document.getElementById('bisect-div'));
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
-            document.getElementById('table-div'),
+            document.getElementById('boots-table-div'),
             html.errorDiv('Error loading data.'));
         html.replaceByClassHTML('loading-content', tooltipNode.outerHTML);
     }
@@ -609,7 +609,7 @@ require([
             html.removeElement('bisect-div');
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('table-div'),
+                document.getElementById('boots-table-div'),
                 html.errorDiv('No data available.'));
             html.replaceByClassTxt('loading-content', '?');
         } else {
