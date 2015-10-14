@@ -67,14 +67,14 @@ require([
                         }
 
                         if (type === 'display') {
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute('href', '/job/' + data + '/');
 
                             aNode.appendChild(document.createTextNode(data));
 
                             if (branch !== null && branch !== undefined) {
-                                branchNode = html.small();
+                                branchNode = document.createElement('small');
                                 branchNode.appendChild(
                                     document.createTextNode(branch));
 
@@ -154,7 +154,7 @@ require([
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
 
-                                iNode = html.i();
+                                iNode = document.createElement('i');
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
@@ -228,7 +228,7 @@ require([
                                 '&nbsp;and&nbsp;' + object.defconfig_full
                             );
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.setAttribute(
                                 'href',
                                 '/build/' + data + '/kernel/' + object.kernel +
@@ -236,7 +236,7 @@ require([
                                 '/?_id=' + object._id.$oid
                             );
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-search';
 
                             aNode.appendChild(iNode);
@@ -285,7 +285,8 @@ require([
             .done(getBuildsDone);
     }
 
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('search-filter') !== null) {
         searchFilter = document.getElementById('search-filter').value;

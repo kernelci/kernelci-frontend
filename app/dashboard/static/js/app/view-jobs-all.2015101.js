@@ -185,14 +185,14 @@ require([
                         }
 
                         if (type === 'display') {
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute('href', '/job/' + data + '/');
 
                             aNode.appendChild(document.createTextNode(data));
 
                             if (branch !== null && branch !== undefined) {
-                                branchNode = html.small();
+                                branchNode = document.createElement('small');
                                 branchNode.appendChild(
                                     document.createTextNode(branch));
 
@@ -223,28 +223,28 @@ require([
 
                         rendered = null;
                         if (type === 'display') {
-                            divNode = html.div();
-                            aNode = html.a();
+                            divNode = document.createElement('div');
+                            aNode = document.createElement('a');
                             aNode.className = 'clean-link';
                             aNode.setAttribute('href', '/job/' + data + '/');
 
-                            badgeNode = html.span();
+                            badgeNode = document.createElement('span');
                             badgeNode.id = 'defconf-success-count-' + data;
                             badgeNode.className =
                                 'badge alert-success extra-margin count-badge';
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-cog fa-spin';
 
                             badgeNode.appendChild(iNode);
                             aNode.appendChild(badgeNode);
 
-                            badgeNode = html.span();
+                            badgeNode = document.createElement('span');
                             badgeNode.id = 'defconf-fail-count-' + data;
                             badgeNode.className =
                                 'badge alert-danger extra-margin count-badge';
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-cog fa-spin';
 
                             badgeNode.appendChild(iNode);
@@ -274,29 +274,29 @@ require([
 
                         rendered = null;
                         if (type === 'display') {
-                            divNode = html.div();
-                            aNode = html.a();
+                            divNode = document.createElement('div');
+                            aNode = document.createElement('a');
                             aNode.className = 'clean-link';
                             aNode.setAttribute(
                                 'href', '/boot/all/job/' + data + '/');
 
-                            badgeNode = html.span();
+                            badgeNode = document.createElement('span');
                             badgeNode.id = 'boot-success-count-' + data;
                             badgeNode.className =
                                 'badge alert-success extra-margin count-badge';
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-cog fa-spin';
 
                             badgeNode.appendChild(iNode);
                             aNode.appendChild(badgeNode);
 
-                            badgeNode = html.span();
+                            badgeNode = document.createElement('span');
                             badgeNode.id = 'boot-fail-count-' + data;
                             badgeNode.className =
                                 'badge alert-danger extra-margin count-badge';
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-cog fa-spin';
 
                             badgeNode.appendChild(iNode);
@@ -326,7 +326,7 @@ require([
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
 
-                                iNode = html.i();
+                                iNode = document.createElement('i');
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
@@ -403,10 +403,10 @@ require([
                             tooltipNode.setAttribute(
                                 'title', 'Details for&nbsp;' + data);
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.setAttribute('href', '/job/' + data + '/');
 
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-search';
 
                             aNode.appendChild(iNode);
@@ -468,7 +468,8 @@ require([
             .done(getJobsDoneMulti);
     }
 
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('search-filter') !== null) {
         searchFilter = document.getElementById('search-filter').value;

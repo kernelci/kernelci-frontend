@@ -5,39 +5,83 @@
 {%- block head %}
 {{ super() }}
 <style type="text/css">
+    label.radio-description {
+        padding-left: 0.5em;
+    }
     .input-group-addon {
         min-width: 70px;
         text-align: left;
     }
     .comparison-choice {
-        padding-left: 1em;
+        padding-left: 0.7em;
     }
     .form-submit {
         padding-top: 2em;
     }
-    .comparison-choice > div:first-child {
+    div.choice-wrapper {
+        width: 100%;
+        overflow: hidden;
+    }
+    .choice-group > div:first-child {
         padding-bottom: 0.5em;
     }
-    .input-reduced {
+    div.choice-group {
+        float: left;
+        width: 95%;
+    }
+    div.choice-group-number {
+        float: left;
+        font-size: smaller;
+        overflow: hidden;
+        padding-right: 0.2em;
+        padding-top: 2em;
+        text-align: center;
+        vertical-align: middle;
+        width: 5%;
+    }
+    div.choice-group > div.choice-wrapper:last-child > div.input-choice {
+        padding-bottom: 0.25em;
+    }
+    div.input-choice {
+        float: left;
+        padding-top: 0.25em;
+        width: 70%;
+    }
+    div.input-notify {
+        font-size: small;
+        overflow: hidden;
+        padding-left: 0.5em;
+        padding-top: 0.65em;
+        text-overflow: ellipsis;
+        width: 25%;
+    }
+    div.choice-buttons {
+        float: left;
+        margin-left: 0.5em;
+        padding-top: 0.7em;
         width: 70%;
     }
     div.wrapper {
         width: 100%;
         overflow: hidden;
     }
-    div.first {
-        float: left;
+    div.comparison-choice-container > div {
+        width: 100%;
     }
-    div.second {
-        padding-left: 1em;
-        padding-top: 1.6em;
-        overflow: hidden;
+    /* All but the first. */
+    div.comparison-choice-container > div ~ div {
+        display: inline-block;
+        padding-top: 1.25em;
     }
     div.comparison-group {
         padding-left: 0.5em;
     }
     label {
         font-weight: normal;
+    }
+    input.invalid {
+        border-color: red;
+        box-shadow: 0 0 0.25em red;
     }
 </style>
 {%- endblock %}
@@ -52,108 +96,12 @@
             This feature is in <strong>beta</strong>: its functions and appearances can change in the future. Expect it to be unstable.
             <br>
             <br>
-            At the moment only the job comparison type is supported, and can be
-            compared up to two other jobs.
-            <br>
-            The other comparison types and support for more compare targets, are in development.
+            At the moment only the job comparison type is supported: the other comparison types are in development.
         </p>
     </div>
 </div>
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="compare-form">
-            <form method="POST" accept-charset="UTF-8" id="comparison" autocomplete="off" enctype="text/plain">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="type">
-                    <h5>What type of comparison to perform?</h5>
-                    <div class="comparison-group">
-                        <label for="comparison-type">Select the comparison type:</label>
-                        <div id="comparison-type" class="comparison-choice">
-                            <ul class="list-unstyled">
-                                <li>
-                                    <input type="radio" value="job" name="comp-type" required class="compare-type">
-                                    &nbsp;job
-                                </li>
-                                <li>
-                                    <input type="radio" value="build" name="comp-type" required disabled class="compare-type">
-                                    &nbsp;build
-                                </li>
-                                <li>
-                                    <input type="radio" value="boot" name="comp-type" required disabled class="compare-type">
-                                    &nbsp;boot
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" id="baseline">
-                    <h5>Which is the starting point of the comparison?</h5>
-                    <div class="comparison-group">
-                        <label for="baseline-choice">
-                            Select the baseline for the comparison:
-                        </label>
-                        <div class="wrapper">
-                            <div id="baseline-choice" class="comparison-choice input-reduced first">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-addon" id="baseline-tree-span">Tree</span>
-                                    <input inputmode="verbatim" title="Choose a tree name; must match: [A-Za-z0-9-_.]*" type="text" id="baseline-tree" data-kernel="baseline-kernel" class="form-control tree" aria-describedby="baseline-tree-span" list="trees" name="baseline-choice-tree" required pattern="[A-Za-z0-9\-_.]*">
-                                </div>
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-addon" id="baseline-kernel-span">Kernel</span>
-                                    <input inputmode="verbatim" title="Choose a kernel name; must match: [A-Za-z0-9-_.]*" type="text" id="baseline-kernel" data-tree="baseline-tree" class="form-control kernel" aria-describedby="baseline-kernel-span" name="baseline-choice-kernel" required pattern="[A-Za-z0-9\-_.]*">
-                                </div>
-                            </div>
-                            <div class="second"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" id="compare-to">
-                    <h5>Which target should be compared?</h5>
-                    <div class="comparison-group">
-                        <label for="compare-choice-group">
-                            Select the target to compare against:
-                        </label>
-                        <div id="compare-choice-group">
-                            <div class="wrapper">
-                                <div id="compare-choice0" class="comparison-choice input-reduced first">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon" id="compare-tree-span0">Tree</span>
-                                        <input inputmode="verbatim" title="Choose a tree name; must match: [A-Za-z0-9-_.]*" type="text" id="compare-tree0" class="form-control tree-compare" data-kernel="compare-kernel0" aria-describedby="compare-tree-span0" list="trees" name="compare-tree0" required pattern="[A-Za-z0-9\-_.]*" pattern="[A-Za-z0-9\-_.]*">
-                                    </div>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon" id="compare-kernel-span0">Kernel</span>
-                                        <input inputmode="verbatim" title="Choose a kernel name; must match: [A-Za-z0-9-_.]*" type="text" id="compare-kernel0" class="form-control kernel" aria-describedby="compare-kernel-span0" name="compare-kernel0" data-tree="compare-tree0" required pattern="[A-Za-z0-9\-_.]*">
-                                    </div>
-                                </div>
-                                <div class="second"></div>
-                            </div>
-                            <br>
-                            <div class="wrapper">
-                                <div id="compare-choice1" class="comparison-choice input-reduced first">
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon" id="compare-tree-span1">Tree</span>
-                                        <input inputmode="verbatim" title="Choose a tree name; must match: [A-Za-z0-9-_.]*" type="text" id="compare-tree1" class="form-control tree-compare" data-kernel="compare-kernel1" aria-describedby="compare-tree-span1" list="trees" name="compare-tree1" pattern="[A-Za-z0-9\-_.]*" pattern="[A-Za-z0-9\-_.]*">
-                                    </div>
-                                    <div class="input-group input-group-sm">
-                                        <span class="input-group-addon" id="compare-kernel-span1">Kernel</span>
-                                        <input inputmode="verbatim" title="Choose a kernel name; must match: [A-Za-z0-9-_.]*" type="text" id="compare-kernel1" class="form-control kernel" aria-describedby="compare-kernel-span1" name="compare-kernel1" data-tree="compare-tree1" pattern="[A-Za-z0-9\-_.]*">
-                                    </div>
-                                </div>
-                                <div class="second"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                    <div class="form-submit pull-right">
-                        <button id="compare-button" type="submit" class="btn btn-default">
-                            Compare
-                        </button>
-                    </div>
-                </div>
-                <div id="data-list-bucket"></div>
-            </form>
-        </div>
-    </div>
+    <div id="compare-div" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
 </div>
 {%- endblock %}
 {%- block scripts %}

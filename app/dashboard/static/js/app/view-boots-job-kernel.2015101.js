@@ -13,7 +13,7 @@ require([
     'utils/unique-count',
     'utils/date',
     'bootstrap'
-], function($, p, i, b, r, e, u, btns, ws, chart, uniq) {
+], function($, p, init, b, r, e, u, btns, ws, chart, uniq) {
     'use strict';
     var kernelName = null,
         jobName = null,
@@ -213,7 +213,10 @@ require([
         var deferred,
             data;
         if (response.count > 0) {
-            data = {'job': jobName, 'kernel': kernelName};
+            data = {
+                    job: jobName,
+                    kernel: kernelName
+            };
             deferred = r.get('/_ajax/count/build', data);
 
             $.when(deferred, uniq.countUniqueBootD(response))
@@ -264,7 +267,6 @@ require([
             hasUnknown = false,
             allLabs = {},
             lab = null,
-            len = null,
             toAppend = '';
 
         if (resultLen > 0) {
@@ -294,10 +296,10 @@ require([
                 pathURI = translatedURI[1];
 
                 subs = {
-                    'idx': idx,
-                    'board': board,
-                    'lab': labName,
-                    'defconfig': defconfigFull
+                    idx: idx,
+                    board: board,
+                    lab: labName,
+                    defconfig: defconfigFull
                 };
 
                 switch (bootObj.status) {
@@ -443,7 +445,6 @@ require([
             toAppend = '';
             Object.keys(allLabs).sort().forEach(function(element) {
                 lab = allLabs[element];
-                len = lab.length;
 
                 toAppend += '<div id="' + element + '">' +
                     '<div class="other-header">' +
@@ -458,9 +459,9 @@ require([
                     '<div class="panel-group" id="accordion-' +
                     element + '">';
 
-                for (i = 0; i < len; i = i + 1) {
-                    toAppend += lab[i];
-                }
+                lab.forEach(function(labElement) {
+                    toAppend += labElement;
+                });
                 toAppend += '</div></div>';
             });
             // Add all the elements to the DOM.
@@ -528,10 +529,10 @@ require([
 
         if (resultLen > 0) {
             data = {
-                'sort': ['board', 'defconfig_full', 'arch'],
-                'sort_order': 1,
-                'job': jobName,
-                'kernel': kernelName
+                sort: ['board', 'defconfig_full', 'arch'],
+                sort_order: 1,
+                job: jobName,
+                kernel: kernelName
             };
             deferred = r.get('/_ajax/boot', data);
             $.when(deferred)
@@ -545,7 +546,7 @@ require([
     function getJobFailed(title) {
         var content = '<span rel="tooltip" data-toggle="tooltip" ' +
             'title="%s"><i class="fa fa-ban"></i></span>';
-        if (!arguments.length) {
+        if (title === undefined || title === null) {
             title = 'Error loading data';
         }
         b.replaceByClass('loading-content', p.sprintf(content, title));
@@ -646,55 +647,55 @@ require([
 
             $('[id^="panel-boots"]').each(function(id) {
                 panelState['#panel-boots-' + id] = {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('panel-boots-' + id, 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('panel-boots-' + id, 'class')
                 };
             });
 
             $('[id^="collapse-boots"]').each(function(id) {
                 panelState['#collapse-boots-' + id] = {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('collapse-boots-' + id, 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('collapse-boots-' + id, 'class')
                 };
             });
 
             pageState = {
                 '.df-success': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-success', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-success', 'style')
                 },
                 '.df-failed': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-failed', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-failed', 'style')
                 },
                 '.df-unknown': {
-                    'type': 'attr',
-                    'name': 'style',
-                    'value': b.getAttrBySelector('.df-unknown', 'style')
+                    type: 'attr',
+                    name: 'style',
+                    value: b.getAttrBySelector('.df-unknown', 'style')
                 },
                 '#all-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('all-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('all-btn', 'class')
                 },
                 '#success-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('success-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('success-btn', 'class')
                 },
                 '#fail-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('fail-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('fail-btn', 'class')
                 },
                 '#unknown-btn': {
-                    'type': 'class',
-                    'name': 'class',
-                    'value': b.getAttrById('unknown-btn', 'class')
+                    type: 'class',
+                    name: 'class',
+                    value: b.getAttrById('unknown-btn', 'class')
                 }
             };
 
@@ -703,34 +704,33 @@ require([
         });
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-boot').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    document.getElementById('li-boot').setAttribute('class', 'active');
+    // Setup and perform base operations.
+    init.hotkeys();
+    init.tooltip();
 
-        $('.btn-group > .btn').click(function() {
-            $(this).addClass('active').siblings().removeClass('active');
-        });
-
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-        if (document.getElementById('kernel-name') !== null) {
-            kernelName = document.getElementById('kernel-name').value;
-        }
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
-        if (document.getElementById('file-server') !== null) {
-            fileServer = document.getElementById('file-server').value;
-        }
-
-        if (jobName !== null && kernelName !== null) {
-            getJob();
-            registerEvents();
-        } else {
-            getJobFailed('No data available');
-            getBootFailed();
-        }
+    $('.btn-group > .btn').click(function() {
+        $(this).addClass('active').siblings().removeClass('active');
     });
+
+    if (document.getElementById('job-name') !== null) {
+        jobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('kernel-name') !== null) {
+        kernelName = document.getElementById('kernel-name').value;
+    }
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
+    if (document.getElementById('file-server') !== null) {
+        fileServer = document.getElementById('file-server').value;
+    }
+
+    if (jobName !== null && kernelName !== null) {
+        getJob();
+        registerEvents();
+    } else {
+        getJobFailed('No data available');
+        getBootFailed();
+    }
 });

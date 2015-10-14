@@ -5,6 +5,7 @@ require.config({
         'app': './app',
         'charts': './app/charts',
         'utils': './app/utils',
+        'compare': './app/compare',
         'jquery': 'lib/jquery-2.1.4',
         'jquery.hotkeys': 'lib/jquery.hotkeys-1.0.min',
         'jquery.hotkeymap': 'lib/jquery.hotkeymap-1.0.min',

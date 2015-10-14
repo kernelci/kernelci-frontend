@@ -25,54 +25,6 @@ define(function() {
         });
     };
 
-    html.a = function() {
-        return document.createElement('a');
-    };
-
-    html.i = function() {
-        return document.createElement('i');
-    };
-
-    html.div = function() {
-        return document.createElement('div');
-    };
-
-    html.span = function() {
-        return document.createElement('span');
-    };
-
-    html.table = function() {
-        return document.createElement('table');
-    };
-
-    html.strong = function() {
-        return document.createElement('strong');
-    };
-
-    html.small = function() {
-        return document.createElement('small');
-    };
-
-    html.h4 = function() {
-        return document.createElement('h4');
-    };
-
-    html.h5 = function() {
-        return document.createElement('h5');
-    };
-
-    html.dl = function() {
-        return document.createElement('dl');
-    };
-
-    html.dt = function() {
-        return document.createElement('dt');
-    };
-
-    html.dd = function() {
-        return document.createElement('dd');
-    };
-
     html.boot = function() {
         var iNode;
 
@@ -295,27 +247,21 @@ define(function() {
         }
     };
 
+    html.replaceContentHTML = function(element, html) {
+        if (element !== null) {
+            while (element.firstChild) {
+                element.removeChild(element.firstChild);
+            }
+            element.insertAdjacentHTML('beforeend', html);
+        }
+    };
+
     html.removeChildren = function(element) {
         if (element !== null) {
             while (element.firstChild) {
                 element.removeChild(element.firstChild);
             }
         }
-    };
-
-    html.unavailable = function() {
-        var iNode,
-            spanNode;
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-ban';
-        spanNode = document.createElement('span');
-        spanNode.setAttribute('rel', 'tooltip');
-        spanNode.setAttribute('data-toggle', 'tooltip');
-        spanNode.setAttribute('title', 'Not available');
-        spanNode.appendChild(iNode);
-
-        return spanNode;
     };
 
     html.addClass = function(element, newClass) {
@@ -341,9 +287,8 @@ define(function() {
 
             if (classIdx !== -1) {
                 classes.splice(classIdx, 1);
+                element.className = classes.join(' ');
             }
-
-            element.className = classes.join(' ');
         }
     };
 

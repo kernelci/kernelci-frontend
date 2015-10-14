@@ -1,193 +1,362 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
     'utils/error',
     'utils/init',
     'utils/request',
     'utils/tables',
+    'utils/html',
     'utils/date'
-], function($, b, e, i, r, t) {
+], function($, e, init, r, t, html) {
     'use strict';
-    var bootsTable,
+    var dateRange,
         labName,
-        dateRange,
         pageLen,
-        searchFilter,
-        rowURLFmt;
-
-    rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-        '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
+        searchFilter;
 
     function getBootsFail() {
-        b.removeElement('table-loading');
-        b.replaceById(
-            'table-div',
-            '<div class="pull-center"><strong>' +
-            'Error loading data.</strong></div>'
-        );
+        html.removeElement(document.getElementById('table-loading'));
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getBootsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            columns;
+        var bootsTable,
+            columns,
+            resLen,
+            results,
+            rowURLFmt;
+
+        results = response.result;
+        resLen = results.length;
 
         if (resLen > 0) {
+            bootsTable = t(
+                ['boots-table', 'table-loading', 'table-div'], true);
+
             columns = [
                 {
-                    'data': '_id',
-                    'visible': false,
-                    'searchable': false,
-                    'orderable': false
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
                 },
                 {
-                    'data': 'job',
-                    'title': 'Tree &dash; Branch',
-                    'type': 'string',
-                    'className': 'tree-column',
-                    'render': function(data, type, object) {
-                        var branch = object.git_branch,
-                            tTitle = data,
-                            hrefData = data,
-                            href;
+                    data: 'job',
+                    title: 'Tree &dash; Branch',
+                    type: 'string',
+                    className: 'tree-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            branch,
+                            branchNode,
+                            rendered,
+                            tooltipNode;
+
+                        branch = object.git_branch;
+                        rendered = data;
+
                         if (branch !== null && branch !== undefined) {
-                            tTitle = data + '&nbsp;&dash;&nbsp;' + branch;
-                            hrefData = data + '&nbsp;&dash;&nbsp;<small>' +
-                                branch + '</small>';
+                            rendered = rendered + ' ' + branch;
                         }
-                        href = '<a class="table-link" href="/boot/all/job/' +
-                            data + '/">' + hrefData + '</a>';
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + tTitle + '">' + href + '</span>';
+
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title', 'Boot reports for&nbsp;' + data);
+
+                            aNode = document.createElement('a');
+                            aNode.className = 'table-link';
+                            aNode.setAttribute(
+                                'href', '/boot/all/job/' + data + '/');
+
+                            aNode.appendChild(document.createTextNode(data));
+
+                            if (branch !== null && branch !== undefined) {
+                                branchNode = document.createElement('small');
+                                branchNode.appendChild(
+                                    document.createTextNode(branch));
+
+                                aNode.insertAdjacentHTML(
+                                    'beforeend', '&nbsp;&dash;&nbsp;');
+                                aNode.appendChild(branchNode);
+                            }
+
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'kernel',
-                    'title': 'Kernel',
-                    'type': 'string',
-                    'className': 'kernel-column',
-                    'render': function(data, type, object) {
-                        var href;
-                        href = '<a class="table-link" href="/boot/all/job/' +
-                            object.job + '/kernel/' + data + '/">' + data +
-                            '</a>';
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' + href + '</span>';
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string',
+                    className: 'kernel-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            job,
+                            tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            job = object.job;
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title',
+                                'Boot reports for&nbsp;' + job +
+                                '&nbsp;&dash;&nbsp;' + data
+                            );
+
+                            aNode = document.createElement('a');
+                            aNode.className = 'table-link';
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/all/job/' + job + '/kernel/' +
+                                data + '/'
+                            );
+
+                            aNode.appendChild(document.createTextNode(data));
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'board',
-                    'title': 'Board Model',
-                    'className': 'board-column',
-                    'render': function(data, type, object) {
-                        var href = '<a class="table-link" href="/boot/' + data +
-                            '/job/' + object.job + '/kernel/' +
-                            object.kernel + '/">' + data + '</a>';
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' + href + '</span>';
-                    }
-                },
-                {
-                    'data': 'defconfig_full',
-                    'title': 'Defconfig',
-                    'className': 'defconfig-column',
-                    'render': function(data, type, object) {
-                        var href = null,
-                            board = object.board,
-                            job = object.job,
+                    data: 'board',
+                    title: 'Board Model',
+                    className: 'board-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            job,
+                            kernel,
+                            tooltipNode,
+                            rendered;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            job = object.job;
                             kernel = object.kernel;
 
-                        href = '/boot/' + board + '/job/' + job + '/kernel/' +
-                            kernel + '/defconfig/' + data + '/';
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title',
+                                'Boot reports for board&nbsp;' + data +
+                                '&nbsp;with&nbsp;' + job +
+                                '&nbsp;&dash;&nbsp;' + kernel
+                            );
 
-                        return '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" title="' + data + '">' +
-                            '<a class="table-link" href="' + href + '">' +
-                            data + '</a></span>';
-                    }
-                },
-                {
-                    'data': 'created_on',
-                    'title': 'Date',
-                    'type': 'date',
-                    'className': 'date-column pull-center',
-                    'render': function(data) {
-                        var created = new Date(data.$date);
-                        return created.toCustomISODate();
-                    }
-                },
-                {
-                    'data': 'status',
-                    'title': 'Status',
-                    'type': 'string',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        var displ;
-                        switch (data) {
-                            case 'PASS':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot completed">' +
-                                    '<span class="label label-success">' +
-                                    '<i class="fa fa-check"></i>' +
-                                    '</span></span>';
-                                break;
-                            case 'FAIL':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot failed">' +
-                                    '<span class="label label-danger">' +
-                                    '<i class="fa fa-exclamation-triangle">' +
-                                    '</i></span></span>';
-                                break;
-                            case 'OFFLINE':
-                                displ = '<span rel="tooltip"' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Board offline"' +
-                                    '<span class="label label-info">' +
-                                    '<i class="fa fa-power-off">' +
-                                    '</i></span></span>';
-                                break;
-                            default:
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<span class="label label-warning">' +
-                                    '<i class="fa fa-question">' +
-                                    '</i></span></span>';
-                                break;
+                            aNode = document.createElement('a');
+                            aNode.className = 'table-link';
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/' + data + '/job/' + job +
+                                '/kernel/' + kernel + '/'
+                            );
+
+                            aNode.appendChild(document.createTextNode(data));
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
                         }
-                        return displ;
+
+                        return rendered;
                     }
                 },
                 {
-                    'data': 'board',
-                    'title': '',
-                    'orderable': false,
-                    'searchable': false,
-                    'width': '30px',
-                    'className': 'pull-center',
-                    'render': function(data, type, object) {
-                        var defconfigFull = object.defconfig_full,
-                            kernel = object.kernel,
-                            job = object.job,
+                    data: 'defconfig_full',
+                    title: 'Defconfig',
+                    className: 'defconfig-column',
+                    render: function(data, type, object) {
+                        var aNode,
+                            board,
+                            job,
+                            kernel,
+                            rendered,
+                            tooltipNode;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            board = object.board;
+                            job = object.job;
+                            kernel = object.kernel;
+
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title',
+                                'Boot reports for board&nbsp;' + board +
+                                '&nbsp;with&nbsp;' + job +
+                                '&nbsp;&dash;&nbsp;' + kernel +
+                                '&nbsp;and&nbsp;' + data
+                            );
+
+                            aNode = document.createElement('a');
+                            aNode.className = 'table-link';
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/' + board + '/job/' + job +
+                                '/kernel/' + kernel + '/defconfig/' +
+                                data + '/'
+                            );
+
+                            aNode.appendChild(document.createTextNode(data));
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'date-column pull-center',
+                    render: function(data, type) {
+                        var created,
+                            iNode,
+                            rendered,
+                            timeNode,
+                            tooltipNode;
+
+                        if (data === null) {
+                            rendered = data;
+                            if (type === 'display') {
+                                tooltipNode = html.tooltip();
+                                tooltipNode.setAttribute('Not available');
+
+                                iNode = document.createElement('i');
+                                iNode.className = 'fa fa-ban';
+
+                                tooltipNode.appendChild(iNode);
+                                rendered = tooltipNode.outerHTML;
+                            }
+                        } else {
+                            created = new Date(data.$date);
+                            if (type === 'display') {
+                                timeNode = document.createElement('time');
+                                timeNode.setAttribute(
+                                    'datetime', created.toISOString());
+                                timeNode.appendChild(
+                                    document.createTextNode(
+                                        created.toCustomISODate())
+                                );
+                                rendered = timeNode.outerHTML;
+                            } else {
+                                rendered = created;
+                            }
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'status',
+                    title: 'Status',
+                    type: 'string',
+                    className: 'pull-center',
+                    render: function(data, type) {
+                        var rendered,
+                            tooltipNode;
+
+                        rendered = data;
+                        if (type === 'display') {
+                            tooltipNode = html.tooltip();
+
+                            switch (data) {
+                                case 'PASS':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board booted successfully');
+                                    tooltipNode.appendChild(html.success());
+                                    break;
+                                case 'FAIL':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board boot failed');
+                                    tooltipNode.appendChild(html.fail());
+                                    break;
+                                case 'OFFLINE':
+                                    tooltipNode.setAttribute(
+                                        'title', 'Board offline');
+                                    tooltipNode.appendChild(html.offline());
+                                    break;
+                                default:
+                                    tooltipNode.setAttribute(
+                                        'href', 'Board boot status unknown');
+                                    tooltipNode.appendChild(html.unknown());
+                                    break;
+                            }
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
+                    }
+                },
+                {
+                    data: 'board',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: function(data, type, object) {
+                        var aNode,
+                            iNode,
+                            rendered,
+                            tooltipNode,
+                            defconfigFull,
+                            kernel,
+                            job,
+                            lab;
+
+                        rendered = null;
+                        if (type === 'display') {
+                            defconfigFull = object.defconfig_full;
+                            job = object.job;
+                            kernel = object.kernel;
                             lab = object.lab_name;
 
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="Details for board&nbsp;' + data +
-                            ' with&nbsp;' + job + '&dash;' + kernel +
-                            '&dash;' + defconfigFull +
-                            '&nbsp;&dash;&nbsp;(' + lab + ')' +
-                            '"><a href="/boot/' + data + '/job/' + job +
-                            '/kernel/' + kernel + '/defconfig/' +
-                            defconfigFull + '/lab/' + lab + '/?_id=' +
-                            object._id.$oid + '">' +
-                            '<i class="fa fa-search"></i></a></span>';
+                            tooltipNode = html.tooltip();
+                            tooltipNode.setAttribute(
+                                'title',
+                                'Details for board&nbsp;' + data +
+                                '&nbsp;with tree&nbsp;' + job +
+                                '&nbsp;&dash;&nbsp;' + kernel +
+                                '&nbsp;and&nbsp;' + defconfigFull +
+                                '&nbsp;(' + lab + ')'
+                            );
+                            aNode = document.createElement('a');
+                            aNode.setAttribute(
+                                'href',
+                                '/boot/' + data + '/job/' + job +
+                                '/kernel/' + kernel +
+                                '/defconfig/' + defconfigFull +
+                                '/lab/' + lab + '/?_id=' + object._id.$oid
+                            );
+                            iNode = document.createElement('i');
+                            iNode.className = 'fa fa-search';
+
+                            aNode.appendChild(iNode);
+                            tooltipNode.appendChild(aNode);
+
+                            rendered = tooltipNode.outerHTML;
+                        }
+
+                        return rendered;
                     }
                 }
             ];
 
+            rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
+                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
             bootsTable
                 .tableData(results)
                 .columns(columns)
@@ -202,46 +371,44 @@ require([
                 .pageLen(pageLen)
                 .search(searchFilter);
         } else {
-            b.removeElement('table-loading');
-            b.replaceById(
-                'table-div',
-                '<div class="pull-center"><strong>' +
-                'No data found.</strong></div>');
+            html.removeElement(document.getElementById('table-loading'));
+            html.replaceContent(
+                document.getElementById('table-div'),
+                html.errorDiv('No data found.'));
         }
     }
 
     function getBoots() {
-        var deferred,
-            data;
+        var data,
+            deferred;
+
         data = {
-            'lab_name': labName,
-            'date_range': dateRange
+            lab_name: labName,
+            date_range: dateRange
         };
+
         deferred = r.get('/_ajax/boot', data);
         $.when(deferred)
             .fail(e.error, getBootsFail)
             .done(getBootsDone);
     }
 
-   $(document).ready(function() {
-        document.getElementById('li-boot').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
+    document.getElementById('li-boot').setAttribute('class', 'active');
+    init.hotkeys();
+    init.tooltip();
 
-        if (document.getElementById('lab-name') !== null) {
-            labName = document.getElementById('lab-name').value;
-        }
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
-        }
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
-        if (document.getElementById('page-len') !== null) {
-            pageLen = document.getElementById('page-len').value;
-        }
+    if (document.getElementById('lab-name') !== null) {
+        labName = document.getElementById('lab-name').value;
+    }
+    if (document.getElementById('date-range') !== null) {
+        dateRange = document.getElementById('date-range').value;
+    }
+    if (document.getElementById('search-filter') !== null) {
+        searchFilter = document.getElementById('search-filter').value;
+    }
+    if (document.getElementById('page-len') !== null) {
+        pageLen = document.getElementById('page-len').value;
+    }
 
-        bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
-        getBoots();
-    });
+    getBoots();
 });

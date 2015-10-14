@@ -6,7 +6,9 @@ define([
     'jquery.hotkeymap'
 ], function($) {
     'use strict';
-    var start;
+    var init;
+
+    init = {};
 
     function setHotKeys() {
         var goToBoot,
@@ -74,14 +76,36 @@ define([
         );
     }
 
-    start = function() {
+    init.hotkeys = function() {
         setHotKeys();
+    };
 
+    function setTooltip() {
         $('body').tooltip({
             selector: '[rel=tooltip]',
             html: true
         });
+    }
+
+    init.tooltip = function() {
+        setTooltip();
     };
 
-    return start;
+    function setPopover() {
+        $('[data-toggle="popover"]').popover({
+            html: true
+        });
+    }
+
+    init.popover = function() {
+        setPopover();
+    };
+
+    init.all = function() {
+        setHotKeys();
+        setTooltip();
+        setPopover();
+    };
+
+    return init;
 });

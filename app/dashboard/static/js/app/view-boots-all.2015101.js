@@ -74,7 +74,7 @@ require([
                             tooltipNode.setAttribute(
                                 'title', 'Boot reports for&nbsp;' + data);
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href', '/boot/all/job/' + data + '/');
@@ -82,7 +82,7 @@ require([
                             aNode.appendChild(document.createTextNode(data));
 
                             if (branch !== null && branch !== undefined) {
-                                branchNode = html.small();
+                                branchNode = document.createElement('small');
                                 branchNode.appendChild(
                                     document.createTextNode(branch));
 
@@ -120,7 +120,7 @@ require([
                                 '&nbsp;&dash;&nbsp;' + data
                             );
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href',
@@ -162,7 +162,7 @@ require([
                                 '&nbsp;&dash;&nbsp;' + kernel
                             );
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href',
@@ -191,12 +191,12 @@ require([
                             rendered,
                             tooltipNode;
 
-                        board = object.board;
-                        job = object.job;
-                        kernel = object.kernel;
-
                         rendered = data;
                         if (type === 'display') {
+                            board = object.board;
+                            job = object.job;
+                            kernel = object.kernel;
+
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute(
                                 'title',
@@ -206,7 +206,7 @@ require([
                                 '&nbsp;and&nbsp;' + data
                             );
 
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href',
@@ -239,7 +239,7 @@ require([
 
                         rendered = data;
                         if (type === 'display') {
-                            labNode = html.small();
+                            labNode = document.createElement('small');
                             labNode.appendChild(document.createTextNode(data));
                             rendered = labNode.outerHTML;
                         }
@@ -263,7 +263,7 @@ require([
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
 
-                                iNode = html.i();
+                                iNode = document.createElement('i');
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
@@ -354,7 +354,7 @@ require([
                                 '&nbsp;and&nbsp;' + defconfigFull +
                                 '&nbsp;(' + lab + ')'
                             );
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.setAttribute(
                                 'href',
                                 '/boot/' + data + '/job/' + job +
@@ -362,7 +362,7 @@ require([
                                 '/defconfig/' + defconfigFull +
                                 '/lab/' + lab + '/?_id=' + object._id.$oid
                             );
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-search';
 
                             aNode.appendChild(iNode);
@@ -372,7 +372,6 @@ require([
                         }
 
                         return rendered;
-
                     }
                 }
             ];
@@ -410,7 +409,8 @@ require([
             .done(getBootsDone);
     }
 
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('search-filter') !== null) {
         searchFilter = document.getElementById('search-filter').value;

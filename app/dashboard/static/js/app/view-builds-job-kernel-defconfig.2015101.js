@@ -231,7 +231,7 @@ require([
 
         divNode = null;
         if (bootLogTxt !== null || bootLogHtml !== null) {
-            divNode = html.div();
+            divNode = document.createElement('div');
 
             if (bootLogTxt !== null) {
                 if (bootLogTxt.search(labName) === -1) {
@@ -244,7 +244,7 @@ require([
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', 'View raw text boot log');
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     translatedUri[0].path(logPath).normalizePath().href());
@@ -272,7 +272,7 @@ require([
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', 'View HTML boot log');
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     translatedUri[0].path(logPath).normalizePath().href());
@@ -327,7 +327,7 @@ require([
 
                         rendered = data;
                         if (type === 'display') {
-                            node = html.small();
+                            node = document.createElement('small');
                             node.appendChild(document.createTextNode(data));
                             rendered = node.outerHTML;
                         }
@@ -440,7 +440,7 @@ require([
 
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute('title', 'More details');
-                            aNode = html.a();
+                            aNode = document.createElement('a');
                             aNode.setAttribute(
                                 'href',
                                 '/boot/' + data + '/job/' + jobName +
@@ -448,7 +448,7 @@ require([
                                 '/defconfig/' + defconfigFull +
                                 '/lab/' + lab + '/?_id=' + object._id.$oid
                             );
-                            iNode = html.i();
+                            iNode = document.createElement('i');
                             iNode.className = 'fa fa-search';
 
                             aNode.appendChild(iNode);
@@ -656,18 +656,18 @@ require([
             detailNode = document.getElementById('details');
             detailNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-            defconfigNode = html.small();
+            defconfigNode = document.createElement('small');
             defconfigNode.appendChild(
                 document.createTextNode('(' + defconfig + ')'));
 
             detailNode.appendChild(defconfigNode);
 
-            spanNode = html.span();
+            spanNode = document.createElement('span');
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
 
-            aNode = html.a();
+            aNode = document.createElement('a');
             aNode.setAttribute('href', '/job/' + job + '/');
             aNode.appendChild(document.createTextNode(job));
 
@@ -678,7 +678,7 @@ require([
             tooltipNode.setAttribute(
                 'title', 'Boot reports for tree&nbsp;' + job);
 
-            aNode = html.a();
+            aNode = document.createElement('a');
             aNode.setAttribute('href', '/boot/all/job/' + job + '/');
             aNode.appendChild(html.boot());
 
@@ -693,7 +693,7 @@ require([
                 document.getElementById('git-branch'),
                 document.createTextNode(results.git_branch));
 
-            spanNode = html.span();
+            spanNode = document.createElement('span');
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
@@ -702,7 +702,7 @@ require([
                 '&nbsp;&dash;&nbsp;' + kernel
             );
 
-            aNode = html.a();
+            aNode = document.createElement('a');
             aNode.setAttribute(
                 'href', '/build/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(document.createTextNode(kernel));
@@ -717,7 +717,7 @@ require([
                 '&nbsp;&dash;&nbsp;' + kernel
             );
 
-            aNode = html.a();
+            aNode = document.createElement('a');
             aNode.setAttribute(
                 'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(html.boot());
@@ -730,7 +730,7 @@ require([
                 document.getElementById('git-describe'), spanNode);
 
             if (gitURLs[0] !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute('href', gitURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -750,7 +750,7 @@ require([
             }
 
             if (gitURLs[1] !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute('href', gitURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -816,7 +816,7 @@ require([
                     document.getElementById('build-time'), html.nonavail());
             }
 
-            spanNode = html.span();
+            spanNode = document.createElement('span');
 
             spanNode.appendChild(document.createTextNode(lDefconfigFull));
 
@@ -828,7 +828,7 @@ require([
                     '&nbsp;&dash;&nbsp;' + lDefconfigFull
                 );
 
-            aNode = html.a();
+            aNode = document.createElement('a');
             aNode.setAttribute(
                 'href',
                 '/boot/all/job/' + jobName + '/kernel/' +
@@ -871,7 +871,7 @@ require([
                 document.getElementById('build-status'), tooltipNode);
 
             if (dtb !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -889,9 +889,9 @@ require([
             }
 
             if (buildModules !== null) {
-                spanNode = html.span();
+                spanNode = document.createElement('span');
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -906,7 +906,7 @@ require([
 
                 if (buildModulesSize !== null &&
                         buildModulesSize !== undefined) {
-                    sizeNode = html.small();
+                    sizeNode = document.createElement('small');
                     sizeNode.appendChild(
                         document.createTextNode(
                             '(' + b.bytesToHuman(buildModulesSize) + ')')
@@ -924,7 +924,7 @@ require([
             }
 
             if (modulesDirectory !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -968,9 +968,9 @@ require([
             }
 
             if (kernelImage !== null) {
-                spanNode = html.span();
+                spanNode = document.createElement('span');
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -985,7 +985,7 @@ require([
 
                 if (kernelImageSize !== null &&
                         kernelImageSize !== undefined) {
-                    sizeNode = html.small();
+                    sizeNode = document.createElement('small');
                     sizeNode.appendChild(
                         document.createTextNode(
                             '(' + b.bytesToHuman(kernelImageSize) + ')')
@@ -1003,7 +1003,7 @@ require([
             }
 
             if (kernelConfig !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -1022,7 +1022,7 @@ require([
             }
 
             if (buildLog !== null) {
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -1060,7 +1060,7 @@ require([
                     document.getElementById('platform-cpu'),
                     document.createTextNode(buildPlatform[5]));
             } else {
-                divNode = html.div();
+                divNode = document.createElement('div');
                 divNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
                 divNode.appendChild(html.errorDiv('No data available.'));
 
@@ -1092,7 +1092,8 @@ require([
             .done(getBuildsDone, getBoots, getBisect);
     }
 
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('file-server') !== null) {
         fileServer = document.getElementById('file-server').value;

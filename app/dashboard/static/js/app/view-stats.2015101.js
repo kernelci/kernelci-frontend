@@ -222,7 +222,8 @@ require([
     }
 
     document.getElementById('li-info').setAttribute('class', 'active');
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     getStats();
 });

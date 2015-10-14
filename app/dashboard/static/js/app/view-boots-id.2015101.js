@@ -9,7 +9,7 @@ require([
     'utils/bisect',
     'utils/show-hide-btns',
     'utils/date'
-], function($, i, b, e, r, u, bisect, btns) {
+], function($, init, b, e, r, u, bisect, btns) {
     'use strict';
     var boardName = null,
         jobName = null,
@@ -798,7 +798,8 @@ require([
 
     $(document).ready(function() {
         // Setup and perform base operations.
-        i();
+        init.hotkeys();
+        init.tooltip();
 
         document.getElementById('li-boot').setAttribute('class', 'active');
 

@@ -8,7 +8,7 @@ require([
     'utils/tables',
     'utils/urls',
     'utils/date'
-], function($, i, b, e, r, t, u) {
+], function($, init, b, e, r, t, u) {
     'use strict';
     var bootsTable,
         jobName = null,
@@ -276,7 +276,8 @@ require([
     $(document).ready(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
         // Setup and perform base operations.
-        i();
+        init.hotkeys();
+        init.tooltip();
 
         if (document.getElementById('job-name') !== null) {
             jobName = document.getElementById('job-name').value;

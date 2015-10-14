@@ -10,7 +10,7 @@ require([
     'charts/passpie',
     'charts/diffmatrix',
     'utils/date'
-], function($, b, e, i, r, t, u, pie, matrix) {
+], function($, b, e, init, r, t, u, pie, matrix) {
     'use strict';
     var compareId = null,
         comparedTable,
@@ -53,8 +53,8 @@ require([
                 render: function(data, type, object) {
                     var rend;
                     if (type === 'display') {
-                            rend = '<a class="table-link" href="/job/' +
-                                data + '/">' + data;
+                        rend = '<a class="table-link" href="/job/' +
+                            data + '/">' + data;
 
                         if (object.git_branch !== null) {
                             rend += '&nbsp;&dash;&nbsp;<small>' +
@@ -305,16 +305,8 @@ require([
         }
     }
 
-    $(document).ready(function() {
+    function getJobCompare() {
         var deferred;
-
-        document.getElementById('li-compare').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        i();
-
-        if (document.getElementById('compare-id') !== null) {
-            compareId = document.getElementById('compare-id').value;
-        }
 
         if (compareId !== null) {
             comparedTable = t(['compared-against']);
@@ -332,5 +324,17 @@ require([
             e.customError(
                 400, 'Missing job comparison ID value: please specify one.');
         }
-    });
+    }
+
+    document.getElementById('li-compare').setAttribute('class', 'active');
+    // Setup and perform base operations.
+    init.hotkeys();
+    init.tooltip();
+
+    if (document.getElementById('compare-id') !== null) {
+        compareId = document.getElementById('compare-id').value;
+    }
+
+    getJobCompare();
+
 });

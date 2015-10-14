@@ -4,5 +4,6 @@ require([
 ], function(init) {
     'use strict';
     document.getElementById('li-info').setAttribute('class', 'active');
-    init();
+    init.hotkeys();
+    init.tooltip();
 });

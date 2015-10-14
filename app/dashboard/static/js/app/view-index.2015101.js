@@ -117,7 +117,7 @@ require([
         cellNode.setAttribute('align', 'center');
         cellNode.setAttribute('valign', 'middle');
 
-        noDataNode = html.strong();
+        noDataNode = document.createElement('strong');
         noDataNode.appendChild(
             document.createTextNode('Error loading data.'));
 
@@ -154,7 +154,7 @@ require([
             cellNode.setAttribute('align', 'center');
             cellNode.setAttribute('valign', 'middle');
 
-            noDataNode = html.strong();
+            noDataNode = document.createElement('strong');
             noDataNode.appendChild(
                 document.createTextNode('No failed build reports.'));
 
@@ -178,10 +178,10 @@ require([
                 tooltipNode.setAttribute(
                     'title', job + '&nbsp;&dash;&nbsp;' + branch);
 
-                branchNode = html.small();
+                branchNode = document.createElement('small');
                 branchNode.appendChild(document.createTextNode(branch));
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute('href', '/job/' + job + '/');
                 aNode.appendChild(document.createTextNode(job));
@@ -203,14 +203,14 @@ require([
                 cellNode = rowNode.insertCell();
                 cellNode.className = 'pull-center';
 
-                badgeNode = html.span();
+                badgeNode = document.createElement('span');
                 badgeNode.className = 'badge alert-danger';
 
-                countNode = html.span();
+                countNode = document.createElement('span');
                 countNode.className = 'fail-count';
                 countNode.id = 'fail-count-' + idx;
 
-                iNode = html.i();
+                iNode = document.createElement('i');
                 iNode.className = 'fa fa-cog fa-spin';
 
                 countNode.appendChild(iNode);
@@ -231,10 +231,10 @@ require([
                     'Details for job&nbsp;' + job +
                     '&nbsp;&dash;&nbsp;' + kernel);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute('href', rowHref);
 
-                iNode = html.i();
+                iNode = document.createElement('i');
                 iNode.className = 'fa fa-search';
 
                 aNode.appendChild(iNode);
@@ -259,7 +259,7 @@ require([
         cellNode.setAttribute('align', 'center');
         cellNode.setAttribute('valign', 'middle');
 
-        noDataNode = html.strong();
+        noDataNode = document.createElement('strong');
         noDataNode.appendChild(
             document.createTextNode('Error loading data.'));
 
@@ -300,7 +300,7 @@ require([
             cellNode.setAttribute('align', 'center');
             cellNode.setAttribute('valign', 'middle');
 
-            noDataNode = html.strong();
+            noDataNode = document.createElement('strong');
             noDataNode.appendChild(
                 document.createTextNode('No failed boot reports.'));
 
@@ -330,7 +330,7 @@ require([
                 tooltipNode.setAttribute(
                     'title', job + '&nbsp;&dash;&nbsp;' + branch);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute('href',
                     '/boot/all/job/' + job + '/kernel/' + kernel + '/');
@@ -338,7 +338,7 @@ require([
                 aNode.appendChild(document.createTextNode(job));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
 
-                branchNode = html.small();
+                branchNode = document.createElement('small');
                 branchNode.appendChild(document.createTextNode(branch));
 
                 aNode.appendChild(branchNode);
@@ -351,7 +351,7 @@ require([
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', kernel);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute('href', '/boot/all/job/' + job + '/');
 
@@ -365,7 +365,7 @@ require([
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', board);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute(
                     'href',
@@ -383,7 +383,7 @@ require([
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', defconfigFull);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute(
                     'href',
@@ -398,7 +398,7 @@ require([
                 cellNode = rowNode.insertCell();
                 cellNode.className = 'lab-column';
 
-                labNode = html.small();
+                labNode = document.createElement('small');
 
                 labNode.appendChild(document.createTextNode(labName));
                 cellNode.appendChild(labNode);
@@ -411,13 +411,13 @@ require([
                 if (failReason === null || failReason === undefined) {
                     tooltipNode.setAttribute('title', 'Failure reason unknown');
 
-                    iNode = html.i();
+                    iNode = document.createElement('i');
                     iNode.className = 'fa fa-question-circle';
 
                     tooltipNode.appendChild(iNode);
                 } else {
                     tooltipNode.setAttribute('title', html.escape(failReason));
-                    iNode = html.i();
+                    iNode = document.createElement('i');
                     iNode.className = 'fa fa-exclamation-triangle red-font';
 
                     tooltipNode.appendChild(iNode);
@@ -438,10 +438,10 @@ require([
                 tooltipNode.setAttribute(
                     'title', 'Details for board&nbsp;' + board);
 
-                aNode = html.a();
+                aNode = document.createElement('a');
                 aNode.setAttribute('href', rowHref);
 
-                iNode = html.i();
+                iNode = document.createElement('i');
                 iNode.className = 'fa fa-search';
 
                 aNode.appendChild(iNode);
@@ -453,7 +453,8 @@ require([
         }
     }
 
-    init();
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('number-range') !== null) {
         numberRange = document.getElementById('number-range').value;

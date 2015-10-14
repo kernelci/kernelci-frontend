@@ -18,7 +18,7 @@ define([
         var buttonNode,
             divNode;
 
-        divNode = html.div();
+        divNode = document.createElement('div');
         divNode.id = randId(code);
         divNode.className = 'alert alert-danger alert-dismissable';
 

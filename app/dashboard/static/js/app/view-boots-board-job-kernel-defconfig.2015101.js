@@ -7,7 +7,7 @@ require([
     'utils/request',
     'utils/urls',
     'utils/date'
-], function($, b, e, i, r, u) {
+], function($, b, e, init, r, u) {
     'use strict';
     var jobName,
         kernelName,
@@ -219,7 +219,8 @@ require([
     $(document).ready(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
         // Setup and perform base operations.
-        i();
+        init.hotkeys();
+        init.tooltip();
 
         if (document.getElementById('board-name') !== null) {
             boardName = document.getElementById('board-name').value;

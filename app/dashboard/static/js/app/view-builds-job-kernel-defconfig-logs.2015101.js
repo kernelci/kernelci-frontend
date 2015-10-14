@@ -7,7 +7,7 @@ require([
     'utils/request',
     'utils/urls',
     'utils/date'
-], function($, b, e, i, r, u) {
+], function($, b, e, init, r, u) {
     'use strict';
     var fileServer,
         jobName,
@@ -357,7 +357,8 @@ require([
     $(document).ready(function() {
         document.getElementById('li-build').setAttribute('class', 'active');
         // Setup and perform base operations.
-        i();
+        init.hotkeys();
+        init.tooltip();
 
         if (document.getElementById('file-server') !== null) {
             fileServer = document.getElementById('file-server').value;
