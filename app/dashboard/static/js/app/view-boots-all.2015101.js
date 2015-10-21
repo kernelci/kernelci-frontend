@@ -6,10 +6,12 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
+    'utils/const',
     'utils/date'
-], function($, init, e, r, t, html) {
+], function($, init, e, r, t, html, appconst) {
     'use strict';
-    var bootsTable,
+    var bootReqData,
+        bootsTable,
         dateRange,
         pageLen,
         searchFilter;
@@ -18,8 +20,50 @@ require([
 
     searchFilter = null;
     pageLen = null;
-    bootsTable = null;
-    dateRange = 14;
+    dateRange = appconst.MAX_DATE_RANGE;
+
+    /**
+     * Update the table with the new data.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBootsDone(response) {
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            bootsTable.addRows(results);
+        }
+    }
+
+    /**
+     * Get the other remaining boot reports.
+     * Triggered after the initial get request.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBoots(response) {
+        var deferred,
+            idx,
+            totalReq,
+            resTotal,
+            resLen;
+
+        resTotal = response.count;
+        resLen = response.result.length;
+
+        if (resLen < resTotal) {
+            totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
+
+            // Starting at 1 since we already got the first batch of results.
+            for (idx = 1; idx <= totalReq; idx = idx + 1) {
+                bootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+                deferred = r.get('/_ajax/boot', bootReqData);
+                $.when(deferred)
+                    .done(getMoreBootsDone);
+            }
+        }
+    }
 
     function getBootsFail() {
         html.replaceContent(
@@ -394,19 +438,12 @@ require([
     }
 
     function getBoots() {
-        var data,
-            deferred;
+        var deferred;
 
-        data = {
-            sort: 'created_on',
-            sort_order: -1,
-            date_range: dateRange
-        };
-
-        deferred = r.get('/_ajax/boot', data);
+        deferred = r.get('/_ajax/boot', bootReqData);
         $.when(deferred)
             .fail(e.error, getBootsFail)
-            .done(getBootsDone);
+            .done(getBootsDone, getMoreBoots);
     }
 
     init.hotkeys();
@@ -421,6 +458,13 @@ require([
     if (document.getElementById('date-range') !== null) {
         dateRange = document.getElementById('date-range').value;
     }
+
+    bootReqData = {
+        date_range: dateRange,
+        limit: appconst.MAX_QUERY_LIMIT,
+        sort: 'created_on',
+        sort_order: -1
+    };
 
     bootsTable = t(['bootstable', 'table-loading', 'table-div'], true);
     getBoots();
