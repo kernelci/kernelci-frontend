@@ -444,6 +444,11 @@ define([
         return returnData;
     };
 
+    /**
+     * Get or set the table-DOM: the HTML structure of the table itself.
+     *
+     * @param {string} value: The table-DOM.
+    **/
     table.dom = function(value) {
         var returnData;
 
@@ -455,6 +460,17 @@ define([
 
         return returnData;
     };
+
+    /**
+     * Add new rows to the table, updating and refreshing it.
+     *
+     * @param {object} value: The data that the rows will be built on.
+     * It must be of the same type and with the same structure of the initial
+     * data with which the table was populated.
+    **/
+    table.addRows = function(value) {
+        tTable.rows.add(value).draw();
+    }
 
     return table;
 });
