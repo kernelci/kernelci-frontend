@@ -34,6 +34,13 @@ require([
         if (results.length > 0) {
             bootsTable.addRows(results);
         }
+
+        // Remove the loading banner when we get the last response.
+        // Not the best solution since the last real response might come
+        // before other requests depending on API time.
+        if ((response.skip + response.limit) >= response.count) {
+            html.removeChildrenByClass('table-process');
+        }
     }
 
     /**
@@ -44,15 +51,31 @@ require([
     **/
     function getMoreBoots(response) {
         var deferred,
+            iNode,
             idx,
-            totalReq,
+            resLen,
             resTotal,
-            resLen;
+            spanNode,
+            totalReq;
 
         resTotal = response.count;
         resLen = response.result.length;
 
         if (resLen < resTotal) {
+            // Add a small loading banner while we load more results.
+            spanNode = document.createElement('span');
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-cog fa-spin';
+
+            spanNode.appendChild(iNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            spanNode.appendChild(
+                document.createTextNode('loading more results'));
+            spanNode.insertAdjacentHTML('beforeend', '&#8230;');
+
+            html.replaceByClassNode('table-process', spanNode);
+
             totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
 
             // Starting at 1 since we already got the first batch of results.
@@ -82,7 +105,7 @@ require([
         if (resLen === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
-                html.errorDiv('No boots data available'));
+                html.errorDiv('No boots data available.'));
         } else {
             rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
                 '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
@@ -459,6 +482,7 @@ require([
         dateRange = document.getElementById('date-range').value;
     }
 
+    // Hold the data for the boot request. Global since it can be reused.
     bootReqData = {
         date_range: dateRange,
         limit: appconst.MAX_QUERY_LIMIT,
