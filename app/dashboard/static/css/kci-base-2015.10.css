@@ -281,3 +281,10 @@ div.dataTables_paginate {
 div.paging {
     padding-top: 0.5em;
 }
+.table-process {
+    font-size: smaller;
+    overflow: hidden;
+    padding-top: 0.35em;
+    text-align: center;
+    text-overflow: ellipsis;
+}

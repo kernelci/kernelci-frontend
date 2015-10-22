@@ -45,9 +45,10 @@ define([
     noIDUrl = false;
     elementsPerPage = [25, 50, 75, 100];
 
-    tableDom = '<"row"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"' +
+    tableDom = '<"row"<"col-xs-12 col-sm-12 col-md-4 col-lg-4"' +
             '<"length-menu"l>>' +
-            '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"f>r' +
+            '<"col-xs-12 col-sm-12 col-md-4 col-lg-4"<"table-process">>' +
+            '<"col-xs-12 col-sm-12 col-md-4 col-lg-4"f>r' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
             '<"row paging"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
             '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>';
