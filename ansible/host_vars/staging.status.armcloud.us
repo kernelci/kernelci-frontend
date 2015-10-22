@@ -1,2 +1,4 @@
 hostname: staging.status.armcloud.us
 role: staging
+uwsgi_threads: 2
+uwsgi_processes: 1

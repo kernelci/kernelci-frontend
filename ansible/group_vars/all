@@ -7,4 +7,5 @@ web_root: /usr/share/nginx/html
 git_head: master
 role: production
 uwsgi_port: 5000
-uwsgi_threads: 2
+uwsgi_threads: 4
+uwsgi_processes: 4
