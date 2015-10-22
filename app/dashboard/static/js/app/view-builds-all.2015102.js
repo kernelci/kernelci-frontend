@@ -6,17 +6,85 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
+    'utils/const',
     'utils/date'
-], function($, e, init, r, t, html) {
+], function($, e, init, r, t, html, appconst) {
     'use strict';
     var buildsTable,
+        buildReqData,
         dateRange,
         pageLen,
         searchFilter;
 
     document.getElementById('li-build').setAttribute('class', 'active');
 
-    dateRange = 14;
+    dateRange = appconst.MAX_DATE_RANGE;
+
+    /**
+     * Update the table with the new data.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBuildsDone(response) {
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            buildsTable.addRows(results);
+        }
+
+        // Remove the loading banner when we get the last response.
+        // Not the best solution since the last real response might come
+        // before other requests depending on API time.
+        if ((response.skip + response.limit) >= response.count) {
+            html.removeChildrenByClass('table-process');
+        }
+    }
+
+    /**
+     * Get the other remaining build reports.
+     * Triggered after the initial get request.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBuilds(response) {
+        var deferred,
+            iNode,
+            idx,
+            resLen,
+            resTotal,
+            spanNode,
+            totalReq;
+
+        resTotal = response.count;
+        resLen = response.result.length;
+
+        if (resLen < resTotal) {
+            // Add a small loading banner while we load more results.
+            spanNode = document.createElement('span');
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-cog fa-spin';
+
+            spanNode.appendChild(iNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            spanNode.appendChild(
+                document.createTextNode('loading more results'));
+            spanNode.insertAdjacentHTML('beforeend', '&#8230;');
+
+            html.replaceByClassNode('table-process', spanNode);
+
+            totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
+
+            // Starting at 1 since we already got the first batch of results.
+            for (idx = 1; idx <= totalReq; idx = idx + 1) {
+                buildReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+                deferred = r.get('/_ajax/build', buildReqData);
+                $.when(deferred)
+                    .done(getMoreBuildsDone);
+            }
+        }
+    }
 
     function getBuildsFail() {
         html.removeElement('table-loading');
@@ -266,23 +334,12 @@ require([
     }
 
     function getBuilds() {
-        var data,
-            deferred;
+        var deferred;
 
-        data = {
-            sort: 'created_on',
-            sort_order: -1,
-            date_range: dateRange,
-            field: [
-                '_id', 'job', 'kernel', 'status',
-                'arch', 'created_on', 'git_branch', 'defconfig_full'
-            ]
-        };
-
-        deferred = r.get('/_ajax/build', data);
+        deferred = r.get('/_ajax/build', buildReqData);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
-            .done(getBuildsDone);
+            .done(getBuildsDone, getMoreBuilds);
     }
 
     init.hotkeys();
@@ -297,6 +354,23 @@ require([
     if (document.getElementById('date-range') !== null) {
         dateRange = document.getElementById('date-range').value;
     }
+
+    buildReqData = {
+        sort: 'created_on',
+        sort_order: -1,
+        date_range: dateRange,
+        limit: appconst.MAX_QUERY_LIMIT,
+        field: [
+            '_id',
+            'arch',
+            'created_on',
+            'defconfig_full',
+            'git_branch',
+            'job',
+            'kernel',
+            'status'
+        ]
+    };
 
     buildsTable = t(['builds-table', 'table-loading', 'table-div'], true);
     getBuilds();
