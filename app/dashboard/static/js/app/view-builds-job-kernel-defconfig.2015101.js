@@ -302,7 +302,8 @@ require([
             rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
                 '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
 
-            bootsTable = tables(['bootstable', 'table-loading', 'boots-table-div']);
+            bootsTable = tables(
+                ['bootstable', 'table-loading', 'boots-table-div']);
 
             columns = [
                 {
