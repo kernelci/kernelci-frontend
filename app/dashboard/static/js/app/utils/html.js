@@ -5,6 +5,7 @@ define(function() {
         htmlEntities;
 
     html = {};
+    // Characters that should be HTML-escaped.
     htmlEntities = {
         '"': '&#34;',
         '#': '&#35;',
@@ -19,10 +20,33 @@ define(function() {
         '?': '&#63;'
     };
 
+    /**
+     * Remove children elements from a DOM element.
+     *
+     * @param {Element} element: The parent element.
+    **/
+    function _cleanElementChildren(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
+    }
+
+    /**
+     * Retrieve the specified char from the HTML-escape map.
+     *
+     * @param {string} char: The character to escape.
+    **/
+    function _getHTMLFromMap(char) {
+        return htmlEntities[char];
+    }
+
+    /**
+     * Parse a string and HTML-escape its characters.
+     *
+     * @param {string} toEscape: The string to parse and HTML-escape.
+    **/
     html.escape = function(toEscape) {
-        return String(toEscape).replace(/[&<>"'\/]/g, function fromMap(s) {
-            return htmlEntities[s];
-        });
+        return String(toEscape).replace(/[$#%&<>"'\/=]/g, _getHTMLFromMap);
     };
 
     html.boot = function() {
@@ -158,9 +182,7 @@ define(function() {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', html);
             }
         );
@@ -170,9 +192,7 @@ define(function() {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.appendChild(document.createTextNode(txt));
             }
         );
@@ -182,9 +202,7 @@ define(function() {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', content);
             }
         );
@@ -194,9 +212,7 @@ define(function() {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', html);
             }
         );
@@ -206,9 +222,7 @@ define(function() {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.appendChild(document.createTextNode(txt));
             }
         );
@@ -218,9 +232,7 @@ define(function() {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', content);
             }
         );
@@ -230,9 +242,7 @@ define(function() {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
-                while (element.firstChild) {
-                    element.removeChild(element.firstChild);
-                }
+                _cleanElementChildren(element);
                 element.appendChild(child);
             }
         );
@@ -240,43 +250,67 @@ define(function() {
 
     html.replaceContent = function(element, child) {
         if (element !== null) {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
+            _cleanElementChildren(element);
             element.appendChild(child);
         }
     };
 
     html.replaceContentHTML = function(element, html) {
         if (element !== null) {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
+            _cleanElementChildren(element);
             element.insertAdjacentHTML('beforeend', html);
         }
     };
 
+    /**
+     * Remove all children elements of the elements identified by a CSS class.
+     *
+     * @param {string} className: The name of the CSS class.
+    **/
+    html.removeChildrenByClass = function(className) {
+        [].forEach.call(
+            document.getElementsByClassName(className),
+            _cleanElementChildren
+        );
+    };
+
+    /**
+     * Remove all children elements of an element.
+     *
+     * @param {Element} element: The DOM element.
+    **/
     html.removeChildren = function(element) {
         if (element !== null) {
-            while (element.firstChild) {
-                element.removeChild(element.firstChild);
-            }
+            _cleanElementChildren(element);
         }
     };
 
-    html.addClass = function(element, newClass) {
+    /**
+     * Add a CSS class to an element.
+     * The new class won't be inserted if already there.
+     *
+     * @param {Element} element: The DOM element.
+     * @param {string} className: The name of the class to add.
+    **/
+    html.addClass = function(element, className) {
         var classes;
 
         if (element !== null) {
             classes = element.className.split(' ');
 
-            if (classes.indexOf(newClass) === -1) {
-                classes.push(newClass);
+            if (classes.indexOf(className) === -1) {
+                classes.push(className);
                 element.className = classes.join(' ');
             }
         }
     };
 
+    /**
+     * Remove a CSS class from an element.
+     *
+     * @param {Element} element: The DOM element.
+     * @param {string} className: The name of the class to add.
+    **/
     html.removeClass = function(element, className) {
         var classIdx,
             classes;
@@ -292,6 +326,14 @@ define(function() {
         }
     };
 
+    /**
+     * Get the specified attribute of an elmenet via a query selector.
+     * If multiple elements are identified using the specified selector, only
+     * the first one retrieved will be considered.
+     *
+     * @param {string} selector: The selector query string.
+     * @param {string} attribute: The name of the attribute to retrieve.
+    **/
     html.attrBySelector = function(selector, attribute) {
         var element,
             value;
