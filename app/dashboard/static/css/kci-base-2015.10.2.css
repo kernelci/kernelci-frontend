@@ -3,7 +3,7 @@ html {
   position: relative;
 }
 .main-content {
-    margin-bottom: 80px;
+    margin-bottom: 90px;
 }
 .rss-feed {
     font-size: small;
@@ -207,7 +207,7 @@ div.dataTables_filter {
 .footer {
     background-color: #f5f5f5;
     bottom: 0;
-    height: 80px;
+    height: 90px;
     position: absolute;
     width: 100%;
 }

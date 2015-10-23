@@ -51,3 +51,10 @@ class StatisticsView(GenericView):
     def dispatch_request(self):
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, "Statistics")
         return render_template("stats.html", page_title=page_title)
+
+
+class SponsorsView(GenericView):
+    def dispatch_request(self):
+        page_title = "%s &mdash; %s" % (
+            self.PAGE_TITLE, "Sponsors &amp; Contributors")
+        return render_template("sponsors.html", page_title=page_title)
