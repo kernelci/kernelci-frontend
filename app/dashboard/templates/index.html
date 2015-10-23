@@ -3,114 +3,101 @@
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<style type="text/css">
+    h1 {
+        font-size: 4em;
+    }
+    h3 {
+        font-size: 2em;
+    }
+    div.welcome-title {
+        margin-bottom: 1em;
+    }
+    div.welcome-text {
+        margin-top: 1em;
+        text-align: justify;
+    }
+    span.selection-label {
+        font-size: large;
+    }
+    div.welcome-choice {
+        margin-top: 1em;
+    }
+    .welcome-choice > .list-unstyled > li {
+        padding-bottom: 0.5em;
+    }
+</style>
+{%- endblock %}
 {%- block content %}
-{% include "number-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-        <h4>Failed Builds <small>(last {{ config["NUMBER_RANGE"] }} results)</small></h4>
-        </div>
-    {%- if is_mobile %}
-        <div class="table-responsive">
-    {%- else %}
-        <div class="table">
-    {%- endif %}
-        <table id="failed-builds" class="table table-striped table-condensed table-hover clickable-table">
-            <thead>
-                <tr>
-                    <th>Tree &dash; Branch</th>
-                    <th>Kernel</th>
-                    <th class="pull-center">Failed</th>
-                    <th class="pull-center">Date</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="failed-builds-body">
-                <tr class="pull-center">
-                    <td colspan="5">
-                        <small>
-                            <i class="fa fa-cog fa-spin"></i>&nbsp;retrieving build data&hellip;
-                        </small>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="5">
-                    <span rel="tooltip" data-toggle="tooltip" title="View all available builds">
-                        <a href="/build">All builds</a>
-                    </span>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+        <div class="welcome-title">
+            <h1>
+                Welcome to kernelci.org!
+            </h1>
         </div>
     </div>
-</div>
-<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pull-center">
+        <img src="/static/img/kci-welcome-1024.jpg"
+             id="welcome-image"
+             alt=""
+             sizes="85vw"
+             srcset="/static/img/kci-welcome-1280.jpg 1280w,
+                     /static/img/kci-welcome-1024.jpg 1024w,
+                     /static/img/kci-welcome-640.jpg 640w,
+                     /static/img/kci-welcome-320.jpg 320w,
+                     /static/img/kci-welcome-160.jpg 160w">
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-        <h4>Failed Boot Reports <small>(last {{ config["NUMBER_RANGE"] }} results)</small></h4>
+        <div class="pull-center" style="margin-top: 1em;">
+            <h3>Automated Linux Kernel Testing</h3>
+            <h4>&#8230;made easy!</h4>
         </div>
-    {%- if is_mobile %}
-        <div class="table-responsive">
-    {%- else %}
-        <div class="table">
-    {%- endif %}
-        <table id="failed-boots" class="table table-striped tabled-condensed table-hover clickable-table">
-            <thead>
-                <tr>
-                    <th>Tree &dash; Branch</th>
-                    <th>Kernel</th>
-                    <th>Board</th>
-                    <th class="defconfig-column">Defconfig</th>
-                    <th>Lab Name</th>
-                    <th class="pull-center">Failure Reason</th>
-                    <th class="date-column pull-center">Date</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="failed-boots-body">
-                <tr class="pull-center">
-                    <td colspan="8">
-                        <small>
-                            <i class="fa fa-cog fa-spin"></i>&nbsp;retrieving boot data&hellip;
-                        </small>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="8">
-                    <span rel="tooltip" data-toggle="tooltip" title="View all available boot reports">
-                    <a href="/boot">All boot reports</a>
-                    </span>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+        <div class="welcome-text">
+            <p>
+                kernelci.org is a community based, <a href="https://github.com/kernelci/" title="kernelci.org github page">open source</a> distributed test automation system focused on <a href="https://www.kernel.org/" title="Linux Kernel Archives">upstream Linux kernel</a> development.
+                <br/>
+                Our goal is to unify all upstream Linux kernel testing efforts in order to provide a single place where to store, view, compare and track these results.
+            </p>
+            <p>
+                It is our mission to detect, bisect, report and fix regressions on upstream Kernel trees before they even reach &#171;mainline&#187;.
+            </p>
         </div>
     </div>
-</div>
-<div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-          <h4>Trending Searches</h4>
+        <div class="welcome-choice">
+            <ul class="list-unstyled">
+                <li>
+                    <a class="btn btn-default" href="/job/" role="button">
+                        <i class="fa fa-sitemap fa-lg"></i>
+                    </a>
+                    &nbsp;
+                    <span class="selection-label">
+                        View trees being built and their latest results
+                    </span>
+                </li>
+                <li>
+                    <a class="btn btn-default" href="/build/" role="button">
+                        <i class="fa fa-cube fa-lg"></i>
+                    </a>
+                    &nbsp;
+                    <span class="selection-label">
+                        View latest builds being performed
+                    </span>
+                </li>
+                <li>
+                    <a class="btn btn-default" href="/boot/" role="button">
+                        <i class="fa fa-hdd-o fa-lg"></i>
+                    </a>
+                    &nbsp;
+                    <span class="selection-label">
+                        View latest boot reports
+                    </span>
+                </li>
+            </ul>
         </div>
-        <ul>
-            <li>
-                <a href="/boot/minnowboard-max/">Boot reports for &#171;<var>minnowboard-max</var>&#187;</a>
-            </li>
-            <li>
-                <a href="/boot/juno/">Boot reports for &#171;<var>juno</var>&#187;</a>
-            </li>
-            <li>
-                <a href="/job/next/">Jobs for tree &#171;<var>next</var>&#187;</a>
-            </li>
-            <li>
-                <a href="/job/mainline/">Jobs for tree &#171;<var>mainline</var>&#187;</a>
-            </li>
-        </ul>
     </div>
 </div>
 {%- endblock %}{# content block #}
