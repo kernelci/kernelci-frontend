@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Kernel CI - Builds and boots reporting dashboard">
+    <meta name="description"
+          content="kernelci.org - Automated Linux Kernel Testing">
     <meta name="robots" content="index,follow,nosnippet">
     <!--[if lt IE 9]>
     <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -71,16 +72,16 @@
         </div>
     </div>
     {% include "hotkeys.html" %}
-    <div class="container">
+    <div class="container main-content">
         <div id="errors-container"></div>
-        <div id="container-content">
+        <div id="content-container">
             {%- block content %}{%- endblock %}
         </div>
     </div>
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <div class="col-xs-3 col-sm-4 col-md-4 col-lg-4">
                     <ul class="list-unstyled">
                         <li>
                             <a title="Frequently asked questions" href="/faq">FAQ</a>
@@ -93,7 +94,7 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+                <div class="col-xs-3 col-sm-4 col-md-4 col-lg-4">
                     <ul class="list-unstyled">
                         <li>
                             Version:&nbsp;
