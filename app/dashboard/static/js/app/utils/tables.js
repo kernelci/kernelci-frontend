@@ -471,7 +471,7 @@ define([
     **/
     table.addRows = function(value) {
         tTable.rows.add(value).draw();
-    }
+    };
 
     return table;
 });

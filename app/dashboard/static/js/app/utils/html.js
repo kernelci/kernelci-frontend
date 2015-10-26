@@ -178,12 +178,12 @@ define(function() {
         return document.createElement('time');
     };
 
-    html.replaceAllBySelectorHTML = function(selector, html) {
+    html.replaceAllBySelectorHTML = function(selector, replacement) {
         [].forEach.call(
             document.querySelectorAll(selector),
             function(element) {
                 _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', html);
+                element.insertAdjacentHTML('beforeend', replacement);
             }
         );
     };
@@ -208,12 +208,12 @@ define(function() {
         );
     };
 
-    html.replaceByClassHTML = function(className, html) {
+    html.replaceByClassHTML = function(className, replacement) {
         [].forEach.call(
             document.getElementsByClassName(className),
             function(element) {
                 _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', html);
+                element.insertAdjacentHTML('beforeend', replacement);
             }
         );
     };
@@ -255,10 +255,10 @@ define(function() {
         }
     };
 
-    html.replaceContentHTML = function(element, html) {
+    html.replaceContentHTML = function(element, replacement) {
         if (element !== null) {
             _cleanElementChildren(element);
-            element.insertAdjacentHTML('beforeend', html);
+            element.insertAdjacentHTML('beforeend', replacement);
         }
     };
 
