@@ -6,7 +6,8 @@ html {
     margin-bottom: 90px;
 }
 .rss-feed {
-    font-size: small;
+    font-size: 77%;
+    margin-left: 0.35em;
 }
 .rss-feed a {
     color: #FF6600;

@@ -20,6 +20,8 @@ import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 
+import dashboard.utils.feed.job as jobfeed
+
 
 def init():
     # Save the function.
@@ -108,8 +110,20 @@ def init():
         methods=["GET"]
     )
     add_rule(
+        "/job/<string:job>/feed.atom",
+        "job-feed",
+        jobfeed.job_feed,
+        methods=["GET"]
+    )
+    add_rule(
         "/job/<string:job>/branch/<string:branch>/",
         view_func=vjob.JobsJobBranchView.as_view("job-branch"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/job/<string:job>/branch/<string:branch>/feed.atom",
+        "job-branch-feed",
+        jobfeed.job_branch_feed,
         methods=["GET"]
     )
 

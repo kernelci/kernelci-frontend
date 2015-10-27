@@ -25,6 +25,11 @@ class GeneralJobsView(View):
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     JOB_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Job Reports")
+    RSS_LINK = (
+        "<span class=\"rss-feed\">" +
+        "<a href=\"%s\" title=\"Atom Feed\">" +
+        "<i class=\"fa fa-rss\"></i></a><span>"
+    )
 
 
 class JobsAllView(GeneralJobsView):
@@ -43,9 +48,13 @@ class JobsAllView(GeneralJobsView):
 class JobsJobView(GeneralJobsView):
     def dispatch_request(self, **kwargs):
         job = kwargs["job"]
+
         body_title = "Details for&nbsp;&#171;%s&#187;" % job
+        body_title += self.RSS_LINK % ("/job/" + job + "/feed.atom")
+
         page_title = "%s &mdash; &#171;%s&#187; job" % (self.PAGE_TITLE, job)
         search_filter, page_len = get_search_parameters(request)
+
         return render_template(
             "jobs-job.html",
             body_title=body_title,
@@ -58,21 +67,25 @@ class JobsJobView(GeneralJobsView):
 
 class JobsJobBranchView(GeneralJobsView):
     def dispatch_request(self, **kwargs):
-        job_name = kwargs["job"]
-        branch_name = kwargs["branch"]
-        branch_name = branch_name.replace(":", "/")
-        search_filter, page_len = get_search_parameters(request)
+        job = kwargs["job"]
+        old_branch_name = kwargs["branch"]
+        branch_name = old_branch_name.replace(":", "/")
+
         body_title = (
             "Details for &#171;%s&#187; <small>"
-            "(branch %s)</small>" % (job_name, branch_name))
+            "(branch %s)</small>" % (job, branch_name))
+        body_title += self.RSS_LINK % \
+            ("/job/" + job + "/branch/" + old_branch_name + "/feed.atom")
+
         page_title = (
             "%s &mdash; &#171;%s&#187; job (branch %s)" %
-            (self.PAGE_TITLE, job_name, branch_name))
+            (self.PAGE_TITLE, job, branch_name))
+        search_filter, page_len = get_search_parameters(request)
 
         return render_template(
             "jobs-job-branch.html",
             body_title=body_title,
             branch_name=branch_name,
-            job_name=job_name,
+            job_name=job,
             page_title=page_title
         )

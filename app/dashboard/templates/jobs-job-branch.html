@@ -7,6 +7,7 @@
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.9.css">
 <link rel="stylesheet" type="text/css" href="/static/css/kci-graphs-2015.9.1.css">
+<link href="/job/{{ job }}/branch/{{ branch_name }}/feed.atom" rel="alternate" title="Recent Changes" type="application/atom+xml">
 {%- endblock %}
 {%- block content %}
 {%- include "number-range.html" %}
