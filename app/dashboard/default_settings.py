@@ -59,9 +59,9 @@ NUMBER_RANGE = 20
 # Google Analytics code.
 GOOGLE_ANALYTICS_ID = None
 
-# Redis cache values.
 CACHE_TYPE = "simple"
 CACHE_KEY_PREFIX = "kernelcifrontend|"
+# Redis cache values.
 CACHE_REDIS_HOST = "localhost"
 CACHE_REDIS_PORT = 6379
 CACHE_REDIS_DB = 0
@@ -69,10 +69,10 @@ CACHE_DEFAULT_TIMEOUT = 420
 
 # Timeout seconds to connect and read from the remote server.
 REQUEST_CONNECT_TIMEOUT = 10.0
-REQUEST_READ_TIMEOUT = 30.0
+REQUEST_READ_TIMEOUT = 35.0
 # Backend requests pool size.
-REQUEST_MIN_POOL_SIZE = 25
-REQUEST_MAX_POOL_SIZE = 100
+REQUEST_MIN_POOL_SIZE = 100
+REQUEST_MAX_POOL_SIZE = 250
 
 DEBUG = True
 TESTING = DEBUG
