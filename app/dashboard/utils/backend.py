@@ -87,17 +87,6 @@ def extract_gzip_data(data, headers):
     return json_data
 
 
-def is_mobile_browser(request):
-    """Verify if the request is made from a mobile browser.
-
-    :param request: The request to analyze.
-    :return True or False.
-    """
-    platform = request.user_agent.platform
-    user_agent = request.user_agent.string
-    return _is_mobile_browser(platform, user_agent)
-
-
 @app.cache.memoize(timeout=60*60*6)
 def _is_mobile_browser(platform, user_agent):
     """Wrapper to make the function cachable.
@@ -124,21 +113,15 @@ def _is_mobile_browser(platform, user_agent):
     return is_mobile
 
 
-def is_old_browser(request):
-    """Define if a browser is an older version.
-
-    An older browser might not support all features. Right now we check only
-    if IE is < 9.
+def is_mobile_browser(request):
+    """Verify if the request is made from a mobile browser.
 
     :param request: The request to analyze.
     :return True or False.
     """
-    browser = request.user_agent.browser
-    version = (
-        request.user_agent.version and
-        int(request.user_agent.version.split(".")[0])
-    )
-    return _is_old_browser(browser, version)
+    platform = request.user_agent.platform
+    user_agent = request.user_agent.string
+    return _is_mobile_browser(platform, user_agent)
 
 
 @app.cache.memoize(timeout=60*60*6)
@@ -157,6 +140,23 @@ def _is_old_browser(browser, version):
         is_old = True
 
     return is_old
+
+
+def is_old_browser(request):
+    """Define if a browser is an older version.
+
+    An older browser might not support all features. Right now we check only
+    if IE is < 9.
+
+    :param request: The request to analyze.
+    :return True or False.
+    """
+    browser = request.user_agent.browser
+    version = (
+        request.user_agent.version and
+        int(request.user_agent.version.split(".")[0])
+    )
+    return _is_old_browser(browser, version)
 
 
 def get_search_parameters(request):
@@ -229,21 +229,6 @@ def _create_api_path(api_path, other_path=None):
             api_path = _check_and_remove_trailing_slash(api_path)
 
     return api_path
-
-
-@app.cache.memoize(timeout=60*60*6)
-def _get_request_headers():
-    """Get the default request headers.
-
-    :return The headers as a dictionary.
-    """
-    headers = {}
-    if AUTH_TOKEN:
-        headers = {
-            AUTH_HEADER: AUTH_TOKEN
-        }
-
-    return headers
 
 
 def request_get(url, params=None, timeout=None):
