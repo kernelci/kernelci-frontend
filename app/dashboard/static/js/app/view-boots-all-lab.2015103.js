@@ -6,13 +6,87 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
+    'utils/const',
     'utils/date'
-], function($, e, init, r, t, html) {
+], function($, e, init, r, t, html, appconst) {
     'use strict';
-    var dateRange,
+    var bootReqData,
+        bootsTable,
+        dateRange,
         labName,
         pageLen,
         searchFilter;
+
+    document.getElementById('li-boot').setAttribute('class', 'active');
+    dateRange = appconst.MAX_DATE_RANGE;
+    pageLen = null;
+    searchFilter = null;
+
+    /**
+     * Update the table with the new data.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBootsDone(response) {
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            bootsTable.addRows(results);
+        }
+
+        // Remove the loading banner when we get the last response.
+        // Not the best solution since the last real response might come
+        // before other requests depending on API time.
+        if ((response.skip + response.limit) >= response.count) {
+            html.removeChildrenByClass('table-process');
+        }
+    }
+
+    /**
+     * Get the other remaining boot reports.
+     * Triggered after the initial get request.
+     *
+     * @param {object} response: The response from the previous request.
+    **/
+    function getMoreBoots(response) {
+        var deferred,
+            iNode,
+            idx,
+            resLen,
+            resTotal,
+            spanNode,
+            totalReq;
+
+        resTotal = response.count;
+        resLen = response.result.length;
+
+        if (resLen < resTotal) {
+            // Add a small loading banner while we load more results.
+            spanNode = document.createElement('span');
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-cog fa-spin';
+
+            spanNode.appendChild(iNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            spanNode.appendChild(
+                document.createTextNode('loading more results'));
+            spanNode.insertAdjacentHTML('beforeend', '&#8230;');
+
+            html.replaceByClassNode('table-process', spanNode);
+
+            totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
+
+            // Starting at 1 since we already got the first batch of results.
+            for (idx = 1; idx <= totalReq; idx = idx + 1) {
+                bootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+                deferred = r.get('/_ajax/boot', bootReqData);
+                $.when(deferred)
+                    .done(getMoreBootsDone);
+            }
+        }
+    }
 
     function getBootsFail() {
         html.removeElement(document.getElementById('table-loading'));
@@ -22,8 +96,7 @@ require([
     }
 
     function getBootsDone(response) {
-        var bootsTable,
-            columns,
+        var columns,
             resLen,
             results,
             rowURLFmt;
@@ -32,9 +105,6 @@ require([
         resLen = results.length;
 
         if (resLen > 0) {
-            bootsTable = t(
-                ['boots-table', 'table-loading', 'table-div'], true);
-
             columns = [
                 {
                     data: '_id',
@@ -216,6 +286,11 @@ require([
                     }
                 },
                 {
+                    data: 'arch',
+                    title: 'Arch.',
+                    className: 'arch-column'
+                },
+                {
                     data: 'created_on',
                     title: 'Date',
                     type: 'date',
@@ -241,6 +316,8 @@ require([
                             }
                         } else {
                             created = new Date(data.$date);
+                            rendered = created.toCustomISODate();
+
                             if (type === 'display') {
                                 timeNode = document.createElement('time');
                                 timeNode.setAttribute(
@@ -250,8 +327,6 @@ require([
                                         created.toCustomISODate())
                                 );
                                 rendered = timeNode.outerHTML;
-                            } else {
-                                rendered = created;
                             }
                         }
 
@@ -360,7 +435,7 @@ require([
             bootsTable
                 .tableData(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([6, 'desc'])
                 .menu('boot reports per page')
                 .rowURL(rowURLFmt)
                 .rowURLElements(
@@ -379,21 +454,14 @@ require([
     }
 
     function getBoots() {
-        var data,
-            deferred;
+        var deferred;
 
-        data = {
-            lab_name: labName,
-            date_range: dateRange
-        };
-
-        deferred = r.get('/_ajax/boot', data);
+        deferred = r.get('/_ajax/boot', bootReqData);
         $.when(deferred)
             .fail(e.error, getBootsFail)
-            .done(getBootsDone);
+            .done(getBootsDone, getMoreBoots);
     }
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
     init.hotkeys();
     init.tooltip();
 
@@ -410,5 +478,26 @@ require([
         pageLen = document.getElementById('page-len').value;
     }
 
+    bootReqData = {
+        date_range: dateRange,
+        field: [
+            '_id',
+            'arch',
+            'board',
+            'created_on',
+            'defconfig_full',
+            'git_branch',
+            'job',
+            'kernel',
+            'lab_name',
+            'status'
+        ],
+        lab_name: labName,
+        limit: appconst.MAX_QUERY_LIMIT,
+        sort: 'created_on',
+        sort_order: -1
+    };
+
+    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
     getBoots();
 });
