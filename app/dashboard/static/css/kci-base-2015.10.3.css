@@ -32,8 +32,8 @@ html {
     min-width: 115px;
 }
 .failure-column {
-    max-width: 275px;
-    width: 275px;
+    max-width: 260px;
+    width: 260px;
 }
 .board-column {
     max-width: 150px;
@@ -41,12 +41,15 @@ html {
 }
 .commit-column,
 .kernel-column {
-    max-width: 170px;
-    min-width: 150px;
+    max-width: 140px;
+    min-width: 90px;
 }
 .defconfig-column {
-    max-width: 170px;
-    min-width: 150px;
+    max-width: 130px;
+    min-width: 90px;
+}
+td.arch-column {
+    font-size: smaller;
 }
 .date-column {
     max-width: 75px;
