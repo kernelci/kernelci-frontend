@@ -6,8 +6,9 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
+    'utils/const',
     'utils/date'
-], function($, init, e, r, t, html) {
+], function($, init, e, r, t, html, appconst) {
     'use strict';
     var dateRange,
         jobsTable,
@@ -15,11 +16,9 @@ require([
         searchFilter;
 
     document.getElementById('li-job').setAttribute('class', 'active');
-
-    dateRange = 14;
+    dateRange = appconst.MAX_DATE_RANGE;
     searchFilter = null;
     pageLen = null;
-    jobsTable = null;
 
     function bootColumnTitle() {
         var tooltipNode;
@@ -316,12 +315,14 @@ require([
                     type: 'date',
                     className: 'pull-center',
                     render: function(data, type) {
-                        var tooltipNode,
-                            created,
-                            iNode;
+                        var created,
+                            iNode,
+                            rendered,
+                            timeNode,
+                            tooltipNode;
 
                         if (data === null) {
-                            created = data;
+                            rendered = data;
                             if (type === 'display') {
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
@@ -330,16 +331,25 @@ require([
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
-                                created = tooltipNode.outerHTML;
+                                rendered = tooltipNode.outerHTML;
                             }
                         } else {
                             created = new Date(data.$date);
-                            if (type === 'display' || type === 'filter') {
-                                created = created.toCustomISODate();
+                            rendered = created.toCustomISODate();
+
+                            if (type === 'display') {
+                                timeNode = document.createElement('time');
+                                timeNode.setAttribute(
+                                    'datetime', created.toISOString());
+                                timeNode.appendChild(
+                                    document.createTextNode(
+                                        created.toCustomISODate())
+                                );
+                                rendered = timeNode.outerHTML;
                             }
                         }
 
-                        return created;
+                        return rendered;
                     }
                 },
                 {

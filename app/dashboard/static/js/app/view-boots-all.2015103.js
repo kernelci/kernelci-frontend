@@ -294,7 +294,7 @@ require([
                 {
                     data: 'arch',
                     title: 'Arch.',
-                    type: 'string'
+                    className: 'arch-column'
                 },
                 {
                     data: 'lab_name',
@@ -322,10 +322,12 @@ require([
                     render: function(data, type) {
                         var created,
                             iNode,
+                            rendered,
+                            timeNode,
                             tooltipNode;
 
                         if (data === null) {
-                            created = data;
+                            rendered = data;
                             if (type === 'display') {
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
@@ -334,16 +336,25 @@ require([
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
-                                created = tooltipNode.outerHTML;
+                                rendered = tooltipNode.outerHTML;
                             }
                         } else {
                             created = new Date(data.$date);
-                            if (type === 'display' || type === 'filter') {
-                                created = created.toCustomISODate();
+                            rendered = created.toCustomISODate();
+
+                            if (type === 'display') {
+                                timeNode = document.createElement('time');
+                                timeNode.setAttribute(
+                                    'datetime', created.toISOString());
+                                timeNode.appendChild(
+                                    document.createTextNode(
+                                        created.toCustomISODate())
+                                );
+                                rendered = timeNode.outerHTML;
                             }
                         }
 
-                        return created;
+                        return rendered;
                     }
                 },
                 {

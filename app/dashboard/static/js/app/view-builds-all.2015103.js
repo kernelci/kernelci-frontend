@@ -17,8 +17,9 @@ require([
         searchFilter;
 
     document.getElementById('li-build').setAttribute('class', 'active');
-
     dateRange = appconst.MAX_DATE_RANGE;
+    pageLen = null;
+    searchFilter = null;
 
     /**
      * Update the table with the new data.
@@ -204,7 +205,8 @@ require([
                 },
                 {
                     data: 'arch',
-                    title: 'Arch.'
+                    title: 'Arch.',
+                    className: 'arch-column'
                 },
                 {
                     data: 'created_on',
@@ -212,12 +214,14 @@ require([
                     type: 'date',
                     className: 'date-column pull-center',
                     render: function(data, type) {
-                        var tooltipNode,
-                            created,
-                            iNode;
+                        var created,
+                            iNode,
+                            rendered,
+                            timeNode,
+                            tooltipNode;
 
                         if (data === null) {
-                            created = data;
+                            rendered = data;
                             if (type === 'display') {
                                 tooltipNode = html.tooltip();
                                 tooltipNode.setAttribute('Not available');
@@ -226,16 +230,25 @@ require([
                                 iNode.className = 'fa fa-ban';
 
                                 tooltipNode.appendChild(iNode);
-                                created = tooltipNode.outerHTML;
+                                rendered = tooltipNode.outerHTML;
                             }
                         } else {
                             created = new Date(data.$date);
-                            if (type === 'display' || type === 'filter') {
-                                created = created.toCustomISODate();
+                            rendered = created.toCustomISODate();
+
+                            if (type === 'display') {
+                                timeNode = document.createElement('time');
+                                timeNode.setAttribute(
+                                    'datetime', created.toISOString());
+                                timeNode.appendChild(
+                                    document.createTextNode(
+                                        created.toCustomISODate())
+                                );
+                                rendered = timeNode.outerHTML;
                             }
                         }
 
-                        return created;
+                        return rendered;
                     }
                 },
                 {
