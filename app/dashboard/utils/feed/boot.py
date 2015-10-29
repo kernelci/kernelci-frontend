@@ -148,21 +148,24 @@ def _get_boot_data(req_params):
     return results
 
 
-def get_boot_board_feed(board):
-    """Create the Atom feed for the boot-board view.
+def get_boot_board_job_feed(board, job):
+    """Create the Atom feed for the boot-board-job view.
 
     :param board: The name of the board.
     :type board: str
+    :param job: The name of the tree.
+    :type job: str
     """
     feed_categories = copy.deepcopy(FEED_CATEGORIES)
     feed_categories.append({"board": board})
+    feed_categories.append({"tree": job})
 
     feed_data = {
         "alternate_url": BOOT_COMPLETE_FRONTEND_URL,
         "cache_key": hashlib.md5(request.url).digest(),
         "feed_categories": feed_categories,
         "feed_url": request.url,
-        "frontend_url": u"/boot/%(board)s/",
+        "frontend_url": BASE_URL + u"/boot/%(board)s/job/%(job)s/",
         "host_url": request.host_url,
         "template_name": "boot.html",
         "content_links": [
@@ -177,6 +180,53 @@ def get_boot_board_feed(board):
             {
                 "href": BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/",
                 "label": u"Build reports"
+            },
+            {
+                "href": BASE_URL + u"/job/%(job)s/",
+                "label": u"Job reports"
+            }
+        ]
+    }
+
+    feed_data["title"] = (
+        u"kernelci.org \u2014 Boot Reports for Board \u00AB%s\u00BB - %s" %
+        (board, job))
+    feed_data["subtitle"] = \
+        u"Latest available boot reports for board %s - %s" % (board, job)
+    feed_data["entry_title"] = (
+        u"%(status)s \u2014 %(lab_name)s \u2013 %(kernel)s " +
+        u"%(defconfig_full)s (%(arch)s)")
+
+    return feed.create_feed(
+        [("board", board), ("job", job)],
+        feed_data, _get_boot_data, _parse_boot_results)
+
+
+def get_boot_board_feed(board):
+    """Create the Atom feed for the boot-board view.
+
+    :param board: The name of the board.
+    :type board: str
+    """
+    feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"board": board})
+
+    feed_data = {
+        "alternate_url": BOOT_COMPLETE_FRONTEND_URL,
+        "cache_key": hashlib.md5(request.url).digest(),
+        "feed_categories": feed_categories,
+        "feed_url": request.url,
+        "frontend_url": BASE_URL + u"/boot/%(board)s/",
+        "host_url": request.host_url,
+        "template_name": "boot.html",
+        "content_links": [
+            {
+                "href": BOOT_COMPLETE_FRONTEND_URL,
+                "label": u"Boot report details"
+            },
+            {
+                "href": BASE_URL + u"/boot/%(board)s/",
+                "label": u"Boot reports for board %(board)s"
             }
         ]
     }
@@ -191,8 +241,7 @@ def get_boot_board_feed(board):
 
     return feed.create_feed(
         [("board", board)],
-        feed_data, _get_boot_data, _parse_boot_results
-    )
+        feed_data, _get_boot_data, _parse_boot_results)
 
 
 def get_boot_all_lab_feed(lab_name):
@@ -209,7 +258,7 @@ def get_boot_all_lab_feed(lab_name):
         "cache_key": hashlib.md5(request.url).digest(),
         "feed_categories": feed_categories,
         "feed_url": request.url,
-        "frontend_url": u"/boot/all/lab/%(lab_name)s/",
+        "frontend_url": BASE_URL + u"/boot/all/lab/%(lab_name)s/",
         "host_url": request.host_url,
         "template_name": "boot.html",
         "content_links": [
@@ -238,5 +287,4 @@ def get_boot_all_lab_feed(lab_name):
 
     return feed.create_feed(
         [("lab_name", lab_name)],
-        feed_data, _get_boot_data, _parse_boot_results
-    )
+        feed_data, _get_boot_data, _parse_boot_results)

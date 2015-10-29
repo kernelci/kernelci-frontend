@@ -226,11 +226,14 @@ class BootBoardView(BootGeneralView):
 
 class BootBoardJobView(BootGeneralView):
     def dispatch_request(self, **kwargs):
+        board = kwargs["board"]
+        job = kwargs["job"]
         body_title = (
-            "Boot reports for board&nbsp;&#171;%(board)s"
-            "&#187;&nbsp;<small>(%(job)s)</small>" %
-            kwargs
-        )
+            "Boot reports for board&nbsp;&#171;%s" +
+            "&#187;&nbsp;<small>(%s)</small>") % (board, job)
+        body_title += \
+            self.RSS_LINK % ("/boot/%s/job/%s/feed.atom" % (board, job))
+
         return render_template(
             "boots-board-job.html",
             page_title=self.BOOT_PAGES_TITLE,
