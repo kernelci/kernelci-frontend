@@ -35,9 +35,10 @@ FEED_CATEGORIES = [
     {"term": "ci"},
     {"term": "linux"}
 ]
+BASE_URL = CONFIG_GET("BASE_URL")
 
 BOOT_COMPLETE_FRONTEND_URL = (
-    CONFIG_GET("BASE_URL") +
+    BASE_URL +
     u"/boot/%(board)s/job/%(job)s/kernel/%(kernel)s"
     "/defconfig/%(defconfig_full)s/lab/%(lab_name)s/?_id=%(boot_id)s"
 )
@@ -147,6 +148,53 @@ def _get_boot_data(req_params):
     return results
 
 
+def get_boot_board_feed(board):
+    """Create the Atom feed for the boot-board view.
+
+    :param board: The name of the board.
+    :type board: str
+    """
+    feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"board": board})
+
+    feed_data = {
+        "alternate_url": BOOT_COMPLETE_FRONTEND_URL,
+        "cache_key": hashlib.md5(request.url).digest(),
+        "feed_categories": feed_categories,
+        "feed_url": request.url,
+        "frontend_url": u"/boot/%(board)s/",
+        "host_url": request.host_url,
+        "template_name": "boot.html",
+        "content_links": [
+            {
+                "href": BOOT_COMPLETE_FRONTEND_URL,
+                "label": u"Boot report details"
+            },
+            {
+                "href": BASE_URL + u"/boot/%(board)s/",
+                "label": u"Boot reports for board %(board)s"
+            },
+            {
+                "href": BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/",
+                "label": u"Build reports"
+            }
+        ]
+    }
+
+    feed_data["title"] = \
+        u"kernelci.org \u2014 Boot Reports for Board \u00AB%s\u00BB" % board
+    feed_data["subtitle"] = \
+        u"Latest available boot reports for board %s" % board
+    feed_data["entry_title"] = (
+        u"%(status)s \u2014 %(lab_name)s \u2013 %(job)s %(kernel)s " +
+        u"%(defconfig_full)s (%(arch)s)")
+
+    return feed.create_feed(
+        [("board", board)],
+        feed_data, _get_boot_data, _parse_boot_results
+    )
+
+
 def get_boot_all_lab_feed(lab_name):
     """Create the Atom feed for the boot-lab view.
 
@@ -170,18 +218,18 @@ def get_boot_all_lab_feed(lab_name):
                 "label": u"Boot report details"
             },
             {
-                "href": u"/boot/all/lab/%(lab_name)s/",
+                "href": BASE_URL + u"/boot/all/lab/%(lab_name)s/",
                 "label": u"Boot reports for lab %(lab_name)s"
             },
             {
-                "href": u"/build/%(job)s/kernel/%(kernel)s/",
+                "href": BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/",
                 "label": u"Build reports"
             }
         ]
     }
 
     feed_data["title"] = \
-        u"kernelci.org \u2014 Boot Reports for lab \u00AB%s\u00BB" % lab_name
+        u"kernelci.org \u2014 Boot Reports for Lab \u00AB%s\u00BB" % lab_name
     feed_data["subtitle"] = \
         u"Latest available boot reports for lab %s" % lab_name
     feed_data["entry_title"] = (

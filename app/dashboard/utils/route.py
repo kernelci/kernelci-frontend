@@ -196,6 +196,12 @@ def init():
         methods=["GET"]
     )
     add_rule(
+        "/boot/<string:board>/feed.atom",
+        "boot-board-feed",
+        bootfeed.get_boot_board_feed,
+        methods=["GET"]
+    )
+    add_rule(
         "/boot/<string:board>/job/<string:job>/",
         view_func=vboot.BootBoardJobView.as_view("boot-board-job"),
         methods=["GET"]

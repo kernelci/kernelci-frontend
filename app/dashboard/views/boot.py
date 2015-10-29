@@ -206,10 +206,11 @@ class BootBoardJobKernelView(BootGeneralView):
 
 class BootBoardView(BootGeneralView):
     def dispatch_request(self, **kwargs):
-        body_title = (
-            "Boot reports for board&nbsp;&#171;%(board)s&#187;" %
-            kwargs
-        )
+        board = kwargs["board"]
+        body_title = \
+            "Boot reports for board&nbsp;&#171;%s&#187;" % board
+        body_title += \
+            self.RSS_LINK % ("/boot/" + board + "/feed.atom")
 
         search_filter, page_len = get_search_parameters(request)
 
@@ -217,7 +218,7 @@ class BootBoardView(BootGeneralView):
             "boots-board.html",
             page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
-            board=kwargs["board"],
+            board=board,
             page_len=page_len,
             search_filter=search_filter
         )
