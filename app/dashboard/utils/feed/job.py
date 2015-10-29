@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Job Atom feeds module."""
+
 try:
     import simple_json as json
 except ImportError:
@@ -18,8 +20,6 @@ except ImportError:
 
 import copy
 import hashlib
-
-import werkzeug.contrib.atom as watom
 
 from flask import (
     current_app as app,
@@ -29,69 +29,21 @@ from flask import (
 import dashboard.utils.backend as backend
 import dashboard.utils.feed as feed
 
-from dashboard import __version__
-
 CONFIG_GET = app.config.get
 
 # Necessary URLs for the feed.
 BACKEND_JOB_URL = backend.create_url(CONFIG_GET("JOB_API_ENDPOINT"))
-
-FRONTEND_JOB_KERNEL_URL = \
-    CONFIG_GET("BASE_URL") + u"/job/%(job)s/kernel/%(kernel)s/"
-FRONTEND_JOB_URL = CONFIG_GET("BASE_URL") + u"/job/%(job)s/"
-FRONTEND_JOB_BRANCH_URL = \
-    CONFIG_GET("BASE_URL") + u"/job/%(job)s/branch/%(branch)s/"
+BASE_URL = CONFIG_GET("BASE_URL")
 
 FEED_TITLE = u"Built kernel \u00AB%(kernel)s\u00BB (%(git_branch)s)"
 
-JOB_CONTENT_TEMPLATE = u"""
-<div>
-<div>
-<h3>Overview</h3>
-<dl>
-<dt>Tree</dt><dd>%(job)s</dd>
-<dt>Kernel</dt><dd>%(kernel)s</dd>
-<dt>Git branch</dt><dd>%(git_branch)s</dd>
-<dt>Git URL</dt><dd>%(git_url)s</dd>
-<dt>Git commit</dt><dd>%(git_commit)s</dd>
-</dl>
-</div>
-<div>
-<h3>Build and Boot Reports Count</h3>
-<h4>Build Reports</h4>
-<div>
-Total: %(total_builds)s
-<br/>
-Passed: %(passed_builds)s
-<br/>
-Failed: %(failed_builds)s
-<br/>
-Other: %(other_builds)s
-</div>
-<h4>Boot Reports</h4>
-<div>
-Total: %(total_boots)s
-<br/>
-Passed: %(passed_boots)s
-<br/>
-Failed: %(failed_boots)s
-<br/>
-Other: %(other_boots)s
-</div>
-</div>
-<div>
-<h3>Links</h3>
-<div>
-<ul>
-<li><a href="/build/%(job)s/kernel/%(kernel)s/">Build reports</a></li>
-<li><a href="/boot/all/job/%(job)s/kernel/%(kernel)s/">Boot reports</a></li>
-</ul>
-</div>
-</div>
-</div>
-"""
+FRONTEND_JOB_URL = BASE_URL + u"/job/%(job)s/"
+FRONTEND_JOB_BRANCH_URL = BASE_URL + u"/job/%(job)s/branch/%(git_branch)s/"
 
-# Some categories for the feed.
+BUILD_REPORTS_URL = BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/"
+BOOT_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/"
+
+# Some base categories for the feed.
 FEED_CATEGORIES = [
     {"term": "job"},
     {"term": "ci"},
@@ -236,7 +188,7 @@ def _get_job_counts(query_params):
     return count_results
 
 
-def _parse_job_results(results, branch=None):
+def _parse_job_results(results, feed_data):
     """Parse the job results from the backend to create the feed data.
 
     :param results: The results from the backend, a list of dicts.
@@ -246,49 +198,63 @@ def _parse_job_results(results, branch=None):
     :type branch: list
     :return: Yield a dictionary with the correct values for the feed entry.
     """
-    for result in results:
-        counts = _get_job_counts(copy.deepcopy(result))
-        result.update(counts)
+    if results and results["result"]:
+        results = results["result"]
+        f_get = feed_data.get
 
-        alternate_link = FRONTEND_JOB_URL
-        if branch:
-            alternate_link = FRONTEND_JOB_BRANCH_URL
-            result["branch"] = branch[1]
+        for result in results:
+            counts = _get_job_counts(copy.deepcopy(result))
+            result.update(counts)
 
-        job_date = feed.convert_date(result["created_on"]["$date"])
+            content_links = copy.deepcopy(f_get("content_links", None))
+            if content_links:
+                for c_link in content_links:
+                    c_link["href"] = c_link["href"] % result
+                    c_link["label"] = c_link["label"] % result
+                result["content_links"] = content_links
 
-        parsed_res = {
-            "content": JOB_CONTENT_TEMPLATE % result,
-            "links": [
-                {"href": alternate_link, "rel": "alternate"}
-            ],
-            "published": job_date,
-            "title": FEED_TITLE % result,
-            "updated": job_date,
-            "url": FRONTEND_JOB_KERNEL_URL % result
-        }
+            job_date = feed.convert_date(result["created_on"]["$date"])
 
-        yield parsed_res
+            # pylint: disable=star-args
+            content = u""
+            content += \
+                feed.TEMPLATES_ENV.get_template(
+                    f_get("template_name")).render(**result)
+
+            parsed_res = {
+                "content": content,
+                "links": [
+                    {
+                        "href": f_get("alternate_url") % result,
+                        "rel": "alternate"
+                    }
+                ],
+                "published": job_date,
+                "title": f_get("entry_title") % result,
+                "updated": job_date,
+                "url": f_get("frontend_url") % result
+            }
+
+            yield parsed_res
 
 
-def _get_job_data(job, branch=None):
+def _get_job_data(req_params):
     """Retrieve the job data from the backend.
 
-    :param job: The job name.
-    :type job: str
-    :param branch: The branch value, if it was specified. A list with two
-    values: the correct branch name, the branch name for URLs.
-    :type branch: list
+    :param req_params: The parameters for the request. They will be added to
+    the default ones.
+    :type req_params: dict
     :return: The results from the backend.
     """
     results = []
     params = [
-        ("date_range", 1),
+        ("date_range", 5),
         (
             "field",
             (
                 "_id",
                 "created_on",
+                "git_branch",
                 "git_branch",
                 "git_commit",
                 "git_url",
@@ -296,12 +262,11 @@ def _get_job_data(job, branch=None):
                 "kernel"
             )
         ),
-        ("job", job),
         ("sort", "created_on"),
         ("sort_order", -1)
     ]
-    if branch:
-        params.append(("git_branch", branch[0]))
+    if req_params:
+        params.extend(req_params)
 
     data, status, headers = backend.request_get(
         BACKEND_JOB_URL, params=params, timeout=60*60)
@@ -312,83 +277,83 @@ def _get_job_data(job, branch=None):
     return results
 
 
-def _create_job_feed(job, cache_key, title, subtitle, feed_url, branch=None):
-    """Create the job Atom feed.
+def job_branch_feed(job, branch):
+    """Create the Atom feed for job-branch view.
 
     :param job: The job name.
     :type job: str
-    :param cache_key: The key name for the cache.
-    :type cache_key: str
-    :pram title: The title for the Atom feed.
-    :type title: unicode
-    :param subtitle: The subtitle for the Atom feed.
-    :type subtitle: unicode
-    :param feed_url: The URL of the feed.
-    :type feed_url: str
-    :param branch: The branch value, if it was specified. A list with two
-    values: the correct branch name, the branch name for URLs.
-    :type branch: list
-    :return: The Atom feed response.
+    :param branch: The branch name.
+    :type branch: str
     """
-    job_feed = app.cache.get(cache_key)
+    # Replace the ':'' with the '/'' back.
+    branch = branch.replace(":", "/", 1)
 
-    if not job_feed:
-        host_url = request.host_url
+    feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"term": job})
+    feed_categories.append({"term": branch})
 
-        job_feed = watom.AtomFeed(
-            title,
-            title_type="text",
-            feed_url=feed_url,
-            url=host_url,
-            subtitle=subtitle,
-            generator=(feed.AUTHOR_NAME, host_url, __version__),
-            author=feed.AUTHOR_NAME
-        )
+    feed_data = {
+        "alternate_url": FRONTEND_JOB_BRANCH_URL,
+        "branch": branch,
+        "cache_key": hashlib.md5(request.url).digest(),
+        "content_links": [
+            {
+                "href": BUILD_REPORTS_URL, "label": u"Build reports"
+            },
+            {
+                "href": BOOT_REPORTS_URL, "label": u"Boot reports"
+            }
+        ],
+        "entry_title": FEED_TITLE,
+        "feed_categories": feed_categories,
+        "feed_url": request.url,
+        "frontend_url": FRONTEND_JOB_BRANCH_URL,
+        "host_url": request.host_url,
+        "template_name": "job.html",
+    }
 
-        results = _get_job_data(job, branch=branch)
-        if results:
-            for parsed in _parse_job_results(results["result"], branch=branch):
-                p_get = parsed.get
-                job_feed.add(
-                    categories=FEED_CATEGORIES,
-                    content=p_get("content"),
-                    content_type="html",
-                    links=p_get("links"),
-                    published=p_get("published"),
-                    title=p_get("title"),
-                    title_type="text",
-                    updated=p_get("updated"),
-                    url=p_get("url")
-                )
+    feed_data["subtitle"] = \
+        u"Latest available jobs for %s \u2013 %s" % (job, branch)
+    feed_data["title"] = (
+        u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB (%s) " %
+        (job, branch))
 
-        job_feed = job_feed.get_response()
-        app.cache.set(cache_key, job_feed, timeout=60*60)
-
-    return job_feed
-
-
-def job_branch_feed(job, branch):
-    """Create the Atom feed for job/branch views."""
-    feed_url = request.url
-    cache_key = hashlib.md5(feed_url).digest()
-    # Replace the ':'' with the '/'' back, but keep both versions.
-    branch = [branch.replace(":", "/", 1), branch]
-
-    title = (
-        u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB (%s)" %
-        (job, branch[0])
-    )
-    subtitle = u"Latest available jobs for %s \u2013 %s" % (job, branch[0])
-
-    return _create_job_feed(
-        job, cache_key, title, subtitle, feed_url, branch=branch)
+    return feed.create_feed(
+        [("job", job), ("git_branch", branch)],
+        feed_data, _get_job_data, _parse_job_results)
 
 
 def job_feed(job):
-    """Create the Atom feed for job views."""
-    feed_url = request.url
-    cache_key = hashlib.md5(feed_url).digest()
-    title = u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB" % job
-    subtitle = u"Latest available jobs for %s" % job
+    """Create the Atom feed for job view.
 
-    return _create_job_feed(job, cache_key, title, subtitle, feed_url)
+    :param job: The job name.
+    :type job: str
+    """
+    feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"term": job})
+
+    feed_data = {
+        "alternate_url": FRONTEND_JOB_URL,
+        "cache_key": hashlib.md5(request.url).digest(),
+        "content_links": [
+            {
+                "href": BUILD_REPORTS_URL, "label": u"Build reports"
+            },
+            {
+                "href": BOOT_REPORTS_URL, "label": u"Boot reports"
+            }
+        ],
+        "entry_title": FEED_TITLE,
+        "feed_categories": feed_categories,
+        "feed_url": request.url,
+        "frontend_url": FRONTEND_JOB_URL,
+        "host_url": request.host_url,
+        "template_name": "job.html",
+    }
+
+    feed_data["subtitle"] = u"Latest available jobs for %s" % job
+    feed_data["title"] = \
+        u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB" % job
+
+    return feed.create_feed(
+        [("job", job)], feed_data, _get_job_data, _parse_job_results)

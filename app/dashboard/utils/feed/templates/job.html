@@ -1,0 +1,53 @@
+<div>
+    <div>
+        <h3>Overview</h3>
+        <dl>
+            <dt><strong>Tree</strong></dt><dd>{{ job }}</dd>
+            <dt><strong>Kernel</strong></dt><dd>{{ kernel }}</dd>
+            <dt><strong>Git branch</strong></dt><dd>{{ git_branch }}</dd>
+            <dt><strong>Git URL</strong></dt><dd>{{ git_url }}</dd>
+            <dt><strong>Git commit</strong></dt><dd>{{ git_commit }}</dd>
+        </dl>
+    </div>
+    <div>
+        <h3>Build and Boot Reports Count</h3>
+        <div>
+            <h4>Build Reports</h4>
+            <div style="margin-left: 25px">
+            Total: {{ total_builds }}
+            <br/>
+            Passed: {{ passed_builds }}
+            <br/>
+            Failed: {{ failed_builds }}
+            <br/>
+            Other: {{ other_builds }}
+            </div>
+        </div>
+        <div>
+            <h4>Boot Reports</h4>
+            <div style="margin-left: 25px">
+                Total: {{ total_boots }}
+                <br/>
+                Passed: {{ passed_boots }}
+                <br/>
+                Failed: {{ failed_boots }}
+                <br/>
+                Other: {{ other_boots }}
+            </div>
+        </div>
+    </div>
+{%- if content_links %}
+    <div>
+        <h3>Links</h3>
+        <div>
+            <ul>
+            {%- for link in content_links %}
+                <li>
+                    <a href="{{ link.href }}">{{ link.label }}</a>
+                </li>
+            {%- endfor %}
+            </ul>
+        </div>
+    </div>
+{%- endif %}
+</div>
