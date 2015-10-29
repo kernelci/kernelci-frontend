@@ -37,10 +37,10 @@ CONFIG_GET = app.config.get
 BACKEND_JOB_URL = backend.create_url(CONFIG_GET("JOB_API_ENDPOINT"))
 
 FRONTEND_JOB_KERNEL_URL = \
-    CONFIG_GET("BASE_URL") + "/job/%(job)s/kernel/%(kernel)s/"
-FRONTEND_JOB_URL = CONFIG_GET("BASE_URL") + "/job/%(job)s/"
+    CONFIG_GET("BASE_URL") + u"/job/%(job)s/kernel/%(kernel)s/"
+FRONTEND_JOB_URL = CONFIG_GET("BASE_URL") + u"/job/%(job)s/"
 FRONTEND_JOB_BRANCH_URL = \
-    CONFIG_GET("BASE_URL") + "/job/%(job)s/branch/%(branch)s/"
+    CONFIG_GET("BASE_URL") + u"/job/%(job)s/branch/%(branch)s/"
 
 FEED_TITLE = u"Built kernel \u00AB%(kernel)s\u00BB (%(git_branch)s)"
 

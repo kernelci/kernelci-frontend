@@ -21,6 +21,7 @@ import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 
 import dashboard.utils.feed.job as jobfeed
+import dashboard.utils.feed.boot as bootfeed
 
 
 def init():
@@ -175,6 +176,12 @@ def init():
     add_rule(
         "/boot/all/lab/<string:lab_name>/",
         view_func=vboot.BootLab.as_view("boot-lab"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/boot/all/lab/<string:lab_name>/feed.atom",
+        "boot-all-lab-feed",
+        bootfeed.get_boot_all_lab,
         methods=["GET"]
     )
     add_rule(

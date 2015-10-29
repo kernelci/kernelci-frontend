@@ -26,6 +26,11 @@ class BootGeneralView(View):
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     BOOT_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Boot Reports")
+    RSS_LINK = (
+        "<span class=\"rss-feed\">" +
+        "<a href=\"%s\" title=\"Recent Changes - Atom Feed\">" +
+        "<i class=\"fa fa-rss\"></i></a><span>"
+    )
 
 
 class BootAllView(BootGeneralView):
@@ -161,6 +166,8 @@ class BootLab(BootGeneralView):
         lab_name = kwargs["lab_name"]
         body_title = (
             "Boot reports for lab&nbsp;&#171;%s&#187;" % lab_name)
+        body_title += \
+            self.RSS_LINK % ("/boot/all/lab/" + lab_name + "/feed.atom")
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, body_title)
 
         search_filter, page_len = get_search_parameters(request)
