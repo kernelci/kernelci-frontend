@@ -27,7 +27,7 @@ class GeneralJobsView(View):
     JOB_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Job Reports")
     RSS_LINK = (
         "<span class=\"rss-feed\">" +
-        "<a href=\"%s\" title=\"Atom Feed\">" +
+        "<a href=\"%s\" title=\"Recent Changes - Atom Feed\">" +
         "<i class=\"fa fa-rss\"></i></a><span>"
     )
 
