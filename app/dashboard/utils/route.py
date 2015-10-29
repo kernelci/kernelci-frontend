@@ -181,7 +181,7 @@ def init():
     add_rule(
         "/boot/all/lab/<string:lab_name>/feed.atom",
         "boot-all-lab-feed",
-        bootfeed.get_boot_all_lab,
+        bootfeed.get_boot_all_lab_feed,
         methods=["GET"]
     )
     add_rule(

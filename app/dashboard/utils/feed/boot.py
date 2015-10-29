@@ -147,7 +147,7 @@ def _get_boot_data(req_params):
     return results
 
 
-def get_boot_all_lab(lab_name):
+def get_boot_all_lab_feed(lab_name):
     """Create the Atom feed for the boot-lab view.
 
     :param lab_name: The name of the lab.
