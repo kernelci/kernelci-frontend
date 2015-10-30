@@ -83,6 +83,37 @@ define([
     }
 
     /**
+     * Function to render the tree column on a table.
+     *
+     * @param {string} tree: The tree value.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableTree = function(tree, type, object) {
+        var aNode,
+            rendered,
+            tooltipNode;
+
+        rendered = tree;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + tree);
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute(
+                'href', '/boot/' + object.board + '/job/' + tree + '/');
+
+            aNode.appendChild(document.createTextNode(tree));
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
      * Function to render the defconfig column on a table.
      *
      * @param {string} defconfig: The defconfig value.
