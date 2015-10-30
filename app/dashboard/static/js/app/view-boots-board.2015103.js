@@ -7,8 +7,7 @@ require([
     'utils/tables',
     'utils/html',
     'utils/boot',
-    'utils/const',
-    'utils/date'
+    'utils/const'
 ], function($, e, init, r, t, html, boot, appconst) {
     'use strict';
     var boardName,
