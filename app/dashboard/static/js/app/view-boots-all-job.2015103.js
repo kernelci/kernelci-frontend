@@ -7,8 +7,9 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
-    'utils/date'
-], function($, b, e, init, r, t, html) {
+    'utils/boot',
+    'utils/const'
+], function($, b, e, init, r, t, html, boot, appconst) {
     'use strict';
     var bootsTable,
         jobName,
@@ -16,7 +17,9 @@ require([
         pageLen,
         searchFilter;
 
-    numberRange = 20;
+    numberRange = appconst.MAX_NUMBER_RANGE;
+    pageLen = null;
+    searchFilter = null;
 
     function getDetailsCountFail() {
         html.replaceContentHTML(
@@ -54,7 +57,6 @@ require([
 
     function getDetailsCount() {
         var batchQueries,
-            data,
             deferred;
 
         batchQueries = new Array(2);
@@ -74,10 +76,12 @@ require([
                 '&aggregate=board&field=board'
         };
 
-        data = JSON.stringify({
-            batch: batchQueries
-        });
-        deferred = r.post('/_ajax/batch', data);
+        deferred = r.post(
+            '/_ajax/batch',
+            JSON.stringify({
+                batch: batchQueries
+            })
+        );
         $.when(deferred)
             .fail(e.error, getDetailsCountFail)
             .done(getDetailsCountDone);
@@ -116,22 +120,19 @@ require([
     function getBootsCount(response) {
         var batchElements,
             batchQueries,
-            data,
             deferred,
             idx,
             jdx,
             kernel,
             queriesLen,
-            resLen,
             results;
 
         batchElements = 2;
         results = response.result;
-        resLen = results.length;
-        queriesLen = resLen * batchElements;
+        queriesLen = results.length * batchElements;
         idx = 0;
 
-        if (resLen > 0) {
+        if (results.length > 0) {
             batchQueries = new Array(queriesLen);
             for (idx; idx < queriesLen; idx = idx + batchElements) {
                 jdx = idx;
@@ -154,10 +155,12 @@ require([
                 };
             }
 
-            data = JSON.stringify({
-                batch: batchQueries
-            });
-            deferred = r.post('/_ajax/batch', data);
+            deferred = r.post(
+                '/_ajax/batch',
+                JSON.stringify({
+                    batch: batchQueries
+                })
+            );
             $.when(deferred)
                 .fail(e.error, getBootsCountFail)
                 .done(getBootsCountDone);
@@ -172,17 +175,19 @@ require([
     }
 
     function getBootsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            columns,
-            rowURLFmt = '/boot/all/job/%(job)s/kernel/%(kernel)s/';
+        var columns,
+            results,
+            rowURLFmt;
 
-        if (resLen === 0) {
+        results = response.result;
+        if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No board data found'));
         } else {
+            rowURLFmt = '/boot/all/job/%(job)s/kernel/%(kernel)s/';
+
             columns = [
                 {
                     data: '_id',
@@ -198,93 +203,19 @@ require([
                     data: 'kernel',
                     title: 'Successful',
                     className: 'pull-center',
-                    render: function(data, type) {
-                        var iNode,
-                            rendered,
-                            spanNode;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            spanNode = document.createElement('span');
-                            spanNode.id = 'success-count-' + data;
-                            spanNode.className = 'badge badge-count ' +
-                                'alert-success success-badge';
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            spanNode.appendChild(iNode);
-                            rendered = spanNode.outerHTML;
-                        }
-                        return rendered;
-                    }
+                    render: boot.renderTableKernelCountSuccess
                 },
                 {
                     data: 'kernel',
                     title: 'Failed',
                     className: 'pull-center',
-                    render: function(data, type) {
-                        var iNode,
-                            rendered,
-                            spanNode;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            spanNode = document.createElement('span');
-                            spanNode.id = 'fail-count-' + data;
-                            spanNode.className = 'badge badge-count ' +
-                                'alert-danger fail-badge';
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            spanNode.appendChild(iNode);
-                            rendered = spanNode.outerHTML;
-                        }
-                        return rendered;
-                    }
+                    render: boot.renderTableKernelCountFail
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     className: 'date-column pull-center',
-                    render: function(data, type) {
-                        var created,
-                            iNode,
-                            rendered,
-                            timeNode,
-                            tooltipNode;
-
-                        if (data === null) {
-                            rendered = data;
-                            if (type === 'display') {
-                                tooltipNode = html.tooltip();
-                                tooltipNode.setAttribute('Not available');
-
-                                iNode = document.createElement('i');
-                                iNode.className = 'fa fa-ban';
-
-                                tooltipNode.appendChild(iNode);
-                                rendered = tooltipNode.outerHTML;
-                            }
-                        } else {
-                            created = new Date(data.$date);
-                            if (type === 'display') {
-                                timeNode = document.createElement('time');
-                                timeNode.setAttribute(
-                                    'datetime', created.toISOString());
-                                timeNode.appendChild(
-                                    document.createTextNode(
-                                        created.toCustomISODate())
-                                );
-                                rendered = timeNode.outerHTML;
-                            } else {
-                                rendered = created;
-                            }
-                        }
-
-                        return rendered;
-                    }
+                    render: boot.renderTableDate
                 },
                 {
                     data: 'job',
@@ -293,40 +224,7 @@ require([
                     searchable: false,
                     orderable: false,
                     className: 'pull-center',
-                    render: function(data, type, object) {
-                        var aNode,
-                            iNode,
-                            rendered,
-                            tooltipNode,
-                            kernel;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            kernel = object.kernel;
-
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute(
-                                'title',
-                                'Boot reports for&nbsp;' + data +
-                                '&nbsp;&dash;&nbsp;' + kernel
-                            );
-                            aNode = document.createElement('a');
-                            aNode.setAttribute(
-                                'href',
-                                '/boot/all/job/' + data +
-                                '/kernel/' + kernel + '/'
-                            );
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-search';
-
-                            aNode.appendChild(iNode);
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: boot.renderTableDetailJob
                 }
             ];
 
@@ -345,19 +243,19 @@ require([
     }
 
     function getBoots() {
-        var data,
-            deferred;
+        var deferred;
 
-        data = {
-            aggregate: 'kernel',
-            job: jobName,
-            sort: 'created_on',
-            sort_order: -1,
-            limit: numberRange,
-            field: ['job', 'kernel', 'created_on']
-        };
-
-        deferred = r.get('/_ajax/boot', data);
+        deferred = r.get(
+            '/_ajax/boot',
+            {
+                aggregate: 'kernel',
+                job: jobName,
+                sort: 'created_on',
+                sort_order: -1,
+                limit: numberRange,
+                field: ['job', 'kernel', 'created_on']
+            }
+        );
         $.when(deferred)
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getBootsCount);

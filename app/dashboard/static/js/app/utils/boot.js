@@ -83,6 +83,82 @@ define([
     }
 
     /**
+     * Create the actual count badge.
+     *
+     * @private
+    **/
+    function _tableKernelCount(kernel, type) {
+        var classes,
+            iNode,
+            nodeId,
+            spanNode;
+
+        switch (type) {
+            case 'success':
+                nodeId = 'success-count-' + kernel;
+                classes = [
+                    'badge', 'badge-count', 'alert-success', 'success-badge'
+                ];
+                break;
+            default:
+                nodeId = 'fail-count-' + kernel;
+                classes = [
+                    'badge', 'badge-count', 'alert-danger', 'fail-badge'
+                ];
+                break;
+        }
+
+        spanNode = document.createElement('span');
+        spanNode.id = nodeId;
+        spanNode.className = classes.join(' ');
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-cog fa-spin';
+
+        spanNode.appendChild(iNode);
+
+        return spanNode.outerHTML;
+    }
+
+    /**
+     * Function to render the kernel column on a table with.
+     * Special case for the count of builds/boots.
+     *
+     * @param {string} kernel: The kernel value.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableKernelCountSuccess = function(kernel, type) {
+        var rendered;
+
+        rendered = null;
+        if (type === 'display') {
+            rendered = _tableKernelCount(kernel, 'success');
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the kernel column on a table with.
+     * Special case for the count of builds/boots.
+     *
+     * @param {string} kernel: The kernel value.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableKernelCountFail = function(kernel, type) {
+        var rendered;
+
+        rendered = null;
+        if (type === 'display') {
+            rendered = _tableKernelCount(kernel, 'fail');
+        }
+
+        return rendered;
+    };
+
+    /**
      * Function to render the tree column on a table.
      *
      * @param {string} tree: The tree value.
@@ -408,6 +484,45 @@ define([
 
             aNode.appendChild(iNode);
             tooltipNode.appendChild(aNode);
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the detail column on a table, with job links.
+     *
+     * @param {string} job: The job name.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableDetailJob = function(job, type, object) {
+        var aNode,
+            iNode,
+            kernel,
+            rendered,
+            tooltipNode;
+
+        rendered = null;
+        if (type === 'display') {
+            kernel = object.kernel;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel
+            );
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-search';
+
+            aNode.appendChild(iNode);
+            tooltipNode.appendChild(aNode);
+
             rendered = tooltipNode.outerHTML;
         }
 
