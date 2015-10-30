@@ -97,22 +97,20 @@ require([
 
     function getBootsDone(response) {
         var columns,
-            resLen,
             results,
             rowURLFmt;
 
+
         results = response.result;
-        resLen = results.length;
-
-        rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-        '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
+            rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
+                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
+
             columns = [
                 {
                     data: '_id',
