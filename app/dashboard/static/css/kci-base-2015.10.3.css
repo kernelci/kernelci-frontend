@@ -48,8 +48,12 @@ html {
     max-width: 130px;
     min-width: 90px;
 }
+.arch-column {
+    width: 35px;
+}
+td.lab-column,
 td.arch-column {
-    font-size: smaller;
+    font-size: 90%;
 }
 .date-column {
     max-width: 75px;
@@ -67,6 +71,8 @@ td.arch-column {
 .build-count {
     min-width: 100px;
 }
+td.defconfig-column-nf,
+td.kernel-column-nf,
 .branch-column,
 .failure-column,
 .tree-column,
