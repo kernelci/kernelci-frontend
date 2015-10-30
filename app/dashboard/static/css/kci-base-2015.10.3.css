@@ -51,6 +51,7 @@ html {
 .arch-column {
     width: 35px;
 }
+td.branch-column,
 td.lab-column,
 td.arch-column {
     font-size: 90%;
