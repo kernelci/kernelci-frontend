@@ -83,6 +83,90 @@ define([
     }
 
     /**
+     * Function to render the defconfig column on a table.
+     *
+     * @param {string} defconfig: The defconfig value.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableDefconfig = function(defconfig, type, object) {
+        var aNode,
+            board,
+            job,
+            kernel,
+            rendered,
+            tooltipNode;
+
+        rendered = defconfig;
+        if (type === 'display') {
+            board = object.board;
+            job = object.job;
+            kernel = object.kernel;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for&nbsp;' + defconfig);
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute(
+                'href',
+                '/boot/' + board + '/job/' + job +
+                '/kernel/' + kernel + '/defconfig/' +
+                defconfig + '/'
+            );
+
+            aNode.appendChild(document.createTextNode(defconfig));
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the kernel column on a table.
+     *
+     * @param {string} kernel: The kernel value.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableKernel = function(kernel, type, object) {
+        var aNode,
+            job,
+            tooltipNode,
+            rendered;
+
+        rendered = kernel;
+        if (type === 'display') {
+            job = object.job;
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for&nbsp;' + kernel);
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute(
+                'href',
+                '/boot/all/job/' + job + '/kernel/' +
+                kernel + '/'
+            );
+
+            aNode.appendChild(document.createTextNode(kernel));
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
      * Function to render the boot failure description column on a table.
      *
      * @param {string} data: The failure description.
