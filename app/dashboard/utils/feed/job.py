@@ -248,7 +248,7 @@ def _get_job_data(req_params):
     """
     results = []
     params = [
-        ("date_range", 5),
+        ("date_range", 1),
         (
             "field",
             (
