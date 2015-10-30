@@ -5,7 +5,9 @@ define([
     'URI'
 ], function(p, gitRules, URI) {
     'use strict';
-    var urls = {};
+    var urls;
+
+    urls = {};
 
     // Translate a URL into a URI object.
     // Return a 2-elements list:
@@ -17,15 +19,17 @@ define([
             translatedUrl,
             validPath;
 
-        if (serverUrl !== null && serverUrl !== undefined) {
-            if (serverPath !== null && serverPath !== undefined) {
+        function addPath(value) {
+            validPath = validPath + value + '/';
+        }
+
+        if (serverUrl) {
+            if (serverPath) {
                 validPath = serverPath;
             } else {
                 validPath = '';
-                if (data !== null && data !== undefined) {
-                    data.forEach(function(value) {
-                        validPath = validPath + value + '/';
-                    });
+                if (data) {
+                    data.forEach(addPath);
                 }
             }
 
@@ -44,17 +48,20 @@ define([
         1. The git commit URL
     */
     urls.translateCommit = function(url, sha) {
-        var bURL = null,
-            cURL = null,
-            idx = 0,
-            parser,
+        var bURL,
+            cURL,
             hostName,
-            urlPath,
             knownGit,
-            rule,
-            lenRule;
+            parser,
+            urlPath;
 
-        if ((url !== null && url !== '') && (sha !== null && sha !== '')) {
+        function replaceRule(value) {
+            urlPath = urlPath.replace(value[0], value[1]);
+        }
+
+        bURL = null;
+        cURL = null;
+        if (url && sha) {
             parser = new URI(url);
             hostName = parser.hostname();
             urlPath = parser.path();
@@ -62,12 +69,8 @@ define([
             // Perform translation only if we know the host.
             if (gitRules.hasOwnProperty(hostName)) {
                 knownGit = gitRules[hostName];
-                rule = knownGit[3];
-                lenRule = rule.length;
 
-                for (idx; idx < lenRule; idx = idx + 1) {
-                    urlPath = urlPath.replace(rule[idx][0], rule[idx][1]);
-                }
+                knownGit[3].forEach(replaceRule);
 
                 bURL = new URI({
                     protocol: knownGit[0],
