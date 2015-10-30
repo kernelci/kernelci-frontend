@@ -174,6 +174,7 @@ require([
                     data: 'kernel',
                     title: 'Kernel',
                     type: 'string',
+                    className: 'kernel-column',
                     render: function(data, type, object) {
                         var aNode,
                             job,
@@ -185,10 +186,7 @@ require([
                             job = object.job;
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute(
-                                'title',
-                                'Boot reports for&nbsp;' + job +
-                                '&nbsp;&dash;&nbsp;' + data
-                            );
+                                'title', 'Boot reports for&nbsp;' + data);
 
                             aNode = document.createElement('a');
                             aNode.className = 'table-link';
@@ -225,12 +223,7 @@ require([
 
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute(
-                                'title',
-                                'Boot reports for board&nbsp;' + boardName +
-                                '&nbsp;with&nbsp;' + job +
-                                '&nbsp;&dash;&nbsp;' + kernel +
-                                '&nbsp;and&nbsp;' + data
-                            );
+                                'title', 'Boot reports for&nbsp;' + data);
 
                             aNode = document.createElement('a');
                             aNode.className = 'table-link';
@@ -258,21 +251,7 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
-                    type: 'string',
-                    className: 'lab-column',
-                    render: function(data, type) {
-                        var rendered,
-                            smallNode;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            smallNode = document.createElement('small');
-                            smallNode.appendChild(
-                                document.createTextNode(data));
-                            rendered = smallNode.outerHTML;
-                        }
-                        return rendered;
-                    }
+                    className: 'lab-column'
                 },
                 {
                     data: 'created_on',
@@ -385,13 +364,7 @@ require([
 
                             tooltipNode = html.tooltip();
                             tooltipNode.setAttribute(
-                                'title',
-                                'Details for board&nbsp;' + data +
-                                '&nbsp;with tree&nbsp;' + job +
-                                '&nbsp;&dash;&nbsp;' + kernel +
-                                '&nbsp;and&nbsp;' + defconfigFull +
-                                '&nbsp;(' + lab + ')'
-                            );
+                                'title', 'Boot report details');
                             aNode = document.createElement('a');
                             aNode.setAttribute(
                                 'href',

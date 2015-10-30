@@ -299,20 +299,7 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
-                    className: 'lab-column',
-                    render: function(data, type) {
-                        var labNode,
-                            rendered;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            labNode = document.createElement('small');
-                            labNode.appendChild(document.createTextNode(data));
-                            rendered = labNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    className: 'lab-column'
                 },
                 {
                     data: 'created_on',

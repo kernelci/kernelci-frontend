@@ -321,20 +321,7 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
-                    className: 'lab-column',
-                    render: function(data, type) {
-                        var rendered,
-                            node;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            node = document.createElement('small');
-                            node.appendChild(document.createTextNode(data));
-                            rendered = node.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    className: 'lab-column'
                 },
                 {
                     data: 'boot_result_description',
