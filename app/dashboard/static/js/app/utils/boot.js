@@ -1,7 +1,9 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'utils/html'
-], function(html) {
+    'utils/html',
+    'utils/urls',
+    'utils/date'
+], function(html, urls) {
     'use strict';
     var bootUtils;
 
@@ -10,6 +12,7 @@ define([
     /**
      * Create the boot logs element.
      *
+     * @private
      * @param {string} txtLog: The TXT boot log file name.
      * @param {string} htmlLog: The HTML boot log file name.
      * @param {string} labName: The name of the boot lab.
@@ -18,12 +21,11 @@ define([
      * @return {Element} An HTML node if at least on of txtLog or htmlLog
      * are not null or null.
     **/
-    bootUtils.createBootLog = function(
-            txtLog, htmlLog, labName, serverURI, pathURI) {
-        var retVal,
+    function _createBootLog(txtLog, htmlLog, labName, serverURI, pathURI) {
+        var aNode,
             logPath,
-            tooltipNode,
-            aNode;
+            retVal,
+            tooltipNode;
 
         retVal = null;
         if (txtLog || htmlLog) {
@@ -78,6 +80,239 @@ define([
         }
 
         return retVal;
+    }
+
+    /**
+     * Function to render the boot failure description column on a table.
+     *
+     * @param {string} data: The failure description.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableResulDescription = function(data, type) {
+        var rendered,
+            tooltipNode;
+
+        rendered = '';
+        if (data) {
+            rendered = data;
+
+            if (type === 'display') {
+                data = html.escape(data);
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', data);
+                tooltipNode.insertAdjacentHTML('beforeend', data);
+
+                rendered = tooltipNode.outerHTML;
+            }
+        }
+        return rendered;
+    };
+
+    /**
+     * Function to render the boot logs column on a table.
+     *
+     * @param {string} data: The file server URL as from the data.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableLogs = function(data, type, object) {
+        var arch,
+            defconfig,
+            job,
+            kernel,
+            logNode,
+            pathURI,
+            rendered,
+            serverResource,
+            serverURI,
+            translatedURI;
+
+        rendered = null;
+        if (type === 'display') {
+
+            if (!data) {
+                data = object.default_file_server;
+            }
+
+            arch = object.arch;
+            defconfig = object.defconfig_full;
+            job = object.job;
+            kernel = object.kernel;
+            serverResource = object.file_server_resource;
+
+            translatedURI = urls.translateServerURL(
+                data, serverResource, [job, kernel, arch + '-' + defconfig]
+            );
+            serverURI = translatedURI[0];
+            pathURI = translatedURI[1];
+
+            logNode = _createBootLog(
+                object.boot_log,
+                object.boot_log_html,
+                object.lab_name,
+                serverURI,
+                pathURI
+            );
+            if (logNode) {
+                rendered = logNode.outerHTML;
+            }
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the date column on a table.
+     *
+     * @param {object} date: The date object.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableDate = function(date, type) {
+        var created,
+            iNode,
+            rendered,
+            timeNode,
+            tooltipNode;
+
+        if (date === null) {
+            rendered = date;
+            if (type === 'display') {
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('Not available');
+
+                iNode = document.createElement('i');
+                iNode.className = 'fa fa-ban';
+
+                tooltipNode.appendChild(iNode);
+                rendered = tooltipNode.outerHTML;
+            }
+        } else {
+            created = new Date(date.$date);
+            rendered = created.toCustomISODate();
+
+            if (type === 'display') {
+                timeNode = document.createElement('time');
+                timeNode.setAttribute('datetime', created.toISOString());
+                timeNode.appendChild(
+                    document.createTextNode(created.toCustomISODate()));
+                rendered = timeNode.outerHTML;
+            }
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the status column on a table.
+     *
+     * @param {string} status: The status value.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableStatus = function(status, type) {
+        var rendered,
+            tooltipNode;
+
+        rendered = status;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+
+            switch (status) {
+                case 'PASS':
+                    tooltipNode.setAttribute(
+                        'title', 'Board booted successfully');
+                    tooltipNode.appendChild(html.success());
+                    break;
+                case 'FAIL':
+                    tooltipNode.setAttribute(
+                        'title', 'Board boot failed');
+                    tooltipNode.appendChild(html.fail());
+                    break;
+                case 'OFFLINE':
+                    tooltipNode.setAttribute(
+                        'title', 'Board offline');
+                    tooltipNode.appendChild(html.offline());
+                    break;
+                default:
+                    tooltipNode.setAttribute(
+                        'href', 'Board boot status unknown');
+                    tooltipNode.appendChild(html.unknown());
+                    break;
+            }
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the detail column on a table.
+     * This is tightly couple with how dataTables work.
+     *
+     * @param {string} board: The board name.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableDetail = function(board, type, object) {
+        var aNode,
+            defconfig,
+            iNode,
+            job,
+            kernel,
+            lab,
+            rendered,
+            tooltipNode;
+
+        rendered = null;
+        if (type === 'display') {
+            job = object.job;
+            kernel = object.kernel;
+            lab = object.lab_name;
+            defconfig = object.defconfig_full;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Boot report details');
+
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                '/boot/' + board + '/job/' + job + '/kernel/' + kernel +
+                '/defconfig/' + defconfig + '/lab/' + lab +
+                '/?_id=' + object._id.$oid
+            );
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-search';
+
+            aNode.appendChild(iNode);
+            tooltipNode.appendChild(aNode);
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Create the boot logs element.
+     *
+     * @param {string} txtLog: The TXT boot log file name.
+     * @param {string} htmlLog: The HTML boot log file name.
+     * @param {string} labName: The name of the boot lab.
+     * @param {URI} serverURI: The URI of the file server.
+     * @param {string} pathURI: The path part to the log file on the server.
+     * @return {Element} An HTML node if at least on of txtLog or htmlLog
+     * are not null or null.
+    **/
+    bootUtils.createBootLog = function(
+            txtLog, htmlLog, labName, serverURI, pathURI) {
+        return _createBootLog(txtLog, htmlLog, labName, serverURI, pathURI);
     };
 
     return bootUtils;
