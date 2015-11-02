@@ -2,17 +2,34 @@
     <div>
         <h3>Overview</h3>
         <dl>
+            {%- if board %}
             <dt><strong>Board</strong></dt><dd>{{ board }}</dd>
+            {%- endif %}
+            {%- if arch %}
             <dt><strong>Architecture</strong></dt><dd>{{ arch }}</dd>
+            {%- endif %}
             <dt><strong>Tree</strong></dt><dd>{{ job }}</dd>
+            {%- if git_branch %}
             <dt><strong>Git branch</strong></dt><dd>{{ git_branch }}</dd>
+            {%- endif %}
+            {%- if git_describe %}
             <dt><strong>Git describe</strong></dt><dd>{{ git_describe }}</dd>
+            {%- endif %}
+            {%- if git_url %}
             <dt><strong>Git URL</strong></dt><dd>{{ git_url }}</dd>
+            {%- endif %}
+            {%- if git_commit %}
             <dt><strong>Git commit</strong></dt><dd>{{ git_commit }}</dd>
+            {%- endif %}
+            {%- if defconfig_full %}
             <dt><strong>Defconfig</strong></dt><dd>{{ defconfig_full }}</dd>
+            {%- endif %}
+            {%- if status %}
             <dt><strong>Status</strong></dt><dd>{{ status }}</dd>
+            {%- endif %}
         </dl>
     </div>
+{%- block count_content %}{%- endblock %}
 {%- if content_links %}
     <div>
         <h3>Links</h3>

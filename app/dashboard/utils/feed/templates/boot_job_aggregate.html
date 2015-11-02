@@ -1,0 +1,15 @@
+{%- extends "boot.html" %}
+{%- block count_content %}
+<div>
+    <h3>Boot Reports Count</h3>
+    <div style="margin-left: 25px">
+        Total: {{ total_boots }}
+        <br/>
+        Passed: {{ passed_boots }}
+        <br/>
+        Failed: {{ failed_boots }}
+        <br/>
+        Other: {{ other_boots }}
+    </div>
+</div>
+{%- endblock %}

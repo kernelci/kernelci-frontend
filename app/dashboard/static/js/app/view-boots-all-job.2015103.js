@@ -17,6 +17,7 @@ require([
         pageLen,
         searchFilter;
 
+    document.getElementById('li-boot').setAttribute('class', 'active');
     numberRange = appconst.MAX_NUMBER_RANGE;
     pageLen = null;
     searchFilter = null;
@@ -261,7 +262,6 @@ require([
             .done(getBootsDone, getBootsCount);
     }
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
     // Setup and perform base operations.
     init.hotkeys();
     init.tooltip();

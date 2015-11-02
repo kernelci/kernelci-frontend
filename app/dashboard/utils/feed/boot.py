@@ -13,6 +13,11 @@
 
 """Boot Atom feeds module."""
 
+try:
+    import simple_json as json
+except ImportError:
+    import json
+
 import copy
 import hashlib
 
@@ -44,6 +49,138 @@ BOOT_COMPLETE_FRONTEND_URL = (
 )
 
 
+def _parse_batch_results(results):
+    """Parse the batch-count results.
+
+    :param results: The results from the batch query.
+    :type results: dict
+    :return: A dictionary with the counts.
+    """
+    count_results = {
+        "failed_boots": u"N/A",
+        "other_boots": u"N/A",
+        "passed_boots": u"N/A",
+        "total_boots": u"N/A",
+    }
+
+    if results and results["result"]:
+        results = results["result"]
+
+        for result in results:
+            count_results[result["operation_id"]] = \
+                result["result"][0]["count"]
+
+        count_results["other_boots"] = (
+            count_results["total_boots"] -
+            count_results["passed_boots"] - count_results["failed_boots"]
+        )
+
+    return count_results
+
+
+def _get_boots_count(result):
+    """Get the boot counts.
+
+    :param result: The boot element for which to get the count of.
+    :type result: dict
+    :return: A dictionary with the counts.
+    """
+    queries = []
+
+    query_str = "status=%(status)s&job=%(job)s&kernel=%(kernel)s"
+    total_query_str = "job=%(job)s&kernel=%(kernel)s" % result
+
+    queries.append({
+        "method": "GET",
+        "operation_id": "total_boots",
+        "resource": "count",
+        "document": "boot",
+        "query": total_query_str
+    })
+
+    result["status"] = "PASS"
+    queries.append({
+        "method": "GET",
+        "operation_id": "passed_boots",
+        "resource": "count",
+        "document": "boot",
+        "query": query_str % result
+    })
+
+    result["status"] = "FAIL"
+    queries.append({
+        "method": "GET",
+        "operation_id": "failed_boots",
+        "resource": "count",
+        "document": "boot",
+        "query": query_str % result
+    })
+
+    data, status, headers = backend.request_post(
+        backend.create_url(CONFIG_GET("BATCH_API_ENDPOINT")),
+        json.dumps({"batch": queries}),
+        headers={"Content-Type": "application/json"},
+        timeout=60*60
+    )
+
+    if status == 200:
+        count_results = _parse_batch_results(
+            backend.extract_gzip_data(data, headers))
+    else:
+        count_results = {
+            "failed_boots": u"N/A",
+            "other_boots": u"N/A",
+            "passed_boots": u"N/A",
+            "total_boots": u"N/A",
+        }
+
+    return count_results
+
+
+def _common_boot_parse(result, feed_data):
+    """Common boot reports parsing function.
+
+    :param result: The result from the backend.
+    :type result: dict
+    :param feed_data: Data structure for the feed.
+    :type feed_data: dict
+    :return: A dictionary with the correct keys to be used for a feed entry.
+    """
+    f_get = feed_data.get
+    boot_date = feed.convert_date(result["created_on"]["$date"])
+    # If we have links that should be added to the feed content,
+    # extract them and update the href values with the result ones.
+    # Then inject the content_links into the result data structure to
+    # be used by the template.
+    content_links = copy.deepcopy(f_get("content_links", None))
+    if content_links:
+        for c_link in content_links:
+            c_link["href"] = c_link["href"] % result
+            c_link["label"] = c_link["label"] % result
+        result["content_links"] = content_links
+
+    content = u""
+    content += \
+        feed.TEMPLATES_ENV.get_template(
+            f_get("template_name")).render(**result)
+
+    parsed_res = {
+        "content": content,
+        "links": [
+            {
+                "href": f_get("alternate_url") % result,
+                "rel": "alternate"
+            }
+        ],
+        "published": boot_date,
+        "title": f_get("entry_title") % result,
+        "updated": boot_date,
+        "url": f_get("frontend_url") % result
+    }
+
+    return parsed_res
+
+
 def _parse_boot_results(results, feed_data):
     """Parse the boot results and create the required data structure.
 
@@ -56,7 +193,6 @@ def _parse_boot_results(results, feed_data):
     """
     if results and results["result"]:
         results = results["result"]
-        f_get = feed_data.get
 
         for result in results:
             # Convert the _id values.
@@ -64,38 +200,18 @@ def _parse_boot_results(results, feed_data):
             result["build_id"] = result["build_id"]["$oid"]
             result["job_id"] = result["job_id"]["$oid"]
 
-            boot_date = feed.convert_date(result["created_on"]["$date"])
-            # If we have links that should be added to the feed content,
-            # extract them and update the href values with the result ones.
-            # Then inject the content_links into the result data structure to
-            # be used by the template.
-            content_links = copy.deepcopy(f_get("content_links", None))
-            if content_links:
-                for c_link in content_links:
-                    c_link["href"] = c_link["href"] % result
-                    c_link["label"] = c_link["label"] % result
-                result["content_links"] = content_links
+            yield _common_boot_parse(result, feed_data)
 
-            content = u""
-            content += \
-                feed.TEMPLATES_ENV.get_template(
-                    f_get("template_name")).render(**result)
 
-            parsed_res = {
-                "content": content,
-                "links": [
-                    {
-                        "href": f_get("alternate_url") % result,
-                        "rel": "alternate"
-                    }
-                ],
-                "published": boot_date,
-                "title": f_get("entry_title") % result,
-                "updated": boot_date,
-                "url": f_get("frontend_url") % result
-            }
+def _parse_aggregated_boot_results(results, feed_data):
+    if results and results["result"]:
+        results = results["result"]
 
-            yield parsed_res
+        for result in results:
+            counts = _get_boots_count(copy.deepcopy(result))
+            result.update(counts)
+
+            yield _common_boot_parse(result, feed_data)
 
 
 def _get_boot_data(req_params):
@@ -110,29 +226,6 @@ def _get_boot_data(req_params):
 
     default_params = [
         ("date_range", 1),
-        (
-            "field",
-            (
-                "_id",
-                "arch",
-                "board",
-                "boot_log",
-                "build_id",
-                "created_on",
-                "defconfig",
-                "defconfig_full",
-                "git_branch",
-                "git_commit",
-                "git_describe",
-                "git_url",
-                "job",
-                "job_id",
-                "kernel",
-                "lab_name",
-                "mach",
-                "status"
-            )
-        ),
         ("sort", "created_on"),
         ("sort_order", -1)
     ]
@@ -289,3 +382,62 @@ def get_boot_all_lab_feed(lab_name):
     return feed.create_feed(
         [("lab_name", lab_name)],
         feed_data, _get_boot_data, _parse_boot_results)
+
+
+def get_boot_all_job_feed(job):
+    """Create the Atom feed for the boot-all-job view.
+
+    :param job: The name of the job.
+    :type job: str
+    """
+    feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"term": job})
+
+    feed_data = {
+        "alternate_url":
+            BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/",
+        "cache_key": hashlib.md5(request.url).digest(),
+        "content_links": [
+            {
+                "href": BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/",
+                "label": u"Boot reports for tree %(job)s - %(kernel)s"
+            }
+        ],
+        "feed_categories": feed_categories,
+        "feed_url": request.url,
+        "frontend_url": BASE_URL + u"/boot/all/job/%(job)s/",
+        "host_url": request.host_url,
+        "template_name": "boot_job_aggregate.html",
+    }
+
+    feed_data["entry_title"] = (
+        u"%(kernel)s \u2014 %(failed_boots)s failed, " +
+        u"%(other_boots)s unknown, %(passed_boots)s passed \u2013 " +
+        u"%(total_boots)s total"
+    )
+    feed_data["subtitle"] = \
+        u"Latest available boot reports for tree %s" % job
+    feed_data["title"] = \
+        u"kernelci.org \u2014 Boot Reports for Tree \u00AB%s\u00BB" % job
+
+    return feed.create_feed(
+        [
+            ("aggregate", "kernel"),
+            ("job", job),
+            (
+                "field",
+                (
+                    "created_on",
+                    "git_branch",
+                    "git_commit",
+                    "git_describe",
+                    "git_url",
+                    "job",
+                    "kernel"
+                )
+            )
+        ],
+        feed_data,
+        _get_boot_data,
+        _parse_aggregated_boot_results
+    )
