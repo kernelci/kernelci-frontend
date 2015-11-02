@@ -67,6 +67,33 @@ define(function() {
         return iNode;
     };
 
+    html.search = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-search';
+
+        return iNode;
+    };
+
+    html.tree = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-sitemap';
+
+        return iNode;
+    };
+
+    html.build = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-cube';
+
+        return iNode;
+    };
+
     html.nonavail = function() {
         var tooltipNode,
             iNode;
