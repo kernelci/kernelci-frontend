@@ -99,7 +99,7 @@ define(function() {
         return divNode;
     };
 
-    html.build = function() {
+    html.building = function() {
         var spanNode,
             iNode;
 

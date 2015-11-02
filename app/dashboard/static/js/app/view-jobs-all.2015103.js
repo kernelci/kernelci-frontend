@@ -369,7 +369,7 @@ require([
                                 case 'BUILD':
                                     tooltipNode.setAttribute(
                                         'title', 'Building');
-                                    tooltipNode.appendChild(html.build());
+                                    tooltipNode.appendChild(html.building());
                                     break;
                                 case 'PASS':
                                     tooltipNode.setAttribute(
