@@ -403,5 +403,26 @@ define(function() {
         return sliced;
     };
 
+    /**
+     * Check if a DOM element has the provided class applied.
+     *
+     * @param {Element} element: The DOM element to check.
+     * @param {string} className: The name of the CSS class.
+     * @return {Boolean} True or false.
+    **/
+    html.classed = function(element, className) {
+        var classes,
+            hasClass;
+
+        hasClass = false;
+        if (element) {
+            classes = element.className.split(' ');
+            if (classes.indexOf(className) !== -1) {
+                hasClass = true;
+            }
+        }
+        return hasClass;
+    };
+
     return html;
 });
