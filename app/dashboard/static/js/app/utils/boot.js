@@ -399,6 +399,53 @@ define([
     };
 
     /**
+     * Create the boot status icon.
+     *
+     * @private
+     * @param {string} status: The status value.
+     * @return {HTMLElement} An HTML DOM element.
+    **/
+    function _bootStatus(status) {
+        var tooltipNode;
+
+        tooltipNode = html.tooltip();
+        switch (status) {
+            case 'PASS':
+                tooltipNode.setAttribute(
+                    'title', 'Board booted successfully');
+                tooltipNode.appendChild(html.success());
+                break;
+            case 'FAIL':
+                tooltipNode.setAttribute(
+                    'title', 'Board boot failed');
+                tooltipNode.appendChild(html.fail());
+                break;
+            case 'OFFLINE':
+                tooltipNode.setAttribute(
+                    'title', 'Board offline');
+                tooltipNode.appendChild(html.offline());
+                break;
+            default:
+                tooltipNode.setAttribute(
+                    'href', 'Board boot status unknown');
+                tooltipNode.appendChild(html.unknown());
+                break;
+        }
+
+        return tooltipNode;
+    }
+
+    /**
+     * Create the boot status element.
+     *
+     * @param {string} status: The boot status.
+     * @return {HTMLElement} The status node.
+    **/
+    bootUtils.statusNode = function(status) {
+        return _bootStatus(status);
+    };
+
+    /**
      * Function to render the status column on a table.
      *
      * @param {string} status: The status value.
@@ -406,37 +453,11 @@ define([
      * @return {string} The rendered element as a string.
     **/
     bootUtils.renderTableStatus = function(status, type) {
-        var rendered,
-            tooltipNode;
+        var rendered;
 
         rendered = status;
         if (type === 'display') {
-            tooltipNode = html.tooltip();
-
-            switch (status) {
-                case 'PASS':
-                    tooltipNode.setAttribute(
-                        'title', 'Board booted successfully');
-                    tooltipNode.appendChild(html.success());
-                    break;
-                case 'FAIL':
-                    tooltipNode.setAttribute(
-                        'title', 'Board boot failed');
-                    tooltipNode.appendChild(html.fail());
-                    break;
-                case 'OFFLINE':
-                    tooltipNode.setAttribute(
-                        'title', 'Board offline');
-                    tooltipNode.appendChild(html.offline());
-                    break;
-                default:
-                    tooltipNode.setAttribute(
-                        'href', 'Board boot status unknown');
-                    tooltipNode.appendChild(html.unknown());
-                    break;
-            }
-
-            rendered = tooltipNode.outerHTML;
+            rendered = _bootStatus(status);
         }
 
         return rendered;
