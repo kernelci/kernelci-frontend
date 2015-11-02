@@ -8,23 +8,24 @@ require([
     'utils/urls',
     'utils/bisect',
     'utils/show-hide-btns',
+    'utils/boot',
+    'utils/html',
+    'utils/const',
     'utils/date'
-], function($, init, b, e, r, u, bisect, btns) {
+], function($, init, b, e, r, u, bisect, btns, boot, html, appconst) {
     'use strict';
-    var boardName = null,
-        jobName = null,
-        kernelName = null,
-        defconfigName = null,
-        labName = null,
-        bootId = null,
-        fileServer = null,
-        dateRange = 14,
-        // How many comparisons we should retrieve.
-        comparedToLimit = 3,
-        nonAvail;
+    var boardName,
+        bootId,
+        dateRange,
+        defconfigName,
+        fileServer,
+        jobName,
+        kernelName,
+        labName;
 
-    nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i></span>';
+    document.getElementById('li-boot').setAttribute('class', 'active');
+    dateRange = appconst.MAX_DATE_RANGE;
+    fileServer = null;
 
     function createBootLogContent(
             bootLogTxt, bootLogHtml, lab, fileServerURI, pathURI, na) {
@@ -304,38 +305,45 @@ require([
     }
 
     function getBootDataFail() {
-        b.replaceByClass(
-            'loading-content',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Not available"><i class="fa fa-ban"></i>' +
-            '</span>'
-        );
+        html.replaceByClassNode('loading-content', html.nonavail());
     }
 
     function getCompareData(response) {
-        var data,
+        var childNode,
+            createdOn,
+            data,
             deferred,
-            result = response.result,
-            resLen = result.length,
-            createdOn = null;
+            loadingNode,
+            result;
 
-        b.replaceById(
-            'boot-reports-compared-to-load',
-            '<i class="fa fa-cog fa-spin"></i>&nbsp;' +
-            '<span id="boot-reports-loading-content">' +
-            'searching for similar boot reports&hellip;</span>'
-        );
+        result = response.result;
+        loadingNode = document.getElementById('boot-reports-compared-to-load');
+
+        childNode = document.createElement('i');
+        childNode.className = 'fa fa-cog fa-spin';
+
+        html.removeChildren(loadingNode);
+        loadingNode.appendChild(childNode);
+        loadingNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+        childNode = document.createElement('span');
+        childNode.id = 'boot-reports-loading-content';
+        childNode.appendChild(
+            document.createTextNode('searching similar boot reports'));
+        childNode.insertAdjacentHTML('beforeend', '&hellip;');
+
+        loadingNode.appendChild(childNode);
 
         data = {
-            'board': boardName,
-            'date_range': dateRange,
-            'sort': 'created_on',
-            'defconfig_full': defconfigName,
-            'sort_order': -1,
-            'limit': comparedToLimit
+            board: boardName,
+            date_range: dateRange,
+            defconfig_full: defconfigName,
+            limit: appconst.MAX_COMPARE_LIMIT,
+            sort: 'created_on',
+            sort_order: -1
         };
 
-        if (resLen > 0) {
+        if (result.length > 0) {
             createdOn = new Date(result[0].created_on.$date);
             data.created_on = createdOn.toCustomISODate();
         }
@@ -344,38 +352,55 @@ require([
         if (jobName !== 'mainline') {
             data.job = 'mainline';
             deferred = r.get('/_ajax/boot', data);
+
             $.when(deferred)
                 .fail(e.error, getCompareToMainlineFail)
                 .done(getCompareToMainlineDone);
         } else {
-            b.removeElement('compare-to-mainline-div');
+            html.removeElement(
+                document.getElementById('compare-to-mainline-div'));
         }
 
         // Compare to next, if it is not next.
         if (jobName !== 'next') {
             data.job = 'next';
             deferred = r.get('/_ajax/boot', data);
+
             $.when(deferred)
                 .fail(e.error, getCompareToNextFail)
                 .done(getCompareToNextDone);
         } else {
-            b.removeElement('compare-to-next-div');
+            html.removeElement(
+                document.getElementById('compare-to-next-div'));
         }
     }
 
     function bindBisectMoreLessBtns() {
-        $('.bisect-pm-btn-less').each(function() {
-            $(this).off().on('click', btns.showLessBisectRowsBtn);
-        });
-        $('.bisect-pm-btn-more').each(function() {
-            $(this).off().on('click', btns.showMoreBisectRowsBtn);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-less'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showLessBisectRowsBtn);
+            }
+        );
+
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-more'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showMoreBisectRowsBtn);
+            }
+        );
     }
 
     function bindBisectButtons() {
-        $('.bisect-click-btn').each(function() {
-            $(this).off().on('click', btns.showHideBisect);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('bisect-click-btn'),
+            function(element) {
+                element.removeEventListener('click');
+                element.addEventListener('click', btns.showHideBisect);
+            }
+        );
     }
 
     function getBisectCompareToMainlineFail() {
@@ -409,6 +434,7 @@ require([
             prevBisect: bisectData,
             bisectShowHideID: 'bisect-compare-hide-div'
         };
+
         deferred = r.get(
             '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
             boot, {});
@@ -423,47 +449,51 @@ require([
     }
 
     function getBisectCompareTo(response) {
-        var result = response.result,
-            resLen = result.length,
-            bisectData = null,
-            lBootId = null;
+        var bisectData,
+            bBootId,
+            result;
 
-        if (resLen > 0) {
+        result = response.result;
+        if (result.length > 0) {
             bisectData = result[0];
-            lBootId = bisectData.boot_id.$oid;
+            bBootId = bisectData.boot_id.$oid;
+
             if (bisectData.job !== 'mainline') {
-                b.removeClass('bisect-compare-div', 'hidden');
-                getBisectToMainline(bisectData, lBootId);
+                html.removeClass(
+                    document.getElementById('bisect-compare-div'), 'hidden');
+
+                getBisectToMainline(bisectData, bBootId);
             } else {
-                b.removeElement('bisect-compare-div');
+                html.removeElement(
+                    document.getElementById('bisect-compare-div'));
             }
         } else {
-            b.removeElement('bisect-compare-div');
+            html.removeElement(document.getElementById('bisect-compare-div'));
         }
     }
 
     function getBisectDataFail() {
-        b.removeElement('bisect-loading-div');
-        b.removeClass('bisect-content', 'hidden');
-        b.replaceById(
-            'bisect-content',
-            '<div class="pull-center">' +
-            '<strong>Error loading bisect data from server.</strong></div>');
+        html.removeElement(document.getElementById('bisect-loading-div'));
+        html.removeClass(document.getElementById('bisect-content'), 'hidden');
+        html.replaceContent(
+            document.getElementById('bisect-content'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getBisectData(response) {
-        // TODO: check better if we do not get anything back.
-        var result = response.result[0],
-            status = result.status,
-            bisectElements = null,
-            lBootId = bootId,
-            deferred;
+        var bisectElements,
+            deferred,
+            lBootId,
+            result;
 
-        if (status === 'FAIL') {
-            b.removeClass('bisect', 'hidden');
-            b.removeClass('bisect-div', 'hidden');
+        lBootId = bootId;
+        result = response.result[0];
 
-            if (bootId === 'None' || bootId === null) {
+        if (result.status === 'FAIL') {
+            html.removeClass(document.getElementById('bisect'), 'hidden');
+            html.removeClass(document.getElementById('bisect-div'), 'hidden');
+
+            if (bootId === 'None' || !bootId) {
                 lBootId = result._id.$oid;
             }
 
@@ -501,242 +531,344 @@ require([
     }
 
     function getBootDataDone(response) {
-        var results = response.result[0],
-            bootTime,
-            job,
-            kernel,
+        var aNode,
             arch,
-            branch,
-            defconfigFull,
-            localLabName,
-            localBoard,
-            fileServerData,
-            translatedURI,
-            fileServerURI = null,
-            fileServerURL = null,
-            fileServerResource = null,
-            pathURI,
+            board,
+            bootLog,
+            bootTime,
+            buildId,
             createdOn,
+            defconfigFull,
             dtb,
             dtbAddr,
-            loadAddr,
-            initrdAddr,
-            qemuData,
-            qemuCommand,
-            kernelImange,
-            bootLog,
-            bootLogHtml,
-            status,
-            statusDispl,
-            retries,
-            otherDetailsTxt = null,
-            otherTxt,
-            resultDescription,
             endianness,
+            initrdAddr,
+            job,
+            kernel,
+            kernelImage,
+            lab,
+            loadAddr,
+            otherDetailsTxt,
+            otherTxt,
+            pathURI,
+            qemuCommand,
+            qemuData,
+            result,
+            resultDescription,
+            serverResource,
+            serverURI,
+            serverURL,
+            smallNode,
+            spanNode,
+            statusNode,
+            tooltipNode,
+            translatedURI,
             warnings;
 
-        bootTime = new Date(results.time.$date);
-        createdOn = new Date(results.created_on.$date);
-        localBoard = results.board;
-        job = results.job;
-        kernel = results.kernel;
-        defconfigFull = results.defconfig_full;
-        arch = results.arch;
-        localLabName = results.lab_name;
-        fileServerURL = results.file_server_url;
-        fileServerResource = results.file_server_resource;
-        bootLog = results.boot_log;
-        bootLogHtml = results.boot_log_html;
-        status = results.status;
-        retries = results.retries;
-        branch = results.git_branch;
-        resultDescription = results.boot_result_description;
-        endianness = results.endian;
-        warnings = results.warnings;
-        dtb = results.dtb;
-        dtbAddr = results.dtb_addr;
-        loadAddr = results.load_addr;
-        initrdAddr = results.initrd_addr;
-        kernelImange = results.kernel_image;
-        qemuData = results.qemu;
-        qemuCommand = results.qemu_command;
+        result = response.result[0];
+        bootTime = new Date(result.time.$date);
+        createdOn = new Date(result.created_on.$date);
+        board = result.board;
+        job = result.job;
+        kernel = result.kernel;
+        defconfigFull = result.defconfig_full;
+        arch = result.arch;
+        lab = result.lab_name;
+        serverURL = result.file_server_url;
+        serverResource = result.file_server_resource;
 
-        if (fileServerURL === null || fileServerURL === undefined) {
-            fileServerURL = fileServer;
+        resultDescription = result.boot_result_description;
+        endianness = result.endian;
+        warnings = result.warnings;
+        dtb = result.dtb;
+        dtbAddr = result.dtb_addr;
+        loadAddr = result.load_addr;
+        initrdAddr = result.initrd_addr;
+        kernelImage = result.kernel_image;
+        qemuData = result.qemu;
+        qemuCommand = result.qemu_command;
+
+        if (!serverURL) {
+            serverURL = fileServer;
         }
-        fileServerData = [
-            job, kernel, arch + '-' + defconfigFull
-        ];
+
         translatedURI = u.translateServerURL(
-            fileServerURL, fileServerResource, fileServerData);
-        fileServerURI = translatedURI[0];
+            serverURL,
+            serverResource,
+            [job, kernel, arch + '-' + defconfigFull]
+        );
+
+        serverURI = translatedURI[0];
         pathURI = translatedURI[1];
 
-        b.replaceById(
-            'dd-lab-name',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="All boot reports for lab&nbsp;&#171;' + localLabName +
-            '&#187;">' +
-            '<a href="/boot/all/lab/' + localLabName + '/">' + localLabName +
-            '&nbsp;<i class="fa fa-search"></i></a></span>'
+        // Lab.
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'Boot reports for lab&nbsp' + lab);
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/all/lab/' + lab + '/');
+        aNode.appendChild(document.createTextNode(lab));
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.search());
+        tooltipNode.appendChild(aNode);
+
+        html.replaceContent(
+            document.getElementById('dd-lab-name'), tooltipNode);
+
+        // Board.
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'Boot reports for board&nbsp;' + board);
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/' + board + '/');
+        aNode.appendChild(document.createTextNode(board));
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.search());
+        tooltipNode.appendChild(aNode);
+
+        html.replaceContent(
+            document.getElementById('dd-board-board'), tooltipNode);
+
+        // Tree.
+        spanNode = document.createElement('span');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + job);
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+        aNode.appendChild(document.createTextNode(job));
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/job/' + job + '/');
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.tree());
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(
+            document.getElementById('dd-board-tree'), spanNode);
+
+        // Branch.
+        html.replaceContent(
+            document.getElementById('dd-board-branch'),
+            document.createTextNode(result.git_branch));
+
+        // Kernel.
+        spanNode = document.createElement('span');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Boot reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+        aNode.appendChild(document.createTextNode(kernel));
+        tooltipNode.appendChild(aNode);
+
+        spanNode.appendChild(tooltipNode);
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Build reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href', '/build/' + job + '/kernel/' + kernel + '/');
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.build());
+        tooltipNode.appendChild(aNode);
+
+        spanNode.appendChild(tooltipNode);
+        html.replaceContent(
+            document.getElementById('dd-board-kernel'), spanNode);
+
+        // Defconfig
+        spanNode = document.createElement('span');
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Boot reports');
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href',
+            '/boot/' + boardName + '/job/' + job + '/kernel/' + kernel +
+                '/defconfig/' + defconfigFull + '/'
         );
-        b.replaceById(
-            'dd-board-board',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="All boot reports for board&nbsp;&#171;' + localBoard +
-            '&#187;"><a href="/boot/' + localBoard + '/">' + localBoard +
-            '&nbsp;<i class="fa fa-search"></i></a></span>'
+        aNode.appendChild(document.createTextNode(defconfigFull));
+        tooltipNode.appendChild(aNode);
+
+        spanNode.appendChild(tooltipNode);
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Build details');
+        aNode = document.createElement('a');
+
+        buildId = '';
+        if (result.build_id) {
+            buildId = '?_id=' + result.build_id.$oid;
+        }
+        aNode.setAttribute(
+            'href',
+            '/build/' + job + '/kernel/' + kernel +
+                '/defconfig/' + defconfigFull + '/' + buildId);
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.build());
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(
+            document.getElementById('dd-board-defconfig'), spanNode);
+
+        // Date.
+        spanNode = document.createElement('time');
+        spanNode.setAttribute('datetime', createdOn.toISOString());
+        spanNode.appendChild(
+            document.createTextNode(createdOn.toCustomISODate()));
+        html.replaceContent(document.getElementById('dd-date'), spanNode);
+
+        // Status.
+        statusNode = boot.statusNode(result.status);
+        if (resultDescription && result.status !== 'PASS') {
+            spanNode = document.createElement('span');
+            spanNode.appendChild(statusNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            resultDescription = html.escape(resultDescription);
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', resultDescription);
+            smallNode = document.createElement('small');
+            smallNode.insertAdjacentHTML(
+                'beforeend', html.sliceText(resultDescription, 40));
+            tooltipNode.appendChild(smallNode);
+
+            spanNode.appendChild(tooltipNode);
+            statusNode = spanNode;
+        }
+        html.replaceContent(
+            document.getElementById('dd-board-status'), statusNode);
+
+        // Arch.
+        html.replaceContent(
+            document.getElementById('dd-board-arch'),
+            document.createTextNode(arch));
+
+        if (endianness) {
+            html.replaceContent(
+                document.getElementById('dd-board-endianness'),
+                document.createTextNode(endianness));
+        } else {
+            html.replaceContent(
+                document.getElementById('dd-board-endianness'),
+                html.nonavail());
+        }
+
+        if (!warnings) {
+            warnings = 0;
+        }
+        html.replaceContent(
+            document.getElementById('dd-board-warnings'),
+            document.createTextNode(warnings));
+
+        // Time.
+        html.replaceContent(
+            document.getElementById('dd-board-boot-time'),
+            document.createTextNode(bootTime.toCustomTime()));
+
+        // Boot log.
+        bootLog = boot.createBootLog(
+            result.boot_log,
+            result.boot_log_html,
+            lab,
+            serverURI,
+            pathURI
         );
-        b.replaceById(
-            'dd-board-tree',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot details for&nbsp;' + job + '">' +
-            '<a href="/boot/all/job/' + job + '">' + job +
-            '</a></span>&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for job&nbsp;' + job + '"><a href="/job/' + job +
-            '"><i class="fa fa-sitemap"></i></a></span>'
-        );
-        b.replaceById('dd-board-branch', branch);
-        b.replaceById(
-            'dd-board-kernel',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' +
-            kernel + '"><a href="/boot/all/job/' + job +
-            '/kernel/' + kernel + '">' + kernel +
-            '</a></span>&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for build&nbsp;' + job + '&nbsp;&dash;&nbsp;' +
-            kernel + '"><a href="/build/' + job + '/kernel/' + kernel +
-            '"><i class="fa fa-cube"></i></a></span>'
-        );
-        b.replaceById(
-            'dd-board-defconfig',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Boot reports for&nbsp;' + boardName +
-            '&nbsp;&dash;&nbsp;' + jobName + '&nbsp;&dash;&nbsp;' +
-            kernelName + '&nbsp;&dash;&nbsp;' + defconfigFull + '">' +
-            '<a href="/boot/' + boardName + '/job/' + jobName + '/kernel/' +
-            kernelName + '/defconfig/' + defconfigFull + '">' +
-            defconfigFull + '</a></span>' +
-            '&nbsp;&mdash;&nbsp;<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for build&nbsp;' + job +
-            '&nbsp;&dash;&nbsp;' + kernel + '&nbsp;&dash;&nbsp;' +
-            defconfigFull + '"><a href="/build/' + job + '/kernel/' +
-            kernel + '/defconfig/' + defconfigFull +
-            '"><i class="fa fa-cube"></i></a></span>'
-        );
-        b.replaceById('dd-date', createdOn.toCustomISODate());
-
-        switch (status) {
-            case 'PASS':
-                statusDispl = '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Boot completed"><span class="label ' +
-                    'label-success"><i class="fa fa-check">' +
-                    '</i></span></span>';
-                break;
-            case 'FAIL':
-                statusDispl = '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Boot failed"><span class="label label-danger">' +
-                    '<i class="fa fa-exclamation-triangle"></i>' +
-                    '</span></span>';
-                break;
-            case 'OFFLINE':
-                statusDispl = '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Board offline" <span class="label label-info">' +
-                    '<i class="fa fa-power-off"></i></span></span>';
-                break;
-            default:
-                statusDispl = '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="Unknown status"><span class="label ' +
-                    'label-warning"><i class="fa fa-question"></i>' +
-                    '</span></span>';
-                break;
+        if (!bootLog) {
+            bootLog = html.nonavail();
         }
+        html.replaceContent(
+            document.getElementById('dd-board-boot-log'), bootLog);
 
-        if (resultDescription !== null && status !== 'PASS') {
-            statusDispl += '&nbsp;';
-            resultDescription = b.escapeHtml(resultDescription);
+        if (dtb) {
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                serverURI
+                    .path(pathURI + '/' + dtb).normalizePath().href()
+            );
+            aNode.appendChild(document.createTextNode(dtb));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
 
-            if (resultDescription.length > 40) {
-                statusDispl += '<span rel="tooltip" data-toggle="tooltip"' +
-                    'title="' + resultDescription + '">' +
-                    '<small>' + resultDescription.slice(0, 39) +
-                    '&nbsp;&hellip;</small></span>';
-            } else {
-                statusDispl += '<small>' + resultDescription + '</small>';
-            }
-        }
-        b.replaceById('dd-board-status', statusDispl);
-        b.replaceById('dd-board-arch', arch);
-
-        if (endianness !== null) {
-            b.replaceById('dd-board-endianness', endianness);
+            html.replaceContent(
+                document.getElementById('dd-board-dtb'), aNode);
         } else {
-            b.replaceById('dd-board-endianness', nonAvail);
+            html.replaceContent(
+                document.getElementById('dd-board-dtb'), html.nonavail());
         }
 
-        if (warnings !== null) {
-            b.replaceById('dd-board-warnings', warnings);
+        if (dtbAddr) {
+            html.replaceContent(
+                document.getElementById('dd-board-dtb-address'),
+                document.createTextNode(dtbAddr));
         } else {
-            b.replaceById('dd-board-warnings', 0);
+            html.replaceContent(
+                document.getElementById('dd-board-dtb-address'),
+                html.nonavail());
         }
 
-        b.replaceById('dd-board-boot-time', bootTime.toCustomTime());
-        b.replaceById(
-            'dd-board-boot-log',
-            createBootLogContent(
-                bootLog,
-                bootLogHtml, localLabName, fileServerURI, pathURI, nonAvail)
-        );
-
-        if (dtb !== null && dtb !== '') {
-            b.replaceById(
-                'dd-board-dtb',
-                '<a href="' +
-                fileServerURI.path(pathURI + '/' + dtb)
-                    .normalizePath().href() +
-                '">' + dtb +
-                '&nbsp;<i class="fa fa-external-link"></i></a>');
+        if (loadAddr) {
+            html.replaceContent(
+                document.getElementById('dd-board-load-address'),
+                document.createTextNode(loadAddr));
         } else {
-            $('#dd-board-dtb').empty().append(nonAvail);
+            html.replaceContent(
+                document.getElementById('dd-board-load-address'),
+                html.nonavail());
         }
 
-        if (dtbAddr !== null && dtbAddr !== '') {
-            b.replaceById('dd-board-dtb-address', dtbAddr);
+        if (initrdAddr) {
+            html.replaceContent(
+                document.getElementById('dd-board-initrd-address'),
+                document.createTextNode(initrdAddr));
         } else {
-            b.replaceById('dd-board-dtb-address', nonAvail);
+            html.replaceContent(
+                document.getElementById('dd-board-initrd-address'),
+                html.nonavail());
         }
 
-        if (loadAddr !== null && loadAddr !== '') {
-            b.replaceById('dd-board-load-address', loadAddr);
+        if (kernelImage) {
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                serverURI
+                    .path(pathURI + '/' + kernelImage).normalizePath().href()
+            );
+            aNode.appendChild(document.createTextNode(kernelImage));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+            html.replaceContent(
+                document.getElementById('dd-board-kernel-image'), aNode);
         } else {
-            b.replaceById('dd-board-load-address', nonAvail);
+            html.replaceContent(
+                document.getElementById('dd-board-kernel-image'),
+                html.nonavail());
         }
 
-        if (initrdAddr !== null && initrdAddr !== '') {
-            b.replaceById('dd-board-initrd-address', initrdAddr);
-        } else {
-            b.replaceById('dd-board-initrd-address', nonAvail);
-        }
-
-        if (kernelImange !== null && kernelImange !== '') {
-            b.replaceById('dd-board-kernel-image',
-                '<a href="' +
-                fileServerURI.path(
-                    pathURI + '/' + kernelImange).normalizePath().href() +
-                '">' + kernelImange +
-                '&nbsp;<i class="fa fa-external-link"></i></a>');
-        } else {
-            b.replaceById('dd-board-kernel-image', nonAvail);
-        }
-
-        b.replaceById(
-            'dd-retries',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="How many times the boot has been attempted">' +
-            retries + '</span>'
-        );
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'How many times the boot has been attempted');
+        tooltipNode.appendChild(document.createTextNode(result.retries));
+        html.replaceContent(
+            document.getElementById('dd-retries'), tooltipNode);
 
         if (qemuData !== null && qemuData !== '') {
             otherTxt = '';
@@ -770,78 +902,64 @@ require([
                 '<dt>Binary</dt><dd>' + qemuData + '</dd>' + otherTxt +
                 '</dl></div></div>';
             b.replaceById('other-details-div', otherDetailsTxt);
-            b.removeClass('other-details-div', 'hidden');
+            html.removeClass(
+                document.getElementById('other-details-div'), 'hidden');
         }
     }
 
     function getBootData() {
-        var deferred,
-            data;
-        if (bootId !== null) {
+        var data,
+            deferred;
+
+        if (bootId) {
             data = {
-                'id': bootId
+                id: bootId
             };
         } else {
             data = {
-                'kernel': kernelName,
-                'job': jobName,
-                'defconfig_full': defconfigName,
-                'lab_name': labName,
-                'board': boardName
+                board: boardName,
+                defconfig_full: defconfigName,
+                job: jobName,
+                kernel: kernelName,
+                lab_name: labName
             };
         }
+
         deferred = r.get('/_ajax/boot', data);
         $.when(deferred)
             .fail(e.error, getBootDataFail)
             .done(getBootDataDone, getCompareData, getBisectData);
     }
 
-    $(document).ready(function() {
-        // Setup and perform base operations.
-        init.hotkeys();
-        init.tooltip();
+    // Setup and perform base operations.
+    init.hotkeys();
+    init.tooltip();
 
-        document.getElementById('li-boot').setAttribute('class', 'active');
+    if (document.getElementById('board-name') !== null) {
+        boardName = document.getElementById('board-name').value;
+    }
+    if (document.getElementById('job-name') !== null) {
+        jobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('kernel-name') !== null) {
+        kernelName = document.getElementById('kernel-name').value;
+    }
+    if (document.getElementById('defconfig-name') !== null) {
+        defconfigName = document.getElementById('defconfig-name').value;
+    }
+    if (document.getElementById('lab-name') !== null) {
+        labName = document.getElementById('lab-name').value;
+    }
+    if (document.getElementById('boot-id') !== null) {
+        bootId = document.getElementById('boot-id').value;
+    }
+    if (document.getElementById('file-server') !== null) {
+        fileServer = document.getElementById('file-server').value;
+    }
+    if (document.getElementById('date-range') !== null) {
+        dateRange = document.getElementById('date-range').value;
+    }
 
-        if (document.getElementById('board-name') !== null) {
-            boardName = document.getElementById('board-name').value;
-        }
-
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-
-        if (document.getElementById('kernel-name') !== null) {
-            kernelName = document.getElementById('kernel-name').value;
-        }
-
-        if (document.getElementById('defconfig-name') !== null) {
-            defconfigName = document.getElementById('defconfig-name').value;
-        }
-
-        if (document.getElementById('lab-name') !== null) {
-            labName = document.getElementById('lab-name').value;
-        }
-
-        if (document.getElementById('boot-id') !== null) {
-            bootId = document.getElementById('boot-id').value;
-        }
-
-        if (document.getElementById('file-server') !== null) {
-            fileServer = document.getElementById('file-server').value;
-        }
-
-        if (document.getElementById('date-range') !== null) {
-            dateRange = document.getElementById('date-range').value;
-        }
-
-        if (boardName !== null && jobName !== null && kernelName !== null &&
-                defconfigName !== null && labName !== null) {
-            getBootData();
-            getMultiLabData();
-        } else {
-            getBootDataFail();
-            getMultiLabDataFail();
-        }
-    });
+    getBootData();
+    getMultiLabData();
 });
