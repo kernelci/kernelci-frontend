@@ -886,26 +886,30 @@ require([
     }
 
     function getLogs() {
-        var deferred,
-            data;
-        data = {
-            job: jobName,
-            kernel: kernelName
-        };
-        deferred = r.get('/_ajax/job/logs', data);
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/job/logs',
+            {
+                job: jobName,
+                kernel: kernelName
+            }
+        );
         $.when(deferred)
             .fail(e.error, getLogsFail)
             .done(getLogsDone);
     }
 
     function getJob() {
-        var deferred,
-            data;
-        data = {
-            job: jobName,
-            kernel: kernelName
-        };
-        deferred = r.get('/_ajax/job', data);
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/job',
+            {
+                job: jobName,
+                kernel: kernelName
+            }
+        );
         $.when(deferred)
             .fail(e.error, getJobFail)
             .done(getJobDone, getBuilds);
@@ -918,43 +922,31 @@ require([
                 session;
 
             panelState = {};
+
+            function saveElementState(element) {
+                panelState['#' + element.id] = [
+                    {
+                        type: 'class',
+                        name: 'class',
+                        value: element.getAttribute('class')
+                    },
+                    {
+                        type: 'attr',
+                        name: 'aria-expanded',
+                        value: element.getAttribute('aria-expanded')
+                    }
+                ];
+            }
+
             session = new ws.Session('build-' + jobName + '-' + kernelName);
 
-            [].forEach
-                .call(
-                    document.querySelectorAll('[id^="panel-defconf"]'),
-                    function(element) {
-                        panelState['#' + element.id] = [
-                            {
-                                type: 'class',
-                                name: 'class',
-                                value: element.getAttribute('class')
-                            },
-                            {
-                                type: 'attr',
-                                name: 'aria-expanded',
-                                value: element.getAttribute('aria-expanded')
-                            }
-                        ];
-                });
+            [].forEach.call(
+                document.querySelectorAll('[id^="panel-defconf"]'),
+                saveElementState);
 
-            [].forEach
-                .call(
-                    document.querySelectorAll('[id^="collapse-defconf"]'),
-                    function(element) {
-                        panelState['#' + element.id] = [
-                            {
-                                type: 'class',
-                                name: 'class',
-                                value: element.getAttribute('class')
-                            },
-                            {
-                                type: 'attr',
-                                name: 'aria-expanded',
-                                value: element.getAttribute('aria-expanded')
-                            }
-                        ];
-                });
+            [].forEach.call(
+                document.querySelectorAll('[id^="collapse-defconf"]'),
+                saveElementState);
 
             pageState = {
                 '.df-success': {
@@ -1003,20 +995,19 @@ require([
     init.hotkeys();
     init.tooltip();
 
-    [].forEach
-        .call(
-            document.querySelectorAll('.btn-group > .btn'), function(btn) {
-                btn.addEventListener('click', function() {
-                    [].forEach
-                        .call(btn.parentElement.children, function(element) {
-                            if (element === btn) {
-                                html.addClass(element, 'active');
-                            } else {
-                                html.removeClass(element, 'active');
-                            }
-                        });
-                });
+    [].forEach.call(
+        document.querySelectorAll('.btn-group > .btn'), function(btn) {
+            btn.addEventListener('click', function() {
+                [].forEach
+                    .call(btn.parentElement.children, function(element) {
+                        if (element === btn) {
+                            html.addClass(element, 'active');
+                        } else {
+                            html.removeClass(element, 'active');
+                        }
+                    });
             });
+        });
 
     if (document.getElementById('file-server') !== null) {
         fileServer = document.getElementById('file-server').value;
