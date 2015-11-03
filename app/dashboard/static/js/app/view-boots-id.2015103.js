@@ -196,72 +196,62 @@ require([
     }
 
     function getCompareToNextFail() {
-        b.removeElement('boot-reports-compared-to-load');
-        b.replaceById(
-            'compare-to-next-div',
-            '<div class="pull-center"><p><strong>' +
-            'Error downloading data compared to next.' +
-            '</strong></p></div>'
-        );
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
+        html.replaceContent(
+            document.getElementById('compare-to-next-div'),
+            html.errorDiv('Error retrieving data compared to next.'));
     }
 
     function getCompareToNextDone(response) {
-        b.removeElement('boot-reports-compared-to-load');
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
         generalCompareToTable(
             response, 'compare-to-next-table', 'compare-to-next-table-body');
     }
 
     function getCompareToMainlineFail() {
-        b.removeElement('boot-reports-compared-to-load');
-        b.replaceById(
-            'compare-to-mainline-div',
-            '<div class="pull-center"><p><strong>' +
-            'Error downloading data compared to mainline.' +
-            '</strong></p></div>'
-        );
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
+        html.replaceContent(
+            document.getElementById('compare-to-mainline-div'),
+            html.errorDiv('Error retrieving data compared to mainline.'));
     }
 
     function getCompareToMainlineDone(response) {
-        b.removeElement('boot-reports-compared-to-load');
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
         generalCompareToTable(
             response,
             'compare-to-mainline-table', 'compare-to-mainline-table-body');
     }
 
     function getMultiLabDataFail() {
-        b.replaceById('boot-reports-loading-div', '');
-        b.replaceById(
-            'other-reports-table-div',
-            '<div class="pull-center">' +
-            '<strong>Error loading data.</strong></div>'
-        );
+        html.removeChildren(
+            document.getElementById('boot-reports-loading-div'));
+        html.replaceContent(
+            document.getElementById('other-reports-table-div'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getMultiLabDataDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            localRes,
-            validReports = 0,
-            allRows = '',
+        var allRows,
             localLabName,
-            idx = 0;
+            localRes,
+            results,
+            validReports;
 
-        b.replaceById(
-            'boot-reports-loading-div',
-            '<i class="fa fa-cog fa-spin"></i>&nbsp;' +
-            '<span>analyzing boot reports data&hellip;</span>'
-        );
+        results = response.result;
+        if (results.length > 0) {
+            validReports = 0;
+            allRows = '';
 
-        if (resLen > 0) {
-            for (idx; idx < resLen; idx = idx + 1) {
-                localRes = results[idx];
-                localLabName = localRes.lab_name;
-
-                if (localLabName !== labName) {
+            results.forEach(function(result) {
+                if (result.lab_name !== labName) {
                     validReports = validReports + 1;
-                    allRows += createBootTableRow(localRes);
+                    allRows += createBootTableRow(result);
                 }
-            }
+            });
 
             if (validReports === 0) {
                 b.replaceById('boot-reports-table-body',
@@ -279,26 +269,27 @@ require([
                 '<strong>No data available.</strong></td></tr>'
             );
         }
-        b.replaceById('boot-reports-loading-div', '');
-        b.removeElement('boot-reports-loading-div');
-        b.removeClass('multiple-labs-table', 'hidden');
+
+        html.removeChildren(
+            document.getElementById('boot-reports-loading-div'));
+        html.removeElement(
+            document.getElementById('boot-reports-loading-div'));
+        html.removeClass(
+            document.getElementById('multiple-labs-table'), 'hidden');
     }
 
     function getMultiLabData() {
-        var deferred,
-            data;
-        data = {
-            'kernel': kernelName,
-            'job': jobName,
-            'defconfig_full': defconfigName,
-            'board': boardName,
-            'field': [
-                '_id', 'lab_name', 'boot_log', 'boot_log_html',
-                'boot_result_description', 'defconfig', 'defconfig_full',
-                'created_on', 'status', 'arch', 'job', 'kernel'
-            ]
-        };
-        deferred = r.get('/_ajax/boot', data);
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/boot',
+            {
+                board: boardName,
+                defconfig_full: defconfigName,
+                job: jobName,
+                kernel: kernelName
+            }
+        );
         $.when(deferred)
             .fail(e.error, getMultiLabDataFail)
             .done(getMultiLabDataDone);
@@ -311,9 +302,9 @@ require([
     function getCompareData(response) {
         var childNode,
             createdOn,
-            data,
             deferred,
             loadingNode,
+            requestData,
             result;
 
         result = response.result;
@@ -334,7 +325,7 @@ require([
 
         loadingNode.appendChild(childNode);
 
-        data = {
+        requestData = {
             board: boardName,
             date_range: dateRange,
             defconfig_full: defconfigName,
@@ -345,13 +336,13 @@ require([
 
         if (result.length > 0) {
             createdOn = new Date(result[0].created_on.$date);
-            data.created_on = createdOn.toCustomISODate();
+            requestData.created_on = createdOn.toCustomISODate();
         }
 
         // Compare to mainline, if it is not mainline.
         if (jobName !== 'mainline') {
-            data.job = 'mainline';
-            deferred = r.get('/_ajax/boot', data);
+            requestData.job = 'mainline';
+            deferred = r.get('/_ajax/boot', requestData);
 
             $.when(deferred)
                 .fail(e.error, getCompareToMainlineFail)
@@ -363,8 +354,8 @@ require([
 
         // Compare to next, if it is not next.
         if (jobName !== 'next') {
-            data.job = 'next';
-            deferred = r.get('/_ajax/boot', data);
+            requestData.job = 'next';
+            deferred = r.get('/_ajax/boot', requestData);
 
             $.when(deferred)
                 .fail(e.error, getCompareToNextFail)
@@ -375,42 +366,42 @@ require([
         }
     }
 
+    function _bindShowLess(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.showLessBisectRowsBtn);
+    }
+
+    function _bindShowMore(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.showMoreBisectRowsBtn);
+    }
+
+    function _bindBisect(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.showHideBisect);
+    }
+
     function bindBisectMoreLessBtns() {
         [].forEach.call(
             document.getElementsByClassName('bisect-pm-btn-less'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showLessBisectRowsBtn);
-            }
-        );
+            _bindShowLess);
 
         [].forEach.call(
             document.getElementsByClassName('bisect-pm-btn-more'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showMoreBisectRowsBtn);
-            }
-        );
+            _bindShowMore);
     }
 
     function bindBisectButtons() {
         [].forEach.call(
-            document.getElementsByClassName('bisect-click-btn'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showHideBisect);
-            }
-        );
+            document.getElementsByClassName('bisect-click-btn'), _bindBisect);
     }
 
     function getBisectCompareToMainlineFail() {
-        b.removeElement('bisect-compare-loading-div');
-        b.replaceById(
-            'bisect-compare-content',
-            '<div class="pull-center><strong>' +
-            'Error loading bisect data from server.' +
-            '</strong></div>');
-        b.removeClass('hidden');
+        html.removeElement(
+            document.getElementById('bisect-compare-loading-div'));
+        html.replaceContent(
+            document.getElementById('bisect-compare-content'),
+            html.errorDiv('Error loading bisect data.'));
     }
 
     function getBisectToMainline(bisectData, boot) {
@@ -437,7 +428,9 @@ require([
 
         deferred = r.get(
             '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
-            boot, {});
+            boot,
+            {}
+        );
         $.when(deferred)
             .fail(e.error, getBisectCompareToMainlineFail)
             .done(function(data) {
@@ -477,7 +470,7 @@ require([
         html.removeClass(document.getElementById('bisect-content'), 'hidden');
         html.replaceContent(
             document.getElementById('bisect-content'),
-            html.errorDiv('Error loading data.'));
+            html.errorDiv('Error loading bisect data.'));
     }
 
     function getBisectData(response) {
