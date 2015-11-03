@@ -65,16 +65,22 @@ require([
     defconfigTextFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
         'title="Total number of unique defconfigs tested">%s</span>';
 
+    function showHideBind(element) {
+        element.addEventListener('click', btns.showHideElements, true);
+    }
+
+    function labBind(element) {
+        element.addEventListener('click', btns.showHideLab, true);
+    }
+
     function bindDetailButtons() {
-        $('.click-btn').each(function() {
-            $(this).on('click', btns.showHideElements);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('click-btn'), showHideBind);
     }
 
     function bindLabButtons() {
-        $('.lab-click-btn').each(function() {
-            $(this).on('click', btns.showHideLab);
-        });
+        [].forEach.call(
+            document.getElementsByClassName('lab-click-btn'), labBind);
     }
 
     function uniqueCountFail() {
