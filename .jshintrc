@@ -1,7 +1,18 @@
 {
     "browser": true,
+    "curly": true,
+    "eqeqeq": true,
+    "es5": true,
+    "forin": true,
     "globals": [
         "define",
         "require"
-    ]
+    ],
+    "latedef": "nofunc",
+    "nonbsp": true,
+    "nonew": true,
+    "plusplus": true,
+    "shadow": "outer",
+    "undef": true,
+    "unused": true
 }
