@@ -187,7 +187,7 @@ require([
             bootsTable
                 .tableData(results)
                 .columns(columns)
-                .order([7, 'desc'])
+                .order([9, 'desc'])
                 .menu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
