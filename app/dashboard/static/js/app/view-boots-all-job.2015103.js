@@ -66,15 +66,14 @@ require([
             operation_id: 'boot-reports-count',
             resource: 'count',
             document: 'boot',
-            query: 'job=' + jobName + '&limit=' + numberRange
+            query: 'job=' + jobName
         };
 
         batchQueries[1] = {
             method: 'GET',
             operation_id: 'boot-boards-count',
             resource: 'boot',
-            query: 'job=' + jobName + '&limit=' + numberRange +
-                '&aggregate=board&field=board'
+            query: 'job=' + jobName + '&aggregate=board&field=board'
         };
 
         deferred = r.post(
