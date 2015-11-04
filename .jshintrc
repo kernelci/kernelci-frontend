@@ -4,14 +4,18 @@
     "eqeqeq": true,
     "es5": true,
     "forin": true,
-    "globals": [
-        "define",
-        "require"
-    ],
+    "globals": {
+        "define": true,
+        "require": true,
+        "sprintf": true
+    },
+    "indent": 4,
     "latedef": "nofunc",
+    "noempty": true,
     "nonbsp": true,
     "nonew": true,
     "plusplus": true,
+    "quotmark": "single",
     "shadow": "outer",
     "undef": true,
     "unused": true
