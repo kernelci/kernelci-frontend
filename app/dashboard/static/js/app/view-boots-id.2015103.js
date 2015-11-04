@@ -137,7 +137,7 @@ require([
 
         col0 = '<td class="lab-column">' + lab + '</td>';
         if (resultDescription !== null) {
-            resultDescription = b.escapeHtml(resultDescription);
+            resultDescription = html.escape(resultDescription);
             col1 = '<td class="failure-column">';
             col1 += '<span rel="tooltip" data-toggle="tooltip"' +
                 'title="' + resultDescription + '">' +
@@ -173,26 +173,27 @@ require([
             col0 + col1 + col2 + col3 + col4 + col5 + '</tr>';
     }
 
-    function generalCompareToTable(response, tableID, tableBodyID) {
-        var results = response.result,
-            resLen = results.length,
-            idx = 0,
+    function generalCompareToTable(response, tableId, tableBodyId) {
+        var results,
+            rows;
+
+        results = response.result;
+        if (results.length > 0) {
             rows = '';
-        if (resLen > 0) {
-            for (idx; idx < resLen; idx = idx + 1) {
-                rows += createBootTableRow(results[idx]);
-            }
-            b.replaceById(tableBodyID, rows);
-            b.removeClass(tableID, 'hidden');
+            results.forEach(function(result) {
+                rows += createBootTableRow(result);
+            });
+            html.replaceContentHTML(
+                document.getElementById(tableBodyId), rows);
         } else {
-            b.replaceById(
-                tableBodyID,
+            html.replaceContentHTML(
+                document.getElementById(tableBodyId),
                 '<tr><td colspan="6" class="pull-center">' +
                 '<strong>No recent results found.</strong>' +
-                '</td></tr>'
-            );
-            b.removeClass(tableID, 'hidden');
+                '</td></tr>');
         }
+
+        html.removeClass(document.getElementById(tableId), 'hidden');
     }
 
     function getCompareToNextFail() {
@@ -236,8 +237,6 @@ require([
 
     function getMultiLabDataDone(response) {
         var allRows,
-            localLabName,
-            localRes,
             results,
             validReports;
 
@@ -254,20 +253,22 @@ require([
             });
 
             if (validReports === 0) {
-                b.replaceById('boot-reports-table-body',
+                html.replaceContentHTML(
+                    document.getElementById('boot-reports-table-body'),
                     '<tr><td colspan="6" class="pull-center">' +
                     '<strong>No similar boot reports found.</strong>' +
                     '</td></tr>'
                 );
             } else {
-                b.replaceById('boot-reports-table-body', allRows);
+                html.replaceContentHTML(
+                    document.getElementById('boot-reports-table-body'),
+                    allRows);
             }
         } else {
-            b.replaceById(
-                'boot-reports-table-body',
+            html.replaceContentHTML(
+                document.getElementById('boot-reports-table-body'),
                 '<tr><td colspan="6" class="pull-center">' +
-                '<strong>No data available.</strong></td></tr>'
-            );
+                '<strong>No data available.</strong></td></tr>');
         }
 
         html.removeChildren(
@@ -317,7 +318,7 @@ require([
         loadingNode.appendChild(childNode);
         loadingNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-        childNode = document.createElement('span');
+        childNode = document.createElement('small');
         childNode.id = 'boot-reports-loading-content';
         childNode.appendChild(
             document.createTextNode('searching similar boot reports'));
@@ -404,7 +405,7 @@ require([
             html.errorDiv('Error loading bisect data.'));
     }
 
-    function getBisectToMainline(bisectData, boot) {
+    function getBisectToMainline(bisectData, bBootId) {
         var deferred,
             elements;
 
@@ -428,7 +429,7 @@ require([
 
         deferred = r.get(
             '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
-            boot,
+            bBootId,
             {}
         );
         $.when(deferred)
@@ -894,7 +895,8 @@ require([
             otherDetailsTxt += '<dl class="dl-horizontal">' +
                 '<dt>Binary</dt><dd>' + qemuData + '</dd>' + otherTxt +
                 '</dl></div></div>';
-            b.replaceById('other-details-div', otherDetailsTxt);
+            html.replaceContentHTML(
+                document.getElementById('other-details-div'), otherDetailsTxt);
             html.removeClass(
                 document.getElementById('other-details-div'), 'hidden');
         }
