@@ -121,7 +121,51 @@ define([
     }
 
     /**
-     * Function to render the kernel column on a table with.
+     * Function to render the board column on a table.
+     *
+     * @param {string} board: The board value.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableBoard = function(board, type, object) {
+        var aNode,
+            job,
+            kernel,
+            tooltipNode,
+            rendered;
+
+        rendered = board;
+        if (type === 'display') {
+            job = object.job;
+            kernel = object.kernel;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for board&nbsp;' + board +
+                '&nbsp;with&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel
+            );
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute(
+                'href',
+                '/boot/' + board + '/job/' + job + '/kernel/' + kernel + '/'
+            );
+
+            aNode.appendChild(document.createTextNode(board));
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the kernel column on a table.
      * Special case for the count of builds/boots.
      *
      * @param {string} kernel: The kernel value.
@@ -163,6 +207,8 @@ define([
      *
      * @param {string} tree: The tree value.
      * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
     bootUtils.renderTableTree = function(tree, type, object) {
@@ -179,6 +225,38 @@ define([
             aNode.className = 'table-link';
             aNode.setAttribute(
                 'href', '/boot/' + object.board + '/job/' + tree + '/');
+
+            aNode.appendChild(document.createTextNode(tree));
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the tree column on a table.
+     *
+     * @param {string} tree: The tree value.
+     * @param {string} type: The type of the display option.
+     * @param {object} object: The entire data set for the row, plus the
+     * default value for the file server URL.
+     * @return {string} The rendered element as a string.
+    **/
+    bootUtils.renderTableTreeAll = function(tree, type) {
+        var aNode,
+            rendered,
+            tooltipNode;
+
+        rendered = tree;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + tree);
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute('href', '/boot/all/job/' + tree + '/');
 
             aNode.appendChild(document.createTextNode(tree));
             tooltipNode.appendChild(aNode);
