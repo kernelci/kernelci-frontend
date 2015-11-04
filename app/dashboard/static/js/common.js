@@ -10,7 +10,7 @@ require.config({
         'jquery.hotkeys': 'lib/jquery.hotkeys-1.0.min',
         'jquery.hotkeymap': 'lib/jquery.hotkeymap-1.0.min',
         'bootstrap': 'lib/bootstrap-3.3.5',
-        'sprintf': 'lib/sprintf-1.0.1',
+        'sprintf': 'lib/sprintf-1.0.3',
         'd3': 'lib/d3-3.5.6',
         'datatables': 'lib/jquery.dataTables-1.10.9',
         'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.9',
