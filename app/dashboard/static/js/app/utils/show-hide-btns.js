@@ -219,20 +219,6 @@ define([
         divNode.setAttribute('role', 'group');
 
         buttonNode = document.createElement('button');
-        buttonNode.id = plusId;
-        buttonNode.type = 'button';
-        buttonNode.title = 'Show more bisect results';
-        buttonNode.className = 'bisect-pm-btn-more btn btn-default';
-        buttonNode.setAttribute('data-action', 'more');
-        buttonNode.setAttribute('data-table', tableId);
-        buttonNode.setAttribute('data-rows', rows);
-        buttonNode.setAttribute('data-type', dataType);
-        // The + sign.
-        buttonNode.insertAdjacentHTML('beforeend', '&#43;');
-
-        divNode.appendChild(buttonNode);
-
-        buttonNode = document.createElement('button');
         buttonNode.id = minusId;
         buttonNode.type = 'button';
         buttonNode.title = 'Show less bisect results';
@@ -243,6 +229,20 @@ define([
         buttonNode.setAttribute('data-type', dataType);
         // The - sign.
         buttonNode.insertAdjacentHTML('beforeend', '&#8722;');
+
+        divNode.appendChild(buttonNode);
+
+        buttonNode = document.createElement('button');
+        buttonNode.id = plusId;
+        buttonNode.type = 'button';
+        buttonNode.title = 'Show more bisect results';
+        buttonNode.className = 'bisect-pm-btn-more btn btn-default';
+        buttonNode.setAttribute('data-action', 'more');
+        buttonNode.setAttribute('data-table', tableId);
+        buttonNode.setAttribute('data-rows', rows);
+        buttonNode.setAttribute('data-type', dataType);
+        // The + sign.
+        buttonNode.insertAdjacentHTML('beforeend', '&#43;');
 
         divNode.appendChild(buttonNode);
         // TODO: need to fix bisect and pass the node instead of the HTML.
