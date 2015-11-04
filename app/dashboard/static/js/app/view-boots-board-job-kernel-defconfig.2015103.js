@@ -52,7 +52,8 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
-                    className: 'lab-column'
+                    className: 'lab-column',
+                    render: boot.renderTableLabAll
                 },
                 {
                     data: 'arch',
@@ -129,7 +130,6 @@ require([
 
     function setUpData() {
         var aNode,
-            iNode,
             spanNode,
             tooltipNode;
 
@@ -154,10 +154,7 @@ require([
         aNode = document.createElement('a');
         aNode.setAttribute('href', '/job/' + jobName + '/');
 
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-sitemap';
-
-        aNode.appendChild(iNode);
+        aNode.appendChild(html.tree());
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
 
@@ -195,10 +192,7 @@ require([
         aNode.setAttribute(
             'href', '/build/' + jobName + '/kernel/' + kernelName + '/');
 
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-cube';
-
-        aNode.appendChild(iNode);
+        aNode.appendChild(html.build());
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
 
