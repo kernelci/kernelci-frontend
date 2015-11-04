@@ -121,6 +121,37 @@ define([
     }
 
     /**
+     * Function to render the lab column on a table.
+     *
+     * @param {string} lab: The lab name.
+     * @param {string} type: The type of the display option.
+     * @return {string} The HTML string of the cell node.
+    **/
+    bootUtils.renderTableLabAll = function(lab, type) {
+        var aNode,
+            rendered,
+            tooltipNode;
+
+        rendered = lab;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for lab&nbsp;' + lab);
+
+            aNode = document.createElement('a');
+            aNode.className = 'table-link';
+            aNode.setAttribute('href', '/boot/all/lab/' + lab + '/');
+            aNode.appendChild(document.createTextNode(lab));
+
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
      * Function to render the board column on a table.
      *
      * @param {string} board: The board value.
