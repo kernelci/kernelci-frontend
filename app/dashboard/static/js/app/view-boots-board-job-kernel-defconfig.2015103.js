@@ -64,7 +64,7 @@ require([
                     data: 'boot_result_description',
                     title: 'Failure Reason',
                     className: 'failure-column',
-                    render: boot.renderTableResulDescription
+                    render: boot.renderTableResultDescription
                 },
                 {
                     data: 'file_server_url',

@@ -389,7 +389,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableResulDescription = function(data, type) {
+    bootUtils.renderTableResultDescription = function(data, type) {
         var rendered,
             tooltipNode;
 
