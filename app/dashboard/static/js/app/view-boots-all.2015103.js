@@ -7,8 +7,7 @@ require([
     'utils/tables',
     'utils/html',
     'utils/const',
-    'utils/boot',
-    'utils/date'
+    'utils/boot'
 ], function($, init, e, r, t, html, appconst, boot) {
     'use strict';
     var bootReqData,
