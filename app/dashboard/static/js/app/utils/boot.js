@@ -457,7 +457,7 @@ define([
 
         rendered = status;
         if (type === 'display') {
-            rendered = _bootStatus(status);
+            rendered = _bootStatus(status).outerHTML;
         }
 
         return rendered;
