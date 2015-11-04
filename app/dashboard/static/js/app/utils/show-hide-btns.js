@@ -1,30 +1,18 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'jquery',
-    'sprintf',
-    'utils/base',
-    'utils/html'
-], function($, p, b, html) {
+    'utils/html',
+    'sprintf'
+], function($, html) {
     'use strict';
-    var btns,
+    var gButtons,
         gDom,
         gStrings,
-        sHiddenLab,
-        sHideBisectComparedTooltip,
-        sHideBisectTooltip,
-        sHideFaCls,
-        sHideLabTooltip,
-        sShowBisectComparedTooltip,
-        sShowBisectTooltip,
-        sShowFaCls,
-        sShowLabTooltip,
-        sBisectHiddenText,
-        sBisectComparedHiddenText,
-        bisectColSpan;
+        gTableColSpan;
 
-    btns = {};
+    gButtons = {};
     // The number of columns in the bisect table.
-    bisectColSpan = 4;
+    gTableColSpan = 4;
     gDom = {
         help_c_row_id: 'bisect-comapre-hidden-help',
         help_row_id: 'bisect-hidden-help',
@@ -42,26 +30,22 @@ define([
         bisect_c_show_tooltip:
             'Show content of bisect compared to &#171;%s&#187;',
         bisect_c_hide_tooltip:
-            'Hide content of bisect compared to &#171;%s&#187;'
+            'Hide content of bisect compared to &#171;%s&#187;',
+        bisect_rows_hidden_text:
+            '%d out of %d rows hidden. Use the <strong>&#43;</strong> ' +
+            'button on the right to show them.',
+        bisect_hidden_text: 'Content of default bisection hidden. ' +
+            'Use the <i class="fa fa-eye"></i> button to show it again.',
+        bisect_c_hidden_text: 'Content of bisection compared to ' +
+            '&#171;%s&#187; hidden. Use the <i class="fa fa-eye"></i> ' +
+            'button to show it again.',
+        show_class: 'fa fa-eye',
+        hide_class: 'fa fa-eye-slash',
+        lab_show_tooltip: 'Show content of lab &#171;%s&#187;',
+        lab_hide_tooltip: 'Hide content of lab &#171;%s&#187;',
+        lab_hidden: 'Content of lab &#171;%s&#187; hidden. ' +
+            'Use the <i class="fa fa-eye"></i> button to show it again.'
     };
-
-    sBisectComparedHiddenText = 'Content of bisection compared to ' +
-        '&#171;%s&#187; hidden. Use the ' +
-        '<i class="fa fa-eye"></i> button to show it again.';
-    sBisectHiddenText = 'Content of default bisection hidden. ' +
-        'Use the <i class="fa fa-eye"></i> button to show it again.';
-    sShowBisectTooltip = 'Show content of default bisect';
-    sHideBisectTooltip = 'Hide content of default bisect';
-    sShowBisectComparedTooltip = 'Show content of bisect ' +
-        'compared to &#171;%s&#187;';
-    sHideBisectComparedTooltip = 'Hide content of bisect ' +
-        'compared to &#171;%s&#187;';
-    sShowLabTooltip = 'Show contents of lab «%s»';
-    sHideLabTooltip = 'Hide contents of lab «%s»';
-    sHiddenLab = '<small>Content of lab &#171;%s&#187; hidden. ' +
-        'Use the <i class="fa fa-eye"></i> button to show it again.</small>';
-    sShowFaCls = 'fa fa-eye';
-    sHideFaCls = 'fa fa-eye-slash';
 
     /**
      * Show only elements that have don't have a display style of none.
@@ -181,126 +165,176 @@ define([
         }
     }
 
-    // Simulate a click on the bisect - button.
-    btns.triggerMinusBisectBtns = function(compared) {
+    /**
+     * Remove the hidden class from an element.
+     * Internally used.
+     *
+     * @private
+     * @param {Element} element: The DOM element.
+    **/
+    function _removeHidden(element) {
+        html.removeClass(element, 'hidden');
+    }
+
+    /**
+     * Simulate a click on the bisect button to show less lines.
+     *
+     * @param {boolean} compared: If this is a comparison bisection.
+    **/
+    gButtons.triggerMinusBisectBtns = function(compared) {
         if (compared) {
-            $('#' + gDom.minus_c_id).trigger('click');
+            document.getElementById(gDom.minus_c_id).click();
         } else {
-            $('#' + gDom.minus_id).trigger('click');
+            document.getElementById(gDom.minus_id).click();
         }
     };
 
-    btns.createPlusMinBisectBtn = function(numEl, tableId, compared) {
-        var dataType,
-            min,
-            minId,
-            plus,
+    /**
+     * Create the +/- button to show/hide bisection lines.
+     *
+     * @param {number} rows: The total number of rows.
+     * @param {string} tableId: The ID of the table.
+     * @param {Boolean} compared: If this is for a comparison bisection.
+     * @return {string} The HTML of the buttons.
+    **/
+    gButtons.createPlusMinBisectBtn = function(rows, tableId, compared) {
+        var buttonNode,
+            dataType,
+            divNode,
+            minusId,
             plusId;
 
         plusId = gDom.plus_id;
-        minId = gDom.minus_id;
+        minusId = gDom.minus_id;
         dataType = 'default';
 
         if (compared) {
             dataType = 'compare';
             plusId = gDom.plus_c_id;
-            minId = gDom.minus_c_id;
+            minusId = gDom.minus_c_id;
         }
 
-        plus = '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Show all bisect results">' +
-            '<button id="' + plusId + '" type="button" ' +
-            'class="bisect-pm-btn-more btn btn-default" ' +
-            'data-action="more" ' +
-            'data-table="' + tableId + '" data-rows="' + numEl +
-            '" data-type="' + dataType + '">' +
-            '<i class="fa fa-plus"></i>' +
-            '</button>' +
-            '</span>';
-        min = '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Show less bisect results">' +
-            '<button id="' + minId + '" type="button" ' +
-            'class="bisect-pm-btn-less btn btn-default"' +
-            'data-action="less" ' +
-            'data-table="' + tableId + '" data-rows="' + numEl +
-            '" data-type="' + dataType + '">' +
-            '<i class="fa fa-minus"></i>' +
-            '</button>' +
-            '</span>';
-        return plus + '&nbsp;' + min;
+        divNode = document.createElement('div');
+        divNode.className = 'btn-group btn-group-sm';
+        divNode.setAttribute('role', 'group');
+
+        buttonNode = document.createElement('button');
+        buttonNode.id = plusId;
+        buttonNode.type = 'button';
+        buttonNode.title = 'Show more bisect results';
+        buttonNode.className = 'bisect-pm-btn-more btn btn-default';
+        buttonNode.setAttribute('data-action', 'more');
+        buttonNode.setAttribute('data-table', tableId);
+        buttonNode.setAttribute('data-rows', rows);
+        buttonNode.setAttribute('data-type', dataType);
+        // The + sign.
+        buttonNode.insertAdjacentHTML('beforeend', '&#43;');
+
+        divNode.appendChild(buttonNode);
+
+        buttonNode = document.createElement('button');
+        buttonNode.id = minusId;
+        buttonNode.type = 'button';
+        buttonNode.title = 'Show less bisect results';
+        buttonNode.className = 'bisect-pm-btn-less btn btn-default';
+        buttonNode.setAttribute('data-action', 'less');
+        buttonNode.setAttribute('data-table', tableId);
+        buttonNode.setAttribute('data-rows', rows);
+        buttonNode.setAttribute('data-type', dataType);
+        // The - sign.
+        buttonNode.insertAdjacentHTML('beforeend', '&#8722;');
+
+        divNode.appendChild(buttonNode);
+        // TODO: need to fix bisect and pass the node instead of the HTML.
+        return divNode.outerHTML;
     };
 
-    // Function called to hide bisect table rows.
-    // The triggering element must contain the following data attributes:
-    // data-table: the ID of the table element
-    // data-rows: the total number of rows
-    // data-type: the type of bisect (default or compare)
-    btns.showLessBisectRowsBtn = function(event) {
-        var that = this,
-            data = that.dataset,
-            type = data.type,
-            rows = parseInt(data.rows, 10),
-            table = data.table,
-            rowText = '',
-            newRow = '',
-            row = null,
-            rowIndex = 0,
-            // Only show 4 rows and hide all the others.
-            elementsToShow = [1, 2, rows - 1, rows],
-            bisectHiddenClass = gDom.help_row_class,
-            helpRowId = gDom.help_row_id,
-            plusId = gDom.plus_id,
-            minusId = gDom.minus_id,
-            plusButton = '<i class="fa fa-plus"></i>',
-            element;
+    /**
+     * Function called to hide bisect table rows.
+     * The triggering element must contain the following data attributes:
+     *
+     * data-table: The ID of the table element.
+     * data-rows: The total number of rows.
+     * data-type: The type of bisection ('default' or 'compare').
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gButtons.showLessBisectRowsBtn = function(event) {
+        var bisectType,
+            element,
+            hiddenClass,
+            minusId,
+            newCell,
+            newRow,
+            plusId,
+            rowId,
+            rows,
+            smallNode,
+            tableRef,
+            toShow;
 
         element = event.target || event.srcElement;
 
-        if (type === 'compare') {
-            helpRowId = gDom.help_c_row_id;
-            bisectHiddenClass = gDom.help_c_row_class;
+        bisectType = element.getAttribute('data-type');
+        rows = parseInt(element.getAttribute('data-rows'), 10);
+        tableRef = document.getElementById(element.getAttribute('data-table'));
+
+        // Only show 4 rows and hide all the others.
+        toShow = [1, 2, rows - 1, rows];
+        hiddenClass = gDom.help_row_class;
+        rowId = gDom.help_row_id;
+        plusId = gDom.plus_id;
+        minusId = gDom.minus_id;
+
+        if (bisectType === 'compare') {
+            rowId = gDom.help_c_row_id;
+            hiddenClass = gDom.help_c_row_class;
             plusId = gDom.plus_c_id;
             minusId = gDom.minus_c_id;
         }
 
-        rowText = (rows - 4) + ' out of ' + rows + ' rows hidden. Use the ' +
-            plusButton + ' button on the right to show them.';
-        newRow = '<tr id="' + helpRowId + '">' +
-            '<td class="pull-center" colspan="' + bisectColSpan + '">' +
-            '<small>' + rowText + '</small></td></tr>';
-
-        $('#' + table + ' > tbody > tr').each(function() {
-            row = $(this);
-            rowIndex = row.context.rowIndex;
-            if (elementsToShow.indexOf(rowIndex) === -1) {
-                row.addClass('hidden').addClass(bisectHiddenClass);
+        [].forEach.call(
+            tableRef.querySelectorAll('tbody > tr'),
+            function(row) {
+                if (toShow.indexOf(row.rowIndex) === -1) {
+                    html.addClass(row, 'hidden');
+                    html.addClass(row, hiddenClass);
+                }
             }
-        });
+        );
+
         document.getElementById(plusId).removeAttribute('disabled');
         document.getElementById(minusId).setAttribute('disabled', 'disable');
-        // Add the row with the help text as the 3rd row.
-        $('#' + table + ' tbody > tr:nth-child(2)').after(newRow);
+
+        newRow = tableRef.insertRow(3);
+        newRow.id = rowId;
+        newCell = newRow.insertCell();
+        newCell.colSpan = gTableColSpan;
+        newCell.className = 'pull-center';
+
+        smallNode = document.createElement('small');
+        smallNode.insertAdjacentHTML(
+            'beforeend',
+            sprintf(gStrings.bisect_rows_hidden_text, (rows - 4), rows));
+
+        newCell.appendChild(smallNode);
     };
 
-    // Function called to show again the hidden bisect row.
-    // The triggering element must contain at least the following data
-    // attributes:
-    // 'data-type': the type of bisect (default or compare)
     /**
-     * Show agaim the hidden bisection row.
+     * Show again the hidden bisection row.
      * The tiggering element must contain the 'data-type'.
      * data-type: the type of bisection ('default' or 'compare').
      *
      * @param {Event} event: The triggering event.
     **/
-    btns.showMoreBisectRowsBtn = function(event) {
+    gButtons.showMoreBisectRowsBtn = function(event) {
         var element,
             minusId,
             plusId,
             rowClass,
             rowId;
 
-        element = element.target || event.srcElement;
+        element = event.target || event.srcElement;
 
         rowClass = gDom.help_row_class;
         rowId = gDom.help_row_id;
@@ -316,40 +350,57 @@ define([
 
         html.removeElement(document.getElementById(rowId));
         [].forEach.call(
-            document.getElementsByClassName(rowClass),
-            function(value) {
-                html.removeClass(value, 'hidden');
-            }
-        );
+            document.getElementsByClassName(rowClass), _removeHidden);
         document.getElementById(minusId).removeAttribute('disabled');
         document.getElementById(plusId).setAttribute('disabled', 'disable');
     };
 
-    // Create the "eye" button to show/hide the bisect table and summary.
-    // `element`: The ID of the element that should contain the button.
-    // `toSH`: The ID of the element that should be shown/hidden.
-    // `action`: The action to take: can be 'show' or 'hide'.
-    // `compareTo`: The name of the compare tree or null.
-    btns.createShowHideBisectBtn = function(element, toSH, action, compareTo) {
-        var faClass = sShowFaCls,
-            tooltipTitle = sShowBisectTooltip;
+    /**
+     * Create the "eye" button to show/hide the bisect section.
+     *
+     * @param {string} elementId: The Id of the element that should contain the
+     * button.
+     * @param {string} targetId: The ID of the element that should be shown or
+      * hidden.
+     * @param {string} action: The action to take: 'show' or 'hide'.
+     * @param {string} compareTo: The name of the compared tree or null.
+    **/
+    gButtons.createShowHideBisectBtn = function(
+            elementId, targetId, action, compareTo) {
+        var className,
+            title,
+            tooltipNode,
+            iNode;
 
-        if (action === 'show' && compareTo !== null) {
-            tooltipTitle = p.sprintf(sShowBisectComparedTooltip, compareTo);
+        className = gStrings.show_class;
+        title = gStrings.bisect_show_tooltip;
+
+        if (action === 'show' && compareTo) {
+            title = sprintf(gStrings.bisect_c_show_tooltip, compareTo);
         } else if (action === 'hide') {
-            faClass = sHideFaCls;
-            if (compareTo === null) {
-                tooltipTitle = sHideBisectTooltip;
+            className = gStrings.hide_class;
+
+            if (compareTo) {
+                title = sprintf(
+                    gStrings.bisect_c_hide_tooltip, compareTo);
             } else {
-                tooltipTitle = p.sprintf(
-                    sHideBisectComparedTooltip, compareTo);
+                title = gStrings.bisect_hide_tooltip;
             }
         }
-        return '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="' + tooltipTitle + '"><i data-action="' + action + '" ' +
-            'data-id="' + element + '" data-sh="' + toSH + '" ' +
-            'data-compared="' + compareTo + '" ' +
-            'class="bisect-click-btn ' + faClass + '"></i></span>';
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', title);
+
+        iNode = document.createElement('i');
+        iNode.setAttribute('data-action', action);
+        iNode.setAttribute('data-id', elementId);
+        iNode.setAttribute('data-sh', targetId);
+        iNode.setAttribute('data-compared', compareTo);
+        iNode.className = 'bisect-click-btn ' + className;
+
+        tooltipNode.appendChild(iNode);
+        // TODO: fix where this is called and return the DOM node.
+        return tooltipNode.outerHTML;
     };
 
     /**
@@ -357,53 +408,53 @@ define([
      *
      * @param {Event} event: The event that triggers the function.
     **/
-    btns.showHideBisect = function(event) {
+    gButtons.showHideBisect = function(event) {
         var compared,
             element,
             elementId,
             parent,
-            tooltipTitle;
+            smallNode,
+            title;
 
         element = event.target || event.srcElement;
         parent = element.parentNode;
         compared = element.getAttribute('data-compared');
         elementId = element.getAttribute('data-id');
-        tooltipTitle = sShowBisectTooltip;
+        title = gStrings.bisect_show_tooltip;
 
         if (element.getAttribute('data-action') === 'hide') {
             element.setAttribute('data-action', 'show');
-            html.removeClass(element, 'fa-eye-slash');
-            html.addClass(element, 'fa-eye');
+            html.removeClass(element, gStrings.hide_class);
+            html.addClass(element, gStrings.show_class);
             html.addClass(document.getElementById(
                 element.getAttribute('data-sh')), 'hidden');
 
+            smallNode = document.createElement('small');
             if (compared === 'null') {
-                // TODO
-                b.replaceById(
-                    'view-' + elementId,
-                    '<small>' + sBisectHiddenText + '</small>');
+                smallNode.insertAdjacentHTML(
+                    'beforeend', gStrings.bisect_hidden_text);
             } else {
-                tooltipTitle = p.sprintf(
-                    sShowBisectComparedTooltip, compared);
-                // TODO
-                b.replaceById(
-                    'view-' + elementId,
-                    '<small>' +
-                    p.sprintf(sBisectComparedHiddenText, compared) +
-                    '</small>'
-                );
+                title = sprintf(
+                    gStrings.bisect_c_show_tooltip, compared);
+
+                smallNode.insertAdjacentHTML(
+                    'beforeend',
+                    sprintf(gStrings.bisect_c_hidden_text, compared));
             }
+
+            html.replaceContent(
+                document.getElementById('view-' + elementId),
+                smallNode);
         } else {
             if (compared === 'null') {
-                tooltipTitle = sHideBisectTooltip;
+                title = gStrings.bisect_hide_tooltip;
             } else {
-                tooltipTitle = p.sprintf(
-                    sHideBisectComparedTooltip, compared);
+                title = sprintf(gStrings.bisect_c_hide_tooltip, compared);
             }
 
             element.setAttribute('data-action', 'hide');
-            html.removeClass(element, 'fa-eye');
-            html.addClass(element, 'fa-eye-slash');
+            html.removeClass(element, gStrings.show_class);
+            html.addClass(element, gStrings.hide_class);
             html.removeClass(
                 document.getElementById(element.getAttribute('data-sh')),
                 'hidden');
@@ -413,21 +464,34 @@ define([
 
         $(parent)
             .tooltip('hide')
-            .attr('data-original-title', tooltipTitle)
+            .attr('data-original-title', title)
             .tooltip('fixTitle');
     };
 
-    btns.createShowHideLabBtn = function(element, action) {
-        var faClass = sShowFaCls,
-            tooltipTitle = p.sprintf(sShowLabTooltip, element);
+    gButtons.createShowHideLabBtn = function(element, action) {
+        var elementClass,
+            title;
+
+        elementClass = gStrings.show_class;
+        title = gStrings.lab_show_tooltip;
+
         if (action === 'hide') {
-            faClass = sHideFaCls;
-            tooltipTitle = p.sprintf(sHideLabTooltip, element);
+            elementClass = gStrings.hide_class;
+            title = gStrings.lab_hide_tooltip;
         }
-        return '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="' + tooltipTitle + '"><i data-action="' +
-            action + '" data-id="' + element + '" class="lab-click-btn ' +
-            faClass + '"></i></span>';
+
+        var tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', sprintf(title, element));
+
+        var iNode = document.createElement('i');
+        iNode.setAttribute('data-id', element);
+        iNode.setAttribute('data-action', action);
+        iNode.className = 'lab-click-btn ' + elementClass;
+
+        tooltipNode.appendChild(iNode);
+
+        // TODO: fix where this is called and return the node.
+        return tooltipNode.outerHTML;
     };
 
     /**
@@ -435,7 +499,7 @@ define([
      *
      * @param {Event} event: The event that triggers this function.
     **/
-    btns.showHideLab = function(event) {
+    gButtons.showHideLab = function(event) {
         var accordion,
             element,
             elementId,
@@ -450,16 +514,20 @@ define([
             accordion.style.setProperty('display', 'none');
             element.setAttribute('data-action', 'show');
 
-            b.replaceById(
-                'view-' + elementId, p.sprintf(sHiddenLab, elementId));
+            var smallNode = document.createElement('small');
+            smallNode.insertAdjacentHTML(
+                'beforeend', sprintf(gStrings.lab_hidden, elementId));
 
-            html.removeClass(element, 'fa-eye-slash');
-            html.addClass(element, 'fa-eye');
+            html.replaceContent(
+                document.getElementById('view-' + elementId), smallNode);
+
+            html.removeClass(element, gStrings.hide_class);
+            html.addClass(element, gStrings.show_class);
 
             $(parent).tooltip('destroy')
                 .attr(
                     'data-original-title',
-                    p.sprintf(sShowLabTooltip, elementId))
+                    sprintf(gStrings.lab_show_tooltip, elementId))
                 .tooltip('fixTitle');
         } else {
             accordion.style.setProperty('display', 'block');
@@ -473,7 +541,7 @@ define([
             $(parent).tooltip('destroy')
                 .attr(
                     'data-original-title',
-                    p.sprintf(sHideLabTooltip, elementId))
+                    sprintf(gStrings.lab_hide_tooltip, elementId))
                 .tooltip('fixTitle');
         }
     };
@@ -483,7 +551,7 @@ define([
      *
      * @param {Event} event: The event that triggers the function.
     **/
-    btns.showHideElements = function(event) {
+    gButtons.showHideElements = function(event) {
         var element,
             target;
 
@@ -570,7 +638,7 @@ define([
      *
      * @param {Event} event: The event that triggers the function.
     **/
-    btns.showHideWarnErr = function(event) {
+    gButtons.showHideWarnErr = function(event) {
         var element,
             view;
 
@@ -614,5 +682,5 @@ define([
         }
     };
 
-    return btns;
+    return gButtons;
 });
