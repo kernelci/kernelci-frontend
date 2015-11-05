@@ -2,8 +2,7 @@
 define([
     'utils/html',
     'utils/urls',
-    'tables/common',
-    'utils/date'
+    'tables/common'
 ], function(html, urls, tcommon) {
     'use strict';
     var bootUtils,
