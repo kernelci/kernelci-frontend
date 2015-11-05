@@ -7,7 +7,7 @@ require([
     'utils/tables',
     'utils/html',
     'utils/const',
-    'utils/boot'
+    'tables/boot'
 ], function($, init, e, r, t, html, appconst, boot) {
     'use strict';
     var bootReqData,
@@ -53,15 +53,12 @@ require([
         var deferred,
             iNode,
             idx,
-            resLen,
             resTotal,
             spanNode,
             totalReq;
 
         resTotal = response.count;
-        resLen = response.result.length;
-
-        if (resLen < resTotal) {
+        if (response.result.length < resTotal) {
             // Add a small loading banner while we load more results.
             spanNode = document.createElement('span');
 
@@ -96,13 +93,11 @@ require([
 
     function getBootsDone(response) {
         var columns,
-            resLen,
             results,
             rowURL;
 
         results = response.result;
-        resLen = results.length;
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No boots data available.'));
@@ -187,7 +182,7 @@ require([
             bootsTable
                 .tableData(results)
                 .columns(columns)
-                .order([9, 'desc'])
+                .order([8, 'desc'])
                 .menu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(

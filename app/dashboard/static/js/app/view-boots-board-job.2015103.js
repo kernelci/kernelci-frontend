@@ -6,7 +6,7 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
-    'utils/boot',
+    'tables/boot',
     'utils/const'
 ], function($, init, e, r, t, html, boot, appconst) {
     'use strict';

@@ -5,7 +5,7 @@ require([
     'utils/init',
     'utils/request',
     'utils/html',
-    'utils/boot',
+    'tables/boot',
     'utils/tables'
 ], function($, e, init, r, html, boot, tables) {
     'use strict';

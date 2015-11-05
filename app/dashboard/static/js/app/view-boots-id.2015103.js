@@ -8,7 +8,7 @@ require([
     'utils/urls',
     'utils/bisect',
     'utils/show-hide-btns',
-    'utils/boot',
+    'tables/boot',
     'utils/html',
     'utils/const',
     'utils/date'

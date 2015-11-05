@@ -6,7 +6,7 @@ require([
     'utils/request',
     'utils/tables',
     'utils/html',
-    'utils/boot'
+    'tables/boot'
 ], function($, init, e, r, t, html, boot) {
     'use strict';
     var bootsTable,
