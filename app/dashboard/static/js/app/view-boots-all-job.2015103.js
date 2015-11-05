@@ -88,8 +88,7 @@ require([
     }
 
     function getBootsCountFail() {
-        html.replaceByClass('fail-badge', '&infin;');
-        html.replaceByClass('success-badge', '&infin;');
+        html.replaceByClass('count-badge', '&infin;');
     }
 
     function _parseBootsCount(result) {
@@ -106,8 +105,7 @@ require([
 
         results = response.result;
         if (results.length === 0) {
-            html.replaceByClass('fail-badge', '&#63;');
-            html.replaceByClass('success-badge', '&#63;');
+            html.replaceByClass('count-badge', '&#63;');
         } else {
             results.forEach(_parseBootsCount);
         }
