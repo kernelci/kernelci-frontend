@@ -182,10 +182,17 @@ define([
      * @param {boolean} compared: If this is a comparison bisection.
     **/
     gButtons.triggerMinusBisectBtns = function(compared) {
+        var element;
         if (compared) {
-            document.getElementById(gDom.minus_c_id).click();
+            element = document.getElementById(gDom.minus_c_id);
+            if (element) {
+                element.click();
+            }
         } else {
-            document.getElementById(gDom.minus_id).click();
+            element = document.getElementById(gDom.minus_id);
+            if (element) {
+                element.click();
+            }
         }
     };
 
