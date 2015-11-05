@@ -105,13 +105,13 @@ define([
             case 'success':
                 nodeId = 'success-count-' + kernel;
                 classes = [
-                    'badge', 'badge-count', 'alert-success', 'success-badge'
+                    'badge', 'alert-success', 'count-badge'
                 ];
                 break;
             default:
                 nodeId = 'fail-count-' + kernel;
                 classes = [
-                    'badge', 'badge-count', 'alert-danger', 'fail-badge'
+                    'badge', 'alert-danger', 'count-badge'
                 ];
                 break;
         }
@@ -525,7 +525,6 @@ define([
     bootUtils.renderTableDetail = function(board, type, object) {
         var aNode,
             defconfig,
-            iNode,
             job,
             kernel,
             lab,
@@ -550,10 +549,7 @@ define([
                 '/?_id=' + object._id.$oid
             );
 
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-search';
-
-            aNode.appendChild(iNode);
+            aNode.appendChild(html.search());
             tooltipNode.appendChild(aNode);
             rendered = tooltipNode.outerHTML;
         }
@@ -571,7 +567,6 @@ define([
     **/
     bootUtils.renderTableDetailJob = function(job, type, object) {
         var aNode,
-            iNode,
             kernel,
             rendered,
             tooltipNode;
@@ -588,10 +583,8 @@ define([
             aNode = document.createElement('a');
             aNode.setAttribute(
                 'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-search';
 
-            aNode.appendChild(iNode);
+            aNode.appendChild(html.search());
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
