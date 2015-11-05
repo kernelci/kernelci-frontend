@@ -9,6 +9,7 @@
         'charts': './app/charts',
         'utils': './app/utils',
         'compare': './app/compare',
+        'tables': './app/tables',
         'jquery': 'lib/jquery-2.1.4',
         'bootstrap': 'lib/bootstrap-3.3.5',
         'sprintf': 'lib/sprintf-1.0.3',

@@ -2,12 +2,21 @@
 define([
     'utils/html',
     'utils/urls',
+    'tables/common',
     'utils/date'
-], function(html, urls) {
+], function(html, urls, tcommon) {
     'use strict';
-    var bootUtils;
+    var bootUtils,
+        gStatusDefaults;
 
     bootUtils = {};
+
+    gStatusDefaults = {
+        pass: 'Board booted successfully',
+        fail: 'Board boot failed',
+        offline: 'Board offline',
+        default: 'Board boot status unknown'
+    };
 
     /**
      * Create the boot logs element.
@@ -473,76 +482,8 @@ define([
      * @return {string} The rendered element as a string.
     **/
     bootUtils.renderTableDate = function(date, type) {
-        var created,
-            iNode,
-            rendered,
-            timeNode,
-            tooltipNode;
-
-        if (date === null) {
-            rendered = date;
-            if (type === 'display') {
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('Not available');
-
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-ban';
-
-                tooltipNode.appendChild(iNode);
-                rendered = tooltipNode.outerHTML;
-            }
-        } else {
-            created = new Date(date.$date);
-            rendered = created.toCustomISODate();
-
-            if (type === 'display') {
-                timeNode = document.createElement('time');
-                timeNode.setAttribute('datetime', created.toISOString());
-                timeNode.appendChild(
-                    document.createTextNode(created.toCustomISODate()));
-                rendered = timeNode.outerHTML;
-            }
-        }
-
-        return rendered;
+        return tcommon.renderTableDate(date, type);
     };
-
-    /**
-     * Create the boot status icon.
-     *
-     * @private
-     * @param {string} status: The status value.
-     * @return {HTMLElement} An HTML DOM element.
-    **/
-    function _bootStatus(status) {
-        var tooltipNode;
-
-        tooltipNode = html.tooltip();
-        switch (status) {
-            case 'PASS':
-                tooltipNode.setAttribute(
-                    'title', 'Board booted successfully');
-                tooltipNode.appendChild(html.success());
-                break;
-            case 'FAIL':
-                tooltipNode.setAttribute(
-                    'title', 'Board boot failed');
-                tooltipNode.appendChild(html.fail());
-                break;
-            case 'OFFLINE':
-                tooltipNode.setAttribute(
-                    'title', 'Board offline');
-                tooltipNode.appendChild(html.offline());
-                break;
-            default:
-                tooltipNode.setAttribute(
-                    'href', 'Board boot status unknown');
-                tooltipNode.appendChild(html.unknown());
-                break;
-        }
-
-        return tooltipNode;
-    }
 
     /**
      * Create the boot status element.
@@ -551,7 +492,7 @@ define([
      * @return {HTMLElement} The status node.
     **/
     bootUtils.statusNode = function(status) {
-        return _bootStatus(status);
+        return tcommon.renderTableStatus(status, gStatusDefaults);
     };
 
     /**
@@ -566,7 +507,8 @@ define([
 
         rendered = status;
         if (type === 'display') {
-            rendered = _bootStatus(status).outerHTML;
+            rendered = tcommon.renderTableStatus(
+                status, gStatusDefaults).outerHTML;
         }
 
         return rendered;
