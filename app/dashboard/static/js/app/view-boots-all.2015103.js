@@ -10,17 +10,17 @@ require([
     'tables/boot'
 ], function($, init, e, r, t, html, appconst, boot) {
     'use strict';
-    var bootReqData,
-        bootsTable,
-        dateRange,
-        pageLen,
-        searchFilter;
+    var gBootReqData,
+        gBootsTable,
+        gDateRange,
+        gPageLen,
+        gSearchFilter;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
 
-    searchFilter = null;
-    pageLen = null;
-    dateRange = appconst.MAX_DATE_RANGE;
+    gSearchFilter = null;
+    gPageLen = null;
+    gDateRange = appconst.MAX_DATE_RANGE;
 
     /**
      * Update the table with the new data.
@@ -32,7 +32,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            bootsTable.addRows(results);
+            gBootsTable.addRows(results);
         }
 
         // Remove the loading banner when we get the last response.
@@ -77,8 +77,8 @@ require([
 
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
-                bootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                deferred = r.get('/_ajax/boot', bootReqData);
+                gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+                deferred = r.get('/_ajax/boot', gBootReqData);
                 $.when(deferred)
                     .done(getMoreBootsDone);
             }
@@ -179,7 +179,7 @@ require([
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .tableData(results)
                 .columns(columns)
                 .order([8, 'desc'])
@@ -190,16 +190,16 @@ require([
                 )
                 .draw();
 
-            bootsTable
-                .pageLen(pageLen)
-                .search(searchFilter);
+            gBootsTable
+                .pageLen(gPageLen)
+                .search(gSearchFilter);
         }
     }
 
     function getBoots() {
         var deferred;
 
-        deferred = r.get('/_ajax/boot', bootReqData);
+        deferred = r.get('/_ajax/boot', gBootReqData);
         $.when(deferred)
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getMoreBoots);
@@ -209,23 +209,23 @@ require([
     init.tooltip();
 
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
     if (document.getElementById('date-range') !== null) {
-        dateRange = document.getElementById('date-range').value;
+        gDateRange = document.getElementById('date-range').value;
     }
 
     // Hold the data for the boot request. Global since it can be reused.
-    bootReqData = {
-        date_range: dateRange,
+    gBootReqData = {
+        date_range: gDateRange,
         limit: appconst.MAX_QUERY_LIMIT,
         sort: 'created_on',
         sort_order: -1
     };
 
-    bootsTable = t(['bootstable', 'table-loading', 'table-div'], true);
+    gBootsTable = t(['bootstable', 'table-loading', 'table-div'], true);
     getBoots();
 });

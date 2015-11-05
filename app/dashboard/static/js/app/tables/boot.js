@@ -5,10 +5,10 @@ define([
     'tables/common'
 ], function(html, urls, tcommon) {
     'use strict';
-    var bootUtils,
+    var gBootUtils,
         gStatusDefaults;
 
-    bootUtils = {};
+    gBootUtils = {};
 
     gStatusDefaults = {
         pass: 'Board booted successfully',
@@ -135,7 +135,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The HTML string of the cell node.
     **/
-    bootUtils.renderTableLabAll = function(lab, type) {
+    gBootUtils.renderTableLabAll = function(lab, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -168,7 +168,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableBoard = function(board, type, object) {
+    gBootUtils.renderTableBoard = function(board, type, object) {
         var aNode,
             job,
             kernel,
@@ -211,7 +211,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableKernelCountSuccess = function(kernel, type) {
+    gBootUtils.renderTableKernelCountSuccess = function(kernel, type) {
         var rendered;
 
         rendered = null;
@@ -230,7 +230,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableKernelCountFail = function(kernel, type) {
+    gBootUtils.renderTableKernelCountFail = function(kernel, type) {
         var rendered;
 
         rendered = null;
@@ -250,7 +250,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableTree = function(tree, type, object) {
+    gBootUtils.renderTableTree = function(tree, type, object) {
         var aNode,
             rendered,
             tooltipNode;
@@ -283,7 +283,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableTreeAll = function(tree, type) {
+    gBootUtils.renderTableTreeAll = function(tree, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -315,7 +315,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableDefconfig = function(defconfig, type, object) {
+    gBootUtils.renderTableDefconfig = function(defconfig, type, object) {
         var aNode,
             board,
             job,
@@ -360,7 +360,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableKernel = function(kernel, type, object) {
+    gBootUtils.renderTableKernel = function(kernel, type, object) {
         var aNode,
             job,
             tooltipNode,
@@ -397,7 +397,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableResultDescription = function(data, type) {
+    gBootUtils.renderTableResultDescription = function(data, type) {
         var rendered,
             tooltipNode;
 
@@ -427,7 +427,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableLogs = function(data, type, object) {
+    gBootUtils.renderTableLogs = function(data, type, object) {
         var arch,
             defconfig,
             job,
@@ -480,7 +480,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableDate = function(date, type) {
+    gBootUtils.renderTableDate = function(date, type) {
         return tcommon.renderTableDate(date, type);
     };
 
@@ -490,7 +490,7 @@ define([
      * @param {string} status: The boot status.
      * @return {HTMLElement} The status node.
     **/
-    bootUtils.statusNode = function(status) {
+    gBootUtils.statusNode = function(status) {
         return tcommon.renderTableStatus(status, gStatusDefaults);
     };
 
@@ -501,7 +501,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableStatus = function(status, type) {
+    gBootUtils.renderTableStatus = function(status, type) {
         var rendered;
 
         rendered = status;
@@ -522,7 +522,7 @@ define([
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableDetail = function(board, type, object) {
+    gBootUtils.renderTableDetail = function(board, type, object) {
         var aNode,
             defconfig,
             job,
@@ -565,7 +565,7 @@ define([
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    bootUtils.renderTableDetailJob = function(job, type, object) {
+    gBootUtils.renderTableDetailJob = function(job, type, object) {
         var aNode,
             kernel,
             rendered,
@@ -604,10 +604,10 @@ define([
      * @return {Element} An HTML node if at least on of txtLog or htmlLog
      * are not null or null.
     **/
-    bootUtils.createBootLog = function(
+    gBootUtils.createBootLog = function(
             txtLog, htmlLog, labName, serverURI, pathURI) {
         return _createBootLog(txtLog, htmlLog, labName, serverURI, pathURI);
     };
 
-    return bootUtils;
+    return gBootUtils;
 });

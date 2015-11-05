@@ -4,9 +4,9 @@ define([
     'utils/date'
 ], function(html) {
     'use strict';
-    var tablesUtils;
+    var gTablesUtils;
 
-    tablesUtils = {};
+    gTablesUtils = {};
 
     /**
      * Function to render the date column on a table.
@@ -15,7 +15,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    tablesUtils.renderTableDate = function(date, type) {
+    gTablesUtils.renderTableDate = function(date, type) {
         var created,
             iNode,
             rendered,
@@ -57,7 +57,7 @@ define([
      * @param {object} defaults: The default values for the status string.
      * @return {Element} The DOM element.
     **/
-    tablesUtils.renderTableStatus = function(status, defaults) {
+    gTablesUtils.renderTableStatus = function(status, defaults) {
         var tooltipNode;
 
         tooltipNode = html.tooltip();
@@ -87,5 +87,5 @@ define([
         return tooltipNode;
     };
 
-    return tablesUtils;
+    return gTablesUtils;
 });

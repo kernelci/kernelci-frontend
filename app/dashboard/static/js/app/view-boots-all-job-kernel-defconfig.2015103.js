@@ -9,18 +9,18 @@ require([
     'tables/boot'
 ], function($, init, e, r, t, html, boot) {
     'use strict';
-    var bootsTable,
-        defconfigFull,
-        fileServer,
-        jobName,
-        kernelName,
-        pageLen,
-        searchFilter;
+    var gBootsTable,
+        gDefconfigFull,
+        gFileServer,
+        gJobName,
+        gKernelName,
+        gPageLen,
+        gSearchFilter;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
-    pageLen = null;
-    searchFilter = null;
-    fileServer = null;
+    gPageLen = null;
+    gSearchFilter = null;
+    gFileServer = null;
 
     function getBootsFail() {
         html.removeElement(document.getElementById('table-loading'));
@@ -74,7 +74,7 @@ require([
                     title: 'Boot Log',
                     className: 'log-column pull-center',
                     render: function(data, type, object) {
-                        object.default_file_server = fileServer;
+                        object.default_file_server = gFileServer;
                         return boot.renderTableLogs(data, type, object);
                     }
                 },
@@ -102,7 +102,7 @@ require([
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .tableData(results)
                 .columns(columns)
                 .order([5, 'desc'])
@@ -115,9 +115,9 @@ require([
                 )
                 .draw();
 
-            bootsTable
-                .pageLen(pageLen)
-                .search(searchFilter);
+            gBootsTable
+                .pageLen(gPageLen)
+                .search(gSearchFilter);
         }
     }
 
@@ -127,9 +127,9 @@ require([
         deferred = r.get(
             '/_ajax/boot',
             {
-                job: jobName,
-                kernel: kernelName,
-                defconfig_full: defconfigFull
+                job: gJobName,
+                kernel: gKernelName,
+                defconfig_full: gDefconfigFull
             }
         );
         $.when(deferred)
@@ -146,11 +146,11 @@ require([
         spanNode = document.createElement('span');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + jobName);
+        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + gJobName);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/all/job/' + jobName + '/');
-        aNode.appendChild(document.createTextNode(jobName));
+        aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
+        aNode.appendChild(document.createTextNode(gJobName));
 
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
@@ -158,10 +158,10 @@ require([
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + jobName);
+        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + gJobName);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/job/' + jobName + '/');
+        aNode.setAttribute('href', '/job/' + gJobName + '/');
 
         aNode.appendChild(html.tree());
         tooltipNode.appendChild(aNode);
@@ -175,15 +175,15 @@ require([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute(
             'title',
-            'Boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
+            'Boot reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
         );
 
         aNode = document.createElement('a');
         aNode.setAttribute(
             'href',
-            '/boot/all/job/' + jobName + '/kernel/' + kernelName + '/');
-        aNode.appendChild(document.createTextNode(kernelName));
+            '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
+        aNode.appendChild(document.createTextNode(gKernelName));
 
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
@@ -193,13 +193,13 @@ require([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute(
             'title',
-            'Build reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
+            'Build reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
         );
 
         aNode = document.createElement('a');
         aNode.setAttribute(
-            'href', '/build/' + jobName + '/kernel/' + kernelName + '/');
+            'href', '/build/' + gJobName + '/kernel/' + gKernelName + '/');
 
         aNode.appendChild(html.build());
         tooltipNode.appendChild(aNode);
@@ -211,7 +211,7 @@ require([
         // Add the defconfig data.
         html.replaceContent(
             document.getElementById('dd-defconfig'),
-            document.createTextNode(defconfigFull));
+            document.createTextNode(gDefconfigFull));
     }
 
     // Setup and perform base operations.
@@ -219,25 +219,25 @@ require([
     init.tooltip();
 
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        kernelName = document.getElementById('kernel-name').value;
+        gKernelName = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('defconfig-full') !== null) {
-        defconfigFull = document.getElementById('defconfig-full').value;
+        gDefconfigFull = document.getElementById('defconfig-full').value;
     }
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
     if (document.getElementById('file-server') !== null) {
-        fileServer = document.getElementById('file-server').value;
+        gFileServer = document.getElementById('file-server').value;
     }
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
     setupData();
     getBoots();
 });
