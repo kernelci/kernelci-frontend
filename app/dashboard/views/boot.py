@@ -147,7 +147,7 @@ class BootJobView(BootGeneralView):
 
         job = kwargs["job"]
         body_title = "Boot details for&nbsp;&#171;%s&#187;" % job
-        body_title += self.RSS_LINK % ("/boot/all/job/" + job + "/feed.atom")
+        body_title += self.RSS_LINK % ("/boot/all/job/" + job + "/feed.xml")
 
         search_filter, page_len = get_search_parameters(request)
 
@@ -169,7 +169,7 @@ class BootLab(BootGeneralView):
         body_title = (
             "Boot reports for lab&nbsp;&#171;%s&#187;" % lab_name)
         body_title += \
-            self.RSS_LINK % ("/boot/all/lab/" + lab_name + "/feed.atom")
+            self.RSS_LINK % ("/boot/all/lab/" + lab_name + "/feed.xml")
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, body_title)
 
         search_filter, page_len = get_search_parameters(request)
@@ -212,7 +212,7 @@ class BootBoardView(BootGeneralView):
         body_title = \
             "Boot reports for board&nbsp;&#171;%s&#187;" % board
         body_title += \
-            self.RSS_LINK % ("/boot/" + board + "/feed.atom")
+            self.RSS_LINK % ("/boot/" + board + "/feed.xml")
 
         search_filter, page_len = get_search_parameters(request)
 
@@ -234,7 +234,7 @@ class BootBoardJobView(BootGeneralView):
             "Boot reports for board&nbsp;&#171;%s" +
             "&#187;&nbsp;<small>(%s)</small>") % (board, job)
         body_title += \
-            self.RSS_LINK % ("/boot/%s/job/%s/feed.atom" % (board, job))
+            self.RSS_LINK % ("/boot/%s/job/%s/feed.xml" % (board, job))
 
         return render_template(
             "boots-board-job.html",

@@ -50,7 +50,7 @@ class JobsJobView(GeneralJobsView):
         job = kwargs["job"]
 
         body_title = "Details for&nbsp;&#171;%s&#187;" % job
-        body_title += self.RSS_LINK % ("/job/" + job + "/feed.atom")
+        body_title += self.RSS_LINK % ("/job/" + job + "/feed.xml")
 
         page_title = "%s &mdash; &#171;%s&#187; job" % (self.PAGE_TITLE, job)
         search_filter, page_len = get_search_parameters(request)
@@ -75,7 +75,7 @@ class JobsJobBranchView(GeneralJobsView):
             "Details for &#171;%s&#187; <small>"
             "(branch %s)</small>" % (job, branch_name))
         body_title += self.RSS_LINK % \
-            ("/job/" + job + "/branch/" + old_branch_name + "/feed.atom")
+            ("/job/" + job + "/branch/" + old_branch_name + "/feed.xml")
 
         page_title = (
             "%s &mdash; &#171;%s&#187; job (branch %s)" %

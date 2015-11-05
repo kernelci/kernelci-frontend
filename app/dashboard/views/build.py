@@ -28,7 +28,7 @@ class GeneralBuildsView(View):
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
-    FEED_LINK = u"<a href=\"feed.atom\"><i class=\"fa fa-rss\"></i></a>"
+    FEED_LINK = u"<a href=\"feed.xml\"><i class=\"fa fa-rss\"></i></a>"
 
 
 class BuildsAllView(GeneralBuildsView):

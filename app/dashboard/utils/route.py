@@ -111,7 +111,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/job/<string:job>/feed.atom",
+        "/job/<string:job>/feed.xml",
         "job-feed",
         jobfeed.job_feed,
         methods=["GET"]
@@ -122,7 +122,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/job/<string:job>/branch/<string:branch>/feed.atom",
+        "/job/<string:job>/branch/<string:branch>/feed.xml",
         "job-branch-feed",
         jobfeed.job_branch_feed,
         methods=["GET"]
@@ -174,7 +174,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/all/job/<string:job>/feed.atom",
+        "/boot/all/job/<string:job>/feed.xml",
         "boot-all-job-feed",
         bootfeed.get_boot_all_job_feed,
         methods=["GET"]
@@ -185,7 +185,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/all/lab/<string:lab_name>/feed.atom",
+        "/boot/all/lab/<string:lab_name>/feed.xml",
         "boot-all-lab-feed",
         bootfeed.get_boot_all_lab_feed,
         methods=["GET"]
@@ -202,7 +202,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/<string:board>/feed.atom",
+        "/boot/<string:board>/feed.xml",
         "boot-board-feed",
         bootfeed.get_boot_board_feed,
         methods=["GET"]
@@ -213,7 +213,7 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/<string:board>/job/<string:job>/feed.atom",
+        "/boot/<string:board>/job/<string:job>/feed.xml",
         "boot-board-job-feed",
         bootfeed.get_boot_board_job_feed,
         methods=["GET"]
