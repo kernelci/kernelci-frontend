@@ -195,10 +195,14 @@ def _parse_boot_results(results, feed_data):
         results = results["result"]
 
         for result in results:
+            res_get = result.get
+
             # Convert the _id values.
-            result["boot_id"] = result["_id"]["$oid"]
-            result["build_id"] = result["build_id"]["$oid"]
-            result["job_id"] = result["job_id"]["$oid"]
+            result["boot_id"] = res_get("_id")["$oid"]
+            if res_get("build_id", None):
+                result["build_id"] = res_get("build_id")["$oid"]
+            if res_get("job_id", None):
+                result["job_id"] = res_get("job_id")["$oid"]
 
             yield _common_boot_parse(result, feed_data)
 
@@ -334,7 +338,26 @@ def get_boot_board_feed(board):
         u"kernelci.org \u2014 Boot Reports for Board \u00AB%s\u00BB" % board
 
     return feed.create_feed(
-        [("board", board)],
+        [
+            ("board", board),
+            (
+                "field",
+                (
+                    "_id",
+                    "arch",
+                    "board",
+                    "build_id",
+                    "created_on",
+                    "defconfig",
+                    "defconfig_full",
+                    "job",
+                    "job_id",
+                    "kernel",
+                    "lab_name",
+                    "status"
+                )
+            )
+        ],
         feed_data, _get_boot_data, _parse_boot_results)
 
 
