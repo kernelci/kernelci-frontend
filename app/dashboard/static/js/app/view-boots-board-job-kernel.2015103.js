@@ -1,335 +1,247 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
     'utils/error',
     'utils/init',
     'utils/request',
     'utils/tables',
-    'utils/urls',
+    'utils/html',
+    'tables/boot',
     'utils/date'
-], function($, b, e, init, r, t, u) {
+], function($, e, init, r, t, html, boot) {
     'use strict';
-    var bootsTable,
-        pageLen,
-        searchFilter,
-        boardName,
-        kernelName,
-        jobName,
-        fileServer;
+    var gBoardName,
+        gBootsTable,
+        gFileServer,
+        gJobName,
+        gKernelName,
+        gPageLen,
+        gSearchFilter;
 
-    function createBootLogContent(
-            bootLogTxt, bootLogHtml, lab, fileServerURI, pathURI, na) {
-        var retVal = na,
-            logPath,
-            displ = '';
-        if (bootLogTxt !== null || bootLogHtml !== null) {
-            if (bootLogTxt !== null) {
-                if (bootLogTxt.search(lab) === -1) {
-                    logPath = pathURI + '/' + lab + '/' + bootLogTxt;
-                } else {
-                    logPath = pathURI + '/' + bootLogTxt;
-                }
-                displ = '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="View raw text boot log"><a href="' +
-                    fileServerURI.path(logPath).normalizePath().href() +
-                    '">txt' +
-                    '&nbsp;<i class="fa fa-external-link"></i></a></span>';
-            }
-
-            if (bootLogHtml !== null) {
-                if (bootLogTxt !== null) {
-                    displ += '&nbsp;&mdash;&nbsp;';
-                }
-                if (bootLogHtml.search(lab) === -1) {
-                    logPath = pathURI + '/' + lab + '/' + bootLogHtml;
-                } else {
-                    logPath = pathURI + '/' + bootLogHtml;
-                }
-
-                displ += '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="View HTML boot log"><a href="' +
-                    fileServerURI.path(logPath).normalizePath().href() +
-                    '">html&nbsp;' +
-                    '<i class="fa fa-external-link"></i></a></span>';
-            }
-            retVal = displ;
-        }
-        return retVal;
-    }
+    document.getElementById('li-boot').setAttribute('class', 'active');
 
     function getBootsFail() {
-        b.removeElement('table-loading');
-        b.replaceById(
-            'table-div',
-            '<div class="pull-center"><strong>' +
-            'Error loading data.</strong></div>');
+        html.removeElement(document.getElementById('table-loading'));
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getBootsDone(response) {
-        var results = response.result,
-            resLen = results.length,
+        var results,
             columns,
-            rowURLFmt;
+            rowURL;
 
-        rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-            '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
-        if (resLen === 0) {
-            b.removeElement('table-loading');
-            b.replaceById(
-                'table-div',
-                '<div class="pull-center"><strong>' +
-                'No data found.</strong></div>');
+        results = response.result;
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('table-loading'));
+            html.replaceContent(
+                document.getElementById('table-div'),
+                html.errorDiv('No data found.'));
         } else {
+            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
+                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
+
             columns = [
                 {
-                    'data': '_id',
-                    'visible': false,
-                    'searchable': false,
-                    'orderable': false
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
                 },
                 {
-                    'data': 'lab_name',
-                    'title': 'Lab Name',
-                    'type': 'string',
-                    'render': function(data) {
-                        return '<a class="table-link" href="/boot/all/lab/' +
-                            data + '/">' + data + '</a>';
+                    data: 'lab_name',
+                    title: 'Lab Name',
+                    className: 'lab-column',
+                    render: boot.renderTableLabAll
+                },
+                {
+                    data: 'defconfig_full',
+                    title: 'Defconfig',
+                    className: 'defconfig-column',
+                    render: boot.renderTableDefconfig
+                },
+                {
+                    data: 'boot_result_description',
+                    title: 'Failure Reason',
+                    className: 'failure-column',
+                    render: boot.renderTableResultDescription
+                },
+                {
+                    data: 'file_server_url',
+                    title: 'Boot Log',
+                    className: 'log-column pull-center',
+                    render: function(data, type, object) {
+                        object.default_file_server = gFileServer;
+                        return boot.renderTableLogs(data, type, object);
                     }
                 },
                 {
-                    'data': 'defconfig_full',
-                    'title': 'Defconfig',
-                    'className': 'defconfig-column',
-                    'render': function(data) {
-                        return '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" ' +
-                            'title="' + data + '">' + data + '</span>';
-                    }
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'date-column pull-center',
+                    render: boot.renderTableDate
                 },
                 {
-                    'data': 'boot_result_description',
-                    'title': 'Failure Reason',
-                    'type': 'string',
-                    'className': 'failure-column',
-                    'render': function(data, type, object) {
-                        var display = '',
-                            status = object.status;
-                        if (data !== null && status !== 'PASS') {
-                            data = b.escapeHtml(data);
-                            display = '<span rel="tooltip" ' +
-                                'data-toggle="tooltip"' +
-                                'title="' + data + '">' + data + '</span>';
-                        }
-                        return display;
-                    }
+                    data: 'status',
+                    title: 'Status',
+                    className: 'pull-center',
+                    render: boot.renderTableStatus
                 },
                 {
-                    'data': 'boot_log',
-                    'title': 'Boot Log',
-                    'type': 'string',
-                    'render': function(data, type, object) {
-                        var arch = object.arch,
-                            fileServerURL = object.file_server_url,
-                            fileServerResource = object.file_server_resource,
-                            defconfigFull = object.defconfig_full,
-                            lab = object.lab_name,
-                            bootLogHtml = object.boot_log_html,
-                            display = '',
-                            fileServerData,
-                            translatedURI;
-
-                        if (fileServerURL === null ||
-                                fileServerURL === undefined) {
-                            fileServerURL = fileServer;
-                        }
-
-                        fileServerData = [
-                            jobName, kernelName, arch + '-' + defconfigFull
-                        ];
-                        translatedURI = u.translateServerURL(
-                            fileServerURL, fileServerResource, fileServerData);
-
-                        display = createBootLogContent(
-                            data,
-                            bootLogHtml,
-                            lab, translatedURI[0], translatedURI[1], '&nbsp;');
-
-                        return display;
-                    }
-                },
-                {
-                    'data': 'created_on',
-                    'title': 'Date',
-                    'type': 'date',
-                    'className': 'date-column pull-center',
-                    'render': function(data) {
-                        var created = new Date(data.$date);
-                        return created.toCustomISODate();
-                    }
-                },
-                {
-                    'data': 'status',
-                    'title': 'Status',
-                    'type': 'string',
-                    'className': 'pull-center',
-                    'render': function(data) {
-                        var displ;
-                        switch (data) {
-                            case 'PASS':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot completed">' +
-                                    '<span class="label label-success">' +
-                                    '<i class="fa fa-check"></i></span></span>';
-                                break;
-                            case 'FAIL':
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Boot failed">' +
-                                    '<span class="label label-danger">' +
-                                    '<i class="fa fa-exclamation-triangle">' +
-                                    '</i></span></span>';
-                                break;
-                            case 'OFFLINE':
-                                displ = '<span rel="tooltip"' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Board offline"' +
-                                    '<span class="label label-info">' +
-                                    '<i class="fa fa-power-off">' +
-                                    '</i></span></span>';
-                                break;
-                            default:
-                                displ = '<span rel="tooltip" ' +
-                                    'data-toggle="tooltip"' +
-                                    'title="Unknown status">' +
-                                    '<span class="label label-warning">' +
-                                    '<i class="fa fa-question">' +
-                                    '</i></span></span>';
-                                break;
-                        }
-                        return displ;
-                    }
-                },
-                {
-                    'data': 'board',
-                    'title': '',
-                    'orderable': false,
-                    'searchable': false,
-                    'width': '30px',
-                    'className': 'pull-center',
-                    'render': function(data, type, object) {
-                        var defconfigFull = object.defconfig_full,
-                            kernel = object.kernel,
-                            job = object.job,
-                            lab = object.lab_name;
-
-                        return '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="Details for board&nbsp;' + data +
-                            ' with&nbsp;' + job + '&dash;' + kernel +
-                            '&dash;' + defconfigFull + '&nbsp;&dash;&nbsp;(' +
-                            lab + ')"><a href="/boot/' + data + '/job/' +
-                            job + '/kernel/' + kernel + '/defconfig/' +
-                            defconfigFull + '/lab/' + lab +
-                            '/?_id=' + object._id.$oid + '">' +
-                            '<i class="fa fa-search"></i></a></span>';
-                    }
+                    data: 'board',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: boot.renderTableDetail
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .tableData(results)
                 .columns(columns)
                 .order([5, 'desc'])
                 .menu('boot reports per page')
-                .rowURL(rowURLFmt)
+                .rowURL(rowURL)
                 .rowURLElements(
                     ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
-            bootsTable
-                .pageLen(pageLen)
-                .search(searchFilter);
+            gBootsTable
+                .pageLen(gPageLen)
+                .search(gSearchFilter);
         }
     }
 
     function getBoots() {
-        var deferred,
-            data;
-        data = {
-            'board': boardName,
-            'job': jobName,
-            'kernel': kernelName
-        };
-        deferred = r.get('/_ajax/boot', data);
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/boot',
+            {
+                board: gBoardName,
+                job: gJobName,
+                kernel: gKernelName
+            }
+        );
         $.when(deferred)
             .fail(e.error, getBootsFail)
             .done(getBootsDone);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-boot').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        init.hotkeys();
-        init.tooltip();
+    function setupData() {
+        var aNode,
+            spanNode,
+            tooltipNode;
 
-        if (document.getElementById('board-name') !== null) {
-            boardName = document.getElementById('board-name').value;
-        }
-        if (document.getElementById('kernel-name') !== null) {
-            kernelName = document.getElementById('kernel-name').value;
-        }
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-        if (document.getElementById('file-server') !== null) {
-            fileServer = document.getElementById('file-server').value;
-        }
-        if (document.getElementById('search-filter') !== null) {
-            searchFilter = document.getElementById('search-filter').value;
-        }
-        if (document.getElementById('page-len') !== null) {
-            pageLen = document.getElementById('page-len').value;
-        }
+        // Add the tree data.
+        spanNode = document.createElement('span');
 
-        b.replaceById(
-            'dd-tree',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot details for&nbsp;' + jobName + '">' +
-            '<a href="/boot/all/job/' + jobName + '">' + jobName +
-            '</a></span>' +
-            '&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for job&nbsp;' + jobName +
-            '"><a href="/job/' + jobName +
-            '"><i class="fa fa-sitemap"></i></a></span>'
-        );
-        b.replaceById(
-            'dd-git-describe',
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot report details for&nbsp;' + jobName +
-            '&nbsp;&dash;&nbsp;' +
-            kernelName + '"><a href="/boot/all/job/' + jobName +
-            '/kernel/' + kernelName + '">' + kernelName +
-            '</a></span>' +
-            '&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Details for build&nbsp;' + jobName +
-            '&nbsp;&dash;&nbsp;' +
-            kernelName + '"><a href="/build/' + jobName +
-            '/kernel/' + kernelName +
-            '"><i class="fa fa-cube"></i></a></span>'
-        );
-        b.replaceById(
-            'dd-board',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="All boot reports for board&nbsp;&#171;' + boardName +
-            '&#187;"><a href="/boot/' + boardName + '/">' + boardName +
-            '&nbsp;<i class="fa fa-search"></i></a></span>'
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + gJobName);
+
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
+        aNode.appendChild(document.createTextNode(gJobName));
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + gJobName);
+
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/job/' + gJobName + '/');
+
+        aNode.appendChild(html.tree());
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(document.getElementById('dd-tree'), spanNode);
+
+        // Add the kernel data.
+        spanNode = document.createElement('span');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Boot reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
         );
 
-        bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
-        getBoots();
-    });
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href',
+            '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
+        aNode.appendChild(document.createTextNode(gKernelName));
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Build reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
+        );
+
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href', '/build/' + gJobName + '/kernel/' + gKernelName + '/');
+
+        aNode.appendChild(html.build());
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(
+            document.getElementById('dd-git-describe'), spanNode);
+
+        // The board.
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Boot reports for board&nbsp;&#171;' + gBoardName + '&#187;');
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/' + gBoardName + '/');
+        aNode.appendChild(document.createTextNode(gBoardName));
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.search());
+
+        tooltipNode.appendChild(aNode);
+        html.replaceContent(document.getElementById('dd-board'), tooltipNode);
+    }
+
+    // Setup and perform base operations.
+    init.hotkeys();
+    init.tooltip();
+
+    if (document.getElementById('board-name') !== null) {
+        gBoardName = document.getElementById('board-name').value;
+    }
+    if (document.getElementById('kernel-name') !== null) {
+        gKernelName = document.getElementById('kernel-name').value;
+    }
+    if (document.getElementById('job-name') !== null) {
+        gJobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('file-server') !== null) {
+        gFileServer = document.getElementById('file-server').value;
+    }
+    if (document.getElementById('search-filter') !== null) {
+        gSearchFilter = document.getElementById('search-filter').value;
+    }
+    if (document.getElementById('page-len') !== null) {
+        gPageLen = document.getElementById('page-len').value;
+    }
+
+    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    setupData();
+    getBoots();
 });
