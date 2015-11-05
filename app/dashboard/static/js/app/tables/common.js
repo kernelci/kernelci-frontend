@@ -62,6 +62,10 @@ define([
 
         tooltipNode = html.tooltip();
         switch (status) {
+            case 'BUILD':
+                tooltipNode.setAttribute('title', defaults.build);
+                tooltipNode.appendChild(html.building());
+                break;
             case 'PASS':
                 tooltipNode.setAttribute('title', defaults.pass);
                 tooltipNode.appendChild(html.success());
