@@ -553,6 +553,7 @@ require([
             serverURI,
             serverURL,
             smallNode,
+            soc,
             spanNode,
             statusNode,
             tooltipNode,
@@ -581,6 +582,7 @@ require([
         kernelImage = result.kernel_image;
         qemuData = result.qemu;
         qemuCommand = result.qemu_command;
+        soc = result.mach;
 
         if (!serverURL) {
             serverURL = fileServer;
@@ -754,6 +756,16 @@ require([
         html.replaceContent(
             document.getElementById('dd-board-arch'),
             document.createTextNode(arch));
+
+        // Soc.
+        if (soc) {
+            html.replaceContent(
+                document.getElementById('dd-board-soc'),
+                document.createTextNode(soc));
+        } else {
+            html.replaceContent(
+                document.getElementById('dd-board-soc'), html.nonavail());
+        }
 
         if (endianness) {
             html.replaceContent(
