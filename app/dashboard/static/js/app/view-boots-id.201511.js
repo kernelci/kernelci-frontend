@@ -2,7 +2,6 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
     'utils/error',
     'utils/request',
     'utils/urls',
@@ -12,7 +11,7 @@ require([
     'utils/html',
     'utils/const',
     'utils/date'
-], function($, init, b, e, r, u, bisect, btns, boot, html, appconst) {
+], function($, init, e, r, u, bisect, btns, boot, html, appconst) {
     'use strict';
     var boardName,
         bootId,
@@ -524,6 +523,158 @@ require([
         }
     }
 
+    function _createModal(data) {
+        var buttonNode,
+            divNode,
+            hNode,
+            modalBody,
+            modalContent,
+            modalDivNode,
+            modalHeader;
+
+        divNode = document.createElement('div');
+        divNode.className = 'modal fade';
+        divNode.setAttribute('tabindex', '-1');
+        divNode.setAttribute('role', 'dialog');
+        divNode.setAttribute('aria-hidden', true);
+        divNode.id = data.id;
+
+        modalDivNode = document.createElement('div');
+        // modalDivNode.className = 'modal-dialog modal-lg larger-modal';
+        modalDivNode.className = 'modal-dialog modal-lg';
+
+        modalContent = document.createElement('div');
+        modalContent.className = 'modal-content';
+
+        modalHeader = document.createElement('div');
+        modalHeader.className = 'modal-header';
+
+        buttonNode = document.createElement('button');
+        buttonNode.setAttribute('type', 'button');
+        buttonNode.className = 'close';
+        buttonNode.setAttribute('data-dismiss', 'modal');
+        buttonNode.setAttribute('aria-hidden', true);
+        buttonNode.insertAdjacentHTML('beforeend', '&times;');
+
+        modalHeader.appendChild(buttonNode);
+
+        hNode = document.createElement('h3');
+        hNode.className = 'modal-title';
+        hNode.id = data.id + '-title';
+        hNode.insertAdjacentHTML('beforeend', data.title);
+
+        modalHeader.appendChild(hNode);
+        modalContent.appendChild(modalHeader);
+
+        modalBody = document.createElement('div');
+        modalBody.className = 'modal-body';
+
+        modalBody.appendChild(data.body);
+
+        modalContent.appendChild(modalBody);
+
+        modalDivNode.appendChild(modalContent);
+        divNode.appendChild(modalDivNode);
+
+        return divNode;
+    }
+
+    function _createQemuCommand(data, command) {
+        var bodyNode,
+            ddNode,
+            divNode,
+            dlNode,
+            dtNode,
+            hNode,
+            headerNode,
+            iNode,
+            rowNode,
+            spanNode,
+            textareaNode,
+            tooltipNode;
+
+        divNode = document.createElement('div');
+        divNode.id = 'qemu-details';
+        divNode.className = 'row';
+
+        headerNode = document.createElement('div');
+        headerNode.className = 'page-header';
+
+        hNode = document.createElement('h4');
+        hNode.appendChild(document.createTextNode('Qemu details'));
+        headerNode.appendChild(hNode);
+        divNode.appendChild(headerNode);
+
+        rowNode = document.createElement('div');
+        rowNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+
+        dlNode = document.createElement('dl');
+        dlNode.className = 'dl-horizontal';
+
+        dtNode = document.createElement('dt');
+        dtNode.appendChild(document.createTextNode('Binary'));
+        ddNode = document.createElement('dd');
+        ddNode.appendChild(document.createTextNode(data));
+
+        dlNode.appendChild(dtNode);
+        dlNode.appendChild(ddNode);
+
+        if (command) {
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Command'));
+            ddNode = document.createElement('dd');
+
+            spanNode = document.createElement('span');
+
+            if (command.length > 75) {
+                spanNode.appendChild(
+                    document.createTextNode(
+                        command.slice(0, 75).trimRight()));
+
+                spanNode.insertAdjacentHTML('beforeend', '&hellip;');
+
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', 'View qemu command');
+                tooltipNode.className = 'pointer details';
+                iNode = document.createElement('i');
+                iNode.className = 'fa fa-eye';
+                iNode.setAttribute('data-toggle', 'modal');
+                iNode.setAttribute('data-target', '#qemu-command');
+
+                tooltipNode.appendChild(iNode);
+
+                ddNode.appendChild(spanNode);
+                ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                ddNode.appendChild(tooltipNode);
+
+                bodyNode = document.createElement('div');
+                bodyNode.className = 'qemu-command';
+
+                textareaNode = document.createElement('textarea');
+                textareaNode.setAttribute('readonly', true);
+                textareaNode.className = 'form-control';
+                textareaNode.appendChild(document.createTextNode(command));
+
+                bodyNode.appendChild(textareaNode);
+
+                divNode.appendChild(_createModal({
+                    id: 'qemu-command',
+                    title: 'Qemu Command',
+                    body: bodyNode
+                }));
+            } else {
+                spanNode.appendChild(document.createTextNode(command));
+                ddNode.appendChild(spanNode);
+            }
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+        }
+
+        divNode.appendChild(dlNode);
+        return divNode;
+    }
+
     function getBootDataDone(response) {
         var aNode,
             arch,
@@ -542,8 +693,6 @@ require([
             kernelImage,
             lab,
             loadAddr,
-            otherDetailsTxt,
-            otherTxt,
             pathURI,
             qemuCommand,
             qemuData,
@@ -876,39 +1025,10 @@ require([
         html.replaceContent(
             document.getElementById('dd-retries'), tooltipNode);
 
-        if (qemuData !== null && qemuData !== '') {
-            otherTxt = '';
-            otherDetailsTxt = '<div id="qemu-details" class="row">' +
-                '<div class="page-header"><h4>Qemu details</h4></div>' +
-                '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
-            if (qemuCommand !== null && qemuCommand !== '') {
-                otherTxt = '<dt>Command</dt><dd>';
-                if (qemuCommand.length > 99) {
-                    otherTxt += '<span class="command">' +
-                        qemuCommand.slice(0, 99).trimRight() +
-                        '&hellip;</span>&nbsp;' +
-                        '<span class="pointer details" ' +
-                        'rel="tooltip" data-toggle="tooltip" ' +
-                        'title="View full qemu command"> ' +
-                        '<i class="fa fa-eye" data-toggle="modal" ' +
-                        'data-target="#qemu-command"></i></span>';
-                    otherDetailsTxt += b.createModalDialog(
-                        'qemu-command',
-                        'Qemu Command Line',
-                        '<div class="row"><p><span class="command">' +
-                        qemuCommand +
-                        '</p></span></div>'
-                    );
-                } else {
-                    otherTxt += '<span class="command">' + qemuCommand +
-                        '</span></dd>';
-                }
-            }
-            otherDetailsTxt += '<dl class="dl-horizontal">' +
-                '<dt>Binary</dt><dd>' + qemuData + '</dd>' + otherTxt +
-                '</dl></div></div>';
-            html.replaceContentHTML(
-                document.getElementById('other-details-div'), otherDetailsTxt);
+        if (qemuData) {
+            html.replaceContent(
+                document.getElementById('other-details-div'),
+                _createQemuCommand(qemuData, qemuCommand));
             html.removeClass(
                 document.getElementById('other-details-div'), 'hidden');
         }

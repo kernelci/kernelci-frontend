@@ -302,3 +302,11 @@ div.paging {
     text-align: center;
     text-overflow: ellipsis;
 }
+div.qemu-command {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+.qemu-command > textarea {
+    font-size: 83%;
+    font-family: monospace;
+}
