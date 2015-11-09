@@ -129,6 +129,54 @@ define([
     }
 
     /**
+     * Function to render the boot failure description.
+     *
+     * @private
+     * @param {string} data: The failure description.
+     * @return {Element} The DOM element.
+    **/
+    function _resultDescription(data) {
+        var tooltipNode;
+        data = html.escape(data);
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', data);
+        tooltipNode.insertAdjacentHTML('beforeend', data);
+
+        return tooltipNode;
+    }
+
+    /**
+     * Function to render the detail column on a table.
+     *
+     * @private
+     * @param {string} board: The board name.
+     * @param {object} object: The entire data set.
+     * @return {Element} The DOM element.
+    **/
+    function _bootDetail(board, object) {
+        var aNode,
+            tooltipNode;
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Boot report details');
+
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href',
+            '/boot/' + board + '/job/' + object.job +
+            '/kernel/' + object.kernel +
+            '/defconfig/' + object.defconfig_full +
+            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid
+        );
+
+        aNode.appendChild(html.search());
+        tooltipNode.appendChild(aNode);
+
+        return tooltipNode;
+    }
+
+    /**
      * Function to render the lab column on a table.
      *
      * @param {string} lab: The lab name.
@@ -391,6 +439,16 @@ define([
     };
 
     /**
+     * Function to render the boot failure description.
+     *
+     * @param {string} data: The failure description.
+     * @return {Element} The DOM element.
+    **/
+    gBootUtils.resultDescription = function(data) {
+        return _resultDescription(data);
+    };
+
+    /**
      * Function to render the boot failure description column on a table.
      *
      * @param {string} data: The failure description.
@@ -398,21 +456,14 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderTableResultDescription = function(data, type) {
-        var rendered,
-            tooltipNode;
+        var rendered;
 
         rendered = '';
         if (data) {
             rendered = data;
 
             if (type === 'display') {
-                data = html.escape(data);
-
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', data);
-                tooltipNode.insertAdjacentHTML('beforeend', data);
-
-                rendered = tooltipNode.outerHTML;
+                rendered = _resultDescription(data).outerHTML;
             }
         }
         return rendered;
@@ -485,6 +536,16 @@ define([
     };
 
     /**
+     * Function to render the date.
+     *
+     * @param {object} date: The date object.
+     * @return {Element} The DOM element.
+    **/
+    gBootUtils.bootDate = function(date) {
+        return tcommon.dateNode(date);
+    };
+
+    /**
      * Create the boot status element.
      *
      * @param {string} status: The boot status.
@@ -514,6 +575,17 @@ define([
     };
 
     /**
+     * Function to render the boot detail.
+     *
+     * @param {string} board: The board name.
+     * @param {object} object: The entire data set.
+     * @return {Element} The DOM element.
+    **/
+    gBootUtils.bootDetail = function(board, object) {
+        return _bootDetail(board, object);
+    };
+
+    /**
      * Function to render the detail column on a table.
      * This is tightly couple with how dataTables work.
      *
@@ -523,35 +595,11 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderTableDetail = function(board, type, object) {
-        var aNode,
-            defconfig,
-            job,
-            kernel,
-            lab,
-            rendered,
-            tooltipNode;
+        var rendered;
 
         rendered = null;
         if (type === 'display') {
-            job = object.job;
-            kernel = object.kernel;
-            lab = object.lab_name;
-            defconfig = object.defconfig_full;
-
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', 'Boot report details');
-
-            aNode = document.createElement('a');
-            aNode.setAttribute(
-                'href',
-                '/boot/' + board + '/job/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfig + '/lab/' + lab +
-                '/?_id=' + object._id.$oid
-            );
-
-            aNode.appendChild(html.search());
-            tooltipNode.appendChild(aNode);
-            rendered = tooltipNode.outerHTML;
+            rendered = _bootDetail(board, object).outerHTML;
         }
 
         return rendered;

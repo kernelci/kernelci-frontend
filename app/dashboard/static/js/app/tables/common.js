@@ -9,6 +9,41 @@ define([
     gTablesUtils = {};
 
     /**
+     * Function to render the date.
+     *
+     * @private
+     * @param {object} date: The date object.
+     * @return {Element} The DOM element.
+    **/
+    function _dateNode(date) {
+        var created,
+            timeNode;
+
+        if (date) {
+            created = new Date(date.$date);
+
+            timeNode = document.createElement('time');
+            timeNode.setAttribute('datetime', created.toISOString());
+            timeNode.appendChild(
+                document.createTextNode(created.toCustomISODate()));
+        } else {
+            timeNode = html.nonavail();
+        }
+
+        return timeNode;
+    }
+
+    /**
+     * Function to render the date.
+     *
+     * @param {object} date: The date object.
+     * @return {Element} The DOM element.
+    **/
+    gTablesUtils.dateNode = function(date) {
+        return _dateNode(date);
+    };
+
+    /**
      * Function to render the date column on a table.
      *
      * @param {object} date: The date object.
@@ -17,33 +52,19 @@ define([
     **/
     gTablesUtils.renderTableDate = function(date, type) {
         var created,
-            iNode,
-            rendered,
-            timeNode,
-            tooltipNode;
+            rendered;
 
-        if (date === null) {
-            rendered = date;
+        if (date) {
             if (type === 'display') {
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('Not available');
-
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-ban';
-
-                tooltipNode.appendChild(iNode);
-                rendered = tooltipNode.outerHTML;
+                rendered = _dateNode(date).outerHTML;
+            } else {
+                created = new Date(date.$date);
+                rendered = created.toCustomISODate();
             }
         } else {
-            created = new Date(date.$date);
-            rendered = created.toCustomISODate();
-
+            rendered = date;
             if (type === 'display') {
-                timeNode = document.createElement('time');
-                timeNode.setAttribute('datetime', created.toISOString());
-                timeNode.appendChild(
-                    document.createTextNode(created.toCustomISODate()));
-                rendered = timeNode.outerHTML;
+                rendered = html.nonavail().outerHTML;
             }
         }
 
