@@ -19,6 +19,7 @@ import dashboard.views.compare as vcompare
 import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
+import dashboard.views.soc as vsoc
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.boot as bootfeed
@@ -227,5 +228,12 @@ def init():
     add_rule(
         "/compare/job/<string:compare_id>/",
         view_func=vcompare.JobCompareView.as_view("job-compare"),
+        methods=["GET"]
+    )
+
+    # SoCs views.
+    add_rule(
+        "/soc/",
+        view_func=vsoc.SocAllView.as_view("socs-all-view"),
         methods=["GET"]
     )

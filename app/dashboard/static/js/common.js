@@ -43,6 +43,7 @@ require.config({
             'app/view-jobs-all': 'app/view-jobs-all.201511',
             'app/view-jobs-job': 'app/view-jobs-job.201511',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.201511',
+            'app/view-socs-all': 'app/view-socs-all.201511',
             'app/view-sponsors': 'app/view-sponsors.201511',
             'app/view-stats': 'app/view-stats.201511'
         }
