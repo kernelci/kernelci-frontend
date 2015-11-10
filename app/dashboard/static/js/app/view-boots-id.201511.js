@@ -600,6 +600,7 @@ require([
         var aNode,
             arch,
             board,
+            boardInstance,
             bootLog,
             bootTime,
             buildId,
@@ -634,6 +635,7 @@ require([
         bootTime = new Date(result.time.$date);
         createdOn = new Date(result.created_on.$date);
         board = result.board;
+        boardInstance = result.board_instance;
         job = result.job;
         kernel = result.kernel;
         defconfigFull = result.defconfig_full;
@@ -694,6 +696,17 @@ require([
 
         html.replaceContent(
             document.getElementById('dd-board-board'), tooltipNode);
+
+        // Board instance.
+        if (boardInstance) {
+            html.replaceContent(
+                document.getElementById('dd-board-instance'),
+                document.createTextNode(boardInstance));
+        } else {
+            html.replaceContent(
+                document.getElementById('dd-board-instance'),
+                html.nonavail());
+        }
 
         // Tree.
         spanNode = document.createElement('span');
