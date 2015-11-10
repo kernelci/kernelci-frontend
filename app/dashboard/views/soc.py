@@ -39,7 +39,9 @@ class SocAllView(SocGeneralView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "soc-all.html",
+            "base-all.html",
+            table_id="socs-table",
+            data_main="kci-socs-all",
             body_title=body_title,
             page_len=page_len,
             page_title=self.SOC_PAGES_TITLE,

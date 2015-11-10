@@ -8,13 +8,12 @@
 <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.9.css">
 {%- endblock %}
 {%- block content %}
-{% include "date-range.html" %}
-<br />
+{%- include "date-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="table-loading" class="pull-center">
             <small>
-                <i class="fa fa-cog fa-spin"></i>&nbsp;retrieving boot data&hellip;
+                <i class="fa fa-cog fa-spin"></i>&nbsp;retrieving data&hellip;
             </small>
         </div>
     {%- if is_mobile %}
@@ -22,7 +21,7 @@
     {%- else %}
         <div class="table" id="table-div">
     {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="bootstable">
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="{{ table_id }}">
             </table>
         </div>
     </div>
@@ -31,5 +30,5 @@
 <input type="hidden" id="page-len" value="{{ page_len }}">
 {%- endblock %}{# content block #}
 {%- block scripts %}
-<script data-main="/static/js/kci-boots-all" src="/static/js/lib/require.js"></script>
+<script data-main="/static/js/{{ data_main }}" src="/static/js/lib/require.js"></script>
 {%- endblock %}
