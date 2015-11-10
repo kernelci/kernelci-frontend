@@ -22,7 +22,7 @@ from flask.views import View
 from dashboard.utils.backend import get_search_parameters
 
 
-class SocGeneralView(View):
+class SocsGeneralView(View):
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     SOC_PAGES_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "SoCs")
@@ -33,7 +33,7 @@ class SocGeneralView(View):
     )
 
 
-class SocAllView(SocGeneralView):
+class SocsAllView(SocsGeneralView):
     def dispatch_request(self):
         body_title = "Available SoCs"
         search_filter, page_len = get_search_parameters(request)
