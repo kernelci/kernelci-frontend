@@ -218,13 +218,13 @@ require([
             ];
 
             gJobsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([4, 'desc'])
-                .menu('jobs per page')
+                .languageLengthMenu('jobs per page')
                 .rowURL('/job/%(job)s/')
                 .rowURLElements(['job'])
-                .noIDUrl(true)
+                .noIdURL(true)
                 .draw();
         }
     }

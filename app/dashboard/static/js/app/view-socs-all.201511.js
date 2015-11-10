@@ -84,11 +84,11 @@ require([
             ];
 
             gSocsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([7, 'desc'])
-                .menu('SoCs per page')
-                .noIDUrl(true)
+                .languageLengthMenu('SoCs per page')
+                .noIdURL(true)
                 .draw();
 
             gSocsTable

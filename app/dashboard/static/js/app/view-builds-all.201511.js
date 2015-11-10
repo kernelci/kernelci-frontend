@@ -332,10 +332,10 @@ require([
             ];
 
             buildsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('build reports per page')
+                .languageLengthMenu('build reports per page')
                 .rowURL(rowUrl)
                 .rowURLElements(['job', 'kernel', 'defconfig_full'])
                 .draw();

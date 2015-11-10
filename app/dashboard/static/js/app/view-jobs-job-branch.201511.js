@@ -483,13 +483,12 @@ require([
 
             buildsTable
                 .dom(tableDom)
-                .noIDUrl(true)
-                .tableData(results)
+                .noIdURL(true)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('builds per page')
+                .languageLengthMenu('builds per page')
                 .rowURLElements(['job', 'kernel'])
-                .lengthChange(false)
                 .paging(false)
                 .info(false)
                 .draw();

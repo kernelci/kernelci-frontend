@@ -433,10 +433,10 @@ require([
             rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
                 '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([6, 'desc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURLFmt)
                 .rowURLElements(
                     ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])

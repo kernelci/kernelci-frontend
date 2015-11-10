@@ -101,7 +101,7 @@ require([
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
                 .rowURL(rowURLFmt)

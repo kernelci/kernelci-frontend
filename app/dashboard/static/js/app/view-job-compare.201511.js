@@ -155,10 +155,10 @@ require([
 
         comparedTable
             .dom(tableDom)
-            .tableData(comparedData)
+            .data(comparedData)
             .columns(columns)
             .order([4, 'desc'])
-            .noIDUrl(true)
+            .noIdURL(true)
             .rowURLElements(['job', 'kernel'])
             .draw();
     }

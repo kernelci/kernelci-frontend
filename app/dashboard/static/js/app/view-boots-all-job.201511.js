@@ -227,13 +227,12 @@ require([
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([4, 'desc'])
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job', 'kernel'])
-                .noIDUrl(true)
-                .lengthChange(false)
+                .noIdURL(true)
                 .paging(false)
                 .info(false)
                 .draw();

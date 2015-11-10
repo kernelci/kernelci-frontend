@@ -451,11 +451,11 @@ require([
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
-                .elementsLength([5, 10, 25, 50])
+                .lengthMenu([5, 10, 25, 50])
                 .order([1, 'asc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
                     ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
