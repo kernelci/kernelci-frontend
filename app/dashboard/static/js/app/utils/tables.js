@@ -2,50 +2,16 @@
 define([
     'jquery',
     'sprintf',
-    'utils/base',
     'datatables',
     'datatables.bootstrap'
-], function($, s, b) {
+], function($) {
     'use strict';
-    var columns,
-        disableIn,
-        elementsPerPage,
-        info,
-        lengthChange,
-        lengthMenu,
-        menu,
-        menuFmt,
-        noIDUrl,
-        oldSearch,
-        order,
-        paging,
-        rowURL,
-        rowURLElements,
-        searchLanguage,
-        searchType,
-        tDiv,
-        tElement,
-        tLoading,
-        tTable,
-        table,
-        tableData,
-        tableDom,
-        zeroRec;
+    var gMenuFmt,
+        gSearchLanguage,
+        gTable,
+        gTableDom;
 
-    lengthMenu = null;
-    lengthChange = true;
-    paging = true;
-    info = true;
-    tLoading = null;
-    tDiv = null;
-    rowURL = '/build/%(job)s/kernel/%(kernel)s/';
-    tableData = [];
-    oldSearch = null;
-    disableIn = false;
-    noIDUrl = false;
-    elementsPerPage = [25, 50, 75, 100];
-
-    tableDom = '<"row"<"col-xs-12 col-sm-12 col-md-4 col-lg-4"' +
+    gTableDom = '<"row"<"col-xs-12 col-sm-12 col-md-4 col-lg-4"' +
             '<"length-menu"l>>' +
             '<"col-xs-12 col-sm-12 col-md-4 col-lg-4"<"table-process">>' +
             '<"col-xs-12 col-sm-12 col-md-4 col-lg-4"f>r' +
@@ -53,393 +19,408 @@ define([
             '<"row paging"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
             '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>';
 
-    searchLanguage = '<div id="search-area" class="input-group pull-right">' +
+    gSearchLanguage = '<div id="search-area" class="input-group pull-right">' +
         '<span class="input-group-addon">' +
         '<i class="fa fa-search"></i></span>_INPUT_</div>';
 
-    menuFmt = '_MENU_&nbsp;<strong>%s</strong>';
-    menu = 'reports per page';
-    zeroRec = '<strong>No reports to display.</strong>';
+    gMenuFmt = '_MENU_&nbsp;<strong>%s</strong>';
 
-    order = [1, 'desc'];
-    searchType = {
-        regex: true,
-        smart: true
-    };
+    /**
+     * Remove the focus from the element that triggers the event.
+     * Apply a blur() to the triggering element.
+     *
+     * @param {Event} event: The event triggering this function.
+    **/
+    function removeFocus(event) {
+        var target;
 
-    table = function(elements, d) {
-        var len;
+        target = event.target || event.srcElement;
+        if (event.keyCode === 27) {
+            target.blur();
+        }
+    }
+
+    gTable = function(elements, disabled) {
+        // Set global settings.
+        gTable.settings = {
+            paging: true,
+            info: true,
+            order: [1, 'desc'],
+            dom: gTableDom,
+            search: {
+                regex: true,
+                smart: true
+            },
+            language: {
+                lengthMenu: '_MENU_&nbsp;<strong>reports per page</strong>',
+                zeroRecords: '<strong>No data found.</strong>',
+                search: gSearchLanguage,
+                searchPlaceholder: 'Filter the results'
+            },
+            noIdURL: false,
+            lengthMenu: [25, 50, 75, 100],
+            rowURL: '/build/%(job)s/kernel/%(kernel)s/'
+        };
+
         if (elements.constructor === Array) {
-            len = elements.length;
-            switch (len) {
+            switch (elements.length) {
                 case 1:
-                    tElement = b.checkElement(elements[0]);
+                    gTable.tableNode = document.getElementById(elements[0]);
+                    if (!gTable) {
+                        throw 'No node found';
+                    }
+                    gTable.settings.tableId = elements[0];
                     break;
                 case 2:
-                    tElement = b.checkElement(elements[0]);
-                    tLoading = b.checkElement(elements[1]);
+                    gTable.settings.tableId = elements[0];
+                    gTable.settings.tableLoadingDivId = elements[1];
                     break;
                 case 3:
-                    tElement = b.checkElement(elements[0]);
-                    tLoading = b.checkElement(elements[1]);
-                    tDiv = b.checkElement(elements[2]);
+                    gTable.settings.tableId = elements[0];
+                    gTable.settings.tableLoadingDivId = elements[1];
+                    gTable.settings.tableDivId = elements[2];
                     break;
                 default:
-                    tElement = b.checkElement('tableid');
+                    gTable.settings.tableId = 'tableid';
             }
         } else {
-            tElement = b.checkElement(elements);
+            gTable.settings.tableId = elements;
         }
 
-        if (d !== null && d !== undefined) {
-            disableIn = d;
+        gTable.settings.disableSearch = Boolean(disabled);
+
+        if (gTable.settings.tableId) {
+            gTable.tableNode =
+                document.getElementById(gTable.settings.tableId);
+
+            if (!gTable.tableNode) {
+                throw 'No table node found';
+            }
         }
-        return table;
+
+        if (gTable.settings.tableLoadingDivId) {
+            gTable.tableLoadingNode =
+                document.getElementById(gTable.settings.tableLoadingDivId);
+
+            if (!gTable.tableLoadingNode) {
+                throw 'No table laoding div node found';
+            }
+        }
+
+        if (gTable.settings.tableDivId) {
+            gTable.tableDivNode =
+                document.getElementById(gTable.settings.tableDivId);
+
+            if (!gTable.tableDivNode) {
+                throw 'No table container node found';
+            }
+        }
+
+        return gTable;
     };
 
-    table.draw = function() {
-        var selectNode,
-            inputNode,
-            that;
+    gTable.draw = function() {
+        var inputNode,
+            selectNode,
+            settings;
 
-        that = this;
+        settings = gTable.settings;
 
-        function stateLoad(s, d) {
-            if (disableIn && d.search.search.length > 0) {
-                oldSearch = d.search.search;
+        function _stateLoadFunc(s, d) {
+            if (settings.disableSearch && d.search.search.length > 0) {
+                gTable.oldSearch = d.search.search;
                 d.search.search = '';
             }
         }
 
-        tTable = $(tElement[1]).DataTable({
-            dom: that.dom(),
-            paging: paging,
-            info: info,
+        function _observeMutations() {
+            var observer,
+                observerConfig,
+                target;
+
+            observer = new MutationObserver(function(events) {
+                events.forEach(function(event) {
+                    target = event.target || event.srcElement;
+                    if (target === inputNode &&
+                            event.attributeName === 'disabled') {
+
+                        if (gTable.oldSearch) {
+                            gTable.tTable
+                                .search(gTable.oldSearch, true, true).draw();
+                            gTable.oldSearch = null;
+                        }
+                    }
+                });
+                observer.disconnect();
+            });
+            observerConfig = {
+                attributes: true,
+                attributeOldValue: true
+            };
+            observer.observe(inputNode, observerConfig);
+        }
+
+        gTable.tTable = $('#' + settings.tableId).DataTable({
+            dom: settings.dom,
+            paging: settings.paging,
+            info: settings.info,
             language: {
-                lengthMenu: that.lengthMenu(),
-                zeroRecords: that.zeroRecords(),
-                search: that.searchLanguage(),
+                lengthMenu: settings.language.lengthMenu,
+                zeroRecords: settings.language.zeroRecords,
+                search: settings.language.search,
                 searchPlaceholder: 'Filter the results'
             },
-            lengthMenu: that.elementsLength(),
-            order: order,
+            lengthMenu: settings.lengthMenu,
+            order: settings.order,
             deferRender: true,
             ordering: true,
             stateSave: true,
             stateDuration: -1,
             processing: true,
-            search: that.searchType(),
+            search: settings.search,
             initComplete: function() {
-                if (tLoading !== null) {
-                    $(tLoading[1]).remove();
+                if (gTable.tableLoadingNode) {
+                    $(gTable.tableLoadingNode).remove();
                 }
-                if (tDiv !== null) {
-                    $(tDiv[1]).fadeIn('slow', 'linear');
+                if (gTable.tableDivNode) {
+                    $(gTable.tableDivNode).fadeIn('slow', 'linear');
                 }
             },
-            data: that.tableData(),
-            columns: that.columns(),
-            stateLoadParams: stateLoad
+            data: settings.data,
+            columns: settings.columns,
+            stateLoadParams: _stateLoadFunc
         });
 
-        inputNode = document.querySelector('input.input-sm');
-        selectNode = document.querySelector('select.input-sm');
+        inputNode = gTable.tableDivNode.querySelector('input.input-sm');
+        selectNode = gTable.tableDivNode.querySelector('select.input-sm');
 
-        if (inputNode !== null) {
+        if (inputNode) {
             // Remove focus from input when Esc is pressed.
-            inputNode.addEventListener('keyup', function(event) {
-                if (event.keyCode === 27) {
-                    this.blur();
+            inputNode.addEventListener('keyup', removeFocus);
+
+            // Disable search box.
+            if (settings.disableSearch) {
+                inputNode.setAttribute('disabled', true);
+            }
+        }
+
+        if (selectNode) {
+            // Remove focus from the table length selection on Esc.
+            selectNode.addEventListener('keyup', removeFocus);
+        }
+
+        if (settings.clickFunc) {
+            gTable.tTable.on('click', 'tbody tr', settings.clickFunc);
+        } else {
+            gTable.tTable.on('click', 'tbody tr', function() {
+                var localTable,
+                    location,
+                    substitutions;
+
+                localTable = gTable.tTable.row(this).data();
+                location = '#';
+                substitutions = {};
+
+                if (localTable) {
+                    settings.rowURLElements.forEach(function(value) {
+                        substitutions[value] = localTable[value] || null;
+                    });
+
+                    location = sprintf(settings.rowURL, substitutions);
+                    if (!settings.noIdURL && localTable._id !== null) {
+                        location += '?_id=' + localTable._id.$oid;
+                    }
                 }
+                window.location = location;
             });
         }
 
-        if (selectNode !== null) {
-            // Remove focus from the table length selection on Esc.
-            selectNode.addEventListener(
-                'keyup', function(event) {
-                    if (event.keyCode === 27) {
-                        this.blur();
-                    }
-                }
-            );
-        }
-
-        if (disableIn && inputNode !== null) {
-            inputNode.setAttribute('disabled', true);
-        }
-
-        tTable.on('click', 'tbody tr', function() {
-            var localTable,
-                location,
-                substitutions;
-
-            localTable = tTable.row(this).data();
-            location = '#';
-            substitutions = {};
-
-            if (localTable) {
-                rowURLElements.forEach(function(value) {
-                    substitutions[value] = localTable[value] || null;
-                });
-
-                location = s.sprintf(rowURL, substitutions);
-                if (!noIDUrl && localTable._id !== null) {
-                    location += '?_id=' + localTable._id.$oid;
-                }
-            }
-            window.location = location;
-        });
-
-        tTable.on('search.dt', function() {
-            var obs,
-                obsCfg;
-            if (disableIn && oldSearch !== null) {
+        gTable.tTable.on('search.dt', function() {
+            if (settings.disableSearch && gTable.oldSearch !== null) {
                 if (window.MutationObserver) {
                     if (inputNode.getAttribute('disabled')) {
-                        obs = new MutationObserver(function(muts) {
-                            muts.forEach(function(mut) {
-                                if (mut.target === inputNode) {
-                                    if (mut.attributeName === 'disabled') {
-                                        if (oldSearch !== null) {
-                                            tTable
-                                                .search(oldSearch, true, true)
-                                                .draw();
-                                            oldSearch = null;
-                                        }
-                                    }
-                                }
-                            });
-                            obs.disconnect();
-                        });
-                        obsCfg = {
-                            attributes: true,
-                            attributeOldValue: true
-                        };
-                        obs.observe(inputNode, obsCfg);
+                        _observeMutations();
                     }
                 } else {
                     // No support for MutationObserver.
-                    tTable.search(oldSearch, true, true).draw();
+                    gTable.tTable.search(gTable.oldSearch, true, true).draw();
                 }
             }
         });
-        return table;
+
+        return gTable;
     };
 
-    table.search = function(value) {
+    gTable.search = function(value) {
         var inputNode;
-        inputNode = document.querySelector('input.input-sm');
 
-        if (inputNode !== null) {
+        inputNode =
+            gTable.tableDivNode.querySelector('input.input-sm');
+
+        if (inputNode && inputNode.disabled) {
             inputNode.removeAttribute('disabled');
         }
 
         if (value !== null && value !== undefined) {
-            if (value.length > 0) {
-                oldSearch = null;
-                tTable.search(value, true, true).draw();
+            gTable.oldSearch = null;
+            gTable.tTable.search(value, true, true).draw();
+        }
+
+        return gTable;
+    };
+
+    gTable.pageLen = function(value) {
+        var len;
+
+        if (value !== null && value !== undefined) {
+            len = Number(value);
+            if (isNaN(len)) {
+                len = gTable.settings.lengthMenu[0];
             }
+            gTable.tTable.page.len(len).draw();
         }
 
-        return table;
+        return gTable;
     };
 
-    table.pageLen = function(value) {
-        var pLen;
-        if (value !== null && value !== undefined) {
-            if (value.length > 0) {
-                pLen = Number(value);
-                if (isNaN(pLen)) {
-                    pLen = 25;
-                }
-                tTable.page.len(pLen).draw();
-            }
-        }
-        return table;
-    };
-
-    table.menu = function(value) {
+    gTable.columns = function(value) {
         var returnData;
 
-        returnData = menu;
         if (value !== null && value !== undefined) {
-            menu = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.columns = function(value) {
-        var returnData;
-
-        returnData = columns;
-        if (value !== null && value !== undefined) {
-            columns = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.order = function(value) {
-        var returnData;
-
-        returnData = order;
-        if (value !== null && value !== undefined) {
-            order = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.tableData = function(value) {
-        var returnData;
-
-        returnData = tableData;
-        if (value !== null && value !== undefined) {
-            tableData = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.rowURL = function(value) {
-        var returnData;
-
-        returnData = rowURL;
-        if (value !== null && value !== undefined) {
-            rowURL = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.rowURLElements = function(value) {
-        var returnData;
-
-        returnData = rowURLElements;
-        if (value !== null && value !== undefined) {
-            rowURLElements = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.searchType = function(value) {
-        var returnData;
-
-        returnData = searchType;
-        if (value !== null && value !== undefined) {
-            searchType = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.searchLanguage = function(value) {
-        var returnData;
-
-        returnData = searchLanguage;
-        if (value !== null && value !== undefined) {
-            searchLanguage = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.zeroRecords = function(value) {
-        var returnData;
-
-        returnData = zeroRec;
-        if (value !== null && value !== undefined) {
-            zeroRec = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.lengthMenu = function(value) {
-        var returnData;
-
-        returnData = table;
-        if (value !== null && value !== undefined) {
-            lengthMenu = value;
-            returnData = table;
+            gTable.settings.columns = value;
+            returnData = gTable;
         } else {
-            if (lengthMenu !== null) {
-                returnData = lengthMenu;
-            } else {
-                returnData = s.sprintf(menuFmt, menu);
-            }
+            returnData = gTable.settings.columns;
         }
 
         return returnData;
     };
 
-    table.noIDUrl = function(value) {
+    gTable.order = function(value) {
         var returnData;
 
-        returnData = noIDUrl;
         if (value !== null && value !== undefined) {
-            noIDUrl = value;
-            returnData = table;
+            gTable.settings.order = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.order;
         }
 
         return returnData;
     };
 
-    table.lengthChange = function(value) {
+    gTable.data = function(value) {
         var returnData;
 
-        returnData = lengthChange;
         if (value !== null && value !== undefined) {
-            lengthChange = value;
-            returnData = table;
+            gTable.settings.data = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.data;
         }
 
         return returnData;
     };
 
-    table.paging = function(value) {
+    gTable.rowURL = function(value) {
         var returnData;
 
-        returnData = paging;
         if (value !== null && value !== undefined) {
-            paging = value;
-            returnData = table;
+            gTable.settings.rowURL = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.rowURL;
         }
 
         return returnData;
     };
 
-    table.info = function(value) {
-        var returnData = paging;
-
-        returnData = paging;
-        if (value !== null && value !== undefined) {
-            info = value;
-            returnData = table;
-        }
-
-        return returnData;
-    };
-
-    table.elementsLength = function(value) {
+    gTable.rowURLElements = function(value) {
         var returnData;
 
-        returnData = elementsPerPage;
         if (value !== null && value !== undefined) {
-            elementsPerPage = value;
-            returnData = table;
+            gTable.settings.rowURLElements = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.rowURLElements;
+        }
+
+        return returnData;
+    };
+
+    gTable.languageLengthMenu = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.language.lengthMenu = sprintf(gMenuFmt, value);
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.language.lengthMenu;
+        }
+
+        return returnData;
+    };
+
+    gTable.languageZeroRecords = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.language.zeroRecords = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.language.zeroRecords;
+        }
+
+        return returnData;
+    };
+
+    gTable.noIdURL = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.noIdURL = Boolean(value);
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.noIdURL;
+        }
+
+        return returnData;
+    };
+
+    gTable.paging = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.paging = Boolean(value);
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.paging;
+        }
+
+        return returnData;
+    };
+
+    gTable.info = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.info = Boolean(value);
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.info;
+        }
+
+        return returnData;
+    };
+
+    gTable.lengthMenu = function(value) {
+        var returnData;
+
+        if (value !== null && value !== undefined) {
+            gTable.settings.lengthMenu = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.lengthMenu;
         }
 
         return returnData;
@@ -450,13 +431,29 @@ define([
      *
      * @param {string} value: The table-DOM.
     **/
-    table.dom = function(value) {
+    gTable.dom = function(value) {
         var returnData;
 
-        returnData = tableDom;
         if (value !== null && value !== undefined) {
-            tableDom = value;
-            returnData = table;
+            gTable.settings.dom = value;
+            returnData = gTable;
+        } else {
+            returnData = gTable.settings.dom;
+        }
+
+        return returnData;
+    };
+
+    /**
+     * Get or set the row click function.
+    **/
+    gTable.clickFunction = function(value) {
+        var returnData;
+
+        returnData = gTable.settings.clickFunc;
+        if (value !== null && value !== undefined) {
+            gTable.settings.clickFunc = value;
+            returnData = gTable;
         }
 
         return returnData;
@@ -469,9 +466,9 @@ define([
      * It must be of the same type and with the same structure of the initial
      * data with which the table was populated.
     **/
-    table.addRows = function(value) {
-        tTable.rows.add(value).draw();
+    gTable.addRows = function(value) {
+        gTable.tTable.rows.add(value).draw();
     };
 
-    return table;
+    return gTable;
 });
