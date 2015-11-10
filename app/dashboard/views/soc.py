@@ -47,3 +47,23 @@ class SocsAllView(SocsGeneralView):
             page_title=self.SOC_PAGES_TITLE,
             search_filter=search_filter
         )
+
+
+class SocsSocView(SocsGeneralView):
+    def dispatch_request(self, **kwargs):
+        soc = kwargs["soc"]
+
+        body_title = "Details for SoC &#171;%s&#187;" % soc
+        page_title = "%s SoC" % soc
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
+
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "socs-soc.html",
+            body_title=body_title,
+            page_len=page_len,
+            page_title=page_title,
+            search_filter=search_filter,
+            soc=soc
+        )

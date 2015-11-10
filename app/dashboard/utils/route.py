@@ -237,3 +237,9 @@ def init():
         view_func=vsoc.SocsAllView.as_view("socs-all-view"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/soc/<string:soc>/",
+        view_func=vsoc.SocsSocView.as_view("socs-soc-view"),
+        methods=["GET"]
+    )
