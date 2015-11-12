@@ -7,36 +7,66 @@ require([
     'utils/error',
     'utils/tables',
     'utils/const',
-    'utils/html'
-], function($, init, b, r, e, tables, appconst, html) {
+    'utils/html',
+    'tables/boot',
+    'utils/table'
+], function($, init, b, r, e, tables, appconst, html, boot, table) {
     'use strict';
-    var gPageLen,
-        gSearchFilter,
+    var gBoardsTable,
+        gBootsTable,
         gDateRange,
-        gBoardsTable,
+        gPageLen,
+        gSearchFilter,
         gSoc;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
+    init.hotkeys();
+    init.tooltip();
+
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
 
+    function _renderBoardDetail(board, type) {
+        var aNode,
+            tooltipNode,
+            rendered;
+
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for&nbsp;' + board);
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/boot/' + board + '/');
+
+            aNode.appendChild(html.search());
+            tooltipNode.appendChild(aNode);
+
+            rendered = tooltipNode.outerHTML;
+        } else {
+            rendered = board;
+        }
+
+        return rendered;
+    }
+
     function getDistinctBoardsTable(response) {
         var columns,
+            dom,
             results,
-            tableResults,
-            dom;
+            tableResults;
 
-        function _tableRowClick(event) {
-            var target,
-                text;
-
-            target = event.target || event.srcElement;
-            text = target.textContent || target.innerText;
-
-            if (text) {
-                window.location = '/boot/' + text + '/';
-            }
+        /**
+         * Internally used to remap an array of strings into an array of
+         * objects whose key is 'board'.
+         *
+         * @param {string} element: The element from the array.
+         * @return {object} An object with key 'board' and value the passed
+         * one.
+        **/
+        function _remapResults(element) {
+            return {board: element};
         }
 
         results = response.result;
@@ -50,32 +80,27 @@ require([
 
             columns = [
                 {
+                    data: 'board',
                     title: 'Board'
                 },
                 {
+                    data: 'board',
                     title: '',
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
-                    render: function(data, type) {
-                        var rendered;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            rendered = '';
-                        }
-                        return rendered;
-                    }
+                    render: _renderBoardDetail
                 }
             ];
 
-            tableResults = results.map(function(element) {
-                return [element, element];
-            });
+            // Remap the distinct results into an array of objets.
+            tableResults = results.map(_remapResults);
 
             gBoardsTable
                 .dom(dom)
-                .clickFunction(_tableRowClick)
+                .noIdURL(true)
+                .rowURL('/boot/%(board)s/')
+                .rowURLElements(['board'])
                 .data(tableResults)
                 .columns(columns)
                 .lengthMenu([5, 10, 25, 50])
@@ -109,15 +134,14 @@ require([
     }
 
     function getBootsCountDone(response) {
-        var bootCount,
-            results;
+        var results;
 
         results = response.result;
         if (results.length > 0) {
-            bootCount = parseInt(results[0].count, 10);
             html.replaceContent(
                 document.getElementById('boots-count'),
-                document.createTextNode(b.formatNumber(bootCount)));
+                document.createTextNode(
+                    b.formatNumber(parseInt(results[0].count, 10))));
         } else {
             html.replaceConten(
                 document.getElementById('boots-count'),
@@ -144,8 +168,146 @@ require([
             .done(getDistinctBoardsCount, getDistinctBoardsTable);
     }
 
-    init.hotkeys();
-    init.tooltip();
+    function getBootsFail() {
+        html.removeElement(document.getElementById('boots-table-loading'));
+        html.replaceContent(
+            document.getElementById('boots-table-div'),
+            html.errorDiv('Error loading data.'));
+    }
+
+    function getBootsDone(response) {
+        var columns,
+            results,
+            rowURL;
+
+        results = response.result;
+        if (results.length > 0) {
+            columns = [
+                {
+                    data: '_id',
+                    visible: false,
+                    searchable: false,
+                    orderable: false
+                },
+                {
+                    data: 'job',
+                    title: 'Tree',
+                    type: 'string',
+                    className: 'tree-column',
+                    render: boot.renderTableTreeAll
+                },
+                {
+                    data: 'git_branch',
+                    title: 'Branch',
+                    className: 'branch-column'
+                },
+                {
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string',
+                    className: 'kernel-column',
+                    render: boot.renderTableKernel
+                },
+                {
+                    data: 'defconfig_full',
+                    title: 'Defconfig',
+                    className: 'defconfig-column',
+                    render: boot.renderTableDefconfig
+                },
+                {
+                    data: 'board',
+                    title: 'Board',
+                    className: 'board-column'
+                },
+                {
+                    data: 'arch',
+                    title: 'Arch.',
+                    className: 'arch-column'
+                },
+                {
+                    data: 'lab_name',
+                    title: 'Lab Name',
+                    className: 'lab-column'
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'date-column pull-center',
+                    render: boot.renderTableDate
+                },
+                {
+                    data: 'status',
+                    title: 'Status',
+                    type: 'string',
+                    className: 'pull-center',
+                    render: boot.renderTableStatus
+                },
+                {
+                    data: 'board',
+                    title: '',
+                    orderable: false,
+                    searchable: false,
+                    width: '30px',
+                    className: 'pull-center',
+                    render: boot.renderTableDetail
+                }
+            ];
+
+            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
+                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
+
+            gBootsTable
+                .data(results)
+                .columns(columns)
+                .order([8, 'desc'])
+                .languageLengthMenu('boot reports per page')
+                .rowURL(rowURL)
+                .rowURLElements(
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
+                )
+                .draw();
+
+            gBootsTable
+                .pageLen(gPageLen)
+                .search(gSearchFilter);
+        } else {
+            html.removeElement(document.getElementById('boots-table-loading'));
+            html.replaceContent(
+                document.getElementById('boots-table-div'),
+                html.errorDiv('No data found.'));
+        }
+    }
+
+    function getBoots() {
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/boot',
+            {
+                date_range: gDateRange,
+                mach: gSoc,
+                sort: 'created_on',
+                sort_order: -1,
+                field: [
+                    '_id',
+                    'arch',
+                    'board',
+                    'created_on',
+                    'defconfig_full',
+                    'git_branch',
+                    'job',
+                    'kernel',
+                    'lab_name',
+                    'status'
+                ]
+            }
+        );
+
+        $.when(deferred)
+            .fail(e.error, getBootsFail)
+            .done(getBootsDone);
+    }
 
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
@@ -160,9 +322,19 @@ require([
         gSearchFilter = document.getElementById('search-filter').value;
     }
 
-    // buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
-    gBoardsTable = tables(
-        ['boards-table', 'boards-table-loading', 'boards-table-div'], false);
+    gBoardsTable = table({
+        tableId: 'boards-table',
+        tableDivId: 'boards-table-div',
+        tableLoadingDivId: 'boards-table-loading'
+    });
+
+    gBootsTable = table({
+        tableId: 'boots-table',
+        tableDivId: 'boots-table-div',
+        tableLoadingDivId: 'boots-table-loading',
+        disableSearch: true
+    });
+
     getDetails();
-    // getBuilds();
+    getBoots();
 });
