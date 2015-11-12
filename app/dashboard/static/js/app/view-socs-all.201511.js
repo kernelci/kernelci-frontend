@@ -7,8 +7,8 @@ require([
     'utils/tables',
     'utils/html',
     'utils/const',
-    'tables/common'
-], function($, init, error, request, tables, html, appconst, tcommon) {
+    'tables/boot'
+], function($, init, error, request, tables, html, appconst, tboot) {
     'use strict';
     var gDateRange,
         gSocsTable,
@@ -44,7 +44,8 @@ require([
             columns = [
                 {
                     data: 'mach',
-                    title: 'SoC'
+                    title: 'SoC',
+                    render: tboot.renderTableSoc
                 },
                 {
                     data: 'arch',
@@ -79,7 +80,7 @@ require([
                     data: 'created_on',
                     title: 'Date',
                     className: 'date-column pull-center',
-                    render: tcommon.renderTableDate
+                    render: tboot.renderTableDate
                 }
             ];
 
