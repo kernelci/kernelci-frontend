@@ -642,6 +642,37 @@ define([
     };
 
     /**
+     * Function to render the SoC column on a table.
+     *
+     * @param {string} soc: The SoC value.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as string.
+    **/
+    gBootUtils.renderTableSoc = function(soc, type) {
+        var aNode,
+            rendered,
+            tooltipNode;
+
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for SoC&nbsp;' + soc);
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/soc/' + soc + '/');
+            aNode.className = 'table-link';
+            aNode.appendChild(document.createTextNode(soc));
+
+            tooltipNode.appendChild(aNode);
+            rendered = tooltipNode.outerHTML;
+        } else {
+            rendered = soc;
+        }
+
+        return rendered;
+    };
+
+    /**
      * Create the boot logs element.
      *
      * @param {string} txtLog: The TXT boot log file name.
