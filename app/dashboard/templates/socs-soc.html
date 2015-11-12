@@ -59,16 +59,16 @@
         <div class="page-header">
             <h3>Available Boot Reports</h3>
         </div>
-        <div id="table-loading" class="pull-center">
+        <div id="boots-table-loading" class="pull-center">
             <small>
                 <i class="fa fa-cog fa-spin"></i>
                 &nbsp;retrieving boot data&hellip;
             </small>
         </div>
     {%- if is_mobile %}
-        <div class="table-responsive" id="table-div">
+        <div class="table-responsive" id="boots-table-div">
     {%- else %}
-        <div class="table" id="table-div">
+        <div class="table" id="boots-table-div">
     {%- endif %}
             <table class="table table-hover table-striped table-condensed clickable-table big-table" id="boots-table">
             </table>
