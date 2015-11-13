@@ -5,51 +5,24 @@ require([
     'utils/base',
     'utils/request',
     'utils/error',
-    'utils/tables',
     'utils/const',
     'utils/html',
-    'tables/boot',
+    'tables/soc',
     'utils/table'
-], function($, init, b, r, e, tables, appconst, html, boot, table) {
+], function($, init, b, r, e, appconst, html, tsoc, table) {
     'use strict';
-    var gBoardsTable,
-        gBootsTable,
+    var gBatchCountMissing,
+        gBoardsTable,
         gDateRange,
+        gJobsTable,
         gPageLen,
         gSearchFilter,
         gSoc;
 
-    document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
+    gBatchCountMissing = {};
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
-
-    function _renderBoardDetail(board, type) {
-        var aNode,
-            tooltipNode,
-            rendered;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for&nbsp;' + board);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/boot/' + board + '/');
-
-            aNode.appendChild(html.search());
-            tooltipNode.appendChild(aNode);
-
-            rendered = tooltipNode.outerHTML;
-        } else {
-            rendered = board;
-        }
-
-        return rendered;
-    }
 
     function getDistinctBoardsTable(response) {
         var columns,
@@ -67,6 +40,12 @@ require([
         **/
         function _remapResults(element) {
             return {board: element};
+        }
+
+        // Internal wrapper to provide the href and title.
+        function _boardDetails(data, type) {
+            return tsoc.renderDetails(
+                '/boot/' + data + '/', type, 'View boot reports');
         }
 
         results = response.result;
@@ -89,7 +68,7 @@ require([
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
-                    render: _renderBoardDetail
+                    render: _boardDetails
                 }
             ];
 
@@ -168,33 +147,153 @@ require([
             .done(getDistinctBoardsCount, getDistinctBoardsTable);
     }
 
-    function getBootsFail() {
-        html.removeElement(document.getElementById('boots-table-loading'));
+    function updateOrStageCount(elementId, count) {
+        var element;
+
+        element = document.getElementById(elementId);
+        // If we do not have the element in the DOM, it means dataTables has
+        // yet to add it.
+        if (element) {
+            html.replaceContent(
+                element, document.createTextNode(b.formatNumber(count)));
+
+            // Check if the data structure holding the data to update the
+            // elements still holds the element.
+            if (gBatchCountMissing.hasOwnProperty(elementId)) {
+                delete gBatchCountMissing[elementId];
+            }
+        } else {
+             // Store it in a dictionary for later access.
+            if (!gBatchCountMissing.hasOwnProperty(elementId)) {
+                gBatchCountMissing[elementId] = count;
+            }
+        }
+    }
+
+    function updateCount(result) {
+        updateOrStageCount(
+            result.operation_id, parseInt(result.result[0].count, 10));
+    }
+
+    /**
+     * Function to be bound to the draw event of the table.
+     * This is done to update dynamic elements that are not yet available
+     * in the DOM due to the derefer rendering of dataTables.
+    **/
+    function updateBootCount() {
+        var key;
+
+        if (Object.keys(gBatchCountMissing).length > 0) {
+            for (key in gBatchCountMissing) {
+                if (gBatchCountMissing.hasOwnProperty(key)) {
+                    updateOrStageCount(key, gBatchCountMissing[key]);
+                }
+            }
+        }
+    }
+
+    function getBatchCountFail() {
+        html.replaceByClass('count-badge', '&infin;');
+    }
+
+    function getBatchCountDone(response) {
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            results.forEach(updateCount);
+            // Bind a new function to the draw event of the table.
+            gJobsTable.addDrawEvent(updateBootCount);
+        }
+    }
+
+    function getBatchCount(response) {
+        var batchOps,
+            deferred,
+            job,
+            jobId,
+            queryStr,
+            results;
+
+        results = response.result;
+        if (results.length > 0) {
+            batchOps = [];
+            queryStr = 'mach=' + gSoc;
+
+            results.forEach(function(result) {
+                job = result.job;
+                jobId = result.job_id;
+
+                if (jobId) {
+                    jobId = '&job_id=' + jobId.$oid;
+                } else {
+                    // No job_id value, search only in the last X days.
+                    jobId = '&date_range=' + gDateRange;
+                }
+
+                batchOps.push({
+                    method: 'GET',
+                    operation_id: 'boot-success-count-' + job,
+                    resource: 'count',
+                    document: 'boot',
+                    query: queryStr + '&status=PASS&job=' + job + jobId
+                });
+
+                batchOps.push({
+                    method: 'GET',
+                    operation_id: 'boot-fail-count-' + job,
+                    resource: 'count',
+                    document: 'boot',
+                    query: queryStr + '&status=FAIL&job=' + job + jobId
+                });
+            });
+
+            deferred = r.post(
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+            $.when(deferred)
+                .fail(e.error, getBatchCountFail)
+                .done(getBatchCountDone);
+        }
+    }
+
+    function getJobsFail() {
+        html.removeElement(document.getElementById('jobs-table-loading'));
         html.replaceContent(
-            document.getElementById('boots-table-div'),
+            document.getElementById('jobs-table-div'),
             html.errorDiv('Error loading data.'));
     }
 
-    function getBootsDone(response) {
+    function getJobsDone(response) {
         var columns,
-            results,
-            rowURL;
+            results;
+
+        // Internal wrapper to provide the href.
+        function _renderBootCount(data, type) {
+            return tsoc.renderBootCount(
+                data, type, '/soc/' + gSoc + '/job/' + data + '/');
+        }
+
+        // Internal wrapper to provide the href.
+        function _renderTree(data, type) {
+            return tsoc.renderTree(
+                data, type, '/soc/' + gSoc + '/job/' + data + '/');
+        }
+
+        // Internal wrapper to provide the href.
+        function _renderDetails(data, type) {
+            return tsoc.renderDetails(
+                '/soc/' + gSoc + '/job/' + data + '/', type);
+        }
 
         results = response.result;
         if (results.length > 0) {
             columns = [
                 {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
-                {
                     data: 'job',
                     title: 'Tree',
-                    type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTableTreeAll
+                    render: _renderTree
                 },
                 {
                     data: 'git_branch',
@@ -202,112 +301,72 @@ require([
                     className: 'branch-column'
                 },
                 {
-                    data: 'kernel',
-                    title: 'Kernel',
-                    type: 'string',
-                    className: 'kernel-column',
-                    render: boot.renderTableKernel
-                },
-                {
-                    data: 'defconfig_full',
-                    title: 'Defconfig',
-                    className: 'defconfig-column',
-                    render: boot.renderTableDefconfig
-                },
-                {
-                    data: 'board',
-                    title: 'Board',
-                    className: 'board-column'
-                },
-                {
-                    data: 'arch',
-                    title: 'Arch.',
-                    className: 'arch-column'
-                },
-                {
-                    data: 'lab_name',
-                    title: 'Lab Name',
-                    className: 'lab-column'
+                    data: 'job',
+                    searchable: false,
+                    orderable: false,
+                    title: 'Latest Boot Results',
+                    className: 'pull-center',
+                    render: _renderBootCount
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
-                    type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: tsoc.renderDate
                 },
                 {
-                    data: 'status',
-                    title: 'Status',
-                    type: 'string',
-                    className: 'pull-center',
-                    render: boot.renderTableStatus
-                },
-                {
-                    data: 'board',
+                    data: 'job',
                     title: '',
                     orderable: false,
                     searchable: false,
-                    width: '30px',
-                    className: 'pull-center',
-                    render: boot.renderTableDetail
+                    className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
 
-            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
-            gBootsTable
+            gJobsTable
                 .data(results)
                 .columns(columns)
-                .order([8, 'desc'])
-                .languageLengthMenu('boot reports per page')
-                .rowURL(rowURL)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
-                )
+                .order([3, 'desc'])
+                .languageLengthMenu('jobs per page')
                 .draw();
 
-            gBootsTable
+            gJobsTable
                 .pageLen(gPageLen)
                 .search(gSearchFilter);
         } else {
-            html.removeElement(document.getElementById('boots-table-loading'));
+            html.removeElement(document.getElementById('jobs-table-loading'));
             html.replaceContent(
-                document.getElementById('boots-table-div'),
+                document.getElementById('jobs-table-div'),
                 html.errorDiv('No data found.'));
         }
     }
 
-    function getBoots() {
+    function getJobs() {
         var deferred;
 
         deferred = r.get(
             '/_ajax/boot',
             {
+                aggregate: 'job',
                 date_range: gDateRange,
+                field: [
+                    'job', 'job_id', 'git_branch', 'created_on'
+                ],
                 mach: gSoc,
                 sort: 'created_on',
-                sort_order: -1,
-                field: [
-                    '_id',
-                    'arch',
-                    'board',
-                    'created_on',
-                    'defconfig_full',
-                    'git_branch',
-                    'job',
-                    'kernel',
-                    'lab_name',
-                    'status'
-                ]
+                sort_order: -1
             }
         );
 
         $.when(deferred)
-            .fail(e.error, getBootsFail)
-            .done(getBootsDone);
+            .fail(e.error, getJobsFail)
+            .done(getJobsDone, getBatchCount);
     }
+
+    document.getElementById('li-soc').setAttribute('class', 'active');
+    init.hotkeys();
+    init.tooltip();
 
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
@@ -322,19 +381,18 @@ require([
         gSearchFilter = document.getElementById('search-filter').value;
     }
 
+    gJobsTable = table({
+        tableId: 'jobs-table',
+        tableDivId: 'jobs-table-div',
+        tableLoadingDivId: 'jobs-table-loading'
+    });
+
     gBoardsTable = table({
         tableId: 'boards-table',
         tableDivId: 'boards-table-div',
         tableLoadingDivId: 'boards-table-loading'
     });
 
-    gBootsTable = table({
-        tableId: 'boots-table',
-        tableDivId: 'boots-table-div',
-        tableLoadingDivId: 'boots-table-loading',
-        disableSearch: true
-    });
-
     getDetails();
-    getBoots();
+    getJobs();
 });

@@ -4,11 +4,11 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
-    'tables/boot'
-], function($, init, error, request, tables, html, appconst, tboot) {
+    'tables/soc'
+], function($, init, error, request, table, html, appconst, tsoc) {
     'use strict';
     var gDateRange,
         gSocsTable,
@@ -32,8 +32,12 @@ require([
             results,
             unfilteredResults;
 
-        unfilteredResults = response.result;
+        // Internal wrapper to provide the href.
+        function _renderDetails(data, type) {
+            return tsoc.renderDetails('/soc/' + data + '/', type);
+        }
 
+        unfilteredResults = response.result;
         if (unfilteredResults.length === 0) {
             html.replaceContent(
                 document.getElementById('table-loading'),
@@ -45,49 +49,34 @@ require([
                 {
                     data: 'mach',
                     title: 'SoC',
-                    render: tboot.renderTableSoc
+                    render: tsoc.renderSoc
                 },
                 {
-                    data: 'arch',
-                    title: 'Arch.',
-                    className: 'arch-column'
+                    data: 'mach',
+                    title: 'Total Unique Boards',
+                    className: 'pull-center',
+                    render: ''
                 },
                 {
-                    data: 'board',
-                    title: 'Latest Board'
+                    data: 'mach',
+                    title: 'Total Boot Reports',
+                    className: 'pull-center',
+                    render: ''
                 },
                 {
-                    data: 'lab_name',
-                    title: 'Lab',
-                    className: 'lab-column'
-                },
-                {
-                    data: 'job',
-                    title: 'Latest Tree',
-                    className: 'tree-column'
-                },
-                {
-                    data: 'kernel',
-                    title: 'Latest Kernel',
-                    className: 'kernel-column'
-                },
-                {
-                    data: 'defconfig_full',
-                    title: 'Latest Defconfig',
-                    className: 'defconfig-column'
-                },
-                {
-                    data: 'created_on',
-                    title: 'Date',
-                    className: 'date-column pull-center',
-                    render: tboot.renderTableDate
+                    data: 'mach',
+                    title: '',
+                    searchable: false,
+                    orderable: false,
+                    className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
 
             gSocsTable
                 .data(results)
                 .columns(columns)
-                .order([7, 'desc'])
+                .order([0, 'asc'])
                 .languageLengthMenu('SoCs per page')
                 .noIdURL(true)
                 .draw();
@@ -109,13 +98,6 @@ require([
                 sort_order: -1,
                 date_range: gDateRange,
                 field: [
-                    'arch',
-                    'board',
-                    'created_on',
-                    'defconfig_full',
-                    'job',
-                    'kernel',
-                    'lab_name',
                     'mach'
                 ]
             }
@@ -138,6 +120,11 @@ require([
         gPageLen = document.getElementById('page-len').value;
     }
 
-    gSocsTable = tables(['socs-table', 'table-loading', 'table-div'], true);
+    gSocsTable = table({
+        tableId: 'socs-table',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     getSocs();
 });

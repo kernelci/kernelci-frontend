@@ -57,20 +57,20 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Available Boot Reports</h3>
+            <h3>Available Trees</h3>
         </div>
-        <div id="boots-table-loading" class="pull-center">
+        <div id="jobs-table-loading" class="pull-center">
             <small>
                 <i class="fa fa-cog fa-spin"></i>
-                &nbsp;retrieving boot data&hellip;
+                &nbsp;retrieving jobs data&hellip;
             </small>
         </div>
     {%- if is_mobile %}
-        <div class="table-responsive" id="boots-table-div">
+        <div class="table-responsive" id="jobs-table-div">
     {%- else %}
-        <div class="table" id="boots-table-div">
+        <div class="table" id="jobs-table-div">
     {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="boots-table">
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="jobs-table">
             </table>
         </div>
     </div>
