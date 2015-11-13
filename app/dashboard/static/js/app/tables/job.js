@@ -18,73 +18,6 @@ define([
     };
 
     /**
-     * Create the count badges.
-     *
-     * @private
-     * @param {string} job: The name of the tree/job.
-     * @param {string} type: If this is a 'build' or 'boot'.
-     * @param {string} href: The base value of the href, the passed job value
-     * will be appended.
-    **/
-    function _tableCount(job, type, href) {
-        var failClasses,
-            successClasses,
-            failNodeId,
-            successNodeId,
-            divNode,
-            iNode,
-            badgeNode,
-            aNode;
-
-        successClasses = [
-            'badge', 'alert-success', 'extra-margin', 'count-badge'
-        ];
-        failClasses = [
-            'badge', 'alert-danger', 'extra-margin', 'count-badge'
-        ];
-        switch (type) {
-            case 'build':
-                successNodeId = 'build-success-count-' + job;
-                failNodeId = 'build-fail-count-' + job;
-                break;
-            default:
-                successNodeId = 'boot-success-count-' + job;
-                failNodeId = 'boot-fail-count-' + job;
-                break;
-        }
-
-        divNode = document.createElement('div');
-
-        aNode = document.createElement('a');
-        aNode.className = 'clean-link';
-        aNode.setAttribute('href', href + job + '/');
-
-        badgeNode = document.createElement('span');
-        badgeNode.id = successNodeId;
-        badgeNode.className = successClasses.join(' ');
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-cog fa-spin';
-
-        badgeNode.appendChild(iNode);
-        aNode.appendChild(badgeNode);
-
-        badgeNode = document.createElement('span');
-        badgeNode.id = failNodeId;
-        badgeNode.className = failClasses.join(' ');
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-cog fa-spin';
-
-        badgeNode.appendChild(iNode);
-        aNode.appendChild(badgeNode);
-
-        divNode.appendChild(aNode);
-
-        return divNode;
-    }
-
-    /**
      * Function to render the boots count column on a table.
      *
      * @param {object} job: The name of the tree/job.
@@ -92,14 +25,12 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderTableBootCount = function(job, type) {
-        var rendered;
-
-        rendered = null;
-        if (type === 'display') {
-            rendered = _tableCount(job, 'boot', '/boot/all/job/').outerHTML;
-        }
-
-        return rendered;
+        return tcommon.countSuccessFail({
+            data: job,
+            type: type,
+            extraClasses: ['extra-margin'],
+            idStart: 'boot-'
+        });
     };
 
     /**
@@ -110,14 +41,12 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderTableBuildCount = function(job, type) {
-        var rendered;
-
-        rendered = null;
-        if (type === 'display') {
-            rendered = _tableCount(job, 'build', '/job/').outerHTML;
-        }
-
-        return rendered;
+        return tcommon.countSuccessFail({
+            data: job,
+            type: type,
+            extraClasses: ['extra-margin'],
+            idStart: 'build-'
+        });
     };
 
     /**
@@ -127,7 +56,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableTree = function(job, type) {
+    gJobUtils.renderTree = function(job, type) {
         var aNode,
             rendered;
 
@@ -152,8 +81,8 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableDate = function(date, type) {
-        return tcommon.renderTableDate(date, type);
+    gJobUtils.renderDate = function(date, type) {
+        return tcommon.renderDate(date, type);
     };
 
     /**
@@ -163,12 +92,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableStatus = function(status, type) {
+    gJobUtils.renderStatus = function(status, type) {
         var rendered;
 
         rendered = status;
         if (type === 'display') {
-            rendered = tcommon.renderTableStatus(
+            rendered = tcommon.renderStatus(
                 status, gStatusDefaults).outerHTML;
         }
 
@@ -182,7 +111,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableDetail = function(job, type) {
+    gJobUtils.renderDetails = function(job, type) {
         var aNode,
             rendered,
             tooltipNode;

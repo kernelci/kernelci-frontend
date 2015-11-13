@@ -91,44 +91,6 @@ define([
     }
 
     /**
-     * Create the actual count badge.
-     *
-     * @private
-    **/
-    function _tableKernelCount(kernel, type) {
-        var classes,
-            iNode,
-            nodeId,
-            spanNode;
-
-        switch (type) {
-            case 'success':
-                nodeId = 'success-count-' + kernel;
-                classes = [
-                    'badge', 'alert-success', 'count-badge'
-                ];
-                break;
-            default:
-                nodeId = 'fail-count-' + kernel;
-                classes = [
-                    'badge', 'alert-danger', 'count-badge'
-                ];
-                break;
-        }
-
-        spanNode = document.createElement('span');
-        spanNode.id = nodeId;
-        spanNode.className = classes.join(' ');
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-cog fa-spin';
-
-        spanNode.appendChild(iNode);
-
-        return spanNode.outerHTML;
-    }
-
-    /**
      * Function to render the boot failure description.
      *
      * @private
@@ -259,12 +221,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableKernelCountSuccess = function(kernel, type) {
+    gBootUtils.rendereTableCountSuccess = function(kernel, type) {
         var rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = _tableKernelCount(kernel, 'success');
+            rendered = tcommon.countBadge(kernel, 'success').outerHTML;
         }
 
         return rendered;
@@ -278,12 +240,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableKernelCountFail = function(kernel, type) {
+    gBootUtils.rendereTableCountFail = function(kernel, type) {
         var rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = _tableKernelCount(kernel, 'fail');
+            rendered = tcommon.countBadge(kernel, 'fail').outerHTML;
         }
 
         return rendered;
@@ -298,7 +260,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableTree = function(tree, type, object) {
+    gBootUtils.renderTree = function(tree, type, object) {
         var aNode,
             rendered,
             tooltipNode;
@@ -331,7 +293,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableTreeAll = function(tree, type) {
+    gBootUtils.renderTreeAll = function(tree, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -531,8 +493,8 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableDate = function(date, type) {
-        return tcommon.renderTableDate(date, type);
+    gBootUtils.renderDate = function(date, type) {
+        return tcommon.renderDate(date, type);
     };
 
     /**
@@ -552,7 +514,7 @@ define([
      * @return {HTMLElement} The status node.
     **/
     gBootUtils.statusNode = function(status) {
-        return tcommon.renderTableStatus(status, gStatusDefaults);
+        return tcommon.renderStatus(status, gStatusDefaults);
     };
 
     /**
@@ -562,12 +524,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableStatus = function(status, type) {
+    gBootUtils.renderStatus = function(status, type) {
         var rendered;
 
         rendered = status;
         if (type === 'display') {
-            rendered = tcommon.renderTableStatus(
+            rendered = tcommon.renderStatus(
                 status, gStatusDefaults).outerHTML;
         }
 
@@ -594,7 +556,7 @@ define([
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableDetail = function(board, type, object) {
+    gBootUtils.renderDetails = function(board, type, object) {
         var rendered;
 
         rendered = null;
@@ -636,37 +598,6 @@ define([
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
-        }
-
-        return rendered;
-    };
-
-    /**
-     * Function to render the SoC column on a table.
-     *
-     * @param {string} soc: The SoC value.
-     * @param {string} type: The type of the display option.
-     * @return {string} The rendered element as string.
-    **/
-    gBootUtils.renderTableSoc = function(soc, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for SoC&nbsp;' + soc);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/soc/' + soc + '/');
-            aNode.className = 'table-link';
-            aNode.appendChild(document.createTextNode(soc));
-
-            tooltipNode.appendChild(aNode);
-            rendered = tooltipNode.outerHTML;
-        } else {
-            rendered = soc;
         }
 
         return rendered;
