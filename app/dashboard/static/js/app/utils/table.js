@@ -57,6 +57,7 @@ define([
         _rowURL: '/build/%(job)s/kernel/%(kernel)s/',
         _rowURLElements: ['job', 'kernel'],
         _clickFunction: null,
+        _drawFunction: null,
         _lengthMenu: [25, 50, 75, 100],
         _order: [1, 'desc'],
         _dom: gTableDom,
@@ -198,6 +199,12 @@ define([
         return this._columns;
     };
 
+    /**
+     * Control whetever the link for the row click event should have an
+     * '_id=' value appended.
+     *
+     * @param {Boolean} value: If the row link should have an ID or not.
+    **/
     kciTable.noIdURL = function(value) {
         if (value !== undefined) {
             this._noIdURL = Boolean(value);
@@ -214,6 +221,12 @@ define([
         return this._dom;
     };
 
+    /**
+     * Get or set the length menu.
+     * This is the menu with how many rows to show in the table.
+     *
+     * @param {Array} value: The array with the number of rows to show.
+    **/
     kciTable.lengthMenu = function(value) {
         if (value !== null && value !== undefined) {
             this._lengthMenu = value;
@@ -224,6 +237,9 @@ define([
 
     /**
      * Get or set the row click function.
+     * This is the function to be called when a row gets clicked.
+     *
+     * @param {Function} value: The function to associate with the click event.
     **/
     kciTable.clickFunction = function(value) {
         if (value !== null && value !== undefined) {
@@ -233,6 +249,72 @@ define([
         return this._clickFunction;
     };
 
+    /**
+     * Perform a search on the table.
+     * A draw() event will be fired.
+     *
+     * @param {String} value: The search string to perform.
+    **/
+    kciTable.search = function(value) {
+        if (this.inputNode && this.inputNode.disabled) {
+            this.inputNode.removeAttribute('disabled');
+        }
+
+        if (value && value.length > 0) {
+            this.oldSearch = null;
+            this.table.search(value, true, true).draw();
+        }
+
+        return this;
+    };
+
+    /**
+     * Change the length of the tables, showing or hiding rows.
+     * A draw() event will be fired.
+     *
+     * @param {String} value: The number of rows to show.
+    **/
+    kciTable.pageLen = function(value) {
+        var len;
+
+        if (value && value.length > 0) {
+            len = Number(value);
+            if (isNaN(len)) {
+                len = this._lengthMenu[0];
+            }
+            this.table.page.len(len).draw();
+        }
+
+        return this;
+    };
+
+    /**
+     * Associate a new function on the 'draw' event.
+     * This is fired whenevr the table draw() event has been completed.
+     *
+     * @param {Function} func: The function to associate.
+    **/
+    kciTable.addDrawEvent = function(func) {
+        if (func) {
+            this.table.on('draw.dt', func);
+        }
+        return this;
+    };
+
+    /**
+     * Add new rows to the table, updating and refreshing it.
+     *
+     * @param {object} value: The data that the rows will be built on.
+     * It must be of the same type and with the same structure of the initial
+     * data with which the table was populated.
+    **/
+    kciTable.addRows = function(value) {
+        this.table.rows.add(value).draw();
+    };
+
+    /**
+     * Draw the actual table and bind functions/events.
+    **/
     kciTable.draw = function() {
         var settings,
             that;
@@ -285,6 +367,10 @@ define([
         };
 
         that.table = $(that.tableNode).DataTable(settings);
+
+        if (that._drawFunction) {
+            that.table.on('draw.dt', that._drawFunction);
+        }
 
         if (that.inputNode) {
             // Remove focus from input when Esc is pressed.
@@ -341,44 +427,6 @@ define([
         });
 
         return this;
-    };
-
-    kciTable.search = function(value) {
-        if (this.inputNode && this.inputNode.disabled) {
-            this.inputNode.removeAttribute('disabled');
-        }
-
-        if (value !== null && value !== undefined) {
-            this.oldSearch = null;
-            this.table.search(value, true, true).draw();
-        }
-
-        return this;
-    };
-
-    kciTable.pageLen = function(value) {
-        var len;
-
-        if (value !== null && value !== undefined) {
-            len = Number(value);
-            if (isNaN(len)) {
-                len = this._lengthMenu[0];
-            }
-            this.table.page.len(len).draw();
-        }
-
-        return this;
-    };
-
-    /**
-     * Add new rows to the table, updating and refreshing it.
-     *
-     * @param {object} value: The data that the rows will be built on.
-     * It must be of the same type and with the same structure of the initial
-     * data with which the table was populated.
-    **/
-    kciTable.addRows = function(value) {
-        this.table.rows.add(value).draw();
     };
 
     /**
