@@ -117,7 +117,7 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTableTreeAll
+                    render: boot.renderTreeAll
                 },
                 {
                     data: 'git_branch',
@@ -159,14 +159,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -175,7 +175,7 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 

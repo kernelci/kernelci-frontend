@@ -201,19 +201,19 @@ require([
                     data: 'kernel',
                     title: 'Successful',
                     className: 'pull-center',
-                    render: boot.renderTableKernelCountSuccess
+                    render: boot.rendereTableCountSuccess
                 },
                 {
                     data: 'kernel',
                     title: 'Failed',
                     className: 'pull-center',
-                    render: boot.renderTableKernelCountFail
+                    render: boot.rendereTableCountFail
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'job',

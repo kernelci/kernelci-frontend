@@ -170,7 +170,7 @@ require([
                 {
                     data: 'job',
                     title: 'Tree',
-                    render: jobt.renderTableTree
+                    render: jobt.renderTree
                 },
                 {
                     data: 'git_branch',
@@ -198,13 +198,13 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'pull-center',
-                    render: jobt.renderTableDate
+                    render: jobt.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: jobt.renderTableStatus
+                    render: jobt.renderStatus
                 },
                 {
                     data: 'job',
@@ -213,7 +213,7 @@ require([
                     orderable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: jobt.renderTableDetail
+                    render: jobt.renderDetails
                 }
             ];
 

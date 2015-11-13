@@ -81,13 +81,13 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -96,7 +96,7 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
