@@ -55,9 +55,13 @@ define([
                 nodeId = nodeId + 'success-count-' + data;
                 classes = ['badge', 'alert-success', 'count-badge'];
                 break;
-            default:
+            case 'fail':
                 nodeId = nodeId + 'fail-count-' + data;
                 classes = ['badge', 'alert-danger', 'count-badge'];
+                break;
+            default:
+                nodeId = nodeId + 'count-' + data;
+                classes = ['badge', 'count-badge'];
                 break;
         }
 
@@ -84,10 +88,11 @@ define([
      * @param {String} data: The data value.
      * @param {String} type: The type of the badge: 'success' or 'fail'.
      * @param {Array} extraClasses: Array of classes to add to the badges.
+     * @param {String} idStart: Head string for the id of the badge.
      * @return {Element} The badge node as an HTMLElement.
     **/
-    gTablesUtils.countBadge = function(data, type, extraClasses) {
-        return _countBadge(data, type, extraClasses);
+    gTablesUtils.countBadge = function(data, type, extraClasses, idStart) {
+        return _countBadge(data, type, extraClasses, idStart);
     };
 
     /**

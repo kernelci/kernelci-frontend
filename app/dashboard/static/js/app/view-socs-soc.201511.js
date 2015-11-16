@@ -163,7 +163,7 @@ require([
                 delete gBatchCountMissing[elementId];
             }
         } else {
-             // Store it in a dictionary for later access.
+            // Store it in a dictionary for later access.
             if (!gBatchCountMissing.hasOwnProperty(elementId)) {
                 gBatchCountMissing[elementId] = count;
             }

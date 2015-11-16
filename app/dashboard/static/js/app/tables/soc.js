@@ -86,6 +86,12 @@ define([
         return rendered;
     };
 
+    gSocTables.countBadge = function(settings) {
+        return tcommon.countBadge(
+            settings.data,
+            settings.type, settings.extraClasses, settings.idStart).outerHTML;
+    };
+
     gSocTables.renderBootCount = function(data, type, href) {
         return tcommon.countSuccessFail({
             data: data,
