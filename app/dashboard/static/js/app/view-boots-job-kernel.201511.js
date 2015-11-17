@@ -1,23 +1,25 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'sprintf',
     'utils/init',
     'utils/base',
     'utils/request',
     'utils/error',
     'utils/urls',
     'utils/show-hide-btns',
-    'utils/web-storage',
     'charts/passpie',
     'utils/unique-count',
+    'utils/storage',
+    'utils/session',
+    'utils/html',
     'utils/date',
+    'sprintf',
     'bootstrap'
-], function($, p, init, b, r, e, u, btns, ws, chart, uniq) {
+], function($, init, b, r, e, u, btns, chart, uniq, storage, session, html) {
     'use strict';
-    var kernelName = null,
-        jobName = null,
-        searchFilter = null,
+    var gKernelName = null,
+        gJobName = null,
+        gSearchFilter = null,
         fileServer = null,
         sNonAvail,
         failLabel,
@@ -30,6 +32,7 @@ require([
         panelFmt,
         boardTextFmt,
         socTextFmt,
+        gSessionStorage,
         defconfigTextFmt;
 
     sNonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
@@ -124,29 +127,29 @@ require([
             if (uniqueTotal.totals.board > 0) {
                 b.replaceById(
                     'unique-boards',
-                    p.sprintf(boardTextFmt, uniqueTotal.totals.board));
+                    sprintf(boardTextFmt, uniqueTotal.totals.board));
             } else {
                 b.replaceById('unique-boards', sNonAvail);
             }
             if (uniqueTotal.totals.soc > 0) {
                 b.replaceById(
                     'unique-socs',
-                    p.sprintf(socTextFmt, uniqueTotal.totals.soc));
+                    sprintf(socTextFmt, uniqueTotal.totals.soc));
             } else {
                 b.replaceById('unique-socs', sNonAvail);
             }
             if (uniqueTotal.totals.defconfig > 0) {
                 if (totalDefconfig > 0) {
-                    inDefconfText = p.sprintf(
+                    inDefconfText = sprintf(
                         '%d out of %d',
                         uniqueTotal.totals.defconfig, totalDefconfig);
                 } else {
-                    inDefconfText = p.sprintf(
+                    inDefconfText = sprintf(
                         '%d', uniqueTotal.totals.defconfig);
                 }
                 b.replaceById(
                     'unique-defconfigs',
-                    p.sprintf(defconfigTextFmt, inDefconfText));
+                    sprintf(defconfigTextFmt, inDefconfText));
             } else {
                 b.replaceById('unique-defconfigs', sNonAvail);
             }
@@ -177,7 +180,7 @@ require([
                     tTotal = fail + pass + unkn;
                     b.replaceById(
                         'boot-count-' + sLab,
-                        p.sprintf(labBootCountFmt, tTotal, pass, fail, unkn));
+                        sprintf(labBootCountFmt, tTotal, pass, fail, unkn));
 
                     if (lLab.totals.arch !== null) {
                         if (lLab.totals.arch === 1) {
@@ -207,7 +210,7 @@ require([
                             uDefconfig = lLab.totals.defconfig + ' defconfigs';
                         }
                     }
-                    uStr = p.sprintf(
+                    uStr = sprintf(
                         labUniqueCountFmt, uArch, uBoard, uSoc, uDefconfig);
                     b.replaceById('unique-count-' + sLab, uStr);
                 }
@@ -220,8 +223,8 @@ require([
             data;
         if (response.count > 0) {
             data = {
-                    job: jobName,
-                    kernel: kernelName
+                    job: gJobName,
+                    kernel: gKernelName
             };
             deferred = r.get('/_ajax/count/build', data);
 
@@ -231,6 +234,19 @@ require([
         } else {
             uniqueCountFail();
         }
+    }
+
+    function loadSavedSession() {
+        var isLoaded;
+
+        isLoaded = false;
+        gSessionStorage.load();
+
+        if (gSessionStorage.objects) {
+            isLoaded = session.load(gSessionStorage.objects);
+        }
+
+        return isLoaded;
     }
 
     function getBootDoneChart(response) {
@@ -328,12 +344,12 @@ require([
 
                 if (arch !== null) {
                     lArchLabel = '&nbsp;&dash;&nbsp;' +
-                        p.sprintf(archLabel, arch);
+                        sprintf(archLabel, arch);
                 } else {
                     lArchLabel = '';
                 }
                 subs.archLabel = lArchLabel;
-                sPanel = p.sprintf(panelFmt, subs);
+                sPanel = sprintf(panelFmt, subs);
                 sPanel += '<div class="row">';
                 sPanel += divCol6;
                 sPanel += '<dl class="dl-horizontal">';
@@ -491,23 +507,19 @@ require([
             }
             document.getElementById('all-btn').removeAttribute('disabled');
 
-            if (searchFilter !== '' && searchFilter !== null &&
-                    searchFilter !== undefined) {
-                if (searchFilter.length > 0) {
-                    switch (searchFilter) {
-                        case 'fail':
-                            $('#fail-cell').trigger('click');
-                            break;
-                        case 'success':
-                            $('#success-cell').trigger('click');
-                            break;
-                        case 'unknown':
-                            $('#unknown-cell').trigger('click');
-                            break;
-                    }
+            if (gSearchFilter && gSearchFilter.length > 0) {
+                switch (gSearchFilter) {
+                    case 'fail':
+                        $('#fail-cell').trigger('click');
+                        break;
+                    case 'success':
+                        $('#success-cell').trigger('click');
+                        break;
+                    case 'unknown':
+                        $('#unknown-cell').trigger('click');
+                        break;
                 }
-            } else if (!ws.load(
-                    p.sprintf(sessionNameFmt, jobName, kernelName))) {
+            } else if (!loadSavedSession()) {
                 if (hasFailed) {
                     // If there is no saved session, show only the failed ones.
                     $('.df-failed').show();
@@ -528,19 +540,21 @@ require([
     }
 
     function getBoot(response) {
-        var result = response.result,
-            resultLen = result.length,
-            deferred,
-            data;
+        var deferred,
+            results;
 
-        if (resultLen > 0) {
-            data = {
-                sort: ['board', 'defconfig_full', 'arch'],
-                sort_order: 1,
-                job: jobName,
-                kernel: kernelName
-            };
-            deferred = r.get('/_ajax/boot', data);
+        results = response.result;
+        if (results.length > 0) {
+            deferred = r.get(
+                '/_ajax/boot',
+                {
+                    job: gJobName,
+                    kernel: gKernelName,
+                    sort: ['board', 'defconfig_full', 'arch'],
+                    sort_order: 1
+                }
+            );
+
             $.when(deferred)
                 .fail(e.error, getBootFailed)
                 .done(getBootDone, getBootDoneChart, getBootDoneUnique);
@@ -549,13 +563,8 @@ require([
         }
     }
 
-    function getJobFailed(title) {
-        var content = '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="%s"><i class="fa fa-ban"></i></span>';
-        if (title === undefined || title === null) {
-            title = 'Error loading data';
-        }
-        b.replaceByClass('loading-content', p.sprintf(content, title));
+    function getJobFailed() {
+        html.replaceByClassHTML('loading-content', '&infin;');
     }
 
     function getJobDone(response) {
@@ -579,24 +588,24 @@ require([
             b.replaceById(
                 'tree',
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Boot reports for ' + jobName + '">' +
-                '<a href="/boot/all/job/' + jobName + '/">' + jobName +
+                'title="Boot reports for ' + gJobName + '">' +
+                '<a href="/boot/all/job/' + gJobName + '/">' + gJobName +
                 '</a></span>' +
                 '&nbsp;&mdash;&nbsp;' +
                 '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Details for tree ' + jobName + '">' +
-                '<a href="/job/' + jobName + '/">' +
+                'title="Details for tree ' + gJobName + '">' +
+                '<a href="/job/' + gJobName + '/">' +
                 '<i class="fa fa-sitemap"></i></a></span>'
             );
             b.replaceById('git-branch', localResult.git_branch);
             b.replaceById(
                 'git-describe',
-                kernelName + '&nbsp;&mdash;&nbsp;' +
+                gKernelName + '&nbsp;&mdash;&nbsp;' +
                 '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + jobName + '&nbsp;&dash;&nbsp;' +
-                kernelName + '">' +
-                '<a href="/build/' + jobName + '/kernel/' +
-                kernelName + '/">' +
+                'title="Details for build ' + gJobName + '&nbsp;&dash;&nbsp;' +
+                gKernelName + '">' +
+                '<a href="/build/' + gJobName + '/kernel/' +
+                gKernelName + '/">' +
                 '<i class="fa fa-cube"></i></a></span>'
             );
 
@@ -625,18 +634,21 @@ require([
             b.replaceById('git-commit', sContent);
             b.replaceById('job-date', createdOn.toCustomISODate());
         } else {
-            getJobFailed('No data available');
+            html.replaceByClassNode('loading-content', html.nonavail());
         }
     }
 
     function getJob() {
-        var deferred,
-            data;
-        data = {
-            job: jobName,
-            kernel: kernelName
-        };
-        deferred = r.get('/_ajax/job', data);
+        var deferred;
+
+        deferred = r.get(
+            '/_ajax/job',
+            {
+                job: gJobName,
+                kernel: gKernelName
+            }
+        );
+
         $.when(deferred)
             .fail(e.error, getJobFailed)
             .done(getJobDone, getBoot);
@@ -644,99 +656,107 @@ require([
 
     function registerEvents() {
         window.addEventListener('beforeunload', function() {
-            var session,
-                panelState = {},
-                pageState;
+            var pageState;
 
-            session = new ws.Session(
-                p.sprintf(sessionNameFmt, jobName, kernelName));
+            pageState = {};
 
-            $('[id^="panel-boots"]').each(function(id) {
-                panelState['#panel-boots-' + id] = {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('panel-boots-' + id, 'class')
-                };
-            });
+            function _saveElementState(element) {
+                pageState['#' + element.id] = [
+                    {
+                        type: 'class',
+                        name: 'class',
+                        value: element.getAttribute('class')
+                    },
+                    {
+                        type: 'attr',
+                        name: 'aria-expanded',
+                        value: element.getAttribute('aria-expanded')
+                    }
+                ];
+            }
 
-            $('[id^="collapse-boots"]').each(function(id) {
-                panelState['#collapse-boots-' + id] = {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('collapse-boots-' + id, 'class')
-                };
-            });
-
-            pageState = {
-                '.df-success': {
-                    type: 'attr',
-                    name: 'style',
-                    value: b.getAttrBySelector('.df-success', 'style')
-                },
-                '.df-failed': {
-                    type: 'attr',
-                    name: 'style',
-                    value: b.getAttrBySelector('.df-failed', 'style')
-                },
-                '.df-unknown': {
-                    type: 'attr',
-                    name: 'style',
-                    value: b.getAttrBySelector('.df-unknown', 'style')
-                },
-                '#all-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('all-btn', 'class')
-                },
-                '#success-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('success-btn', 'class')
-                },
-                '#fail-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('fail-btn', 'class')
-                },
-                '#unknown-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: b.getAttrById('unknown-btn', 'class')
-                }
+            pageState['.df-success'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-success', 'style')
+            };
+            pageState['.df-failed'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-failed', 'style')
+            };
+            pageState['.df-unknown'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-unknown', 'style')
+            };
+            pageState['#all-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('all-btn', 'class')
+            };
+            pageState['#success-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('success-btn', 'class')
+            };
+            pageState['#fail-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('fail-btn', 'class')
+            };
+            pageState['#unknown-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('unknown-btn', 'class')
             };
 
-            session.objects = b.collectObjects([panelState, pageState]);
-            ws.save(session);
+
+            [].forEach.call(
+                document.querySelectorAll('[id^="panel-boots"]'),
+                _saveElementState);
+
+            [].forEach.call(
+                document.querySelectorAll('[id^="collapse-boots"]'),
+                _saveElementState);
+
+            gSessionStorage.addObjects(pageState).save();
         });
     }
 
     document.getElementById('li-boot').setAttribute('class', 'active');
-    // Setup and perform base operations.
     init.hotkeys();
     init.tooltip();
 
-    $('.btn-group > .btn').click(function() {
-        $(this).addClass('active').siblings().removeClass('active');
+    [].forEach.call(
+        document.querySelectorAll('.btn-group > .btn'),
+        function(btn) {
+            btn.addEventListener('click', function() {
+                [].forEach.call(btn.parentElement.children, function(element) {
+                    if (element === btn) {
+                        html.addClass(element, 'active');
+                    } else {
+                        html.removeClass(element, 'active');
+                    }
+                });
+            });
     });
 
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        kernelName = document.getElementById('kernel-name').value;
+        gKernelName = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('file-server') !== null) {
         fileServer = document.getElementById('file-server').value;
     }
 
-    if (jobName !== null && kernelName !== null) {
-        getJob();
-        registerEvents();
-    } else {
-        getJobFailed('No data available');
-        getBootFailed();
-    }
+    gSessionStorage = storage('boot-' + gJobName + '-' + gKernelName);
+
+    getJob();
+    registerEvents();
 });
