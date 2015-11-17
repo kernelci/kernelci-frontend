@@ -9,9 +9,9 @@ require([
     'utils/bisect',
     'utils/show-hide-btns',
     'utils/html',
-    'utils/tables',
+    'utils/table',
     'utils/date'
-], function($, b, e, init, r, urls, bisect, btns, html, tables) {
+], function($, b, e, init, r, urls, bisect, btns, html, table) {
     'use strict';
     var buildId,
         defconfigFull,
@@ -302,8 +302,11 @@ require([
             rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
                 '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
 
-            bootsTable = tables(
-                ['bootstable', 'table-loading', 'boots-table-div']);
+            bootsTable = table({
+                tableId: 'bootstable',
+                tableLoadingDivId: 'table-loading',
+                tableDivId: 'boots-table-div'
+            });
 
             columns = [
                 {

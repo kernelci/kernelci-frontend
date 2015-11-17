@@ -4,11 +4,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/date'
-], function($, e, init, r, t, html, boot) {
+], function($, e, init, r, table, html, boot) {
     'use strict';
     var gBoardName,
         gBootsTable,
@@ -241,7 +241,12 @@ require([
         gPageLen = document.getElementById('page-len').value;
     }
 
-    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     setupData();
     getBoots();
 });

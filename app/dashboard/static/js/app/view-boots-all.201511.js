@@ -4,11 +4,11 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'tables/boot'
-], function($, init, e, r, t, html, appconst, boot) {
+], function($, init, e, r, table, html, appconst, boot) {
     'use strict';
     var gBootReqData,
         gBootsTable,
@@ -186,8 +186,7 @@ require([
                 .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
-                )
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
             gBootsTable
@@ -226,6 +225,11 @@ require([
         sort_order: -1
     };
 
-    gBootsTable = t(['bootstable', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'bootstable',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     getBoots();
 });

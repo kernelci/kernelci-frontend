@@ -4,11 +4,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'utils/date'
-], function($, e, init, r, t, html, appconst) {
+], function($, e, init, r, table, html, appconst) {
     'use strict';
     var bootReqData,
         bootsTable,
@@ -498,6 +498,11 @@ require([
         sort_order: -1
     };
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     getBoots();
 });

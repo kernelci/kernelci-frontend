@@ -4,12 +4,12 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'tables/job',
     'utils/date'
-], function($, init, e, r, t, html, appconst, jobt) {
+], function($, init, e, r, table, html, appconst, jobt) {
     'use strict';
     var gDateRange,
         gJobsTable,
@@ -278,6 +278,11 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    gJobsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    gJobsTable = table({
+        tableId: 'jobstable',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     getJobs();
 });

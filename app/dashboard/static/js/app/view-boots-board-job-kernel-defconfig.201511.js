@@ -6,8 +6,8 @@ require([
     'utils/request',
     'utils/html',
     'tables/boot',
-    'utils/tables'
-], function($, e, init, r, html, boot, tables) {
+    'utils/table'
+], function($, e, init, r, html, boot, table) {
     'use strict';
     var boardName,
         bootsTable,
@@ -225,7 +225,12 @@ require([
         fileServer = document.getElementById('file-server').value;
     }
 
-    bootsTable = tables(['boots-table', 'table-loading', 'table-div'], false);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: false
+    });
     setUpData();
     getBoots();
 });

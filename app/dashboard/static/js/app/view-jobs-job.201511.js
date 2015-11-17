@@ -5,12 +5,12 @@ require([
     'utils/base',
     'utils/request',
     'utils/error',
-    'utils/tables',
+    'utils/table',
     'utils/urls',
     'charts/passrate',
     'utils/html',
     'utils/date'
-], function($, init, b, r, e, t, u, chart, html) {
+], function($, init, b, r, e, table, u, chart, html) {
     'use strict';
     var gBranchRegEx,
         gBuildsTable,
@@ -228,15 +228,12 @@ require([
         }
     }
 
-    function getBuildsDone(data) {
+    function getBuildsDone(response) {
         var columns,
-            resLen,
             results;
 
-        results = data.result;
-        resLen = results.length;
-
-        if (resLen === 0) {
+        results = response.result;
+        if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No builds data available.'));
@@ -654,7 +651,12 @@ require([
         gSearchFilter = document.getElementById('search-filter').value;
     }
 
-    gBuildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    gBuildsTable = table({
+        tableId: 'jobstable',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     getDetails();
     getBuilds();
 });

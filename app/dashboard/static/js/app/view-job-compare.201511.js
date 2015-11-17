@@ -5,12 +5,12 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/urls',
     'charts/passpie',
     'charts/diffmatrix',
     'utils/date'
-], function($, b, e, init, r, t, u, pie, matrix) {
+], function($, b, e, init, r, table, u, pie, matrix) {
     'use strict';
     var compareId = null,
         comparedTable,
@@ -275,8 +275,8 @@ require([
             pie.buildpie(
                 'build-chart',
                 [baseline.total_builds, baseline.build_counts],
-                function(response) {
-                    return response;
+                function(resp) {
+                    return resp;
                 }
             );
 
@@ -309,7 +309,9 @@ require([
         var deferred;
 
         if (compareId !== null) {
-            comparedTable = t(['compared-against']);
+            comparedTable = table({
+                tableId: 'compared-against'
+            });
             deferred = r.get('/_ajax/job/compare/' + compareId, {});
             $.when(deferred)
                 .fail(e.error, getJobCompareFail)

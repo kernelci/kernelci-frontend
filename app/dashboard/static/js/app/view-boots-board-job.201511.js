@@ -4,11 +4,11 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, init, e, r, t, html, boot, appconst) {
+], function($, init, e, r, table, html, boot, appconst) {
     'use strict';
     var boardName,
         bootReqData,
@@ -273,7 +273,12 @@ require([
         sort_order: -1
     };
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     setUpData();
     getBoots();
 });

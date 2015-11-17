@@ -4,10 +4,10 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot'
-], function($, init, e, r, t, html, boot) {
+], function($, init, e, r, table, html, boot) {
     'use strict';
     var gBootsTable,
         gDefconfigFull,
@@ -109,10 +109,7 @@ require([
                 .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
-                    [
-                        'board', 'job', 'kernel', 'defconfig_full', 'lab_name'
-                    ]
-                )
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
             gBootsTable
@@ -237,7 +234,12 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'boots-table',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     setupData();
     getBoots();
 });

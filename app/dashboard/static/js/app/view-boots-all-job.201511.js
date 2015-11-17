@@ -5,11 +5,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, b, e, init, r, t, html, boot, appconst) {
+], function($, b, e, init, r, table, html, boot, appconst) {
     'use strict';
     var bootsTable,
         jobName,
@@ -275,7 +275,12 @@ require([
         pageLen = document.getElementById('page-len').value;
     }
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        disableSearch: true,
+        tableDivId: 'table-div',
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading'
+    });
     getDetailsCount();
     getBoots();
 });
