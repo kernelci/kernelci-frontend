@@ -6,16 +6,18 @@ require([
     'utils/init',
     'utils/request',
     'utils/urls',
-    'utils/web-storage',
     'utils/show-hide-btns',
     'charts/passpie',
     'utils/html',
+    'utils/storage',
+    'utils/session',
     'utils/date'
-], function($, b, e, init, r, u, ws, btns, chart, html) {
+], function($, b, e, init, r, u, btns, chart, html, storage, session) {
     'use strict';
-    var fileServer,
-        jobName,
-        kernelName;
+    var gFileServer,
+        gJobName,
+        gKernelName,
+        gSessionStorage;
 
     function bindDetailButtons() {
         [].forEach.call(
@@ -30,6 +32,19 @@ require([
                 value.addEventListener(
                     'click', btns.showHideWarnErr, true);
         });
+    }
+
+    function loadSavedSession() {
+        var isLoaded;
+
+        isLoaded = false;
+        gSessionStorage.load();
+
+        if (gSessionStorage.objects) {
+            isLoaded = session.load(gSessionStorage.objects);
+        }
+
+        return isLoaded;
     }
 
     function getBuildsFail() {
@@ -73,7 +88,6 @@ require([
             metadata,
             panelNode,
             pathURI,
-            resLen,
             results,
             rowNode,
             sizeNode,
@@ -91,9 +105,8 @@ require([
         hasSuccess = false;
         hasUnknown = false;
         results = response.result;
-        resLen = results.length;
 
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data available'));
@@ -114,7 +127,7 @@ require([
                 metadata = value.metadata;
 
                 if (fileServerURL === null || fileServerURL === undefined) {
-                    fileServerURL = fileServer;
+                    fileServerURL = gFileServer;
                 }
 
                 fileServerData = [
@@ -142,7 +155,7 @@ require([
                         cls = 'df-unknown';
                         break;
                 }
-                statusNode.className = statusNode.className + ' pull-right';
+                html.addClass(statusNode, 'pull-right');
 
                 if (errorsCount === undefined) {
                     errorsCount = 0;
@@ -556,7 +569,7 @@ require([
             // Bind buttons to the correct function.
             bindDetailButtons();
 
-            if (!ws.load('build-' + jobName + '-' + kernelName)) {
+            if (!loadSavedSession()) {
                 if (hasFailed) {
                     // If there is no saved session, show only the failed ones.
                     [].forEach.call(
@@ -601,26 +614,26 @@ require([
     }
 
     function getBuilds(response) {
-        var data,
-            deferred,
-            resLen,
+        var deferred,
             results;
 
         results = response.result;
-        resLen = results.length;
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data available.'));
         } else {
-            data = {
-                job_id: results[0]._id.$oid,
-                job: jobName,
-                kernel: kernelName,
-                sort: ['defconfig_full', 'arch'],
-                sort_order: 1
-            };
-            deferred = r.get('/_ajax/build', data);
+            deferred = r.get(
+                '/_ajax/build',
+                {
+                    job: gJobName,
+                    job_id: results[0]._id.$oid,
+                    kernel: gKernelName,
+                    sort: ['defconfig_full', 'arch'],
+                    sort_order: 1
+                }
+            );
+
             $.when(deferred)
                 .fail(e.error, getBuildsFail)
                 .done(getBuildsDone, getBuildsDoneChart);
@@ -631,7 +644,7 @@ require([
         html.replaceContent(
             document.getElementById('accordion-container'),
             html.errorDiv('Error loading data.'));
-        html.replaceByClass('loading-content', '&infin;');
+        html.replaceByClassHTML('loading-content', '&infin;');
     }
 
     function getJobDone(response) {
@@ -641,7 +654,6 @@ require([
             gitURL,
             iNode,
             localResult,
-            resLen,
             results,
             spanNode,
             tNode,
@@ -649,8 +661,7 @@ require([
             updateElement;
 
         results = response.result;
-        resLen = results.length;
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.replaceByClass('loading-content', '?');
         } else {
             localResult = results[0];
@@ -660,11 +671,11 @@ require([
             createdOn = new Date(localResult.created_on.$date);
 
             spanNode = html.tooltip();
-            spanNode.setAttribute('title', 'Details for tree ' + jobName);
+            spanNode.setAttribute('title', 'Details for tree ' + gJobName);
 
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/job/' + jobName + '/');
-            aNode.appendChild(document.createTextNode(jobName));
+            aNode.setAttribute('href', '/job/' + gJobName + '/');
+            aNode.appendChild(document.createTextNode(gJobName));
 
             spanNode.appendChild(aNode);
 
@@ -677,10 +688,10 @@ require([
 
             spanNode = html.tooltip();
             spanNode.setAttribute(
-                'title', 'Boot reports details for ' + jobName);
+                'title', 'Boot reports details for ' + gJobName);
 
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/boot/all/job/' + jobName + '/');
+            aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
 
             iNode = document.createElement('i');
             iNode.className = 'fa fa-hdd-o';
@@ -698,20 +709,20 @@ require([
             updateElement = document.getElementById('git-describe');
             html.removeChildren(updateElement);
 
-            updateElement.appendChild(document.createTextNode(kernelName));
+            updateElement.appendChild(document.createTextNode(gKernelName));
             updateElement.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
             spanNode = html.tooltip();
             spanNode.setAttribute(
                 'title',
-                'All boot reports for ' + jobName + '&nbsp;&dash;&nbsp;' +
-                kernelName
+                'All boot reports for ' + gJobName + '&nbsp;&dash;&nbsp;' +
+                gKernelName
             );
             aNode = document.createElement('a');
             aNode.setAttribute(
                 'href',
-                '/boot/all/job/' + jobName + '/kernel/' + kernelName + '/');
+                '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
             iNode = document.createElement('i');
             iNode.className = 'fa fa-hdd-o';
 
@@ -779,7 +790,6 @@ require([
     function getLogsDone(response) {
         var errors,
             mismatches,
-            resLen,
             result,
             sectionDiv,
             sectionDivTitle,
@@ -791,9 +801,7 @@ require([
             warnings;
 
         result = response.result;
-        resLen = result.length;
-
-        if (resLen > 0) {
+        if (result.length > 0) {
             summaryDiv = document.getElementById('logs-summary');
             html.removeChildren(summaryDiv);
 
@@ -891,8 +899,8 @@ require([
         deferred = r.get(
             '/_ajax/job/logs',
             {
-                job: jobName,
-                kernel: kernelName
+                job: gJobName,
+                kernel: gKernelName
             }
         );
         $.when(deferred)
@@ -906,8 +914,8 @@ require([
         deferred = r.get(
             '/_ajax/job',
             {
-                job: jobName,
-                kernel: kernelName
+                job: gJobName,
+                kernel: gKernelName
             }
         );
         $.when(deferred)
@@ -917,14 +925,12 @@ require([
 
     function registerEvents() {
         window.addEventListener('beforeunload', function() {
-            var pageState,
-                panelState,
-                session;
+            var pageState;
 
-            panelState = {};
+            pageState = {};
 
-            function saveElementState(element) {
-                panelState['#' + element.id] = [
+            function _saveElementState(element) {
+                pageState['#' + element.id] = [
                     {
                         type: 'class',
                         name: 'class',
@@ -938,56 +944,53 @@ require([
                 ];
             }
 
-            session = new ws.Session('build-' + jobName + '-' + kernelName);
+            pageState['.df-success'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-success', 'style')
+            };
+            pageState['.df-failed'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-failed', 'style')
+            };
+            pageState['.df-unknown'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-unknown', 'style')
+            };
+            pageState['#all-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('all-btn', 'class')
+            };
+            pageState['#success-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('success-btn', 'class')
+            };
+            pageState['#fail-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('fail-btn', 'class')
+            };
+            pageState['#unknown-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('unknown-btn', 'class')
+            };
 
             [].forEach.call(
                 document.querySelectorAll('[id^="panel-defconf"]'),
-                saveElementState);
+                _saveElementState);
 
             [].forEach.call(
                 document.querySelectorAll('[id^="collapse-defconf"]'),
-                saveElementState);
+                _saveElementState);
 
-            pageState = {
-                '.df-success': {
-                    type: 'attr',
-                    name: 'style',
-                    value: html.attrBySelector('.df-success', 'style')
-                },
-                '.df-failed': {
-                    type: 'attr',
-                    name: 'style',
-                    value: html.attrBySelector('.df-failed', 'style')
-                },
-                '.df-unknown': {
-                    type: 'attr',
-                    name: 'style',
-                    value: html.attrBySelector('.df-unknown', 'style')
-                },
-                '#all-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: html.attrById('all-btn', 'class')
-                },
-                '#success-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: html.attrById('success-btn', 'class')
-                },
-                '#fail-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: html.attrById('fail-btn', 'class')
-                },
-                '#unknown-btn': {
-                    type: 'class',
-                    name: 'class',
-                    value: html.attrById('unknown-btn', 'class')
-                }
-            };
-
-            session.objects = b.collectObjects([panelState, pageState]);
-            ws.save(session);
+            gSessionStorage
+                .addObjects(pageState)
+                .save();
         });
     }
 
@@ -996,30 +999,32 @@ require([
     init.tooltip();
 
     [].forEach.call(
-        document.querySelectorAll('.btn-group > .btn'), function(btn) {
+        document.querySelectorAll('.btn-group > .btn'),
+        function(btn) {
             btn.addEventListener('click', function() {
-                [].forEach
-                    .call(btn.parentElement.children, function(element) {
-                        if (element === btn) {
-                            html.addClass(element, 'active');
-                        } else {
-                            html.removeClass(element, 'active');
-                        }
-                    });
+                [].forEach.call(btn.parentElement.children, function(element) {
+                    if (element === btn) {
+                        html.addClass(element, 'active');
+                    } else {
+                        html.removeClass(element, 'active');
+                    }
+                });
             });
-        });
+    });
 
     if (document.getElementById('file-server') !== null) {
-        fileServer = document.getElementById('file-server').value;
+        gFileServer = document.getElementById('file-server').value;
     }
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        kernelName = document.getElementById('kernel-name').value;
+        gKernelName = document.getElementById('kernel-name').value;
     }
+
+    gSessionStorage = storage('build-' + gJobName + '-' + gKernelName);
+    registerEvents();
 
     getJob();
     getLogs();
-    registerEvents();
 });
