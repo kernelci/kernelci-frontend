@@ -8,8 +8,9 @@ require([
     'utils/table',
     'utils/html',
     'utils/const',
-    'tables/soc'
-], function($, b, init, error, request, table, html, appconst, tsoc) {
+    'tables/soc',
+    'utils/storage'
+], function($, b, init, error, request, table, html, appconst, tsoc, storage) {
     'use strict';
     var gBatchCountMissing,
         gBoardsCount,
@@ -18,6 +19,7 @@ require([
         gDrawEventBound,
         gPageLen,
         gSearchFilter,
+        gSessionStorage,
         gSocsTable;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
@@ -28,6 +30,7 @@ require([
     // Used to check if the table draw event function has already been boud.
     // In order not to bind it multiple times.
     gDrawEventBound = false;
+    gSessionStorage = storage('views-socs-all');
 
     function updateOrStageCount(opId, count) {
         var element;
@@ -212,7 +215,6 @@ require([
                     extraClasses: ['boards-count-badge']
                 });
             } else if (type === 'sort') {
-                // TODO: need to save the sate of the objects.
                 if (gBoardsCount.hasOwnProperty('boards-count-' + data)) {
                     rendered = gBoardsCount['boards-count-' + data];
                 } else {
@@ -236,7 +238,6 @@ require([
                     extraClasses: ['boots-count-badge']
                 });
             } else if (type === 'sort') {
-                // TODO: need to save the sate of the objects.
                 if (gBootsCount.hasOwnProperty('boots-count-' + data)) {
                     rendered = gBootsCount['boots-count-' + data];
                 } else {
@@ -344,6 +345,25 @@ require([
             .done(getSocsParse);
     }
 
+    function loadAndSave() {
+        window.addEventListener('beforeunload', function() {
+            gSessionStorage
+                .addObjects({
+                    'boots_count': gBootsCount,
+                    'boards_count': gBoardsCount
+                })
+                .save();
+        });
+
+        gSessionStorage.load();
+        if (gSessionStorage.objects.hasOwnProperty('boots_count')) {
+            gBootsCount = gSessionStorage.objects.boots_count;
+        }
+        if (gSessionStorage.objects.hasOwnProperty('boards_count')) {
+            gBoardsCount = gSessionStorage.objects.boards_count;
+        }
+    }
+
     init.hotkeys();
     init.tooltip();
 
@@ -357,6 +377,7 @@ require([
         gPageLen = document.getElementById('page-len').value;
     }
 
+    loadAndSave();
     gSocsTable = table({
         tableId: 'socs-table',
         tableDivId: 'table-div',
