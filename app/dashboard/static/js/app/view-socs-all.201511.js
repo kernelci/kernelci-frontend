@@ -356,11 +356,13 @@ require([
         });
 
         gSessionStorage.load();
-        if (gSessionStorage.objects.hasOwnProperty('boots_count')) {
-            gBootsCount = gSessionStorage.objects.boots_count;
-        }
-        if (gSessionStorage.objects.hasOwnProperty('boards_count')) {
-            gBoardsCount = gSessionStorage.objects.boards_count;
+        if (gSessionStorage.objects) {
+            if (gSessionStorage.objects.hasOwnProperty('boots_count')) {
+                gBootsCount = gSessionStorage.objects.boots_count;
+            }
+            if (gSessionStorage.objects.hasOwnProperty('boards_count')) {
+                gBoardsCount = gSessionStorage.objects.boards_count;
+            }
         }
     }
 
