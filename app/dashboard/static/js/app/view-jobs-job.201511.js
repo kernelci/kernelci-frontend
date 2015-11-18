@@ -17,8 +17,7 @@ require([
         gJobName,
         gNumberRange,
         gPageLen,
-        gSearchFilter,
-        gTableDom;
+        gSearchFilter;
 
     document.getElementById('li-job').setAttribute('class', 'active');
 
@@ -30,10 +29,6 @@ require([
     // Needed to translate git branch refnames from x/y into x:y or the
     // forward slash will not work with URLs.
     gBranchRegEx = new RegExp('/+', 'g');
-
-    gTableDom = '<"row"' +
-            '<"col-xs-6 col-sm-6 col-md-12 col-lg-12"f>r' +
-            '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
 
     function getBootStatsFail() {
         html.replaceContent(
@@ -239,12 +234,6 @@ require([
                 html.errorDiv('No builds data available.'));
         } else {
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'kernel',
                     title: 'Kernel',
@@ -509,12 +498,10 @@ require([
             ];
 
             gBuildsTable
-                .dom(gTableDom)
-                .noIdURL(true)
                 .data(results)
                 .columns(columns)
-                .order([6, 'desc'])
-                .languageLengthMenu('builds per page')
+                .order([5, 'desc'])
+                .noIdURL(true)
                 .rowURLElements(['job', 'kernel'])
                 .paging(false)
                 .info(false)
