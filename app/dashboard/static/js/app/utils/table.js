@@ -405,7 +405,7 @@ define([
                     });
 
                     location = sprintf(that._rowURL, substitutions);
-                    if (!that._noIdURL && rowData._id !== null) {
+                    if (!that._noIdURL && rowData._id) {
                         location += '?_id=' + rowData._id.$oid;
                     }
                 }
