@@ -73,7 +73,7 @@ require([
     }
 
     function getBootsCountFail() {
-        html.replaceByClassTxt('boots-count-badge', '&infin;');
+        html.replaceByClassHTML('boots-count-badge', '&infin;');
     }
 
     function getBootsCountDone(response) {
