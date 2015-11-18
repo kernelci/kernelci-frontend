@@ -92,6 +92,10 @@ define([
             settings.type, settings.extraClasses, settings.idStart).outerHTML;
     };
 
+    gSocTables.countSuccessFail = function(settings) {
+        return tcommon.countSuccessFail(settings);
+    };
+
     gSocTables.renderBootCount = function(data, type, href) {
         return tcommon.countSuccessFail({
             data: data,
