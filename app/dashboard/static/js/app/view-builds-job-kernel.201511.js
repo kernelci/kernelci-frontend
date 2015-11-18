@@ -248,10 +248,8 @@ require([
                 headingNode.setAttribute('aria-expanded', false);
                 headingNode.setAttribute('data-parent', '#accordion');
                 headingNode.setAttribute('data-toggle', 'collapse');
-                headingNode.setAttribute(
-                    'data-target', '#' + collapseId);
-                headingNode.setAttribute(
-                    'aria-controls', '#' + collapseId);
+                headingNode.setAttribute('data-target', '#' + collapseId);
+                headingNode.setAttribute('aria-controls', '#' + collapseId);
 
                 hNode = document.createElement('h4');
                 hNode.className = 'panel-title';
