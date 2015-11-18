@@ -243,3 +243,9 @@ def init():
         view_func=vsoc.SocsSocView.as_view("socs-soc-view"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/soc/<string:soc>/job/<string:job>/",
+        view_func=vsoc.SocsSocJobView.as_view("socs-soc-job-view"),
+        methods=["GET"]
+    )

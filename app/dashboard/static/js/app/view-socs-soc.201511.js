@@ -328,6 +328,9 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([3, 'desc'])
+                .rowURL('/soc/%(mach)s/job/%(job)s/')
+                .rowURLElements(['mach', 'job'])
+                .noIdURL(true)
                 .languageLengthMenu('jobs per page')
                 .draw();
 
