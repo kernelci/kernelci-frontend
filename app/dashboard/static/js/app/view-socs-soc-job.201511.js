@@ -235,8 +235,8 @@ require([
     if (document.getElementById('soc-name') !== null) {
         gSoc = document.getElementById('soc-name').value;
     }
-    if (document.getElementById('number-name') !== null) {
-        gNumberRange = document.getElementById('number-name').value;
+    if (document.getElementById('number-range') !== null) {
+        gNumberRange = document.getElementById('number-range').value;
     }
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;

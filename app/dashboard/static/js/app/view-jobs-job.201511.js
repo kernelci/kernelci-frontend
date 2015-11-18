@@ -625,8 +625,8 @@ require([
     init.hotkeys();
     init.tooltip();
 
-    if (document.getElementById('number-name') !== null) {
-        gNumberRange = document.getElementById('number-name').value;
+    if (document.getElementById('number-range') !== null) {
+        gNumberRange = document.getElementById('number-range').value;
     }
     if (document.getElementById('job-name') !== null) {
         gJobName = document.getElementById('job-name').value;
