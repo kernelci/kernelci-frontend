@@ -145,6 +145,12 @@ require([
             });
         }
 
+        // Internal wrapper to provide the href.
+        function _renderDetails(data, type) {
+            return tsoc.renderDetails(
+                '/soc/' + gSoc + '/job/' + gJob + '/kernel/' + data, type);
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -171,6 +177,8 @@ require([
                 {
                     data: 'kernel',
                     title: 'Boot Status',
+                    searchable: false,
+                    orderable: false,
                     className: 'boot-count pull-center',
                     render: _renderBootCount
                 },
@@ -179,6 +187,14 @@ require([
                     title: 'Date',
                     className: 'date-column pull-center',
                     render: tsoc.renderDate
+                },
+                {
+                    data: 'kernel',
+                    title: '',
+                    searchable: false,
+                    orderable: false,
+                    className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
 
@@ -188,6 +204,8 @@ require([
                 .noIdURL(true)
                 .paging(false)
                 .info(false)
+                .rowURL('/soc/%(mach)s/job/%(job)s/kernel/%(kernel)s/')
+                .rowURLElements(['mach', 'job', 'kernel'])
                 .order([4, 'desc'])
                 .draw();
 
@@ -211,7 +229,8 @@ require([
                     'git_commit',
                     'job',
                     'job_id',
-                    'kernel'
+                    'kernel',
+                    'mach'
                 ],
                 job: gJob,
                 mach: gSoc,
