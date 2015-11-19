@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Job Atom feeds module."""
+"""SoC Atom feeds module."""
 
 try:
     import simple_json as json
@@ -32,20 +32,26 @@ import dashboard.utils.feed as feed
 CONFIG_GET = app.config.get
 
 # Necessary URLs for the feed.
-BACKEND_JOB_URL = backend.create_url(CONFIG_GET("JOB_API_ENDPOINT"))
+BACKEND_BOOT_URL = backend.create_url(CONFIG_GET("BOOT_API_ENDPOINT"))
+BACKEND_BATCH_URL = backend.create_url(CONFIG_GET("BATCH_API_ENDPOINT"))
 BASE_URL = CONFIG_GET("BASE_URL")
 
-FEED_TITLE = u"Built kernel \u00AB%(kernel)s\u00BB (%(git_branch)s)"
+SOC_JOB_TITLE = u"Boot tested tree: %(job)s (%(git_branch)s)"
+SOC_KERNEL_TITLE = u"Boot tested kernel: %(kernel)s"
+
+FRONTEND_SOC_URL = BASE_URL + u"/soc/%(mach)s/"
+FRONTEND_SOC_JOB_URL = BASE_URL + u"/soc/%(mach)s/job/%(job)s/"
 
 FRONTEND_JOB_URL = BASE_URL + u"/job/%(job)s/"
 FRONTEND_JOB_BRANCH_URL = BASE_URL + u"/job/%(job)s/branch/%(git_branch)s/"
 
 BUILD_REPORTS_URL = BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/"
 BOOT_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/"
+BOOT_JOB_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/"
 
 # Some base categories for the feed.
 FEED_CATEGORIES = [
-    {"term": "job"},
+    {"term": "soc"},
     {"term": "ci"},
     {"term": "linux"}
 ]
@@ -60,13 +66,9 @@ def _parse_batch_results(results):
     """
     count_results = {
         "failed_boots": u"N/A",
-        "failed_builds": u"N/A",
         "other_boots": u"N/A",
-        "other_builds": u"N/A",
         "passed_boots": u"N/A",
-        "passed_builds": u"N/A",
-        "total_boots": u"N/A",
-        "total_builds": u"N/A"
+        "total_boots": u"N/A"
     }
 
     if results and results["result"]:
@@ -76,11 +78,6 @@ def _parse_batch_results(results):
             count_results[result["operation_id"]] = \
                 result["result"][0]["count"]
 
-        count_results["other_builds"] = (
-            count_results["total_builds"] -
-            count_results["passed_builds"] - count_results["failed_builds"]
-        )
-
         count_results["other_boots"] = (
             count_results["total_boots"] -
             count_results["passed_boots"] - count_results["failed_boots"]
@@ -89,7 +86,7 @@ def _parse_batch_results(results):
     return count_results
 
 
-def _get_job_counts(query_params):
+def _get_boot_counts(query_params):
     """Retrieve the builds and boots count.
 
     :param query_params: The result from the previous query to be used as
@@ -99,18 +96,20 @@ def _get_job_counts(query_params):
     """
     queries = []
 
-    query_params["job_id"] = query_params["_id"]["$oid"]
-    query_str = "status=%(status)s&job=%(job)s&kernel=%(kernel)s"
-    total_query_str = "job=%(job)s&kernel=%(kernel)s" % query_params
+    query_str = "status=%(status)s&job=%(job)s&mach=%(mach)s"
+    total_query_str = "job=%(job)s&mach=%(mach)s" % query_params
+
+    if query_params.get("job_id", None):
+        query_str += "&job_id=" + query_params["job_id"]["$oid"]
+        total_query_str += "&job_id=" + query_params["job_id"]["$oid"]
+
+    # In the aggregation result, the _id field is the one that gets aggregated.
+    if all([query_params["kernel"],
+            query_params["kernel"] == query_params.get("_id", None)]):
+        query_str += "&kernel=" + query_params["kernel"]
+        total_query_str += "&kernel=" + query_params["kernel"]
 
     # Get the totals.
-    queries.append({
-        "method": "GET",
-        "operation_id": "total_builds",
-        "resource": "count",
-        "document": "build",
-        "query": total_query_str
-    })
     queries.append({
         "method": "GET",
         "operation_id": "total_boots",
@@ -121,16 +120,6 @@ def _get_job_counts(query_params):
 
     # Get the passed ones first.
     query_params["status"] = "PASS"
-    queries.append(
-        {
-            "method": "GET",
-            "operation_id": "passed_builds",
-            "resource": "count",
-            "document": "build",
-            "query": query_str % query_params
-        }
-    )
-
     queries.append(
         {
             "method": "GET",
@@ -146,16 +135,6 @@ def _get_job_counts(query_params):
     queries.append(
         {
             "method": "GET",
-            "operation_id": "failed_builds",
-            "resource": "count",
-            "document": "build",
-            "query": query_str % query_params
-        }
-    )
-
-    queries.append(
-        {
-            "method": "GET",
             "operation_id": "failed_boots",
             "resource": "count",
             "document": "boot",
@@ -164,7 +143,7 @@ def _get_job_counts(query_params):
     )
 
     data, status, headers = backend.request_post(
-        backend.create_url(CONFIG_GET("BATCH_API_ENDPOINT")),
+        BACKEND_BATCH_URL,
         json.dumps({"batch": queries}),
         headers={"Content-Type": "application/json"},
         timeout=60*60
@@ -176,20 +155,16 @@ def _get_job_counts(query_params):
     else:
         count_results = {
             "failed_boots": u"N/A",
-            "failed_builds": u"N/A",
             "other_boots": u"N/A",
-            "other_builds": u"N/A",
             "passed_boots": u"N/A",
-            "passed_builds": u"N/A",
-            "total_boots": u"N/A",
-            "total_builds": u"N/A"
+            "total_boots": u"N/A"
         }
 
     return count_results
 
 
-def _parse_job_results(results, feed_data):
-    """Parse the job results from the backend to create the feed data.
+def _parse_soc_results(results, feed_data):
+    """Parse the boot results from the backend to create the feed data.
 
     :param results: The results from the backend, a list of dicts.
     :type results: list
@@ -202,8 +177,7 @@ def _parse_job_results(results, feed_data):
         f_get = feed_data.get
 
         for result in results:
-            counts = _get_job_counts(copy.deepcopy(result))
-            result.update(counts)
+            result.update(_get_boot_counts(copy.deepcopy(result)))
 
             content_links = copy.deepcopy(f_get("content_links", None))
             if content_links:
@@ -212,7 +186,7 @@ def _parse_job_results(results, feed_data):
                     c_link["label"] = c_link["label"] % result
                 result["content_links"] = content_links
 
-            job_date = feed.convert_date(result["created_on"]["$date"])
+            boot_date = feed.convert_date(result["created_on"]["$date"])
 
             # pylint: disable=star-args
             content = u""
@@ -228,17 +202,17 @@ def _parse_job_results(results, feed_data):
                         "rel": "alternate"
                     }
                 ],
-                "published": job_date,
+                "published": boot_date,
                 "title": f_get("entry_title") % result,
-                "updated": job_date,
+                "updated": boot_date,
                 "url": f_get("frontend_url") % result
             }
 
             yield parsed_res
 
 
-def _get_job_data(req_params):
-    """Retrieve the job data from the backend.
+def _get_soc_data(req_params):
+    """Retrieve the SoC data from the backend.
 
     :param req_params: The parameters for the request. They will be added to
     the default ones.
@@ -251,14 +225,15 @@ def _get_job_data(req_params):
         (
             "field",
             (
-                "_id",
+                "build_id",
                 "created_on",
-                "git_branch",
                 "git_branch",
                 "git_commit",
                 "git_url",
                 "job",
-                "kernel"
+                "job_id",
+                "kernel",
+                "mach"
             )
         ),
         ("sort", "created_on"),
@@ -268,7 +243,7 @@ def _get_job_data(req_params):
         params.extend(req_params)
 
     data, status, headers = backend.request_get(
-        BACKEND_JOB_URL, params=params, timeout=60*60)
+        BACKEND_BOOT_URL, params=params, timeout=60*60)
 
     if status == 200:
         results = backend.extract_gzip_data(data, headers)
@@ -276,83 +251,89 @@ def _get_job_data(req_params):
     return results
 
 
-def job_branch_feed(job, branch):
-    """Create the Atom feed for job-branch view.
+def soc_job_feed(soc, job):
+    """Create the Atom feed for soc/job view.
 
-    :param job: The job name.
-    :type job: str
-    :param branch: The branch name.
-    :type branch: str
+    :param soc: The soc value.
+    :param job: The job value.
     """
-    # Replace the ':'' with the '/'' back.
-    branch = branch.replace(":", "/", 1)
-
     feed_categories = copy.deepcopy(FEED_CATEGORIES)
+    feed_categories.append({"term": soc})
     feed_categories.append({"term": job})
-    feed_categories.append({"term": branch})
 
     feed_data = {
-        "alternate_url": FRONTEND_JOB_BRANCH_URL,
-        "branch": branch,
+        "alternate_url": FRONTEND_SOC_JOB_URL,
         "cache_key": hashlib.md5(request.url).digest(),
         "content_links": [
             {
-                "href": BUILD_REPORTS_URL, "label": u"Build reports"
+                "href": BOOT_REPORTS_URL, "label": u"All boot reports"
             },
             {
-                "href": BOOT_REPORTS_URL, "label": u"Boot reports"
+                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
             }
         ],
-        "entry_title": FEED_TITLE,
+        "entry_title": SOC_KERNEL_TITLE,
         "feed_categories": feed_categories,
         "feed_url": request.url,
-        "frontend_url": FRONTEND_JOB_BRANCH_URL,
+        "frontend_url": FRONTEND_SOC_JOB_URL,
         "host_url": request.host_url,
-        "template_name": "job.html",
+        "template_name": "soc-job-kernel.html",
     }
 
     feed_data["subtitle"] = \
-        u"Latest available jobs for %s \u2013 %s" % (job, branch)
-    feed_data["title"] = (
-        u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB (%s) " %
-        (job, branch))
+        u"Latest available kernels for %s - %s" % (soc, job)
+    feed_data["title"] = \
+        u"kernelci.org \u2014 Kernels for SoC \u00AB%s\u00BB - %s" % (soc, job)
 
     return feed.create_feed(
-        [("job", job), ("git_branch", branch)],
-        feed_data, _get_job_data, _parse_job_results)
+        [
+            ("aggregate", "kernel"),
+            ("mach", soc),
+            ("job", job)
+        ],
+        feed_data,
+        _get_soc_data,
+        _parse_soc_results
+    )
 
 
-def job_feed(job):
-    """Create the Atom feed for job view.
+def soc_feed(soc):
+    """Create the Atom feed for soc view.
 
-    :param job: The job name.
-    :type job: str
+    :param soc: The soc value.
     """
     feed_categories = copy.deepcopy(FEED_CATEGORIES)
-    feed_categories.append({"term": job})
+    feed_categories.append({"term": soc})
 
     feed_data = {
-        "alternate_url": FRONTEND_JOB_URL,
+        "alternate_url": FRONTEND_SOC_URL,
         "cache_key": hashlib.md5(request.url).digest(),
         "content_links": [
             {
-                "href": BUILD_REPORTS_URL, "label": u"Build reports"
+                "href": BOOT_JOB_REPORTS_URL, "label": u"All boot reports"
             },
             {
-                "href": BOOT_REPORTS_URL, "label": u"Boot reports"
+                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
             }
         ],
-        "entry_title": FEED_TITLE,
+        "entry_title": SOC_JOB_TITLE,
         "feed_categories": feed_categories,
         "feed_url": request.url,
-        "frontend_url": FRONTEND_JOB_URL,
+        "frontend_url": FRONTEND_SOC_URL,
         "host_url": request.host_url,
-        "template_name": "job.html",
+        "template_name": "soc-job.html",
     }
 
-    feed_data["subtitle"] = u"Latest available jobs for %s" % job
+    feed_data["subtitle"] = u"Latest available trees for %s" % soc
     feed_data["title"] = \
-        u"kernelci.org \u2014 Jobs for Tree \u00AB%s\u00BB" % job
+        u"kernelci.org \u2014 Trees for SoC \u00AB%s\u00BB" % soc
 
     return feed.create_feed(
-        [("job", job)], feed_data, _get_job_data, _parse_job_results)
+        [
+            ("aggregate", "job"),
+            ("mach", soc)
+        ],
+        feed_data,
+        _get_soc_data,
+        _parse_soc_results
+    )

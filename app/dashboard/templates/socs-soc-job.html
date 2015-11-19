@@ -6,6 +6,7 @@
 {%- block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.9.css">
+<link href="/soc/{{ soc }}/job/{{ job }}/feed.xml" rel="alternate" title="Recent Changes - Atom Feed" type="application/atom+xml">
 {%- endblock %}
 {%- block content %}
 {%- include "number-range.html" %}

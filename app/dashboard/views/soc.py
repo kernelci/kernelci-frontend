@@ -54,6 +54,8 @@ class SocsSocView(SocsGeneralView):
         soc = kwargs["soc"]
 
         body_title = "Details for SoC &#171;%s&#187;" % soc
+        body_title += self.RSS_LINK % ("/soc/" + soc + "/feed.xml")
+
         page_title = "%s SoC" % soc
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
 
@@ -75,6 +77,9 @@ class SocsSocJobView(SocsGeneralView):
         job = kwargs["job"]
 
         body_title = "Details for Tree &#171;%s&#187;" % job
+        body_title += \
+            self.RSS_LINK % ("/soc/" + soc + "/job/" + job + "/feed.xml")
+
         page_title = "%s SoC: %s" % (soc, job)
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
 

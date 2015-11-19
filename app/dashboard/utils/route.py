@@ -23,6 +23,7 @@ import dashboard.views.soc as vsoc
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.boot as bootfeed
+import dashboard.utils.feed.soc as socfeed
 
 
 def init():
@@ -237,19 +238,28 @@ def init():
         view_func=vsoc.SocsAllView.as_view("socs-all-view"),
         methods=["GET"]
     )
-
     add_rule(
         "/soc/<string:soc>/",
         view_func=vsoc.SocsSocView.as_view("socs-soc-view"),
         methods=["GET"]
     )
-
+    add_rule(
+        "/soc/<string:soc>/feed.xml",
+        "socs-soc-feed",
+        socfeed.soc_feed,
+        methods=["GET"]
+    )
     add_rule(
         "/soc/<string:soc>/job/<string:job>/",
         view_func=vsoc.SocsSocJobView.as_view("socs-soc-job-view"),
         methods=["GET"]
     )
-
+    add_rule(
+        "/soc/<string:soc>/job/<string:job>/feed.xml",
+        "socs-soc-job-feed",
+        socfeed.soc_job_feed,
+        methods=["GET"]
+    )
     add_rule(
         "/soc/<string:soc>/job/<string:job>/kernel/<string:kernel>/",
         view_func=vsoc.SocsSocJobKernelView.as_view(
