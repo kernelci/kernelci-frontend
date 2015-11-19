@@ -324,6 +324,13 @@ require([
         enableSearch();
     }
 
+    function getSocsFail() {
+        html.removeElement(document.getElementById('table-loading'));
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('Error loading data.'));
+    }
+
     function getSocs() {
         var deferred;
 
@@ -341,7 +348,7 @@ require([
         );
 
         $.when(deferred)
-            .fail(error.error)
+            .fail(error.error, getSocsFail)
             .done(getSocsParse);
     }
 
