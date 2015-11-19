@@ -57,6 +57,14 @@ require([
             query: gQueryStr
         });
 
+        batchOps.push({
+            method: 'GET',
+            operation_id: 'labs-count',
+            distinct: 'lab_name',
+            resource: 'boot',
+            query: gQueryStr
+        });
+
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
