@@ -17,6 +17,7 @@ require([
         gBootsCount,
         gDateRange,
         gDrawEventBound,
+        gLabsCount,
         gPageLen,
         gSearchFilter,
         gSessionStorage,
@@ -26,6 +27,7 @@ require([
     gDateRange = appconst.MAX_DATE_RANGE;
     gBootsCount = {};
     gBoardsCount = {};
+    gLabsCount = {};
     gBatchCountMissing = {};
     // Used to check if the table draw event function has already been boud.
     // In order not to bind it multiple times.
@@ -130,6 +132,67 @@ require([
             $.when(deferred)
                 .fail(error.error, getBootsCountFail)
                 .done(getBootsCountDone);
+        }
+    }
+
+    function getLabsCountFail() {
+        html.replaceByClassHTML('labs-count-badge', '&infin;');
+    }
+
+    function getLabsCountDone(response) {
+        var results;
+
+        // Internally used to parse the results.
+        function _updateLabsCount(result) {
+            var count,
+                opId;
+
+            count = parseInt(result.result[0].count, 10);
+            opId = result.operation_id;
+            gLabsCount[opId] = count;
+
+            updateOrStageCount(opId, count);
+        }
+
+        results = response.result;
+        if (results.length > 0) {
+            results.forEach(_updateLabsCount);
+            if (!gDrawEventBound) {
+                gDrawEventBound = true;
+                gSocsTable.addDrawEvent(updateSocsTable);
+            }
+        } else {
+            html.replaceByClassTxt('boards-count-badge', '?');
+        }
+    }
+
+    function getLabsCount(response) {
+        var batchOps,
+            deferred,
+            soc,
+            queryStr;
+
+        if (response.length > 0) {
+            batchOps = [];
+            queryStr = 'mach=';
+
+            response.forEach(function(value) {
+                soc = value.mach;
+                batchOps.push({
+                    method: 'GET',
+                    operation_id: 'labs-count-' + soc,
+                    resource: 'boot',
+                    distinct: 'lab_name',
+                    query: queryStr + soc
+                });
+            });
+
+            deferred = request.post(
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+            $.when(deferred)
+                .fail(error.error, getLabsCountFail)
+                .done(getLabsCountDone);
         }
     }
 
@@ -248,9 +311,33 @@ require([
             return rendered;
         }
 
+        // Internal wrapper to provide the oreder count.
+        function _renderLabsCount(data, type) {
+            var rendered;
+
+            rendered = null;
+            if (type === 'display') {
+                rendered = tsoc.countBadge({
+                    data: data,
+                    type: 'default',
+                    idStart: 'labs-',
+                    extraClasses: ['labs-count-badge']
+                });
+            } else if (type === 'sort') {
+                if (gLabsCount.hasOwnProperty('labs-count-' + data)) {
+                    rendered = gLabsCount['labs-count-' + data];
+                } else {
+                    rendered = NaN;
+                }
+            }
+
+            return rendered;
+        }
+
         if (response.length === 0) {
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('table-loading'),
+                document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
             columns = [
@@ -258,6 +345,13 @@ require([
                     data: 'mach',
                     title: 'SoC',
                     render: tsoc.renderSoc
+                },
+                {
+                    data: 'mach',
+                    title: 'Total Unique Labs',
+                    searchable: false,
+                    className: 'pull-center',
+                    render: _renderLabsCount
                 },
                 {
                     data: 'mach',
@@ -320,6 +414,7 @@ require([
         getSocsDone(results);
         getBoardsCount(results);
         getBootsCount(results);
+        getLabsCount(results);
 
         enableSearch();
     }
@@ -357,7 +452,8 @@ require([
             gSessionStorage
                 .addObjects({
                     'boots_count': gBootsCount,
-                    'boards_count': gBoardsCount
+                    'boards_count': gBoardsCount,
+                    'labs_count': gLabsCount
                 })
                 .save();
         });
@@ -369,6 +465,9 @@ require([
             }
             if (gSessionStorage.objects.hasOwnProperty('boards_count')) {
                 gBoardsCount = gSessionStorage.objects.boards_count;
+            }
+            if (gSessionStorage.objects.hasOwnProperty('labs_count')) {
+                gLabsCount = gSessionStorage.objects.labs_count;
             }
         }
     }
