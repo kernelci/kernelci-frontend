@@ -43,9 +43,7 @@ FRONTEND_SOC_URL = BASE_URL + u"/soc/%(mach)s/"
 FRONTEND_SOC_JOB_URL = BASE_URL + u"/soc/%(mach)s/job/%(job)s/"
 
 FRONTEND_JOB_URL = BASE_URL + u"/job/%(job)s/"
-FRONTEND_JOB_BRANCH_URL = BASE_URL + u"/job/%(job)s/branch/%(git_branch)s/"
 
-BUILD_REPORTS_URL = BASE_URL + u"/build/%(job)s/kernel/%(kernel)s/"
 BOOT_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/"
 BOOT_JOB_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/"
 
@@ -266,10 +264,13 @@ def soc_job_feed(soc, job):
         "cache_key": hashlib.md5(request.url).digest(),
         "content_links": [
             {
-                "href": BOOT_REPORTS_URL, "label": u"All boot reports"
+                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
             },
             {
-                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
+                "href": BOOT_REPORTS_URL, "label": u"Boot reports"
+            },
+            {
+                "href": FRONTEND_JOB_URL, "label": u"Job details"
             }
         ],
         "entry_title": SOC_KERNEL_TITLE,
@@ -310,10 +311,13 @@ def soc_feed(soc):
         "cache_key": hashlib.md5(request.url).digest(),
         "content_links": [
             {
+                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
+            },
+            {
                 "href": BOOT_JOB_REPORTS_URL, "label": u"All boot reports"
             },
             {
-                "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
+                "href": FRONTEND_JOB_URL, "label": u"Job details"
             }
         ],
         "entry_title": SOC_JOB_TITLE,
