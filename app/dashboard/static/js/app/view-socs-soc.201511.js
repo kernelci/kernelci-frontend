@@ -331,7 +331,7 @@ require([
                 .rowURL('/soc/%(mach)s/job/%(job)s/')
                 .rowURLElements(['mach', 'job'])
                 .noIdURL(true)
-                .languageLengthMenu('jobs per page')
+                .languageLengthMenu('trees per page')
                 .draw();
 
             gJobsTable
