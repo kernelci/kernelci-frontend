@@ -166,10 +166,10 @@ def get_search_parameters(request):
     :return The search filter to apply and the page length.
     """
     search_filter = ""
-    page_len = 25
+    page_len = ""
 
     if request.args:
-        page_len = request.args.get("show", 25)
+        page_len = request.args.get("show", "")
         search_filter = " ".join(
             [arg for arg in request.args if arg != "show"]
         )

@@ -4,11 +4,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'utils/date'
-], function($, e, init, r, t, html, appconst) {
+], function($, e, init, r, table, html, appconst) {
     'use strict';
     var buildsTable,
         buildReqData,
@@ -332,10 +332,10 @@ require([
             ];
 
             buildsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('build reports per page')
+                .languageLengthMenu('build reports per page')
                 .rowURL(rowUrl)
                 .rowURLElements(['job', 'kernel', 'defconfig_full'])
                 .draw();
@@ -385,6 +385,11 @@ require([
         ]
     };
 
-    buildsTable = t(['builds-table', 'table-loading', 'table-div'], true);
+    buildsTable = table({
+        tableId: 'builds-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     getBuilds();
 });

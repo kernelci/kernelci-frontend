@@ -6,8 +6,8 @@ require([
     'utils/request',
     'utils/html',
     'tables/boot',
-    'utils/tables'
-], function($, e, init, r, html, boot, tables) {
+    'utils/table'
+], function($, e, init, r, html, boot, table) {
     'use strict';
     var boardName,
         bootsTable,
@@ -80,14 +80,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -96,12 +96,12 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
                 .rowURL(rowURLFmt)
@@ -225,7 +225,12 @@ require([
         fileServer = document.getElementById('file-server').value;
     }
 
-    bootsTable = tables(['boots-table', 'table-loading', 'table-div'], false);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: false
+    });
     setUpData();
     getBoots();
 });

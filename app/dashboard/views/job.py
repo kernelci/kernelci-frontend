@@ -37,7 +37,9 @@ class JobsAllView(GeneralJobsView):
         body_title = "Available Jobs"
         search_filter, page_len = get_search_parameters(request)
         return render_template(
-            "jobs-all.html",
+            "base-all.html",
+            table_id="jobstable",
+            data_main="kci-jobs-all",
             body_title=body_title,
             page_len=page_len,
             page_title=self.JOB_PAGES_TITLE,

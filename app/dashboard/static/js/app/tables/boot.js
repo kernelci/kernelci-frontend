@@ -1,9 +1,10 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
+    'utils/boot',
     'utils/html',
     'utils/urls',
     'tables/common'
-], function(html, urls, tcommon) {
+], function(boot, html, urls, tcommon) {
     'use strict';
     var gBootUtils,
         gStatusDefaults;
@@ -16,117 +17,6 @@ define([
         offline: 'Board offline',
         default: 'Board boot status unknown'
     };
-
-    /**
-     * Create the boot logs element.
-     *
-     * @private
-     * @param {string} txtLog: The TXT boot log file name.
-     * @param {string} htmlLog: The HTML boot log file name.
-     * @param {string} labName: The name of the boot lab.
-     * @param {URI} serverURI: The URI of the file server.
-     * @param {string} pathURI: The path part to the log file on the server.
-     * @return {Element} An HTML node if at least on of txtLog or htmlLog
-     * are not null or null.
-    **/
-    function _createBootLog(txtLog, htmlLog, labName, serverURI, pathURI) {
-        var aNode,
-            logPath,
-            retVal,
-            tooltipNode;
-
-        retVal = null;
-        if (txtLog || htmlLog) {
-            retVal = document.createElement('span');
-
-            if (txtLog) {
-                if (txtLog.search(labName) === -1) {
-                    logPath = pathURI + '/' + labName + '/' + txtLog;
-                } else {
-                    logPath = pathURI + '/' + txtLog;
-                }
-
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', 'View raw text log');
-
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href', serverURI.path(logPath).normalizePath().href());
-                aNode.appendChild(document.createTextNode('txt'));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-
-                tooltipNode.appendChild(aNode);
-                retVal.appendChild(tooltipNode);
-            }
-
-            if (htmlLog) {
-                if (txtLog) {
-                    retVal.insertAdjacentHTML(
-                        'beforeend', '&nbsp;&mdash;&nbsp;');
-                }
-
-                if (htmlLog.search(labName) === -1) {
-                    logPath = pathURI + '/' + labName + '/' + htmlLog;
-                } else {
-                    logPath = pathURI + '/' + htmlLog;
-                }
-
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', 'View HTML log');
-
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href', serverURI.path(logPath).normalizePath().href());
-                aNode.appendChild(document.createTextNode('html'));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-
-                tooltipNode.appendChild(aNode);
-                retVal.appendChild(tooltipNode);
-            }
-        }
-
-        return retVal;
-    }
-
-    /**
-     * Create the actual count badge.
-     *
-     * @private
-    **/
-    function _tableKernelCount(kernel, type) {
-        var classes,
-            iNode,
-            nodeId,
-            spanNode;
-
-        switch (type) {
-            case 'success':
-                nodeId = 'success-count-' + kernel;
-                classes = [
-                    'badge', 'alert-success', 'count-badge'
-                ];
-                break;
-            default:
-                nodeId = 'fail-count-' + kernel;
-                classes = [
-                    'badge', 'alert-danger', 'count-badge'
-                ];
-                break;
-        }
-
-        spanNode = document.createElement('span');
-        spanNode.id = nodeId;
-        spanNode.className = classes.join(' ');
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-cog fa-spin';
-
-        spanNode.appendChild(iNode);
-
-        return spanNode.outerHTML;
-    }
 
     /**
      * Function to render the boot failure description.
@@ -259,12 +149,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableKernelCountSuccess = function(kernel, type) {
+    gBootUtils.rendereTableCountSuccess = function(kernel, type) {
         var rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = _tableKernelCount(kernel, 'success');
+            rendered = tcommon.countBadge(kernel, 'success').outerHTML;
         }
 
         return rendered;
@@ -278,12 +168,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableKernelCountFail = function(kernel, type) {
+    gBootUtils.rendereTableCountFail = function(kernel, type) {
         var rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = _tableKernelCount(kernel, 'fail');
+            rendered = tcommon.countBadge(kernel, 'fail').outerHTML;
         }
 
         return rendered;
@@ -298,7 +188,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableTree = function(tree, type, object) {
+    gBootUtils.renderTree = function(tree, type, object) {
         var aNode,
             rendered,
             tooltipNode;
@@ -331,7 +221,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableTreeAll = function(tree, type) {
+    gBootUtils.renderTreeAll = function(tree, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -509,13 +399,14 @@ define([
             serverURI = translatedURI[0];
             pathURI = translatedURI[1];
 
-            logNode = _createBootLog(
+            logNode = boot.createBootLog(
                 object.boot_log,
                 object.boot_log_html,
                 object.lab_name,
                 serverURI,
                 pathURI
             );
+
             if (logNode) {
                 rendered = logNode.outerHTML;
             }
@@ -531,8 +422,8 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableDate = function(date, type) {
-        return tcommon.renderTableDate(date, type);
+    gBootUtils.renderDate = function(date, type) {
+        return tcommon.renderDate(date, type);
     };
 
     /**
@@ -552,7 +443,7 @@ define([
      * @return {HTMLElement} The status node.
     **/
     gBootUtils.statusNode = function(status) {
-        return tcommon.renderTableStatus(status, gStatusDefaults);
+        return tcommon.renderStatus(status, gStatusDefaults);
     };
 
     /**
@@ -562,12 +453,12 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableStatus = function(status, type) {
+    gBootUtils.renderStatus = function(status, type) {
         var rendered;
 
         rendered = status;
         if (type === 'display') {
-            rendered = tcommon.renderTableStatus(
+            rendered = tcommon.renderStatus(
                 status, gStatusDefaults).outerHTML;
         }
 
@@ -594,7 +485,7 @@ define([
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableDetail = function(board, type, object) {
+    gBootUtils.renderDetails = function(board, type, object) {
         var rendered;
 
         rendered = null;
@@ -654,7 +545,8 @@ define([
     **/
     gBootUtils.createBootLog = function(
             txtLog, htmlLog, labName, serverURI, pathURI) {
-        return _createBootLog(txtLog, htmlLog, labName, serverURI, pathURI);
+        return boot.createBootLog(
+            txtLog, htmlLog, labName, serverURI, pathURI);
     };
 
     return gBootUtils;

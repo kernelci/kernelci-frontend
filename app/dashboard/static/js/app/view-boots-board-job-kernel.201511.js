@@ -4,11 +4,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/date'
-], function($, e, init, r, t, html, boot) {
+], function($, e, init, r, table, html, boot) {
     'use strict';
     var gBoardName,
         gBootsTable,
@@ -81,13 +81,13 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -96,15 +96,15 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             gBootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
                     ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
@@ -241,7 +241,12 @@ require([
         gPageLen = document.getElementById('page-len').value;
     }
 
-    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     setupData();
     getBoots();
 });

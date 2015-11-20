@@ -20,42 +20,6 @@ define(function() {
         return numFormat.format(value);
     };
 
-    base.getAttrBySelector = function(selector, attribute) {
-        var el = document.querySelector(selector),
-            attr = null;
-        if (el !== null) {
-            attr = el.getAttribute(attribute);
-        }
-        return attr;
-    };
-
-    base.getAttrById = function(elementID, attribute) {
-        var el = document.getElementById(elementID),
-            attr = null;
-        if (el !== null) {
-            attr = el.getAttribute(attribute);
-        }
-        return attr;
-    };
-
-    // Concatenate objects into a single one.
-    // objects := an array of objects to concatenate.
-    base.collectObjects = function(objects) {
-        var collected = {};
-
-        if (objects !== null && objects.constructor === Array) {
-            objects.forEach(function(obj) {
-                if (obj !== null && obj === Object(obj)) {
-                    Object.keys(obj).forEach(function(key) {
-                        collected[key] = obj[key];
-                    });
-                }
-            });
-        }
-
-        return collected;
-    };
-
     base.replaceByClass = function(name, content) {
         [].forEach
             .call(

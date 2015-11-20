@@ -5,36 +5,30 @@ require([
     'utils/base',
     'utils/request',
     'utils/error',
-    'utils/tables',
+    'utils/table',
     'utils/urls',
     'charts/passrate',
     'utils/html',
     'utils/date'
-], function($, init, b, r, e, t, u, chart, html) {
+], function($, init, b, r, e, table, u, chart, html) {
     'use strict';
-    var branchRegEx,
-        buildsTable,
-        jobName,
-        numberRange,
-        pageLen,
-        searchFilter,
-        tableDom;
+    var gBranchRegEx,
+        gBuildsTable,
+        gJobName,
+        gNumberRange,
+        gPageLen,
+        gSearchFilter;
 
     document.getElementById('li-job').setAttribute('class', 'active');
 
-    buildsTable = null;
-    jobName = null;
-    pageLen = null;
-    searchFilter = null;
+    gJobName = null;
+    gPageLen = null;
+    gSearchFilter = null;
 
-    numberRange = 20;
+    gNumberRange = 20;
     // Needed to translate git branch refnames from x/y into x:y or the
     // forward slash will not work with URLs.
-    branchRegEx = new RegExp('/+', 'g');
-
-    tableDom = '<"row"' +
-            '<"col-xs-6 col-sm-6 col-md-12 col-lg-12"f>r' +
-            '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
+    gBranchRegEx = new RegExp('/+', 'g');
 
     function getBootStatsFail() {
         html.replaceContent(
@@ -51,7 +45,7 @@ require([
             data;
 
         data = {
-            job: jobName,
+            job: gJobName,
             sort: 'created_on',
             sort_order: 1,
             created_on: startDate,
@@ -80,7 +74,7 @@ require([
             data;
 
         data = {
-            job: jobName,
+            job: gJobName,
             sort: 'created_on',
             sort_order: 1,
             created_on: startDate,
@@ -144,9 +138,9 @@ require([
             });
         }
         // Perform the table search now, after completing all operations.
-        buildsTable
-            .pageLen(pageLen)
-            .search(searchFilter);
+        gBuildsTable
+            .pageLen(gPageLen)
+            .search(gSearchFilter);
     }
 
     function getBuildBootCount(response) {
@@ -184,7 +178,7 @@ require([
                     operation_id: 'build-success-count-' + kdx,
                     resource: 'count',
                     document: 'build',
-                    query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
+                    query: 'status=PASS&job=' + gJobName + '&kernel=' + kernel
                 };
 
                 // Get failed build count.
@@ -193,7 +187,7 @@ require([
                     operation_id: 'build-fail-count-' + kdx,
                     resource: 'count',
                     document: 'build',
-                    query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
+                    query: 'status=FAIL&job=' + gJobName + '&kernel=' + kernel
                 };
 
                 // Get successful boot reports count.
@@ -202,7 +196,7 @@ require([
                     operation_id: 'boot-success-count-' + kdx,
                     resource: 'count',
                     document: 'boot',
-                    query: 'status=PASS&job=' + jobName + '&kernel=' + kernel
+                    query: 'status=PASS&job=' + gJobName + '&kernel=' + kernel
                 };
 
                 // Get failed boot reports count.
@@ -211,7 +205,7 @@ require([
                     operation_id: 'boot-fail-count-' + kdx,
                     resource: 'count',
                     document: 'boot',
-                    query: 'status=FAIL&job=' + jobName + '&kernel=' + kernel
+                    query: 'status=FAIL&job=' + gJobName + '&kernel=' + kernel
                 };
             }
 
@@ -229,26 +223,17 @@ require([
         }
     }
 
-    function getBuildsDone(data) {
+    function getBuildsDone(response) {
         var columns,
-            resLen,
             results;
 
-        results = data.result;
-        resLen = results.length;
-
-        if (resLen === 0) {
+        results = response.result;
+        if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No builds data available.'));
         } else {
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'kernel',
                     title: 'Kernel',
@@ -268,7 +253,7 @@ require([
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href',
-                                '/build/' + jobName + '/kernel/' + data);
+                                '/build/' + gJobName + '/kernel/' + data);
 
                             aNode.appendChild(document.createTextNode(data));
                             tooltipNode.appendChild(aNode);
@@ -290,7 +275,7 @@ require([
                             rendered,
                             tooltipNode;
 
-                        branch = data.replace(branchRegEx, ':', 'g');
+                        branch = data.replace(gBranchRegEx, ':', 'g');
                         rendered = data;
                         if (type === 'display') {
                             tooltipNode = html.tooltip();
@@ -300,7 +285,7 @@ require([
                             aNode.className = 'table-link';
                             aNode.setAttribute(
                                 'href',
-                                '/job/' + jobName + '/branch/' + branch);
+                                '/job/' + gJobName + '/branch/' + branch);
 
                             aNode.appendChild(document.createTextNode(data));
                             tooltipNode.appendChild(aNode);
@@ -512,15 +497,12 @@ require([
                 }
             ];
 
-            buildsTable
-                .dom(tableDom)
-                .noIDUrl(true)
-                .tableData(results)
+            gBuildsTable
+                .data(results)
                 .columns(columns)
-                .order([6, 'desc'])
-                .menu('builds per page')
+                .order([5, 'desc'])
+                .noIdURL(true)
                 .rowURLElements(['job', 'kernel'])
-                .lengthChange(false)
                 .paging(false)
                 .info(false)
                 .draw();
@@ -540,10 +522,10 @@ require([
 
         data = {
             aggregate: 'kernel',
-            job: jobName,
+            job: gJobName,
             sort: 'created_on',
             sort_order: -1,
-            limit: numberRange,
+            limit: gNumberRange,
             field: [
                 'job',
                 'kernel', 'created_on', 'git_branch', 'git_commit', 'git_url'
@@ -602,11 +584,10 @@ require([
 
     function getDetails() {
         var batchQueries,
-            data,
             deferred,
             queryString;
 
-        queryString = 'job=' + jobName + '&limit=' + numberRange;
+        queryString = 'job=' + gJobName;
         batchQueries = new Array(3);
 
         batchQueries[0] = {
@@ -633,11 +614,9 @@ require([
             query: queryString
         };
 
-        data = JSON.stringify({
-            batch: batchQueries
-        });
+        deferred = r.post(
+            '/_ajax/batch', JSON.stringify({batch: batchQueries}));
 
-        deferred = r.post('/_ajax/batch', data);
         $.when(deferred)
             .fail(e.error, getDetailsFailed)
             .done(getDetailsDone);
@@ -646,20 +625,25 @@ require([
     init.hotkeys();
     init.tooltip();
 
-    if (document.getElementById('number-name') !== null) {
-        numberRange = document.getElementById('number-name').value;
+    if (document.getElementById('number-range') !== null) {
+        gNumberRange = document.getElementById('number-range').value;
     }
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
 
-    buildsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    gBuildsTable = table({
+        tableId: 'jobstable',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     getDetails();
     getBuilds();
 });

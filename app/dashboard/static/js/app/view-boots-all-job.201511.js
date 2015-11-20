@@ -5,11 +5,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, b, e, init, r, t, html, boot, appconst) {
+], function($, b, e, init, r, table, html, boot, appconst) {
     'use strict';
     var bootsTable,
         jobName,
@@ -201,19 +201,19 @@ require([
                     data: 'kernel',
                     title: 'Successful',
                     className: 'pull-center',
-                    render: boot.renderTableKernelCountSuccess
+                    render: boot.rendereTableCountSuccess
                 },
                 {
                     data: 'kernel',
                     title: 'Failed',
                     className: 'pull-center',
-                    render: boot.renderTableKernelCountFail
+                    render: boot.rendereTableCountFail
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'job',
@@ -227,13 +227,12 @@ require([
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([4, 'desc'])
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job', 'kernel'])
-                .noIDUrl(true)
-                .lengthChange(false)
+                .noIdURL(true)
                 .paging(false)
                 .info(false)
                 .draw();
@@ -276,7 +275,12 @@ require([
         pageLen = document.getElementById('page-len').value;
     }
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        disableSearch: true,
+        tableDivId: 'table-div',
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading'
+    });
     getDetailsCount();
     getBoots();
 });

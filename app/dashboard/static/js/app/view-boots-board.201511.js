@@ -4,11 +4,11 @@ require([
     'utils/error',
     'utils/init',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, e, init, r, t, html, boot, appconst) {
+], function($, e, init, r, table, html, boot, appconst) {
     'use strict';
     var boardName,
         bootReqData,
@@ -123,7 +123,7 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTableTree
+                    render: boot.renderTree
                 },
                 {
                     data: 'git_branch',
@@ -157,14 +157,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -173,12 +173,12 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([7, 'desc'])
                 .rowURL(rowURLFmt)
@@ -238,6 +238,11 @@ require([
         sort_order: -1
     };
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     getBoots();
 });

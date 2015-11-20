@@ -4,12 +4,12 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'tables/job',
     'utils/date'
-], function($, init, e, r, t, html, appconst, jobt) {
+], function($, init, e, r, table, html, appconst, jobt) {
     'use strict';
     var gDateRange,
         gJobsTable,
@@ -170,7 +170,7 @@ require([
                 {
                     data: 'job',
                     title: 'Tree',
-                    render: jobt.renderTableTree
+                    render: jobt.renderTree
                 },
                 {
                     data: 'git_branch',
@@ -198,13 +198,13 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'pull-center',
-                    render: jobt.renderTableDate
+                    render: jobt.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: jobt.renderTableStatus
+                    render: jobt.renderStatus
                 },
                 {
                     data: 'job',
@@ -213,18 +213,18 @@ require([
                     orderable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: jobt.renderTableDetail
+                    render: jobt.renderDetails
                 }
             ];
 
             gJobsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([4, 'desc'])
-                .menu('jobs per page')
+                .languageLengthMenu('jobs per page')
                 .rowURL('/job/%(job)s/')
                 .rowURLElements(['job'])
-                .noIDUrl(true)
+                .noIdURL(true)
                 .draw();
         }
     }
@@ -278,6 +278,11 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    gJobsTable = t(['jobstable', 'table-loading', 'table-div'], true);
+    gJobsTable = table({
+        tableId: 'jobstable',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     getJobs();
 });

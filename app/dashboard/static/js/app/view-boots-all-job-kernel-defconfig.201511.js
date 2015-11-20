@@ -4,10 +4,10 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot'
-], function($, init, e, r, t, html, boot) {
+], function($, init, e, r, table, html, boot) {
     'use strict';
     var gBootsTable,
         gDefconfigFull,
@@ -83,13 +83,13 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -98,21 +98,18 @@ require([
                     searchable: false,
                     className: 'pull-center',
                     width: '30px',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             gBootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
-                    [
-                        'board', 'job', 'kernel', 'defconfig_full', 'lab_name'
-                    ]
-                )
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
             gBootsTable
@@ -237,7 +234,12 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gBootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'boots-table',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     setupData();
     getBoots();
 });

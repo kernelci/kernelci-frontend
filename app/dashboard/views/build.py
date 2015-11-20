@@ -39,7 +39,9 @@ class BuildsAllView(GeneralBuildsView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "builds-all.html",
+            "base-all.html",
+            table_id="builds-table",
+            data_main="kci-builds-all",
             page_len=page_len,
             page_title=self.BUILD_PAGES_TITLE,
             body_title=body_title,

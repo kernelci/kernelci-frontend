@@ -842,9 +842,22 @@ require([
 
         // Soc.
         if (soc) {
+            spanNode = document.createElement('span');
+            spanNode.appendChild(document.createTextNode(soc));
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for SoC &#171;' + soc + '&#187;');
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/soc/' + soc + '/');
+            aNode.appendChild(html.soc());
+
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
+
             html.replaceContent(
-                document.getElementById('dd-board-soc'),
-                document.createTextNode(soc));
+                document.getElementById('dd-board-soc'), spanNode);
         } else {
             html.replaceContent(
                 document.getElementById('dd-board-soc'), html.nonavail());

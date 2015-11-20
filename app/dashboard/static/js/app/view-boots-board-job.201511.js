@@ -4,11 +4,11 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, init, e, r, t, html, boot, appconst) {
+], function($, init, e, r, table, html, boot, appconst) {
     'use strict';
     var boardName,
         bootReqData,
@@ -146,14 +146,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -162,15 +162,15 @@ require([
                     searchable: false,
                     className: 'pull-center',
                     width: '30px',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             bootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURLFmt)
                 .rowURLElements(
                     ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
@@ -273,7 +273,12 @@ require([
         sort_order: -1
     };
 
-    bootsTable = t(['boots-table', 'table-loading', 'table-div'], true);
+    bootsTable = table({
+        tableId: 'boots-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+        disableSearch: true
+    });
     setUpData();
     getBoots();
 });

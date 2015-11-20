@@ -94,6 +94,15 @@ define(function() {
         return iNode;
     };
 
+    html.soc = function() {
+        var iNode;
+
+        iNode = document.createElement('i');
+        iNode.className = 'fa fa-server';
+
+        return iNode;
+    };
+
     html.nonavail = function() {
         var tooltipNode,
             iNode;

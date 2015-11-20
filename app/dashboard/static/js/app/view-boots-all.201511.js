@@ -4,11 +4,11 @@ require([
     'utils/init',
     'utils/error',
     'utils/request',
-    'utils/tables',
+    'utils/table',
     'utils/html',
     'utils/const',
     'tables/boot'
-], function($, init, e, r, t, html, appconst, boot) {
+], function($, init, e, r, table, html, appconst, boot) {
     'use strict';
     var gBootReqData,
         gBootsTable,
@@ -117,7 +117,7 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTableTreeAll
+                    render: boot.renderTreeAll
                 },
                 {
                     data: 'git_branch',
@@ -159,14 +159,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderTableDate
+                    render: boot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderTableStatus
+                    render: boot.renderStatus
                 },
                 {
                     data: 'board',
@@ -175,19 +175,18 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderTableDetail
+                    render: boot.renderDetails
                 }
             ];
 
             gBootsTable
-                .tableData(results)
+                .data(results)
                 .columns(columns)
                 .order([8, 'desc'])
-                .menu('boot reports per page')
+                .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
                 .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
-                )
+                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
                 .draw();
 
             gBootsTable
@@ -226,6 +225,11 @@ require([
         sort_order: -1
     };
 
-    gBootsTable = t(['bootstable', 'table-loading', 'table-div'], true);
+    gBootsTable = table({
+        tableId: 'bootstable',
+        tableDivId: 'table-div',
+        tableLoadingDivId: 'table-loading',
+        disableSearch: true
+    });
     getBoots();
 });

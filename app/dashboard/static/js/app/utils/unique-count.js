@@ -4,6 +4,7 @@ define([
 ], function($) {
     'use strict';
     var unique = {};
+
     // Count unique values found in a boot data structure from the backend.
     // Rerturn a 2-size array with:
     // 0: the global unique count across all the data
@@ -50,7 +51,8 @@ define([
     //         }
     //     }
     // }
-    unique.countUniqueBoot = function(response) {
+
+    function uniqueBoot(response) {
         var result = response.result,
             resLen = response.count,
             tStatus = {},
@@ -127,24 +129,6 @@ define([
                     }
                 }
             }
-            // Polyfill for browsers that don't support Object.keys(). :-(
-            // TODO: keep an eye for IE8 access.
-            if (!Object.keys) {
-                Object.keys = function(obj) {
-                    var lst = [],
-                        prp;
-                    if (obj !== Object(obj)) {
-                        throw new TypeError(
-                            'Object.keys called on a non-object');
-                    }
-                    for (prp in obj) {
-                        if (Object.prototype.hasOwnProperty.call(obj, prp)) {
-                            lst.push(prp);
-                        }
-                    }
-                    return lst;
-                };
-            }
 
             tUniq = {
                 arch: Object.keys(tArchs),
@@ -173,6 +157,10 @@ define([
         }
 
         return [tUniq, uniqueLab];
+    }
+
+    unique.uniqueBoot = function(response) {
+        return uniqueBoot(response);
     };
 
     // Count unique values found in a boot data structure from the backend.
@@ -180,7 +168,7 @@ define([
     unique.countUniqueBootD = function(response) {
         var deferred;
         deferred = $.Deferred();
-        deferred.resolve(unique.countUniqueBoot(response));
+        deferred.resolve(uniqueBoot(response));
         return deferred.promise();
     };
 
