@@ -87,26 +87,42 @@
     <div class="page-header">
         <h3>Defconfigs Built</h3>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="btn-group">
-            <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
-            <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
-            <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
-            <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
+    <div class="buttons-row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="btn-group btn-group-sm">
+                <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
+                <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
+                <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
+                <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
+            </div>
         </div>
-        <div class="dropdown warn-err-dropdown">
-            <button id="warn-err-btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="true" disabled>Show
-            <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
-                <li role="presentation"><a class="unselectable warn-err-btn" data-view="all">All</a></li>
-                <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings">Builds with warnings and no errors</a></li>
-                <li role="presentation"><a class="unselectable warn-err-btn" data-view="errors">Builds with errors and no warnings</a></li>
-                <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings-errors">Builds with warnings and errors</a></li>
-                <li role="presentation"><a class="unselectable warn-err-btn" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
-            </ul>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="search-box">
+                <div id="search-area" class="input-group">
+                    <span class="input-group-addon">
+                        <i class="fa fa-search"></i>
+                    </span>
+                    <input type="search" class="form-control input-sm" placeholder="Filter the results">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-md-offset-2 col-lg-2 col-lg-offset-2">
+            <div class="dropdown warn-err-dropdown">
+                <button id="warn-err-btn" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="true" aria-haspopup="true" disabled>Show
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="all">All</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings">Builds with warnings and no errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="errors">Builds with errors and no warnings</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings-errors">Builds with warnings and errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
+                </ul>
+            </div>
         </div>
     </div>
+</div>
+<div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="accordion-container">
             <div class="panel-group" id="accordion">
