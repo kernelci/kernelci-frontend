@@ -11,12 +11,14 @@ require([
     'utils/html',
     'utils/storage',
     'utils/session',
+    'utils/filter',
     'utils/date'
-], function($, b, e, init, r, u, btns, chart, html, storage, session) {
+], function($, b, e, init, r, u, btns, chart, html, storage, session, filter) {
     'use strict';
     var gFileServer,
         gJobName,
         gKernelName,
+        gResultFilter,
         gSessionStorage;
 
     function bindDetailButtons() {
@@ -92,6 +94,7 @@ require([
             rowNode,
             sizeNode,
             smallNode,
+            status,
             statusNode,
             tooltipNode,
             translatedURI,
@@ -106,387 +109,408 @@ require([
         hasUnknown = false;
         results = response.result;
 
-        if (results.length === 0) {
-            html.replaceContent(
-                document.getElementById('accordion-container'),
-                html.errorDiv('No data available'));
-        } else {
-            accordionElement = document.getElementById('accordion');
-            html.removeChildren(accordionElement);
+        function _createDataIndex(result) {
+            var dataIndex;
 
-            results.forEach(function(value, idx) {
-                docId = value._id.$oid;
-                defconfigFull = value.defconfig_full;
-                job = value.job;
-                kernel = value.kernel;
-                arch = value.arch;
-                fileServerURL = value.file_server_url;
-                fileServerResource = value.file_server_resource;
-                errorsCount = value.errors;
-                warningsCount = value.warnings;
-                metadata = value.metadata;
+            dataIndex = '';
+            dataIndex += result.defconfig_full.toLowerCase() || '';
+            dataIndex += result.job.toLowerCase() || '';
+            dataIndex += result.kernel.toLowerCase() || '';
+            dataIndex += result.arch.toLowerCase() || '';
+            dataIndex += result.status.toLowerCase() || '';
 
-                if (fileServerURL === null || fileServerURL === undefined) {
-                    fileServerURL = gFileServer;
+            if (result.metadata) {
+                if (result.metadata.hasOwnProperty('cross_compile')) {
+                    dataIndex += result.metadata.cross_compile
+                        .toLowerCase() || '';
                 }
 
-                fileServerData = [
-                    job, kernel, arch + '-' + defconfigFull
-                ];
-                translatedURI = u.translateServerURL(
-                    fileServerURL, fileServerResource, fileServerData);
-                fileServerURI = translatedURI[0];
-                pathURI = translatedURI[1];
-
-                switch (value.status) {
-                    case 'FAIL':
-                        hasFailed = true;
-                        statusNode = html.fail();
-                        cls = 'df-failed';
-                        break;
-                    case 'PASS':
-                        hasSuccess = true;
-                        statusNode = html.success();
-                        cls = 'df-success';
-                        break;
-                    default:
-                        hasUnknown = true;
-                        statusNode = html.unknown();
-                        cls = 'df-unknown';
-                        break;
+                if (result.metadata.hasOwnProperty('compiler_version')) {
+                    dataIndex += result.metadata.compiler_version
+                        .toLowerCase().replace(/\s/g, '') || '';
                 }
-                html.addClass(statusNode, 'pull-right');
+            }
 
-                if (errorsCount === undefined) {
-                    errorsCount = 0;
-                }
-                if (warningsCount === undefined) {
-                    warningsCount = 0;
-                }
+            return dataIndex;
+        }
 
-                if (warningsCount > 0 && errorsCount > 0) {
-                    cls += ' df-w-e';
-                } else if (warningsCount > 0 && errorsCount === 0) {
-                    cls += ' df-w';
-                } else if (warningsCount === 0 && errorsCount > 0) {
-                    cls += ' df-e';
-                } else if (warningsCount === 0 && errorsCount === 0) {
-                    cls += ' df-no-w-no-e';
-                }
+        function _parseResult(result, idx) {
+            docId = result._id.$oid;
+            defconfigFull = result.defconfig_full;
+            job = result.job;
+            kernel = result.kernel;
+            arch = result.arch;
+            fileServerURL = result.file_server_url;
+            fileServerResource = result.file_server_resource;
+            errorsCount = result.errors;
+            warningsCount = result.warnings;
+            metadata = result.metadata;
+            status = result.status;
 
-                if (warningsCount === 1) {
-                    warningString = warningsCount + '&nbsp;warning';
-                } else {
-                    warningString = warningsCount + '&nbsp;warnings';
-                }
+            if (fileServerURL === null || fileServerURL === undefined) {
+                fileServerURL = gFileServer;
+            }
 
-                if (errorsCount === 1) {
-                    errorString = errorsCount + '&nbsp;error';
-                } else {
-                    errorString = errorsCount + '&nbsp;errors';
-                }
+            fileServerData = [
+                job, kernel, arch + '-' + defconfigFull
+            ];
+            translatedURI = u.translateServerURL(
+                fileServerURL, fileServerResource, fileServerData);
+            fileServerURI = translatedURI[0];
+            pathURI = translatedURI[1];
 
-                warnErrString = 'Build warnings and errors';
-                warnErrCount = warningString +
-                    '&nbsp;&mdash;&nbsp;' + errorString;
+            switch (status) {
+                case 'FAIL':
+                    hasFailed = true;
+                    statusNode = html.fail();
+                    cls = 'df-failed';
+                    break;
+                case 'PASS':
+                    hasSuccess = true;
+                    statusNode = html.success();
+                    cls = 'df-success';
+                    break;
+                default:
+                    hasUnknown = true;
+                    statusNode = html.unknown();
+                    cls = 'df-unknown';
+                    break;
+            }
+            html.addClass(statusNode, 'pull-right');
 
-                errNode = document.createElement('span');
-                errNode.className = 'build-warnings';
-                smallNode = document.createElement('small');
-                tooltipNode = html.tooltip();
+            if (errorsCount === undefined) {
+                errorsCount = 0;
+            }
+            if (warningsCount === undefined) {
+                warningsCount = 0;
+            }
 
-                if (warningsCount === 0 && errorsCount === 0) {
-                    if (value.build_log !== null) {
-                        warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
-                            'Click to view the build log';
+            if (warningsCount > 0 && errorsCount > 0) {
+                cls += ' df-w-e';
+            } else if (warningsCount > 0 && errorsCount === 0) {
+                cls += ' df-w';
+            } else if (warningsCount === 0 && errorsCount > 0) {
+                cls += ' df-e';
+            } else if (warningsCount === 0 && errorsCount === 0) {
+                cls += ' df-no-w-no-e';
+            }
 
-                        tooltipNode.setAttribute('title', warnErrTooltip);
-                        aNode = document.createElement('a');
-                        aNode.setAttribute(
-                            'href',
-                            fileServerURI
-                                .path(pathURI + '/' + value.build_log)
-                                .normalizePath().href()
-                        );
-                        aNode.insertAdjacentHTML('beforeend', warnErrCount);
+            if (warningsCount === 1) {
+                warningString = warningsCount + '&nbsp;warning';
+            } else {
+                warningString = warningsCount + '&nbsp;warnings';
+            }
 
-                        tooltipNode.appendChild(aNode);
-                        smallNode.appendChild(tooltipNode);
-                        errNode.appendChild(smallNode);
-                    } else {
-                        tooltipNode.setAttribute('title', warnErrString);
-                        tooltipNode.insertAdjacentHTML(
-                            'beforeend', warnErrCount);
+            if (errorsCount === 1) {
+                errorString = errorsCount + '&nbsp;error';
+            } else {
+                errorString = errorsCount + '&nbsp;errors';
+            }
 
-                        smallNode.appendChild(tooltipNode);
-                        errNode.appendChild(smallNode);
-                    }
-                } else {
+            warnErrString = 'Build warnings and errors';
+            warnErrCount = warningString +
+                '&nbsp;&mdash;&nbsp;' + errorString;
+
+            errNode = document.createElement('span');
+            errNode.className = 'build-warnings';
+            smallNode = document.createElement('small');
+            tooltipNode = html.tooltip();
+
+            if (warningsCount === 0 && errorsCount === 0) {
+                if (result.build_log !== null) {
                     warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
-                        'Click to view detailed build log information';
+                        'Click to view the build log';
 
                     tooltipNode.setAttribute('title', warnErrTooltip);
                     aNode = document.createElement('a');
                     aNode.setAttribute(
                         'href',
-                        '/build/' + job + '/kernel/' + kernel +
-                        '/defconfig/' + defconfigFull + '/logs/?_id=' + docId);
+                        fileServerURI
+                            .path(pathURI + '/' + result.build_log)
+                            .normalizePath().href()
+                    );
                     aNode.insertAdjacentHTML('beforeend', warnErrCount);
 
                     tooltipNode.appendChild(aNode);
                     smallNode.appendChild(tooltipNode);
                     errNode.appendChild(smallNode);
+                } else {
+                    tooltipNode.setAttribute('title', warnErrString);
+                    tooltipNode.insertAdjacentHTML(
+                        'beforeend', warnErrCount);
+
+                    smallNode.appendChild(tooltipNode);
+                    errNode.appendChild(smallNode);
                 }
+            } else {
+                warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
+                    'Click to view detailed build log information';
 
-                collapseId = 'collapse-defconf' + idx;
-                panelNode = document.createElement('div');
-                panelNode.className = 'panel panel-default' + ' ' + cls;
-
-                headingNode = document.createElement('div');
-                headingNode.className = 'panel-heading collapsed';
-                headingNode.id = 'panel-defconf' + idx;
-                headingNode.setAttribute('aria-expanded', false);
-                headingNode.setAttribute('data-parent', '#accordion');
-                headingNode.setAttribute('data-toggle', 'collapse');
-                headingNode.setAttribute('data-target', '#' + collapseId);
-                headingNode.setAttribute('aria-controls', '#' + collapseId);
-
-                hNode = document.createElement('h4');
-                hNode.className = 'panel-title';
-
+                tooltipNode.setAttribute('title', warnErrTooltip);
                 aNode = document.createElement('a');
-                aNode.setAttribute('data-parent', '#accordion');
-                aNode.setAttribute('data-toggle', 'collapse');
-                aNode.setAttribute('href', '#' + collapseId);
-                aNode.setAttribute('aria-controls', '#' + collapseId);
-                aNode.appendChild(document.createTextNode(defconfigFull));
+                aNode.setAttribute(
+                    'href',
+                    '/build/' + job + '/kernel/' + kernel +
+                    '/defconfig/' + defconfigFull + '/logs/?_id=' + docId);
+                aNode.insertAdjacentHTML('beforeend', warnErrCount);
 
-                hNode.appendChild(aNode);
+                tooltipNode.appendChild(aNode);
+                smallNode.appendChild(tooltipNode);
+                errNode.appendChild(smallNode);
+            }
 
-                if (arch !== null) {
-                    hNode.insertAdjacentHTML(
-                        'beforeend', '&nbsp;&dash;&nbsp;');
-                    archLabelNode = document.createElement('span');
-                    archLabelNode.setAttribute('class', 'arch-label');
-                    archLabelNode.appendChild(document.createTextNode(arch));
-                    hNode.appendChild(archLabelNode);
-                }
+            collapseId = 'collapse-defconf' + idx;
+            panelNode = document.createElement('div');
+            panelNode.className = 'panel panel-default searchable ' + cls;
 
-                hNode.appendChild(statusNode);
-                hNode.appendChild(errNode);
-                headingNode.appendChild(hNode);
-                panelNode.appendChild(headingNode);
+            headingNode = document.createElement('div');
+            headingNode.className = 'panel-heading collapsed';
+            headingNode.id = 'panel-defconf' + idx;
+            headingNode.setAttribute('aria-expanded', false);
+            headingNode.setAttribute('data-parent', '#accordion');
+            headingNode.setAttribute('data-toggle', 'collapse');
+            headingNode.setAttribute('data-target', '#' + collapseId);
+            headingNode.setAttribute('aria-controls', '#' + collapseId);
 
-                collapseNode = document.createElement('div');
-                collapseNode.id = collapseId;
-                collapseNode.className = 'panel-collapse collapse';
-                collapseNode.setAttribute('aria-expanded', false);
-                collapseBodyNode = document.createElement('div');
-                collapseBodyNode.className = 'panel-body';
+            hNode = document.createElement('h4');
+            hNode.className = 'panel-title';
 
-                rowNode = document.createElement('div');
-                rowNode.className = 'row';
+            aNode = document.createElement('a');
+            aNode.setAttribute('data-parent', '#accordion');
+            aNode.setAttribute('data-toggle', 'collapse');
+            aNode.setAttribute('href', '#' + collapseId);
+            aNode.setAttribute('aria-controls', '#' + collapseId);
+            aNode.appendChild(document.createTextNode(defconfigFull));
 
-                colNode = document.createElement('div');
-                colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
+            hNode.appendChild(aNode);
 
-                dlNode = document.createElement('dl');
-                dlNode.className = 'dl-horizontal';
+            if (arch !== null) {
+                hNode.insertAdjacentHTML(
+                    'beforeend', '&nbsp;&dash;&nbsp;');
+                archLabelNode = document.createElement('span');
+                archLabelNode.setAttribute('class', 'arch-label');
+                archLabelNode.appendChild(document.createTextNode(arch));
+                hNode.appendChild(archLabelNode);
+            }
 
-                if (value.dtb_dir !== null) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
-                    aNode = document.createElement('a');
-                    iNode = document.createElement('i');
+            hNode.appendChild(statusNode);
+            hNode.appendChild(errNode);
+            headingNode.appendChild(hNode);
+            panelNode.appendChild(headingNode);
 
-                    dtNode.appendChild(
-                        document.createTextNode('Dtb directory'));
+            collapseNode = document.createElement('div');
+            collapseNode.id = collapseId;
+            collapseNode.className = 'panel-collapse collapse';
+            collapseNode.setAttribute('aria-expanded', false);
+            collapseBodyNode = document.createElement('div');
+            collapseBodyNode.className = 'panel-body';
 
-                    aNode.setAttribute(
-                        'href',
-                        fileServerURI
-                            .path(
-                                pathURI + '/' + value.dtb_dir + '/')
-                            .normalizePath().href()
-                    );
-                    aNode.appendChild(document.createTextNode(value.dtb_dir));
-                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            rowNode = document.createElement('div');
+            rowNode.className = 'row';
 
-                    iNode.className = 'fa fa-external-link';
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
 
-                    aNode.appendChild(iNode);
-                    ddNode.appendChild(aNode);
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
-                }
+            dlNode = document.createElement('dl');
+            dlNode.className = 'dl-horizontal';
 
-                if (value.modules !== null && value.modules !== undefined) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
-                    aNode = document.createElement('a');
-                    iNode = document.createElement('i');
+            if (result.dtb_dir !== null) {
+                dtNode = document.createElement('dt');
+                ddNode = document.createElement('dd');
+                aNode = document.createElement('a');
+                iNode = document.createElement('i');
 
-                    dtNode.appendChild(document.createTextNode('Modules'));
-                    aNode.setAttribute(
-                        'href',
-                         fileServerURI.path(pathURI + '/' + value.modules)
-                            .normalizePath().href());
-                    aNode.appendChild(document.createTextNode(value.modules));
-                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    iNode.className = 'fa fa-external-link';
+                dtNode.appendChild(
+                    document.createTextNode('Dtb directory'));
 
-                    aNode.appendChild(iNode);
-                    ddNode.appendChild(aNode);
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(
+                            pathURI + '/' + result.dtb_dir + '/')
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode(result.dtb_dir));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-                    if (value.modules_size !== null &&
-                            value.modules_size !== undefined) {
-                        sizeNode = document.createElement('small');
-                        sizeNode.appendChild(
-                            document.createTextNode('(' +
-                                b.bytesToHuman(value.modules_size) + ')'));
+                iNode.className = 'fa fa-external-link';
 
-                        ddNode.insertAdjacentHTML('beforeend', '&nbsp');
-                        ddNode.appendChild(sizeNode);
-                    }
+                aNode.appendChild(iNode);
+                ddNode.appendChild(aNode);
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
 
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
-                }
+            if (result.modules !== null && result.modules !== undefined) {
+                dtNode = document.createElement('dt');
+                ddNode = document.createElement('dd');
+                aNode = document.createElement('a');
+                iNode = document.createElement('i');
 
-                if (value.text_offset !== null) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
+                dtNode.appendChild(document.createTextNode('Modules'));
+                aNode.setAttribute(
+                    'href',
+                     fileServerURI.path(pathURI + '/' + result.modules)
+                        .normalizePath().href());
+                aNode.appendChild(document.createTextNode(result.modules));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                iNode.className = 'fa fa-external-link';
 
-                    dtNode.appendChild(
-                        document.createTextNode('Text offset'));
-                    ddNode.appendChild(
-                        document.createTextNode(value.text_offset));
+                aNode.appendChild(iNode);
+                ddNode.appendChild(aNode);
 
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
-                }
-
-                if (value.kernel_image !== null) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
-                    aNode = document.createElement('a');
-                    iNode = document.createElement('i');
+                if (result.modules_size !== null &&
+                        result.modules_size !== undefined) {
                     sizeNode = document.createElement('small');
+                    sizeNode.appendChild(
+                        document.createTextNode('(' +
+                            b.bytesToHuman(result.modules_size) + ')'));
 
-                    dtNode.appendChild(document.createTextNode('Kernel image'));
-                    aNode.setAttribute(
-                        'href',
-                        fileServerURI
-                            .path(pathURI + '/' + value.kernel_image)
-                            .normalizePath().href()
-                    );
-                    aNode.appendChild(
-                        document.createTextNode(value.kernel_image));
-                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    iNode.className = 'fa fa-external-link';
-                    aNode.appendChild(iNode);
-
-                    ddNode.appendChild(aNode);
-                    if (value.kernel_image_size !== null &&
-                            value.kernel_image_size !== undefined) {
-                        ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                        sizeNode.appendChild(
-                            document.createTextNode(
-                                b.bytesToHuman(value.kernel_image_size)));
-                        ddNode.appendChild(sizeNode);
-                    }
-
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp');
+                    ddNode.appendChild(sizeNode);
                 }
-
-                if (value.kernel_config !== null) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
-                    aNode = document.createElement('a');
-                    iNode = document.createElement('i');
-
-                    dtNode.appendChild(
-                        document.createTextNode('Kernel config'));
-                    aNode.setAttribute('href',
-                        fileServerURI
-                            .path(pathURI + '/' + value.kernel_config)
-                            .normalizePath().href()
-                    );
-                    aNode.appendChild(
-                        document.createTextNode(value.kernel_config));
-                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    iNode.className = 'fa fa-external-link';
-                    aNode.appendChild(iNode);
-                    ddNode.appendChild(aNode);
-
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
-                }
-
-                if (value.build_log !== null) {
-                    dtNode = document.createElement('dt');
-                    ddNode = document.createElement('dd');
-                    aNode = document.createElement('a');
-                    iNode = document.createElement('i');
-                    iNode.className = 'fa fa-external-link';
-
-                    dtNode.appendChild(document.createTextNode('Build log'));
-                    aNode.setAttribute(
-                        'href',
-                        fileServerURI
-                            .path(pathURI + '/' + value.build_log)
-                            .normalizePath().href()
-                    );
-                    aNode.appendChild(
-                        document.createTextNode(value.build_log));
-                    aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    aNode.appendChild(iNode);
-                    ddNode.appendChild(aNode);
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
-                }
-
-                colNode.appendChild(dlNode);
-                rowNode.appendChild(colNode);
-
-                colNode = document.createElement('div');
-                colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
-
-                dlNode = document.createElement('dl');
-                dlNode.className = 'dl-horizontal';
-
-                dtNode = document.createElement('dt');
-                dtNode.appendChild(document.createTextNode('Build errors'));
-                ddNode = document.createElement('dd');
-                ddNode.appendChild(document.createTextNode(errorsCount));
 
                 dlNode.appendChild(dtNode);
                 dlNode.appendChild(ddNode);
+            }
 
+            if (result.text_offset !== null) {
                 dtNode = document.createElement('dt');
-                dtNode.appendChild(document.createTextNode('Build warnings'));
                 ddNode = document.createElement('dd');
-                ddNode.appendChild(document.createTextNode(warningsCount));
+
+                dtNode.appendChild(
+                    document.createTextNode('Text offset'));
+                ddNode.appendChild(
+                    document.createTextNode(result.text_offset));
 
                 dlNode.appendChild(dtNode);
                 dlNode.appendChild(ddNode);
+            }
 
-                if (value.build_time !== null) {
-                    dtNode = document.createElement('dt');
-                    dtNode.appendChild(document.createTextNode('Build time'));
-                    ddNode = document.createElement('dd');
-                    ddNode.appendChild(
-                        document.createTextNode(value.build_time));
-                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;sec.');
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
+            if (result.kernel_image !== null) {
+                dtNode = document.createElement('dt');
+                ddNode = document.createElement('dd');
+                aNode = document.createElement('a');
+                iNode = document.createElement('i');
+                sizeNode = document.createElement('small');
+
+                dtNode.appendChild(document.createTextNode('Kernel image'));
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + result.kernel_image)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(
+                    document.createTextNode(result.kernel_image));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                iNode.className = 'fa fa-external-link';
+                aNode.appendChild(iNode);
+
+                ddNode.appendChild(aNode);
+                if (result.kernel_image_size !== null &&
+                        result.kernel_image_size !== undefined) {
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    sizeNode.appendChild(
+                        document.createTextNode(
+                            b.bytesToHuman(result.kernel_image_size)));
+                    ddNode.appendChild(sizeNode);
                 }
 
-                colNode.appendChild(dlNode);
-                rowNode.appendChild(colNode);
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
 
-                if (metadata !== undefined && metadata !== null) {
+            if (result.kernel_config !== null) {
+                dtNode = document.createElement('dt');
+                ddNode = document.createElement('dd');
+                aNode = document.createElement('a');
+                iNode = document.createElement('i');
+
+                dtNode.appendChild(
+                    document.createTextNode('Kernel config'));
+                aNode.setAttribute('href',
+                    fileServerURI
+                        .path(pathURI + '/' + result.kernel_config)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(
+                    document.createTextNode(result.kernel_config));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                iNode.className = 'fa fa-external-link';
+                aNode.appendChild(iNode);
+                ddNode.appendChild(aNode);
+
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
+
+            if (result.build_log !== null) {
+                dtNode = document.createElement('dt');
+                ddNode = document.createElement('dd');
+                aNode = document.createElement('a');
+                iNode = document.createElement('i');
+                iNode.className = 'fa fa-external-link';
+
+                dtNode.appendChild(document.createTextNode('Build log'));
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + result.build_log)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(
+                    document.createTextNode(result.build_log));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(iNode);
+                ddNode.appendChild(aNode);
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
+
+            colNode.appendChild(dlNode);
+            rowNode.appendChild(colNode);
+
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
+
+            dlNode = document.createElement('dl');
+            dlNode.className = 'dl-horizontal';
+
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Build errors'));
+            ddNode = document.createElement('dd');
+            ddNode.appendChild(document.createTextNode(errorsCount));
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Build warnings'));
+            ddNode = document.createElement('dd');
+            ddNode.appendChild(document.createTextNode(warningsCount));
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            if (result.build_time !== null) {
+                dtNode = document.createElement('dt');
+                dtNode.appendChild(document.createTextNode('Build time'));
+                ddNode = document.createElement('dd');
+                ddNode.appendChild(
+                    document.createTextNode(result.build_time));
+                ddNode.insertAdjacentHTML('beforeend', '&nbsp;sec.');
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
+
+            colNode.appendChild(dlNode);
+            rowNode.appendChild(colNode);
+
+            if (metadata) {
+                if (metadata.hasOwnProperty('cross_compile') ||
+                        metadata.hasOwnProperty('compiler_version')) {
+
                     colNode = document.createElement('div');
                     colNode.className = 'col-xs-12 col-sm-12 ' +
                         'col-md-12 col-lg-12';
@@ -499,7 +523,8 @@ require([
                             document.createTextNode('Cross-compile'));
                         ddNode = document.createElement('dd');
                         ddNode.appendChild(
-                            document.createTextNode(metadata.cross_compile));
+                            document.createTextNode(
+                                metadata.cross_compile));
                         dlNode.appendChild(dtNode);
                         dlNode.appendChild(ddNode);
                     }
@@ -519,33 +544,47 @@ require([
                     colNode.appendChild(dlNode);
                     rowNode.appendChild(colNode);
                 }
+            }
 
-                colNode = document.createElement('div');
-                colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
-                infoNode = document.createElement('div');
-                infoNode.className = 'pull-center';
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', 'Details for this build');
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-search';
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    '/build/' + job + '/kernel/' + kernel +
-                    '/defconfig/' + defconfigFull + '/?_id=' + value._id.$oid);
-                aNode.insertAdjacentHTML('beforeend', 'More info&nbsp;');
-                aNode.appendChild(iNode);
-                tooltipNode.appendChild(aNode);
-                infoNode.appendChild(tooltipNode);
-                colNode.appendChild(infoNode);
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+            infoNode = document.createElement('div');
+            infoNode.className = 'pull-center';
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Details for this build');
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-search';
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                '/build/' + job + '/kernel/' + kernel +
+                '/defconfig/' + defconfigFull + '/?_id=' + result._id.$oid);
+            aNode.insertAdjacentHTML('beforeend', 'More info&nbsp;');
+            aNode.appendChild(iNode);
+            tooltipNode.appendChild(aNode);
+            infoNode.appendChild(tooltipNode);
+            colNode.appendChild(infoNode);
 
-                rowNode.appendChild(colNode);
-                collapseBodyNode.appendChild(rowNode);
-                collapseNode.appendChild(collapseBodyNode);
-                panelNode.appendChild(collapseNode);
+            rowNode.appendChild(colNode);
+            collapseBodyNode.appendChild(rowNode);
+            collapseNode.appendChild(collapseBodyNode);
+            panelNode.appendChild(collapseNode);
 
-                accordionElement.appendChild(panelNode);
-            });
+            // Set the data-index attribute to filter the results.
+            panelNode.setAttribute('data-index', _createDataIndex(result));
+
+            accordionElement.appendChild(panelNode);
+        }
+
+        if (results.length === 0) {
+            html.replaceContent(
+                document.getElementById('accordion-container'),
+                html.errorDiv('No data available'));
+        } else {
+            accordionElement = document.getElementById('accordion');
+            html.removeChildren(accordionElement);
+
+            results.forEach(_parseResult);
 
             document
                 .getElementById('all-btn').removeAttribute('disabled');
@@ -942,6 +981,9 @@ require([
                 ];
             }
 
+            // Unload the filters applied through the input box.
+            gResultFilter.unload();
+
             pageState['.df-success'] = {
                 type: 'attr',
                 name: 'style',
@@ -1021,6 +1063,8 @@ require([
     }
 
     gSessionStorage = storage('build-' + gJobName + '-' + gKernelName);
+    gResultFilter = filter('data-search');
+
     registerEvents();
 
     getJob();
