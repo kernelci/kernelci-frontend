@@ -3,6 +3,7 @@ require([
     'jquery',
     'utils/init',
     'utils/base',
+    'utils/boot',
     'utils/request',
     'utils/error',
     'utils/urls',
@@ -13,67 +14,26 @@ require([
     'utils/session',
     'utils/html',
     'utils/date',
-    'sprintf',
-    'bootstrap'
-], function($, init, b, r, e, u, btns, chart, uniq, storage, session, html) {
+    'sprintf'
+], function(
+        $,
+        init,
+        base,
+        boot,
+        request, e, urls, buttons, chart, unique, storage, session, html) {
     'use strict';
-    var gKernelName = null,
-        gJobName = null,
-        gSearchFilter = null,
-        fileServer = null,
-        sNonAvail,
-        failLabel,
-        successLabel,
-        unknownLabel,
-        archLabel,
-        divCol6,
-        divCol12,
-        sessionNameFmt,
-        panelFmt,
-        boardTextFmt,
-        socTextFmt,
-        gSessionStorage,
-        defconfigTextFmt;
-
-    sNonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i></span>';
-
-    failLabel = '<span class="pull-right label label-danger">' +
-        '<li class="fa fa-exclamation-triangle"></li></span>';
-    successLabel = '<span class="pull-right label label-success">' +
-        '<li class="fa fa-check"></li></span>';
-    unknownLabel = '<span class="pull-right label label-warning">' +
-        '<li class="fa fa-question"></li></span>';
-    archLabel = '<span class="arch-label">%s</span>';
-
-    panelFmt = '<div class="panel panel-default %(cls)s">' +
-        '<div class="panel-heading" data-toggle="collapse" ' +
-        'id="panel-boots-%(idx)d" data-parent="accordion-%(lab)s" ' +
-        'data-target="#collapse-boots-%(idx)d">' +
-        '<h4 class="panel-title"><a data-toggle="collapse" ' +
-        'data-parent="#accordion-%(lab)s" href="#collapse-boots-%(idx)d">' +
-        '%(board)s&nbsp;<small>%(defconfig)s</small> ' +
-        '</a>%(archLabel)s%(statusLabel)s</h4></div>' +
-        '<div id="collapse-boots-%(idx)d" class="panel-collapse collapse">' +
-        '<div class="panel-body">';
-
-    divCol6 = '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-    divCol12 = '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">';
-    sessionNameFmt = 'boot-%s-%s';
-
-    boardTextFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="Total number of unique boards tested">%d</span>';
-    socTextFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="Total number of unique SoC families tested">%d</span>';
-    defconfigTextFmt = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="Total number of unique defconfigs tested">%s</span>';
+    var gFileServer,
+        gJob,
+        gKernel,
+        gSearchFilter,
+        gSessionStorage;
 
     function showHideBind(element) {
-        element.addEventListener('click', btns.showHideElements, true);
+        element.addEventListener('click', buttons.showHideElements, true);
     }
 
     function labBind(element) {
-        element.addEventListener('click', btns.showHideLab, true);
+        element.addEventListener('click', buttons.showHideLab, true);
     }
 
     function bindDetailButtons() {
@@ -87,132 +47,238 @@ require([
     }
 
     function uniqueCountFail() {
-        b.replaceByClass('unique-values', sNonAvail);
+       html.replaceByClassHTML('unique-values', '&infin;');
     }
 
-    function uniqueCountDone(defconfig, unique) {
-        var totalDefconfig = defconfig[0].result[0].count,
-            uniqueTotal = unique[0],
-            uniqueLab = unique[1],
-            sLab,
-            inDefconfText,
-            labBootCountFmt,
-            labUniqueCountFmt,
-            lLab,
-            tStatus,
-            tTotal,
-            fail,
-            pass,
-            unkn,
-            uArch = '0 architectures',
-            uBoard = '0 boards',
-            uSoc = '0 SoCs',
-            uDefconfig = '0 defconfigs',
-            uStr = '';
+    function createOtherCount(totals) {
+        var archStr,
+            boardStr,
+            defconfigStr,
+            smallNode,
+            socStr,
+            tooltipNode;
 
-        labBootCountFmt = '<span class="default-cursor" rel="tooltip" ' +
-            'data-toggle="tooltip" ' +
-            'title="Total, passed, failed and unknown boot reports count ' +
-            'for this lab"><small>(%d&nbsp;&mdash;&nbsp;' +
-            '<span class="green-font">%d</span>' +
-            '&nbsp;/&nbsp;<span class="red-font">%d</span>' +
-            '&nbsp;/&nbsp;<span class="yellow-font">%d</span>)</small></span>';
+        tooltipNode = html.tooltip();
+        html.addClass(tooltipNode, 'default-cursor');
+        tooltipNode.setAttribute(
+            'title', 'Total unique architectures, boards, SoCs and defconfigs');
 
-        labUniqueCountFmt = '<span class="default-cursor" rel="tooltip" ' +
-            'data-toggle="tooltip" title="Unique count of architectures, ' +
-            'boards, SoCs and defconfigs"><small>' +
-            '(%s&nbsp;/&nbsp;%s&nbsp;/&nbsp;%s&nbsp;/&nbsp;%s)</small></span>';
+        smallNode = document.createElement('small');
+        smallNode.appendChild(document.createTextNode('('));
+
+        if (totals.hasOwnProperty('arch')) {
+            if (totals.arch === 1) {
+                archStr = sprintf(
+                    '%s architecture', totals.arch);
+            } else {
+                archStr = sprintf(
+                    '%s architectures', totals.arch);
+            }
+
+            smallNode.appendChild(document.createTextNode(archStr));
+            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+        }
+
+        if (totals.hasOwnProperty('board')) {
+            if (totals.board === 1) {
+                boardStr = sprintf(
+                    '%s board', totals.board);
+            } else {
+                boardStr = sprintf(
+                    '%s boards', totals.board);
+            }
+
+            smallNode.appendChild(document.createTextNode(boardStr));
+            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+        }
+
+        if (totals.hasOwnProperty('soc')) {
+            if (totals.soc === 1) {
+                socStr = sprintf('%s SoC', totals.soc);
+            } else {
+                socStr = sprintf('%s SoCs', totals.soc);
+            }
+
+            smallNode.appendChild(document.createTextNode(socStr));
+            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+        }
+
+        if (totals.hasOwnProperty('defconfig')) {
+            if (totals.defconfig === 1) {
+                defconfigStr = sprintf(
+                    '%s defconfig', totals.defconfig);
+            } else {
+                defconfigStr = sprintf(
+                    '%s defconfigs', totals.defconfig);
+            }
+
+            smallNode.appendChild(document.createTextNode(defconfigStr));
+        }
+
+        smallNode.appendChild(document.createTextNode(')'));
+        tooltipNode.appendChild(smallNode);
+
+        return tooltipNode;
+    }
+
+    function createLabBootCount(total, pass, fail, unknown) {
+        var smallNode,
+            spanNode,
+            tooltipNode;
+
+        tooltipNode = html.tooltip();
+        html.addClass(tooltipNode, 'default-cursor');
+        tooltipNode.setAttribute(
+            'title',
+            'Total, passed, failed and unknown boot reports count ' +
+            'for this lab'
+        );
+
+        smallNode = document.createElement('small');
+        smallNode.appendChild(document.createTextNode('('));
+        smallNode.appendChild(
+            document.createTextNode(base.formatNumber(total)));
+        smallNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        spanNode = document.createElement('span');
+        spanNode.className = 'green-font';
+        spanNode.appendChild(document.createTextNode(base.formatNumber(pass)));
+
+        smallNode.appendChild(spanNode);
+        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+
+        spanNode = document.createElement('span');
+        spanNode.className = 'red-font';
+        spanNode.appendChild(document.createTextNode(base.formatNumber(fail)));
+
+        smallNode.appendChild(spanNode);
+        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+
+        spanNode = document.createElement('span');
+        spanNode.className = 'yellow-font';
+        spanNode.appendChild(
+            document.createTextNode(base.formatNumber(unknown)));
+
+        smallNode.appendChild(spanNode);
+        smallNode.appendChild(document.createTextNode(')'));
+
+        tooltipNode.appendChild(smallNode);
+
+        return tooltipNode;
+    }
+
+    function uniqueCountDone(builds, distincts) {
+        var failCount,
+            lab,
+            labStatus,
+            localLab,
+            passCount,
+            tooltipNode,
+            totalBuilds,
+            totalCount,
+            uniqueLab,
+            uniqueTotal,
+            unknownCount;
+
+        totalBuilds = builds[0].result[0].count;
+        uniqueTotal = distincts[0];
+        uniqueLab = distincts[1];
 
         if (Object.getOwnPropertyNames(uniqueTotal.totals).length > 0) {
             if (uniqueTotal.totals.board > 0) {
-                b.replaceById(
-                    'unique-boards',
-                    sprintf(boardTextFmt, uniqueTotal.totals.board));
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', 'Total number of unique boards tested');
+                tooltipNode.appendChild(
+                    document.createTextNode(
+                        base.formatNumber(uniqueTotal.totals.board)));
+                html.replaceContent(
+                    document.getElementById('unique-boards'), tooltipNode);
             } else {
-                b.replaceById('unique-boards', sNonAvail);
+                html.replaceContent(
+                    document.getElementById('unique-boards'), html.nonavail());
             }
+
             if (uniqueTotal.totals.soc > 0) {
-                b.replaceById(
-                    'unique-socs',
-                    sprintf(socTextFmt, uniqueTotal.totals.soc));
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', 'Total number of unique SoC families tested');
+                tooltipNode.appendChild(
+                    document.createTextNode(
+                        base.formatNumber(uniqueTotal.totals.soc)));
+                html.replaceContent(
+                    document.getElementById('unique-socs'), tooltipNode);
             } else {
-                b.replaceById('unique-socs', sNonAvail);
+                html.replaceContent(
+                    document.getElementById('unique-socs'), html.nonavail());
             }
+
             if (uniqueTotal.totals.defconfig > 0) {
-                if (totalDefconfig > 0) {
-                    inDefconfText = sprintf(
-                        '%d out of %d',
-                        uniqueTotal.totals.defconfig, totalDefconfig);
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute(
+                    'title', 'Total number of unique defconfigs tested');
+
+                if (totalBuilds > 0) {
+                    tooltipNode.appendChild(
+                        document.createTextNode(
+                            sprintf(
+                                '%s out of %s',
+                                base.formatNumber(
+                                    uniqueTotal.totals.defconfig),
+                                base.formatNumber(totalBuilds)))
+                    );
                 } else {
-                    inDefconfText = sprintf(
-                        '%d', uniqueTotal.totals.defconfig);
+                    tooltipNode.appendChild(
+                        document.createTextNode(
+                            base.formatNumber(uniqueTotal.totals.defconfig)));
                 }
-                b.replaceById(
-                    'unique-defconfigs',
-                    sprintf(defconfigTextFmt, inDefconfText));
+
+                html.replaceContent(
+                    document.getElementById('unique-defconfigs'), tooltipNode);
             } else {
-                b.replaceById('unique-defconfigs', sNonAvail);
+                html.replaceContent(
+                    document.getElementById('unique-defconfigs'),
+                    html.nonavail());
             }
         } else {
-            b.replaceByClass('unique-values', sNonAvail);
+            html.replaceByClassNode('unique-values', html.nonavail());
         }
 
         if (Object.getOwnPropertyNames(uniqueLab).length > 0) {
-            for (sLab in uniqueLab) {
-                if (uniqueLab.hasOwnProperty(sLab)) {
-                    lLab = uniqueLab[sLab];
-                    tStatus = lLab.status;
-                    if (tStatus.hasOwnProperty('fail')) {
-                        fail = tStatus.fail;
-                    } else {
-                        fail = 0;
-                    }
-                    if (tStatus.hasOwnProperty('pass')) {
-                        pass = tStatus.pass;
-                    } else {
-                        pass = 0;
-                    }
-                    if (tStatus.hasOwnProperty('unknown')) {
-                        unkn = tStatus.unknown;
-                    } else {
-                        unkn = 0;
-                    }
-                    tTotal = fail + pass + unkn;
-                    b.replaceById(
-                        'boot-count-' + sLab,
-                        sprintf(labBootCountFmt, tTotal, pass, fail, unkn));
+            for (lab in uniqueLab) {
+                if (uniqueLab.hasOwnProperty(lab)) {
+                    localLab = uniqueLab[lab];
+                    labStatus = localLab.status;
 
-                    if (lLab.totals.arch !== null) {
-                        if (lLab.totals.arch === 1) {
-                            uArch = lLab.totals.arch + ' architecture';
-                        } else {
-                            uArch = lLab.totals.arch + ' architectures';
-                        }
+                    if (labStatus.hasOwnProperty('fail')) {
+                        failCount = labStatus.fail;
+                    } else {
+                        failCount = 0;
                     }
-                    if (lLab.totals.board !== null) {
-                        if (lLab.totals.board === 1) {
-                            uBoard = lLab.totals.board + ' board';
-                        } else {
-                            uBoard = lLab.totals.board + ' boards';
-                        }
+
+                    if (labStatus.hasOwnProperty('pass')) {
+                        passCount = labStatus.pass;
+                    } else {
+                        passCount = 0;
                     }
-                    if (lLab.totals.soc !== null) {
-                        if (lLab.totals.soc === 1) {
-                            uSoc = lLab.totals.soc + ' SoC';
-                        } else {
-                            uSoc = lLab.totals.soc + ' SoCs';
-                        }
+
+                    if (labStatus.hasOwnProperty('unknown')) {
+                        unknownCount = labStatus.unknown;
+                    } else {
+                        unknownCount = 0;
                     }
-                    if (lLab.totals.defconfig !== null) {
-                        if (lLab.totals.defconfig === 1) {
-                            uDefconfig = lLab.totals.defconfig + ' defconfig';
-                        } else {
-                            uDefconfig = lLab.totals.defconfig + ' defconfigs';
-                        }
-                    }
-                    uStr = sprintf(
-                        labUniqueCountFmt, uArch, uBoard, uSoc, uDefconfig);
-                    b.replaceById('unique-count-' + sLab, uStr);
+
+                    totalCount = passCount + failCount + unknownCount;
+
+                    html.replaceContent(
+                        document.getElementById('boot-count-' + lab),
+                        createLabBootCount(
+                            totalCount, passCount, failCount, unknownCount)
+                    );
+
+                    html.replaceContent(
+                        document.getElementById('unique-count-' + lab),
+                        createOtherCount(localLab.totals));
                 }
             }
         }
@@ -223,16 +289,16 @@ require([
             data;
         if (response.count > 0) {
             data = {
-                    job: gJobName,
-                    kernel: gKernelName
+                    job: gJob,
+                    kernel: gKernel
             };
-            deferred = r.get('/_ajax/count/build', data);
+            deferred = request.get('/_ajax/count/build', data);
 
-            $.when(deferred, uniq.countUniqueBootD(response))
+            $.when(deferred, unique.countUniqueBootD(response))
                 .fail(e.error, uniqueCountFail)
                 .done(uniqueCountDone);
         } else {
-            uniqueCountFail();
+            html.replaceByClassTxt('unique-values', '?');
         }
     }
 
@@ -253,289 +319,453 @@ require([
         chart.bootpie('boot-chart', response);
     }
 
-    function getBootFailed() {
-        b.replaceById(
-            'accordion-container',
-            '<div class="text-center"><h4>Error loading data.</h4></div>');
+    function getBootsFailed() {
+        html.replaceContent(
+            document.getElementById('accordion-container'),
+            html.errorDiv('Error loading data.'));
     }
 
-    function getBootDone(response) {
-        var result = response.result,
-            resultLen = result.length,
-            idx = 0,
-            bootObj,
-            defconfigFull,
+    function getBootsDone(response) {
+        var aNode,
+            accordionElement,
+            allLabs,
             arch,
-            job,
-            kernel,
             board,
-            labName,
-            bootObjId,
-            translatedURI,
-            pathURI,
-            fileServerURI,
-            fileServerURL,
-            fileServerRes,
-            fileServerData,
-            bootLogTxt,
-            bootLogHtml,
-            logPath,
-            lArchLabel,
-            sPanel,
-            subs,
             bootTime,
-            hasSuccess = false,
-            hasFailed = false,
-            hasUnknown = false,
-            allLabs = {},
-            lab = null,
-            toAppend = '';
+            colNode,
+            collapseBodyNode,
+            collapseId,
+            collapseNode,
+            ddNode,
+            defconfigFull,
+            divNode,
+            dlNode,
+            docId,
+            dtNode,
+            failButton,
+            filterClass,
+            hNode,
+            hasFail,
+            hasSuccess,
+            hasUnknown,
+            headingNode,
+            htmlLog,
+            kernelImage,
+            kernelImageSize,
+            labName,
+            otherDivNode,
+            panelNode,
+            pathURI,
+            results,
+            rowNode,
+            ruleNode,
+            serverResource,
+            serverURI,
+            serverURL,
+            smallNode,
+            spanNode,
+            statusNode,
+            tooltipNode,
+            translatedURI,
+            txtLog,
+            warnings;
 
-        if (resultLen > 0) {
-            for (idx; idx < resultLen; idx = idx + 1) {
-                bootObj = result[idx];
-                arch = bootObj.arch;
-                job = bootObj.job;
-                kernel = bootObj.kernel;
-                labName = bootObj.lab_name;
-                bootObjId = bootObj._id;
-                defconfigFull = bootObj.defconfig_full;
-                fileServerURL = bootObj.file_server_url;
-                fileServerRes = bootObj.file_server_resource;
-                bootLogTxt = bootObj.boot_log;
-                bootLogHtml = bootObj.boot_log_html;
-                board = bootObj.board;
+        allLabs = {};
+        hasFail = false;
+        hasSuccess = false;
+        hasUnknown = false;
+        accordionElement = document.getElementById('accordion-container');
 
-                if (fileServerURL === null || fileServerURL === undefined) {
-                    fileServerURL = fileServer;
-                }
-                fileServerData = [
-                    job, kernel, arch + '-' + defconfigFull
-                ];
-                translatedURI = u.translateServerURL(
-                    fileServerURL, fileServerRes, fileServerData);
-                fileServerURI = translatedURI[0];
-                pathURI = translatedURI[1];
+        results = response.result;
 
-                subs = {
-                    idx: idx,
-                    board: board,
-                    lab: labName,
-                    defconfig: defconfigFull
-                };
+        // Internal function to parse the results and create the DOM elements.
+        function _parseBootResult(result, index) {
+            docId = result._id.$oid;
+            serverURL = result.file_server_url;
+            serverResource = result.file_server_resource;
+            defconfigFull = result.defconfig_full;
+            arch = result.arch;
+            labName = result.lab_name;
+            board = result.board;
+            warnings = result.warnings;
+            txtLog = result.boot_log;
+            htmlLog = result.boot_log_html;
+            kernelImage = result.kernel_image;
+            kernelImageSize = result.kernel_image_size;
 
-                switch (bootObj.status) {
-                    case 'FAIL':
-                        hasFailed = true;
-                        subs.statusLabel = failLabel;
-                        subs.cls = 'df-failed';
-                        break;
-                    case 'PASS':
-                        hasSuccess = true;
-                        subs.statusLabel = successLabel;
-                        subs.cls = 'df-success';
-                        break;
-                    default:
-                        hasUnknown = true;
-                        subs.statusLabel = unknownLabel;
-                        subs.cls = 'df-unknown';
-                        break;
-                }
-
-                if (arch !== null) {
-                    lArchLabel = '&nbsp;&dash;&nbsp;' +
-                        sprintf(archLabel, arch);
-                } else {
-                    lArchLabel = '';
-                }
-                subs.archLabel = lArchLabel;
-                sPanel = sprintf(panelFmt, subs);
-                sPanel += '<div class="row">';
-                sPanel += divCol6;
-                sPanel += '<dl class="dl-horizontal">';
-
-                sPanel += '<dt>Endianness</dt>';
-                if (bootObj.endian !== null) {
-                    sPanel += '<dd>' + bootObj.endian + '</dd>';
-                } else {
-                    sPanel += '<dd>' + sNonAvail + '</dd>';
-                }
-
-                sPanel += '<dt>Kernel image</dt>';
-                if (bootObj.kernel_image !== null) {
-                    sPanel += '<dd>' +
-                        '<a href="' +
-                        fileServerURI
-                            .path(pathURI + '/' + bootObj.kernel_image)
-                            .normalizePath().href() +
-                        '">' + bootObj.kernel_image +
-                        '&nbsp;<i class="fa fa-external-link"></i></a>' +
-                        '</dd>';
-                } else {
-                    sPanel += '<dd>' + sNonAvail + '</dd>';
-                }
-
-                sPanel += '</dl></div>';
-                sPanel += divCol6;
-                sPanel += '<dl class="dl-horizontal">';
-
-                sPanel += '<dt>Warnings</dt>';
-                if (bootObj.warnings !== null) {
-                    sPanel += '<dd>' + bootObj.warnings + '</dd>';
-                } else {
-                    sPanel += '<dd>' + sNonAvail + '</dd>';
-                }
-
-                sPanel += '<dt>Boot time</dt>';
-                if (bootObj.time !== null) {
-                    bootTime = new Date(bootObj.time.$date);
-                    sPanel += '<dd>' + bootTime.toCustomTime() + '</dd>';
-                } else {
-                    sPanel += '<dd>' + sNonAvail + '</dd>';
-                }
-
-                if (bootLogTxt !== null || bootLogHtml !== null) {
-                    sPanel += '<dt>Boot log</dt>';
-                    sPanel += '<dd>';
-
-                    if (bootLogTxt !== null) {
-                        if (bootLogTxt.search(labName) === -1) {
-                            logPath = pathURI + '/' +
-                                labName + '/' + bootLogTxt;
-                        } else {
-                            logPath = pathURI + '/' + bootLogTxt;
-                        }
-                        sPanel += '<span rel="tooltip" data-toggle="tooltip" ' +
-                            'title="View raw text boot log"><a href="' +
-                            fileServerURI
-                                .path(logPath)
-                                .normalizePath().href() +
-                            '">txt&nbsp;' +
-                            '<i class="fa fa-external-link"></i></a>' +
-                            '</span>';
-                    }
-
-                    if (bootLogHtml !== null) {
-                        if (bootLogTxt !== null) {
-                            sPanel += '&nbsp;&mdash;&nbsp;';
-                        }
-                        if (bootLogHtml.search(labName) === -1) {
-                            logPath = pathURI + '/' +
-                                labName + '/' + bootLogHtml;
-                        } else {
-                            logPath = pathURI + '/' + bootLogHtml;
-                        }
-                        sPanel += '<span rel="tooltip" ' +
-                            'data-toggle="tooltip" ' +
-                            'title="View HTML boot log"><a href="' +
-                            fileServerURI
-                                .path(logPath)
-                                .normalizePath().href() +
-                            '">html&nbsp;<i class="fa fa-external-link"></i>' +
-                            '</a></span>';
-                    }
-
-                    sPanel += '</dd>';
-                }
-
-                sPanel += '</dl></div>';
-                sPanel += divCol12;
-                sPanel += '<div class="pull-center">' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Details for this boot report">' +
-                    '<a href="/boot/' + board +
-                    '/job/' + job +
-                    '/kernel/' + kernel +
-                    '/defconfig/' + defconfigFull +
-                    '/lab/' + labName + '/' +
-                    '?_id=' + bootObjId.$oid +
-                    '">More info&nbsp;<i class="fa fa-search"></i>' +
-                    '</a></span>';
-                sPanel += '</div></div>';
-                sPanel += '</div>';
-                sPanel += '</div></div></div>\n';
-
-                if (allLabs.hasOwnProperty(labName)) {
-                    allLabs[labName].push(sPanel);
-                } else {
-                    allLabs[labName] = [];
-                    allLabs[labName].push(sPanel);
-                }
+            if (!serverURL) {
+                serverURL = gFileServer;
             }
 
-            // Make sure it is clean.
-            toAppend = '';
-            Object.keys(allLabs).sort().forEach(function(element) {
-                lab = allLabs[element];
+            translatedURI = urls.translateServerURL(
+                serverURL,
+                serverResource, [gJob, gKernel, arch + '-' + defconfigFull]);
 
-                toAppend += '<div id="' + element + '">' +
-                    '<div class="other-header">' +
-                    '<h4>Lab&nbsp;&#171;' + element + '&#187;</h4>' +
-                    '&nbsp;<span id="boot-count-' + element + '"></span>' +
-                    '&nbsp;<span id="unique-count-' + element + '"></span>' +
-                    '<span class="pull-right" id="view-eye-' + element + '">' +
-                    btns.createShowHideLabBtn(element, 'hide') +
-                    '</span><hr class="blurred subheader" /></div>' +
-                    '<div id="view-' + element +
-                    '" class="pull-center"></div>' +
-                    '<div class="panel-group" id="accordion-' +
-                    element + '">';
+            serverURI = translatedURI[0];
+            pathURI = translatedURI[1];
 
-                lab.forEach(function(labElement) {
-                    toAppend += labElement;
-                });
-                toAppend += '</div></div>';
+            switch (result.status) {
+                case 'FAIL':
+                    hasFail = true;
+                    statusNode = html.fail();
+                    filterClass = 'df-failed';
+                    break;
+                case 'PASS':
+                    hasSuccess = true;
+                    statusNode = html.success();
+                    filterClass = 'df-success';
+                    break;
+                default:
+                    hasUnknown = true;
+                    statusNode = html.unknown();
+                    filterClass = 'df-unknown';
+                    break;
+            }
+            html.addClass(statusNode, 'pull-right');
+
+            panelNode = document.createElement('div');
+            panelNode.className = 'panel panel-default ' + filterClass;
+
+            collapseId = 'collapse-boot-' + index;
+
+            headingNode = document.createElement('div');
+            headingNode.className = 'panel-heading collapsed';
+            headingNode.id = 'panel-boot-' + index;
+            headingNode.setAttribute('aria-expanded', false);
+            headingNode.setAttribute('data-parent', '#accordion-' + labName);
+            headingNode.setAttribute('data-toggle', 'collapse');
+            headingNode.setAttribute('data-target', '#' + collapseId);
+            headingNode.setAttribute('aria-controls', '#' + collapseId);
+
+            hNode = document.createElement('h4');
+            hNode.className = 'panel-title';
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('data-parent', '#accordion-' + labName);
+            aNode.setAttribute('data-toggle', 'collapse');
+            aNode.setAttribute('href', '#' + collapseId);
+            aNode.setAttribute('aria-controls', '#' + collapseId);
+            aNode.appendChild(document.createTextNode(board));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            smallNode = document.createElement('small');
+            smallNode.appendChild(document.createTextNode(defconfigFull));
+
+            aNode.appendChild(smallNode);
+            hNode.appendChild(aNode);
+
+            if (arch) {
+                spanNode = document.createElement('span');
+                spanNode.className = 'arch-label';
+                spanNode.appendChild(document.createTextNode(arch));
+                hNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
+                hNode.appendChild(spanNode);
+            }
+
+            hNode.appendChild(statusNode);
+            headingNode.appendChild(hNode);
+            panelNode.appendChild(headingNode);
+
+            collapseNode = document.createElement('div');
+            collapseNode.id = collapseId;
+            collapseNode.className = 'panel-collapse collapse';
+            collapseNode.setAttribute('aria-expanded', false);
+
+            collapseBodyNode = document.createElement('div');
+            collapseBodyNode.className = 'panel-body';
+
+            rowNode = document.createElement('div');
+            rowNode.className = 'row';
+
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
+
+            dlNode = document.createElement('dl');
+            dlNode.className = 'dl-horizontal';
+
+            // Endianness.
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Endianness'));
+            ddNode = document.createElement('dd');
+            if (result.endian) {
+                ddNode.appendChild(document.createTextNode(result.endian));
+            } else {
+                ddNode.appendChild(html.nonavail());
+            }
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            // Kernel image.
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Kernel image'));
+            ddNode = document.createElement('dd');
+            if (kernelImage) {
+                aNode = document.createElement('a');
+                aNode.setAttribute(
+                    'href',
+                    serverURI
+                        .path(pathURI + '/' + kernelImage)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(
+                    document.createTextNode(kernelImage));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+                ddNode.appendChild(aNode);
+
+                if (kernelImageSize) {
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    smallNode = document.createElement('small');
+                    smallNode.appendChild(
+                        document.createTextNode(
+                            base.bytesToHuman(kernelImageSize)));
+                    ddNode.appendChild(smallNode);
+                }
+            } else {
+                ddNode.appendChild(html.nonavail());
+            }
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            colNode.appendChild(dlNode);
+            rowNode.appendChild(colNode);
+
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
+
+            dlNode = document.createElement('dl');
+            dlNode.className = 'dl-horizontal';
+
+            // Warnings.
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Warnings'));
+            ddNode = document.createElement('dd');
+            if (warnings !== null && warnings !== undefined) {
+                ddNode.appendChild(
+                    document.createTextNode(
+                        base.formatNumber(parseInt(warnings, 10))));
+            } else {
+                ddNode.appendChild(document.createTextNode('0'));
+            }
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            // Boot time.
+            dtNode = document.createElement('dt');
+            dtNode.appendChild(document.createTextNode('Boot time'));
+            ddNode = document.createElement('dd');
+
+            if (result.time !== null || result.time !== undefined) {
+                bootTime = new Date(result.time.$date);
+                ddNode.appendChild(
+                    document.createTextNode(bootTime.toCustomTime()));
+            } else {
+                ddNode.appendChild(html.nonavail());
+            }
+
+            dlNode.appendChild(dtNode);
+            dlNode.appendChild(ddNode);
+
+            // Boot logs.
+            if (txtLog || htmlLog) {
+                dtNode = document.createElement('dt');
+                dtNode.appendChild(document.createTextNode('Boot log'));
+
+                ddNode = document.createElement('dd');
+                ddNode.appendChild(
+                    boot.createBootLog(
+                        txtLog, htmlLog, labName, serverURI, pathURI));
+
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(ddNode);
+            }
+
+            colNode.appendChild(dlNode);
+            rowNode.appendChild(colNode);
+
+            // More info link.
+            colNode = document.createElement('div');
+            colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+
+            divNode = document.createElement('div');
+            divNode.className = 'pull-center';
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Boot report details');
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                '/boot/' + board + '/job/' + gJob + '/kernel/' + gKernel +
+                '/defconfig/' + defconfigFull + '/lab/' + labName +
+                '/?_id=' + docId
+            );
+            aNode.appendChild(document.createTextNode('More info'));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.search());
+            tooltipNode.appendChild(aNode);
+            divNode.appendChild(tooltipNode);
+
+            colNode.appendChild(divNode);
+            rowNode.appendChild(colNode);
+
+            collapseBodyNode.appendChild(rowNode);
+            collapseNode.appendChild(collapseBodyNode);
+            panelNode.appendChild(collapseNode);
+
+            if (allLabs.hasOwnProperty(labName)) {
+                allLabs[labName].push(panelNode);
+            } else {
+                allLabs[labName] = [];
+                allLabs[labName].push(panelNode);
+            }
+        } // End _parseBootResult.
+
+        function _createLabSection(lab) {
+            divNode = document.createElement('div');
+            divNode.id = lab;
+
+            otherDivNode = document.createElement('div');
+            otherDivNode.className = 'other-header';
+
+            hNode = document.createElement('h4');
+            hNode.insertAdjacentHTML(
+                'beforeend', sprintf('Lab &#171;%s&#187;', lab));
+
+            otherDivNode.appendChild(hNode);
+            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            spanNode = document.createElement('span');
+            spanNode.id = 'boot-count-' + lab;
+
+            otherDivNode.appendChild(spanNode);
+            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            spanNode = document.createElement('span');
+            spanNode.id = 'unique-count-' + lab;
+
+            otherDivNode.appendChild(spanNode);
+            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            spanNode = document.createElement('span');
+            spanNode.className = 'pull-right';
+            spanNode.id = 'view-eye-' + lab;
+            spanNode.insertAdjacentHTML(
+                'beforeend', buttons.createShowHideLabBtn(lab, 'hide'));
+
+            otherDivNode.appendChild(spanNode);
+
+            ruleNode = document.createElement('hr');
+            ruleNode.className = 'blurred subheader';
+
+            otherDivNode.appendChild(ruleNode);
+            divNode.appendChild(otherDivNode);
+
+            otherDivNode = document.createElement('div');
+            otherDivNode.className = 'pull-center';
+            otherDivNode.id = 'view-' + lab;
+
+            divNode.appendChild(otherDivNode);
+
+            otherDivNode = document.createElement('div');
+            otherDivNode.className = 'panel-group';
+            otherDivNode.id = 'accordion-' + lab;
+
+            allLabs[lab].forEach(function(node) {
+                otherDivNode.appendChild(node);
             });
-            // Add all the elements to the DOM.
-            b.replaceById('accordion-container', toAppend);
-            bindDetailButtons();
-            bindLabButtons();
 
-            if (hasFailed) {
-                document.getElementById('fail-btn')
+            divNode.appendChild(otherDivNode);
+            accordionElement.appendChild(divNode);
+        } // End _createLabSection.
+
+        if (results.length === 0) {
+            html.replaceContent(
+                document.getElementById('accordion-container'),
+                html.errorDiv('No data found.'));
+        } else {
+            // Parse the results.
+            results.forEach(_parseBootResult);
+            // Clean up all elements.
+            html.removeChildren(accordionElement);
+            // Then add the new ones.
+            Object.keys(allLabs).sort().forEach(_createLabSection);
+
+            if (hasFail) {
+                document
+                    .getElementById('fail-btn')
                     .removeAttribute('disabled');
             }
 
             if (hasSuccess) {
-                document.getElementById('success-btn')
+                document
+                    .getElementById('success-btn')
                     .removeAttribute('disabled');
             }
 
             if (hasUnknown) {
-                document.getElementById('unknown-btn')
+                document
+                    .getElementById('unknown-btn')
                     .removeAttribute('disabled');
             }
+
             document.getElementById('all-btn').removeAttribute('disabled');
+
+            // Bind buttons to the correct functions.
+            bindDetailButtons();
+            bindLabButtons();
 
             if (gSearchFilter && gSearchFilter.length > 0) {
                 switch (gSearchFilter) {
                     case 'fail':
-                        $('#fail-cell').trigger('click');
+                        document.getElementById('#fail-cell').click();
                         break;
                     case 'success':
-                        $('#success-cell').trigger('click');
+                        document.getElementById('#success-cell').click();
                         break;
                     case 'unknown':
-                        $('#unknown-cell').trigger('click');
+                        document.getElementById('#unknown-cell').click();
                         break;
                 }
             } else if (!loadSavedSession()) {
-                if (hasFailed) {
+                if (hasFail) {
                     // If there is no saved session, show only the failed ones.
-                    $('.df-failed').show();
-                    $('.df-success').hide();
-                    $('.df-unknown').hide();
-                    $('#fail-btn').addClass('active').siblings()
-                        .removeClass('active');
+                    [].forEach.call(
+                        document.getElementsByClassName('df-failed'),
+                        function(element) {
+                            element.style.setProperty('display', 'block');
+                        }
+                    );
+                    [].forEach.call(
+                        document.getElementsByClassName('df-success'),
+                        function(element) {
+                            element.style.setProperty('display', 'none');
+                        }
+                    );
+                    [].forEach.call(
+                        document.getElementsByClassName('df-unknown'),
+                        function(element) {
+                            element.style.setProperty('display', 'none');
+                        }
+                    );
+
+                    failButton = document.getElementById('fail-btn');
+                    [].forEach.call(
+                        failButton.parentElement.children, function(element) {
+                            if (element === failButton) {
+                                html.addClass(element, 'active');
+                            } else {
+                                html.removeClass(element, 'active');
+                            }
+                        }
+                    );
                 } else {
-                    $('#all-btn').addClass('active');
+                    html.addClass(
+                        document.getElementById('all-btn'), 'active');
                 }
             }
-        } else {
-            b.replaceById(
-                'accordion-container',
-                '<div class="pull-center"><h4>No boards tested.</h4></div>'
-            );
         }
     }
 
@@ -545,21 +775,21 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            deferred = r.get(
+            deferred = request.get(
                 '/_ajax/boot',
                 {
-                    job: gJobName,
-                    kernel: gKernelName,
+                    job: gJob,
+                    kernel: gKernel,
                     sort: ['board', 'defconfig_full', 'arch'],
                     sort_order: 1
                 }
             );
 
             $.when(deferred)
-                .fail(e.error, getBootFailed)
-                .done(getBootDone, getBootDoneChart, getBootDoneUnique);
+                .fail(e.error, getBootsFailed)
+                .done(getBootsDone, getBootDoneChart, getBootDoneUnique);
         } else {
-            getBootFailed();
+            getBootsFailed();
         }
     }
 
@@ -568,84 +798,129 @@ require([
     }
 
     function getJobDone(response) {
-        var result = response.result,
-            resultLen = result.length,
-            localResult = null,
-            gitCommit = null,
-            gitURL = null,
-            tURLs = null,
-            sContent,
+        var results,
+            gitBranch,
+            gitURLs,
+            domNode,
+            tooltipNode,
+            aNode,
+            gitCommit,
+            gitURL,
             createdOn;
 
-        if (resultLen > 0) {
-            localResult = result[0];
-            gitCommit = localResult.git_commit;
-            gitURL = localResult.git_url;
-            createdOn = new Date(localResult.created_on.$date);
-
-            tURLs = u.translateCommit(gitURL, gitCommit);
-
-            b.replaceById(
-                'tree',
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Boot reports for ' + gJobName + '">' +
-                '<a href="/boot/all/job/' + gJobName + '/">' + gJobName +
-                '</a></span>' +
-                '&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Details for tree ' + gJobName + '">' +
-                '<a href="/job/' + gJobName + '/">' +
-                '<i class="fa fa-sitemap"></i></a></span>'
-            );
-            b.replaceById('git-branch', localResult.git_branch);
-            b.replaceById(
-                'git-describe',
-                gKernelName + '&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + gJobName + '&nbsp;&dash;&nbsp;' +
-                gKernelName + '">' +
-                '<a href="/build/' + gJobName + '/kernel/' +
-                gKernelName + '/">' +
-                '<i class="fa fa-cube"></i></a></span>'
-            );
-
-            if (tURLs[0] !== null) {
-                sContent = '<a href="' + tURLs[0] + '">' + gitURL +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>';
-            } else {
-                if (gitURL !== null) {
-                    sContent = gitURL;
-                } else {
-                    sContent = sNonAvail;
-                }
-            }
-            b.replaceById('git-url', sContent);
-
-            if (tURLs[1] !== null) {
-                sContent = '<a href="' + tURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>';
-            } else {
-                if (gitCommit !== null) {
-                    sContent = gitCommit;
-                } else {
-                    sContent = sNonAvail;
-                }
-            }
-            b.replaceById('git-commit', sContent);
-            b.replaceById('job-date', createdOn.toCustomISODate());
+        results = response.result;
+        if (results.length === 0) {
+            html.replaceByClassTxt('loading-content', '?');
         } else {
-            html.replaceByClassNode('loading-content', html.nonavail());
+            results = results[0];
+
+            gitBranch = results.git_branch;
+            gitCommit = results.git_commit;
+            gitURL = results.git_url;
+            createdOn = new Date(results.created_on.$date);
+
+            gitURLs = urls.translateCommit(gitURL, gitCommit);
+
+            // Tree.
+            domNode = document.createElement('div');
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for tree &#171;' + gJob + '&#187;');
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/boot/all/job/' + gJob + '/');
+            aNode.appendChild(document.createTextNode(gJob));
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Details for tree &#171;' + gJob + '&#187;');
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/job/' + gJob + '/');
+            aNode.appendChild(html.tree());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+
+            html.replaceContent(document.getElementById('tree'), domNode);
+
+            // Git branch.
+            html.replaceContent(
+                document.getElementById('git-branch'),
+                document.createTextNode(gitBranch));
+
+            // Git describe.
+            domNode = document.createElement('div');
+            domNode.appendChild(document.createTextNode(gKernel));
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Build reports for &#171;' + gJob + '&#187; - ' + gKernel);
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/build/' + gJob + '/kernel/' + gKernel);
+            aNode.appendChild(html.build());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+
+            html.replaceContent(
+                document.getElementById('git-describe'), domNode);
+
+            // Git URL.
+            if (gitURLs[0]) {
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[0]);
+                aNode.appendChild(document.createTextNode(gitURL));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+            } else {
+                if (gitURL && gitURL !== undefined) {
+                    aNode = document.createTextNode(gitURL);
+                } else {
+                    aNode = html.nonavail();
+                }
+            }
+            html.replaceContent(document.getElementById('git-url'), aNode);
+
+            // Git commit.
+            if (gitURLs[1]) {
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[1]);
+                aNode.appendChild(document.createTextNode(gitCommit));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+            } else {
+                if (gitCommit && gitCommit !== null) {
+                    aNode = document.createTextNode(gitCommit);
+                } else {
+                    aNode = html.nonavail();
+                }
+            }
+            html.replaceContent(document.getElementById('git-commit'), aNode);
+
+            // Date.
+            domNode = document.createElement('time');
+            domNode.setAttribute('datetime', createdOn.toISOString());
+            domNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODate()));
+            html.replaceContent(
+                document.getElementById('job-date'), domNode);
         }
     }
 
     function getJob() {
         var deferred;
 
-        deferred = r.get(
+        deferred = request.get(
             '/_ajax/job',
             {
-                job: gJobName,
-                kernel: gKernelName
+                job: gJob,
+                kernel: gKernel
             }
         );
 
@@ -743,19 +1018,19 @@ require([
     });
 
     if (document.getElementById('job-name') !== null) {
-        gJobName = document.getElementById('job-name').value;
+        gJob = document.getElementById('job-name').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        gKernelName = document.getElementById('kernel-name').value;
+        gKernel = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('file-server') !== null) {
-        fileServer = document.getElementById('file-server').value;
+        gFileServer = document.getElementById('file-server').value;
     }
 
-    gSessionStorage = storage('boot-' + gJobName + '-' + gKernelName);
+    gSessionStorage = storage('boot-' + gJob + '-' + gKernel);
 
     getJob();
     registerEvents();
