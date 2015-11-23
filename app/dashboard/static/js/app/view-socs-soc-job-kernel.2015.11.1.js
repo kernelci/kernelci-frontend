@@ -29,10 +29,6 @@ define([
         gSessionStorage,
         gSoc;
 
-    document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
     function loadSavedSession() {
         var isLoaded;
 
@@ -453,7 +449,6 @@ define([
             smallNode = document.createElement('small');
             smallNode.appendChild(document.createTextNode(defconfigFull));
 
-            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(smallNode);
             hNode.appendChild(aNode);
 
@@ -886,6 +881,8 @@ define([
                 aNode = document.createElement('a');
                 aNode.setAttribute('href', gitURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
             } else {
                 if (gitURL && gitURL !== undefined) {
                     aNode = document.createTextNode(gitURL);
@@ -900,6 +897,8 @@ define([
                 aNode = document.createElement('a');
                 aNode.setAttribute('href', gitURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
             } else {
                 if (gitCommit && gitCommit !== null) {
                     aNode = document.createTextNode(gitCommit);
@@ -1054,9 +1053,9 @@ define([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gSessionStorage = storage('soc-' + gSoc + '-' + gJob + '-' + gKernel);
-    getBoots();
-    registerEvents();
+    document.getElementById('li-soc').setAttribute('class', 'active');
+    init.hotkeys();
+    init.tooltip();
 
     [].forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
@@ -1071,4 +1070,8 @@ define([
                 });
             });
     });
+
+    gSessionStorage = storage('soc-' + gSoc + '-' + gJob + '-' + gKernel);
+    getBoots();
+    registerEvents();
 });
