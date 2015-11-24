@@ -2,14 +2,14 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/request',
     'utils/error',
     'utils/const',
     'utils/html',
     'tables/soc',
     'utils/table'
-], function($, init, b, r, e, appconst, html, tsoc, table) {
+], function($, init, format, r, e, appconst, html, tsoc, table) {
     'use strict';
     var gBatchCountMissing,
         gBoardsTable,
@@ -104,7 +104,7 @@ require([
     function getDistinctBoardsCount(response) {
         html.replaceContent(
             document.getElementById('boards-count'),
-            document.createTextNode(b.formatNumber(response.result.length)));
+            document.createTextNode(format.number(response.result.length)));
     }
 
     function getBootsCountFail() {
@@ -120,7 +120,7 @@ require([
             html.replaceContent(
                 document.getElementById('boots-count'),
                 document.createTextNode(
-                    b.formatNumber(parseInt(results[0].count, 10))));
+                    format.number(parseInt(results[0].count, 10))));
         } else {
             html.replaceConten(
                 document.getElementById('boots-count'),
@@ -155,7 +155,7 @@ require([
         // yet to add it.
         if (element) {
             html.replaceContent(
-                element, document.createTextNode(b.formatNumber(count)));
+                element, document.createTextNode(format.number(count)));
 
             // Check if the data structure holding the data to update the
             // elements still holds the element.

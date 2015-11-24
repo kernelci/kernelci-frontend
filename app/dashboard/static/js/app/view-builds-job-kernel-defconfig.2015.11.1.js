@@ -1,7 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
+    'utils/format',
     'utils/error',
     'utils/init',
     'utils/request',
@@ -11,7 +11,7 @@ require([
     'utils/html',
     'utils/table',
     'utils/date'
-], function($, b, e, init, r, urls, bisect, btns, html, table) {
+], function($, format, e, init, r, urls, bisect, btns, html, table) {
     'use strict';
     var buildId,
         defconfigFull,
@@ -589,7 +589,6 @@ require([
             sizeNode,
             spanNode,
             textOffset,
-            timeNode,
             tooltipNode,
             translatedUri;
 
@@ -895,7 +894,7 @@ require([
                     sizeNode = document.createElement('small');
                     sizeNode.appendChild(
                         document.createTextNode(
-                            '(' + b.bytesToHuman(buildModulesSize) + ')')
+                            '(' + format.bytes(buildModulesSize) + ')')
                     );
 
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -974,7 +973,7 @@ require([
                     sizeNode = document.createElement('small');
                     sizeNode.appendChild(
                         document.createTextNode(
-                            '(' + b.bytesToHuman(kernelImageSize) + ')')
+                            '(' + format.bytes(kernelImageSize) + ')')
                     );
 
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');

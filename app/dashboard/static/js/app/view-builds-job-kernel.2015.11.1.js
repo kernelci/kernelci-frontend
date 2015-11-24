@@ -1,7 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
+    'utils/format',
     'utils/error',
     'utils/init',
     'utils/request',
@@ -13,7 +13,9 @@ require([
     'utils/session',
     'utils/filter',
     'utils/date'
-], function($, b, e, init, r, u, btns, chart, html, storage, session, filter) {
+], function(
+        $,
+        format, e, init, r, u, btns, chart, html, storage, session, filter) {
     'use strict';
     var gFileServer,
         gJobName,
@@ -373,7 +375,7 @@ require([
                     sizeNode = document.createElement('small');
                     sizeNode.appendChild(
                         document.createTextNode('(' +
-                            b.bytesToHuman(result.modules_size) + ')'));
+                            format.bytes(result.modules_size) + ')'));
 
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp');
                     ddNode.appendChild(sizeNode);
@@ -422,7 +424,7 @@ require([
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     sizeNode.appendChild(
                         document.createTextNode(
-                            b.bytesToHuman(result.kernel_image_size)));
+                            format.bytes(result.kernel_image_size)));
                     ddNode.appendChild(sizeNode);
                 }
 

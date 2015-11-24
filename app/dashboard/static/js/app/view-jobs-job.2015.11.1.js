@@ -2,7 +2,7 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/request',
     'utils/error',
     'utils/table',
@@ -10,7 +10,7 @@ require([
     'charts/passrate',
     'utils/html',
     'utils/date'
-], function($, init, b, r, e, table, u, chart, html) {
+], function($, init, format, r, e, table, u, chart, html) {
     'use strict';
     var gBranchRegEx,
         gBuildsTable,
@@ -564,15 +564,15 @@ require([
 
             html.replaceContent(
                 document.getElementById(firstResult.operation_id),
-                document.createTextNode(b.formatNumber(firstCount)));
+                document.createTextNode(format.number(firstCount)));
 
             html.replaceContent(
                 document.getElementById(secondResult.operation_id),
-                document.createTextNode(b.formatNumber(secondCount)));
+                document.createTextNode(format.number(secondCount)));
 
             html.replaceContent(
                 document.getElementById(thirdResult.operation_id),
-                document.createTextNode(b.formatNumber(thirdCount)));
+                document.createTextNode(format.number(thirdCount)));
         } else {
             html.replaceByClass('count-list-badge', '?');
         }

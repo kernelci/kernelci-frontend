@@ -1,12 +1,12 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'utils/base',
+    'utils/format',
     'utils/html',
     'utils/urls',
     'buttons/boot',
     'components/boot/common',
     'utils/date'
-], function(base, html, urls, buttons, common) {
+], function(format, html, urls, buttons, common) {
     'use strict';
     var gBootViews,
         kciView;
@@ -313,7 +313,7 @@ define([
                 smallNode = document.createElement('small');
                 smallNode.appendChild(
                     document.createTextNode(
-                        base.bytesToHuman(kernelImageSize)));
+                        format.bytes(kernelImageSize)));
                 ddNode.appendChild(smallNode);
             }
         } else {
@@ -339,7 +339,7 @@ define([
         if (warnings !== null && warnings !== undefined) {
             ddNode.appendChild(
                 document.createTextNode(
-                    base.formatNumber(parseInt(warnings, 10))));
+                    format.number(parseInt(warnings, 10))));
         } else {
             ddNode.appendChild(document.createTextNode('0'));
         }

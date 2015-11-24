@@ -2,26 +2,26 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/html',
     'utils/table',
     'utils/request',
     'utils/error',
     'tables/soc'
-], function($, init, base, html, table, request, error, tsoc) {
+], function($, init, format, html, table, request, error, tsoc) {
     'use strict';
     var gBootsTable,
         gJob,
-        gSoc,
         gNumberRange,
         gQueryStr,
-        gSearchFilter;
+        gSearchFilter,
+        gSoc;
 
     function updateCountDetail(result) {
         html.replaceContent(
             document.getElementById(result.operation_id),
             document.createTextNode(
-                base.formatNumber(parseInt(result.result[0].count, 10)))
+                format.number(parseInt(result.result[0].count, 10)))
         );
     }
 

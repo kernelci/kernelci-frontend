@@ -2,7 +2,7 @@
 define([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/html',
     'utils/boot',
     'utils/error',
@@ -13,13 +13,12 @@ define([
     'utils/session',
     'charts/passpie',
     'components/boot/unique',
-    // 'utils/unique-count',
     'utils/date',
     'sprintf'
 ], function(
         $,
         init,
-        base,
+        format,
         html,
         boot, error, request, urls, buttons, storage, session, chart, unique) {
     'use strict';
@@ -152,19 +151,19 @@ define([
         smallNode = document.createElement('small');
         smallNode.appendChild(document.createTextNode('('));
         smallNode.appendChild(
-            document.createTextNode(base.formatNumber(total)));
+            document.createTextNode(format.number(total)));
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         spanNode = document.createElement('span');
         spanNode.className = 'green-font';
-        spanNode.appendChild(document.createTextNode(base.formatNumber(pass)));
+        spanNode.appendChild(document.createTextNode(format.number(pass)));
 
         smallNode.appendChild(spanNode);
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
 
         spanNode = document.createElement('span');
         spanNode.className = 'red-font';
-        spanNode.appendChild(document.createTextNode(base.formatNumber(fail)));
+        spanNode.appendChild(document.createTextNode(format.number(fail)));
 
         smallNode.appendChild(spanNode);
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
@@ -172,7 +171,7 @@ define([
         spanNode = document.createElement('span');
         spanNode.className = 'yellow-font';
         spanNode.appendChild(
-            document.createTextNode(base.formatNumber(unknown)));
+            document.createTextNode(format.number(unknown)));
 
         smallNode.appendChild(spanNode);
         smallNode.appendChild(document.createTextNode(')'));
@@ -206,7 +205,7 @@ define([
                     'title', 'Total number of unique boards tested');
                 tooltipNode.appendChild(
                     document.createTextNode(
-                        base.formatNumber(uniqueTotal.totals.board)));
+                        format.number(uniqueTotal.totals.board)));
                 html.replaceContent(
                     document.getElementById('unique-boards'), tooltipNode);
             } else {
@@ -220,7 +219,7 @@ define([
                     'title', 'Total number of unique SoC families tested');
                 tooltipNode.appendChild(
                     document.createTextNode(
-                        base.formatNumber(uniqueTotal.totals.soc)));
+                        format.number(uniqueTotal.totals.soc)));
                 html.replaceContent(
                     document.getElementById('unique-socs'), tooltipNode);
             } else {
@@ -238,14 +237,14 @@ define([
                         document.createTextNode(
                             sprintf(
                                 '%s out of %s',
-                                base.formatNumber(
+                                format.number(
                                     uniqueTotal.totals.defconfig),
-                                base.formatNumber(totalBuilds)))
+                                format.number(totalBuilds)))
                     );
                 } else {
                     tooltipNode.appendChild(
                         document.createTextNode(
-                            base.formatNumber(uniqueTotal.totals.defconfig)));
+                            format.number(uniqueTotal.totals.defconfig)));
                 }
 
                 html.replaceContent(
@@ -518,7 +517,7 @@ define([
                     smallNode = document.createElement('small');
                     smallNode.appendChild(
                         document.createTextNode(
-                            base.bytesToHuman(kernelImageSize)));
+                            format.bytes(kernelImageSize)));
                     ddNode.appendChild(smallNode);
                 }
             } else {
@@ -544,7 +543,7 @@ define([
             if (warnings !== null && warnings !== undefined) {
                 ddNode.appendChild(
                     document.createTextNode(
-                        base.formatNumber(parseInt(warnings, 10))));
+                        format.number(parseInt(warnings, 10))));
             } else {
                 ddNode.appendChild(document.createTextNode('0'));
             }

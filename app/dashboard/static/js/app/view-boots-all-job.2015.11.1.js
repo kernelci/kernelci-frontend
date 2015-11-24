@@ -1,7 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
+    'utils/format',
     'utils/error',
     'utils/init',
     'utils/request',
@@ -9,7 +9,7 @@ require([
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, b, e, init, r, table, html, boot, appconst) {
+], function($, format, e, init, r, table, html, boot, appconst) {
     'use strict';
     var bootsTable,
         jobName,
@@ -50,10 +50,10 @@ require([
 
         html.replaceContent(
             document.getElementById('boot-reports-count'),
-            document.createTextNode(b.formatNumber(reportsCount)));
+            document.createTextNode(format.number(reportsCount)));
         html.replaceContent(
             document.getElementById('boot-boards-count'),
-            document.createTextNode(b.formatNumber(boardsCount)));
+            document.createTextNode(format.number(boardsCount)));
     }
 
     function getDetailsCount() {
@@ -97,7 +97,7 @@ require([
         count = parseInt(result.result[0].count, 10);
         html.replaceContent(
             document.getElementById(result.operation_id),
-            document.createTextNode(b.formatNumber(count)));
+            document.createTextNode(format.number(count)));
     }
 
     function getBootsCountDone(response) {

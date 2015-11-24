@@ -2,13 +2,13 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/error',
     'utils/request',
     'charts/statsbar',
     'utils/html',
     'utils/date'
-], function($, init, b, e, r, chart, html) {
+], function($, init, format, e, r, chart, html) {
     'use strict';
     var dateFormat,
         oneDay,
@@ -144,64 +144,64 @@ require([
 
             html.replaceContent(
                 document.getElementById('total-jobs'),
-                document.createTextNode(b.formatNumber(totalJobs)));
+                document.createTextNode(format.number(totalJobs)));
 
             html.replaceContent(
                 document.getElementById('total-trees'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_trees))
+                    format.number(localResult.total_unique_trees))
             );
 
             html.replaceContent(
                 document.getElementById('total-kernels'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_kernels))
+                    format.number(localResult.total_unique_kernels))
             );
 
             html.replaceContent(
                 document.getElementById('total-builds'),
-                document.createTextNode(b.formatNumber(totalBuilds)));
+                document.createTextNode(format.number(totalBuilds)));
 
             html.replaceContent(
                 document.getElementById('total-defconfigs'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_defconfigs))
+                    format.number(localResult.total_unique_defconfigs))
             );
 
             html.replaceContent(
                 document.getElementById('total-boots'),
-                document.createTextNode(b.formatNumber(totalBoots)));
+                document.createTextNode(format.number(totalBoots)));
 
             html.replaceContent(document.getElementById('total-boards'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_boards))
+                    format.number(localResult.total_unique_boards))
             );
 
             html.replaceContent(document.getElementById('total-archs'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_archs))
+                    format.number(localResult.total_unique_archs))
             );
 
             html.replaceContent(document.getElementById('total-socs'),
                 document.createTextNode(
-                    b.formatNumber(localResult.total_unique_machs))
+                    format.number(localResult.total_unique_machs))
             );
 
             html.replaceContent(
                 document.getElementById('jobs-avg'),
                 document.createTextNode(
-                    b.formatNumber(Math.round(totalJobs / totalDays)))
+                    format.number(Math.round(totalJobs / totalDays)))
             );
 
             html.replaceContent(document.getElementById('builds-avg'),
                 document.createTextNode(
-                    b.formatNumber(Math.round(totalBuilds / totalDays)))
+                    format.number(Math.round(totalBuilds / totalDays)))
             );
 
             html.replaceContent(
                 document.getElementById('boots-avg'),
                 document.createTextNode(
-                    b.formatNumber(Math.round(totalBoots / totalDays)))
+                    format.number(Math.round(totalBoots / totalDays)))
             );
         }
     }

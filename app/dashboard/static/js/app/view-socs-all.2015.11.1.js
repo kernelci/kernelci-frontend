@@ -1,7 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/base',
+    'utils/format',
     'utils/init',
     'utils/error',
     'utils/request',
@@ -10,7 +10,9 @@ require([
     'utils/const',
     'tables/soc',
     'utils/storage'
-], function($, b, init, error, request, table, html, appconst, tsoc, storage) {
+], function(
+        $,
+        format, init, error, request, table, html, appconst, tsoc, storage) {
     'use strict';
     var gBatchCountMissing,
         gBoardsCount,
@@ -42,7 +44,7 @@ require([
         // yet to add it.
         if (element) {
             html.replaceContent(
-                element, document.createTextNode(b.formatNumber(count)));
+                element, document.createTextNode(format.number(count)));
 
             // Check if the data structure holding the data to update the
             // elements still holds the element.
