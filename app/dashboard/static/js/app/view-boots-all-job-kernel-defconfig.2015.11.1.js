@@ -237,8 +237,7 @@ require([
     gBootsTable = table({
         tableId: 'boots-table',
         tableDivId: 'table-div',
-        tableLoadingDivId: 'table-loading',
-        disableSearch: true
+        tableLoadingDivId: 'table-loading'
     });
     setupData();
     getBoots();

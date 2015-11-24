@@ -45,7 +45,6 @@ define([
         tableId: null,
         tableLoadingDivId: null,
         tableDivId: null,
-        disableSearch: false,
         tableNode: null,
         tableLoadingNode: null,
         tableDivNode: null,

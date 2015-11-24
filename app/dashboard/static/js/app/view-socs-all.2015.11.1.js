@@ -491,8 +491,7 @@ require([
     gSocsTable = table({
         tableId: 'socs-table',
         tableDivId: 'table-div',
-        tableLoadingDivId: 'table-loading',
-        disableSearch: true
+        tableLoadingDivId: 'table-loading'
     });
     getSocs();
 });

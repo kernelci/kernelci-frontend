@@ -631,8 +631,7 @@ require([
     buildsTable = table({
         tableId: 'jobstable',
         tableLoadingDivId: 'table-loading',
-        tableDivId: 'table-div',
-        disableSearch: true
+        tableDivId: 'table-div'
     });
     getDetails();
     getBuilds();

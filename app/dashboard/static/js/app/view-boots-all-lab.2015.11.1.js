@@ -501,8 +501,7 @@ require([
     bootsTable = table({
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading',
-        tableDivId: 'table-div',
-        disableSearch: true
+        tableDivId: 'table-div'
     });
     getBoots();
 });

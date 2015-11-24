@@ -388,8 +388,7 @@ require([
     buildsTable = table({
         tableId: 'builds-table',
         tableLoadingDivId: 'table-loading',
-        tableDivId: 'table-div',
-        disableSearch: true
+        tableDivId: 'table-div'
     });
     getBuilds();
 });

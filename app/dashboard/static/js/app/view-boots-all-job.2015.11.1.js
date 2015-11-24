@@ -276,7 +276,6 @@ require([
     }
 
     bootsTable = table({
-        disableSearch: true,
         tableDivId: 'table-div',
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading'

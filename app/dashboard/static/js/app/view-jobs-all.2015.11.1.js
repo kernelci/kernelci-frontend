@@ -281,8 +281,7 @@ require([
     gJobsTable = table({
         tableId: 'jobstable',
         tableDivId: 'table-div',
-        tableLoadingDivId: 'table-loading',
-        disableSearch: true
+        tableLoadingDivId: 'table-loading'
     });
     getJobs();
 });
