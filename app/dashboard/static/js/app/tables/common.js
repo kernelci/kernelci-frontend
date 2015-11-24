@@ -1,7 +1,6 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'utils/html',
-    'utils/date'
+    'utils/html'
 ], function(html) {
     'use strict';
     var gTablesUtils;
@@ -16,16 +15,10 @@ define([
      * @return {Element} A DOM element.
     **/
     function _dateNode(date) {
-        var created,
-            timeNode;
+        var timeNode;
 
         if (date) {
-            created = new Date(date.$date);
-
-            timeNode = document.createElement('time');
-            timeNode.setAttribute('datetime', created.toISOString());
-            timeNode.appendChild(
-                document.createTextNode(created.toCustomISODate()));
+            timeNode = html.time(date);
         } else {
             timeNode = html.nonavail();
         }
