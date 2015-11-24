@@ -107,7 +107,8 @@ define([
 
             if (!match(dataIndex, allSearch)) {
                 // Hide the element only if it really is shown.
-                if (element.style.display === 'block') {
+                if (element.style.display === 'block' ||
+                        !element.style.display) {
                     html.addClass(element, 'filtered');
                     element.style.display = 'none';
 
