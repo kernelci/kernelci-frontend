@@ -10,6 +10,8 @@
         'utils': './app/utils',
         'compare': './app/compare',
         'tables': './app/tables',
+        'buttons': './app/buttons',
+        'components': './app/components',
         'jquery': 'lib/jquery-2.1.4',
         'bootstrap': 'lib/bootstrap-3.3.5',
         'sprintf': 'lib/sprintf-1.0.3',
