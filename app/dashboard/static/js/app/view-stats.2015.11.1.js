@@ -134,7 +134,7 @@ require([
             totalBuilds = localResult.total_builds;
             totalBoots = localResult.total_boots;
 
-            startNode = html.time();
+            startNode = document.createElement('time');
             startNode.setAttribute('datetime', startDate.toISOString());
             startNode.appendChild(
                 document.createTextNode(dateFormat.format(startDate)));
