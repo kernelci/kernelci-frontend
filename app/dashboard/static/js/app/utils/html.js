@@ -1,5 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
-define(function() {
+define([
+    'utils/date'
+], function() {
     'use strict';
     var html,
         htmlEntities;
