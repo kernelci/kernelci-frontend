@@ -705,7 +705,7 @@ require([
             gitURL = localResult.git_url;
             gitCommit = localResult.git_commit;
             tURLs = u.translateCommit(gitURL, gitCommit);
-            createdOn = new Date(localResult.created_on.$date);
+            createdOn = localResult.created_on;
 
             spanNode = html.tooltip();
             spanNode.setAttribute('title', 'Details for tree ' + gJobName);
@@ -811,10 +811,8 @@ require([
                 }
             }
 
-            tNode = html.time();
-            tNode.appendChild(
-                document.createTextNode(createdOn.toCustomISODate()));
-            html.replaceContent(document.getElementById('build-date'), tNode);
+            html.replaceContent(
+                document.getElementById('build-date'), html.time(createdOn));
         }
     }
 
@@ -1063,7 +1061,7 @@ require([
     }
 
     gSessionStorage = storage('build-' + gJobName + '-' + gKernelName);
-    gResultFilter = filter('data-search');
+    gResultFilter = filter('data-filter');
 
     registerEvents();
 

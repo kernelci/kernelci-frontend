@@ -610,7 +610,7 @@ require([
             kernel = results.kernel;
             gitURL = results.git_url;
             gitCommit = results.git_commit;
-            createdOn = new Date(results.created_on.$date);
+            createdOn = results.created_on;
             arch = results.arch;
             defconfig = results.defconfig;
             lDefconfigFull = results.defconfig_full;
@@ -834,13 +834,8 @@ require([
             html.replaceContent(
                 document.getElementById('build-defconfig'), spanNode);
 
-            timeNode = html.time();
-            timeNode.setAttribute('datetime', createdOn.toISOString());
-            timeNode.appendChild(
-                document.createTextNode(createdOn.toCustomISODate()));
-
             html.replaceContent(
-                document.getElementById('build-date'), timeNode);
+                document.getElementById('build-date'), html.time(createdOn));
 
             tooltipNode = html.tooltip();
             switch (results.status) {
