@@ -83,7 +83,9 @@ define([
      * This can be used before saving the page state.
     **/
     kciFilter.unload = function() {
-        this.filteredElements.forEach(unhide);
+        if (this.filteredElements) {
+            this.filteredElements.forEach(unhide);
+        }
         this.input.value = '';
     };
 
