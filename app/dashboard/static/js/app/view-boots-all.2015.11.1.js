@@ -228,8 +228,7 @@ require([
     gBootsTable = table({
         tableId: 'bootstable',
         tableDivId: 'table-div',
-        tableLoadingDivId: 'table-loading',
-        disableSearch: true
+        tableLoadingDivId: 'table-loading'
     });
     getBoots();
 });

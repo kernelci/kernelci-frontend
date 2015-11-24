@@ -131,13 +131,6 @@ define([
 
         if (this.tableDivId) {
             this.tableDivNode = document.getElementById(this.tableDivId);
-
-            if (this.tableDivNode) {
-                this.inputNode =
-                    this.tableDivNode.querySelector('input.input-sm');
-                this.selectNode =
-                    this.tableDivNode.querySelector('select.input-sm');
-            }
         }
 
         return this;
@@ -322,69 +315,38 @@ define([
         that = this;
         settings = that.settings();
 
-        function _observeMutations() {
-            var observer,
-                observerConfig,
-                target;
-
-            observer = new MutationObserver(function(events) {
-                events.forEach(function(event) {
-                    target = event.target || event.srcElement;
-                    if (target === that.inputNode &&
-                            event.attributeName === 'disabled') {
-
-                        if (that.oldSearch) {
-                            that.table
-                                .search(that.oldSearch, true, true)
-                                .draw();
-                            that.oldSearch = null;
-                        }
-                    }
-                });
-                observer.disconnect();
-            });
-            observerConfig = {
-                attributes: true,
-                attributeOldValue: true
-            };
-            observer.observe(that.inputNode, observerConfig);
-        }
-
-        settings.initComplete = function() {
+        function _initComplete() {
             if (that.tableLoadingNode) {
                 $(that.tableLoadingNode).remove();
             }
-            if (that.tableDivNode) {
-                $(that.tableDivNode).fadeIn('slow', 'linear');
-            }
-        };
 
-        settings.stateLoadParams = function(s, d) {
-            if (that.disableSearch && d.search.search.length > 0) {
-                that.oldSearch = d.search.search;
-                d.search.search = '';
+            if (that.tableDivNode) {
+                that.inputNode =
+                    that.tableDivNode.querySelector('input.input-sm');
+                that.selectNode =
+                    that.tableDivNode.querySelector('select.input-sm');
+            } else {
+                that.inputNode = document.querySelector('input.input-sm');
+                that.selectNode = document.querySelector('select.input-sm');
             }
-        };
+
+            if (that.inputNode) {
+                // Remove focus from input when Esc is pressed.
+                that.inputNode.addEventListener('keyup', removeFocus);
+            }
+
+            if (that.selectNode) {
+                // Remove focus from the table length selection on Esc.
+                that.selectNode.addEventListener('keyup', removeFocus);
+            }
+        }
+
+        settings.initComplete = _initComplete;
 
         that.table = $(that.tableNode).DataTable(settings);
 
         if (that._drawFunction) {
             that.table.on('draw.dt', that._drawFunction);
-        }
-
-        if (that.inputNode) {
-            // Remove focus from input when Esc is pressed.
-            that.inputNode.addEventListener('keyup', removeFocus);
-
-            // Disable search box.
-            if (that.disableSearch) {
-                that.inputNode.setAttribute('disabled', true);
-            }
-        }
-
-        if (that.selectNode) {
-            // Remove focus from the table length selection on Esc.
-            that.selectNode.addEventListener('keyup', removeFocus);
         }
 
         if (that._clickFunction) {
@@ -412,19 +374,6 @@ define([
                 window.location = location;
             });
         }
-
-        that.table.on('search.dt', function() {
-            if (that.disableSearch && that.oldSearch !== null) {
-                if (window.MutationObserver) {
-                    if (that.inputNode.getAttribute('disabled')) {
-                        _observeMutations();
-                    }
-                } else {
-                    // No support for MutationObserver.
-                    that.table.search(that.oldSearch, true, true).draw();
-                }
-            }
-        });
 
         return this;
     };
