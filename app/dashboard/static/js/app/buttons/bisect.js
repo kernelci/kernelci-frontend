@@ -61,7 +61,7 @@ define([
      *
      * @param {boolean} compared: If this is a comparison bisection.
     **/
-    gBisectButtons.triggerMinusBisectBtns = function(compared) {
+    gBisectButtons.minusClick = function(compared) {
         var element;
         if (compared) {
             element = document.getElementById(gDom.minus_c_id);
@@ -81,7 +81,7 @@ define([
      *
      * @param {Event} event: The event that triggers the function.
     **/
-    gBisectButtons.showHideBisect = function(event) {
+    gBisectButtons.showHideEvent = function(event) {
         var compared,
             element,
             elementId,
@@ -211,7 +211,7 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    gBisectButtons.showLessBisectRowsBtn = function(event) {
+    gBisectButtons.lessRowsEvent = function(event) {
         var bisectType,
             element,
             hiddenClass,
@@ -279,7 +279,7 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    gBisectButtons.showMoreBisectRowsBtn = function(event) {
+    gBisectButtons.moreRowsEvent = function(event) {
         var element,
             minusId,
             plusId,

@@ -6,7 +6,7 @@ require([
     'utils/request',
     'utils/urls',
     'utils/bisect',
-    'utils/show-hide-btns',
+    'buttons/bisect',
     'tables/boot',
     'utils/html',
     'utils/const',
@@ -289,17 +289,17 @@ require([
 
     function _bindShowLess(element) {
         element.removeEventListener('click');
-        element.addEventListener('click', btns.showLessBisectRowsBtn);
+        element.addEventListener('click', btns.lessRowsEvent);
     }
 
     function _bindShowMore(element) {
         element.removeEventListener('click');
-        element.addEventListener('click', btns.showMoreBisectRowsBtn);
+        element.addEventListener('click', btns.moreRowsEvent);
     }
 
     function _bindBisect(element) {
         element.removeEventListener('click');
-        element.addEventListener('click', btns.showHideBisect);
+        element.addEventListener('click', btns.showHideEvent);
     }
 
     function bindBisectMoreLessBtns() {
@@ -358,7 +358,7 @@ require([
                 bisect(data, elements, true);
                 bindBisectButtons();
                 bindBisectMoreLessBtns();
-                btns.triggerMinusBisectBtns(true);
+                btns.minusClick(true);
             });
     }
 
@@ -439,7 +439,7 @@ require([
                     bisect(data, bisectElements, false);
                     bindBisectButtons();
                     bindBisectMoreLessBtns();
-                    btns.triggerMinusBisectBtns(false);
+                    btns.minusClick(false);
                 });
         }
     }
