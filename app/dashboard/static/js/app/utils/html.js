@@ -210,10 +210,6 @@ define(function() {
         return element;
     };
 
-    html.time = function() {
-        return document.createElement('time');
-    };
-
     html.replaceAllBySelectorHTML = function(selector, replacement) {
         [].forEach.call(
             document.querySelectorAll(selector),
@@ -431,6 +427,19 @@ define(function() {
             }
         }
         return hasClass;
+    };
+
+    html.time = function(date) {
+        var created,
+            timeNode;
+
+        created = new Date(date.$date);
+        timeNode = document.createElement('time');
+        timeNode.setAttribute('datetime', created.toISOString());
+        timeNode.appendChild(
+            document.createTextNode(created.toCustomISODate()));
+
+        return timeNode;
     };
 
     return html;
