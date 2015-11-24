@@ -113,21 +113,30 @@ require([
             var dataIndex;
 
             dataIndex = '';
-            dataIndex += result.defconfig_full.toLowerCase() || '';
-            dataIndex += result.job.toLowerCase() || '';
-            dataIndex += result.kernel.toLowerCase() || '';
-            dataIndex += result.arch.toLowerCase() || '';
-            dataIndex += result.status.toLowerCase() || '';
+            dataIndex += result.defconfig_full.toLowerCase();
+            dataIndex += result.job.toLowerCase();
+            dataIndex += result.kernel.toLowerCase();
+
+            if (result.arch) {
+                dataIndex += result.arch.toLowerCase();
+            }
+            if (result.status) {
+                dataIndex += result.status.toLowerCase();
+            }
 
             if (result.metadata) {
                 if (result.metadata.hasOwnProperty('cross_compile')) {
-                    dataIndex += result.metadata.cross_compile
-                        .toLowerCase() || '';
+                    if (result.metadata.cross_compile) {
+                        dataIndex +=
+                            result.metadata.cross_compile.toLowerCase();
+                    }
                 }
 
                 if (result.metadata.hasOwnProperty('compiler_version')) {
-                    dataIndex += result.metadata.compiler_version
-                        .toLowerCase().replace(/\s/g, '') || '';
+                    if (result.metadata.compiler_version) {
+                        dataIndex +=
+                            result.metadata.compiler_version.toLowerCase();
+                    }
                 }
             }
 
@@ -693,7 +702,6 @@ require([
             localResult,
             results,
             spanNode,
-            tNode,
             tURLs,
             updateElement;
 
