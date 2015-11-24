@@ -12,7 +12,8 @@ define([
     'utils/storage',
     'utils/session',
     'charts/passpie',
-    'utils/unique-count',
+    'components/boot/unique',
+    // 'utils/unique-count',
     'utils/date',
     'sprintf'
 ], function(
@@ -308,7 +309,7 @@ define([
                     kernel: gKernel
                 });
 
-            $.when(deferred, unique.countUniqueBootD(response))
+            $.when(deferred, unique.countD(response))
                 .fail(error.error, uniqueCountFail)
                 .done(uniqueCountDone);
         } else {
