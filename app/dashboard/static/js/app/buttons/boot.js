@@ -43,8 +43,7 @@ define([
 
         tooltipNode.appendChild(iNode);
 
-        // TODO: fix where this is called and return the node.
-        return tooltipNode.outerHTML;
+        return tooltipNode;
     };
 
     /**

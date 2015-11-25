@@ -6,7 +6,8 @@ require([
     'utils/init',
     'utils/request',
     'utils/urls',
-    'utils/show-hide-btns',
+    'buttons/common',
+    'buttons/build',
     'charts/passpie',
     'utils/html',
     'utils/storage',
@@ -15,7 +16,10 @@ require([
     'utils/date'
 ], function(
         $,
-        format, e, init, r, u, btns, chart, html, storage, session, filter) {
+        format,
+        e,
+        init,
+        r, u, commonBtns, buildBtns, chart, html, storage, session, filter) {
     'use strict';
     var gFileServer,
         gJobName,
@@ -28,13 +32,13 @@ require([
             document.getElementsByClassName('click-btn'),
             function(value) {
                 value.addEventListener(
-                    'click', btns.showHideElements, true);
+                    'click', commonBtns.showHideElements, true);
         });
         [].forEach.call(
             document.getElementsByClassName('warn-err-btn'),
             function(value) {
                 value.addEventListener(
-                    'click', btns.showHideWarnErr, true);
+                    'click', buildBtns.showHideWarnErr, true);
         });
     }
 

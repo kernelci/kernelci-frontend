@@ -6,7 +6,7 @@ define([
     'buttons/boot',
     'components/boot/common',
     'utils/date'
-], function(format, html, urls, buttons, common) {
+], function(format, html, urls, bootBtns, common) {
     'use strict';
     var gBootViews,
         kciView;
@@ -89,8 +89,7 @@ define([
         spanNode = document.createElement('span');
         spanNode.className = 'pull-right';
         spanNode.id = 'view-eye-' + lab;
-        spanNode.insertAdjacentHTML(
-            'beforeend', buttons.createShowHideLabBtn(lab, 'hide'));
+        spanNode.appendChild(bootBtns.createShowHideLabBtn(lab, 'hide'));
 
         otherDivNode.appendChild(spanNode);
 

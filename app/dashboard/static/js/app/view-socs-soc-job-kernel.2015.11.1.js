@@ -8,7 +8,8 @@ define([
     'utils/error',
     'utils/request',
     'utils/urls',
-    'utils/show-hide-btns',
+    'buttons/common',
+    'buttons/boot',
     'utils/storage',
     'utils/session',
     'charts/passpie',
@@ -20,7 +21,9 @@ define([
         init,
         format,
         html,
-        boot, error, request, urls, buttons, storage, session, chart, unique) {
+        boot,
+        error,
+        request, urls, commonBtns, bootBtns, storage, session, chart, unique) {
     'use strict';
     var gFileServer,
         gJob,
@@ -43,11 +46,11 @@ define([
     }
 
     function showHideBind(element) {
-        element.addEventListener('click', buttons.showHideElements, true);
+        element.addEventListener('click', commonBtns.showHideElements, true);
     }
 
     function labBind(element) {
-        element.addEventListener('click', buttons.showHideLab, true);
+        element.addEventListener('click', bootBtns.showHideLab, true);
     }
 
     function bindDetailButtons() {
@@ -650,8 +653,7 @@ define([
             spanNode = document.createElement('span');
             spanNode.className = 'pull-right';
             spanNode.id = 'view-eye-' + lab;
-            spanNode.insertAdjacentHTML(
-                'beforeend', buttons.createShowHideLabBtn(lab, 'hide'));
+            spanNode.appendChild(bootBtns.createShowHideLabBtn(lab, 'hide'));
 
             otherDivNode.appendChild(spanNode);
 
