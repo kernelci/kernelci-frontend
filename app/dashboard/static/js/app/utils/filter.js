@@ -115,11 +115,13 @@ define([
                     filteredElements.push(element);
                 }
             } else {
-                elementIndex = filteredElements.indexOf(element);
-                if (elementIndex !== -1) {
-                    unhide(element);
+                if (filteredElements.length > 0) {
+                    elementIndex = filteredElements.indexOf(element);
+                    if (elementIndex !== -1) {
+                        unhide(element);
 
-                    filteredElements.splice(elementIndex, 1);
+                        filteredElements.splice(elementIndex, 1);
+                    }
                 }
             }
         }
