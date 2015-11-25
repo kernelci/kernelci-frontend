@@ -4,12 +4,10 @@ define([
     'utils/init',
     'utils/format',
     'utils/html',
-    'utils/boot',
     'utils/error',
     'utils/request',
     'utils/urls',
     'buttons/common',
-    'buttons/boot',
     'utils/storage',
     'utils/session',
     'charts/passpie',
@@ -23,12 +21,10 @@ define([
         init,
         format,
         html,
-        boot,
         error,
         request,
         urls,
-        commonBtns,
-        bootBtns, storage, session, chart, unique, filter, bootView) {
+        commonBtns, storage, session, chart, unique, filter, bootView) {
     'use strict';
     var gFileServer,
         gJob,
@@ -55,18 +51,9 @@ define([
         element.addEventListener('click', commonBtns.showHideElements, true);
     }
 
-    function labBind(element) {
-        element.addEventListener('click', bootBtns.showHideLab, true);
-    }
-
     function bindDetailButtons() {
         [].forEach.call(
             document.getElementsByClassName('click-btn'), showHideBind);
-    }
-
-    function bindLabButtons() {
-        [].forEach.call(
-            document.getElementsByClassName('lab-click-btn'), labBind);
     }
 
     function uniqueCountFail() {
@@ -368,7 +355,6 @@ define([
 
             // Bind buttons to the correct functions.
             bindDetailButtons();
-            bindLabButtons();
 
             if (gSearchFilter && gSearchFilter.length > 0) {
                 switch (gSearchFilter) {

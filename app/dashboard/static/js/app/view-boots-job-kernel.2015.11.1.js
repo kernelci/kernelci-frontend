@@ -14,7 +14,6 @@ require([
     'utils/filter',
     'components/boot/view',
     'buttons/common',
-    'buttons/boot',
     'utils/date',
     'sprintf'
 ], function(
@@ -26,7 +25,7 @@ require([
         urls,
         chart,
         unique,
-        storage, session, html, filter, bootView, commonBtns, bootBtns) {
+        storage, session, html, filter, bootView, commonBtns) {
     'use strict';
     var gFileServer,
         gJob,
@@ -39,18 +38,9 @@ require([
         element.addEventListener('click', commonBtns.showHideElements, true);
     }
 
-    function labBind(element) {
-        element.addEventListener('click', bootBtns.showHideLab, true);
-    }
-
     function bindDetailButtons() {
         [].forEach.call(
             document.getElementsByClassName('click-btn'), showHideBind);
-    }
-
-    function bindLabButtons() {
-        [].forEach.call(
-            document.getElementsByClassName('lab-click-btn'), labBind);
     }
 
     function uniqueCountFail() {
@@ -370,7 +360,6 @@ require([
 
             // Bind buttons to the correct functions.
             bindDetailButtons();
-            bindLabButtons();
 
             if (gSearchFilter && gSearchFilter.length > 0) {
                 switch (gSearchFilter) {

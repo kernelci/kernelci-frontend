@@ -55,7 +55,8 @@ define([
     }
 
     kciView.createLabSection = function(lab) {
-        var divNode,
+        var buttonNode,
+            divNode,
             otherDivNode,
             hNode,
             ruleNode,
@@ -89,7 +90,11 @@ define([
         spanNode = document.createElement('span');
         spanNode.className = 'pull-right';
         spanNode.id = 'view-eye-' + lab;
-        spanNode.appendChild(bootBtns.createShowHideLabBtn(lab, 'hide'));
+
+        buttonNode = bootBtns.createShowHideLabBtn(lab, 'hide');
+        buttonNode.addEventListener('click', bootBtns.showHideLab, true);
+
+        spanNode.appendChild(buttonNode);
 
         otherDivNode.appendChild(spanNode);
 
