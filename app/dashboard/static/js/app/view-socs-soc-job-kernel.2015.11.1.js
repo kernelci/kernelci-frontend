@@ -14,6 +14,8 @@ define([
     'utils/session',
     'charts/passpie',
     'components/boot/unique',
+    'utils/filter',
+    'components/boot/view',
     'utils/date',
     'sprintf'
 ], function(
@@ -23,11 +25,15 @@ define([
         html,
         boot,
         error,
-        request, urls, commonBtns, bootBtns, storage, session, chart, unique) {
+        request,
+        urls,
+        commonBtns,
+        bootBtns, storage, session, chart, unique, filter, bootView) {
     'use strict';
     var gFileServer,
         gJob,
         gKernel,
+        gResultFilter,
         gSearchFilter,
         gSessionStorage,
         gSoc;
@@ -327,385 +333,32 @@ define([
     }
 
     function getBootsDone(response) {
-        var aNode,
-            accordionElement,
-            allLabs,
-            arch,
-            board,
-            bootTime,
-            colNode,
-            collapseBodyNode,
-            collapseId,
-            collapseNode,
-            ddNode,
-            defconfigFull,
-            divNode,
-            dlNode,
-            docId,
-            dtNode,
+        var bootPanel,
             failButton,
-            filterClass,
-            hNode,
-            hasFail,
-            hasSuccess,
-            hasUnknown,
-            headingNode,
-            htmlLog,
-            kernelImage,
-            kernelImageSize,
-            labName,
-            otherDivNode,
-            panelNode,
-            pathURI,
-            results,
-            rowNode,
-            ruleNode,
-            serverResource,
-            serverURI,
-            serverURL,
-            smallNode,
-            spanNode,
-            statusNode,
-            tooltipNode,
-            translatedURI,
-            txtLog,
-            warnings;
-
-        allLabs = {};
-        hasFail = false;
-        hasSuccess = false;
-        hasUnknown = false;
-        accordionElement = document.getElementById('accordion-container');
+            results;
 
         results = response.result;
-
-        // Internal function to parse the results and create the DOM elements.
-        function _parseBootResult(result, index) {
-            docId = result._id.$oid;
-            serverURL = result.file_server_url;
-            serverResource = result.file_server_resource;
-            defconfigFull = result.defconfig_full;
-            arch = result.arch;
-            labName = result.lab_name;
-            board = result.board;
-            warnings = result.warnings;
-            txtLog = result.boot_log;
-            htmlLog = result.boot_log_html;
-            kernelImage = result.kernel_image;
-            kernelImageSize = result.kernel_image_size;
-
-            if (!serverURL) {
-                serverURL = gFileServer;
-            }
-
-            translatedURI = urls.translateServerURL(
-                serverURL,
-                serverResource, [gJob, gKernel, arch + '-' + defconfigFull]);
-
-            serverURI = translatedURI[0];
-            pathURI = translatedURI[1];
-
-            switch (result.status) {
-                case 'FAIL':
-                    hasFail = true;
-                    statusNode = html.fail();
-                    filterClass = 'df-failed';
-                    break;
-                case 'PASS':
-                    hasSuccess = true;
-                    statusNode = html.success();
-                    filterClass = 'df-success';
-                    break;
-                default:
-                    hasUnknown = true;
-                    statusNode = html.unknown();
-                    filterClass = 'df-unknown';
-                    break;
-            }
-            html.addClass(statusNode, 'pull-right');
-
-            panelNode = document.createElement('div');
-            panelNode.className = 'panel panel-default ' + filterClass;
-
-            collapseId = 'collapse-boot-' + index;
-
-            headingNode = document.createElement('div');
-            headingNode.className = 'panel-heading collapsed';
-            headingNode.id = 'panel-boot-' + index;
-            headingNode.setAttribute('aria-expanded', false);
-            headingNode.setAttribute('data-parent', '#accordion-' + labName);
-            headingNode.setAttribute('data-toggle', 'collapse');
-            headingNode.setAttribute('data-target', '#' + collapseId);
-            headingNode.setAttribute('aria-controls', '#' + collapseId);
-
-            hNode = document.createElement('h4');
-            hNode.className = 'panel-title';
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('data-parent', '#accordion-' + labName);
-            aNode.setAttribute('data-toggle', 'collapse');
-            aNode.setAttribute('href', '#' + collapseId);
-            aNode.setAttribute('aria-controls', '#' + collapseId);
-            aNode.appendChild(document.createTextNode(board));
-            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-
-            smallNode = document.createElement('small');
-            smallNode.appendChild(document.createTextNode(defconfigFull));
-
-            aNode.appendChild(smallNode);
-            hNode.appendChild(aNode);
-
-            if (arch) {
-                spanNode = document.createElement('span');
-                spanNode.className = 'arch-label';
-                spanNode.appendChild(document.createTextNode(arch));
-                hNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
-                hNode.appendChild(spanNode);
-            }
-
-            hNode.appendChild(statusNode);
-            headingNode.appendChild(hNode);
-            panelNode.appendChild(headingNode);
-
-            collapseNode = document.createElement('div');
-            collapseNode.id = collapseId;
-            collapseNode.className = 'panel-collapse collapse';
-            collapseNode.setAttribute('aria-expanded', false);
-
-            collapseBodyNode = document.createElement('div');
-            collapseBodyNode.className = 'panel-body';
-
-            rowNode = document.createElement('div');
-            rowNode.className = 'row';
-
-            colNode = document.createElement('div');
-            colNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
-
-            dlNode = document.createElement('dl');
-            dlNode.className = 'dl-horizontal';
-
-            // Endianness.
-            dtNode = document.createElement('dt');
-            dtNode.appendChild(document.createTextNode('Endianness'));
-            ddNode = document.createElement('dd');
-            if (result.endian) {
-                ddNode.appendChild(document.createTextNode(result.endian));
-            } else {
-                ddNode.appendChild(html.nonavail());
-            }
-
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
-            // Kernel image.
-            dtNode = document.createElement('dt');
-            dtNode.appendChild(document.createTextNode('Kernel image'));
-            ddNode = document.createElement('dd');
-            if (kernelImage) {
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    serverURI
-                        .path(pathURI + '/' + kernelImage)
-                        .normalizePath().href()
-                );
-                aNode.appendChild(
-                    document.createTextNode(kernelImage));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-                ddNode.appendChild(aNode);
-
-                if (kernelImageSize) {
-                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    smallNode = document.createElement('small');
-                    smallNode.appendChild(
-                        document.createTextNode(
-                            format.bytes(kernelImageSize)));
-                    ddNode.appendChild(smallNode);
-                }
-            } else {
-                ddNode.appendChild(html.nonavail());
-            }
-
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
-            colNode.appendChild(dlNode);
-            rowNode.appendChild(colNode);
-
-            colNode = document.createElement('div');
-            colNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
-
-            dlNode = document.createElement('dl');
-            dlNode.className = 'dl-horizontal';
-
-            // Warnings.
-            dtNode = document.createElement('dt');
-            dtNode.appendChild(document.createTextNode('Warnings'));
-            ddNode = document.createElement('dd');
-            if (warnings !== null && warnings !== undefined) {
-                ddNode.appendChild(
-                    document.createTextNode(
-                        format.number(parseInt(warnings, 10))));
-            } else {
-                ddNode.appendChild(document.createTextNode('0'));
-            }
-
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
-            // Boot time.
-            dtNode = document.createElement('dt');
-            dtNode.appendChild(document.createTextNode('Boot time'));
-            ddNode = document.createElement('dd');
-
-            if (result.time !== null || result.time !== undefined) {
-                bootTime = new Date(result.time.$date);
-                ddNode.appendChild(
-                    document.createTextNode(bootTime.toCustomTime()));
-            } else {
-                ddNode.appendChild(html.nonavail());
-            }
-
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
-            // Boot logs.
-            if (txtLog || htmlLog) {
-                dtNode = document.createElement('dt');
-                dtNode.appendChild(document.createTextNode('Boot log'));
-
-                ddNode = document.createElement('dd');
-                ddNode.appendChild(
-                    boot.createBootLog(
-                        txtLog, htmlLog, labName, serverURI, pathURI));
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
-            }
-
-            colNode.appendChild(dlNode);
-            rowNode.appendChild(colNode);
-
-            // More info link.
-            colNode = document.createElement('div');
-            colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
-
-            divNode = document.createElement('div');
-            divNode.className = 'pull-center';
-
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', 'Boot report details');
-            aNode = document.createElement('a');
-            aNode.setAttribute(
-                'href',
-                '/boot/' + board + '/job/' + gJob + '/kernel/' + gKernel +
-                '/defconfig/' + defconfigFull + '/lab/' + labName +
-                '/?_id=' + docId
-            );
-            aNode.appendChild(document.createTextNode('More info'));
-            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-            aNode.appendChild(html.search());
-            tooltipNode.appendChild(aNode);
-            divNode.appendChild(tooltipNode);
-
-            colNode.appendChild(divNode);
-            rowNode.appendChild(colNode);
-
-            collapseBodyNode.appendChild(rowNode);
-            collapseNode.appendChild(collapseBodyNode);
-            panelNode.appendChild(collapseNode);
-
-            if (allLabs.hasOwnProperty(labName)) {
-                allLabs[labName].push(panelNode);
-            } else {
-                allLabs[labName] = [];
-                allLabs[labName].push(panelNode);
-            }
-        } // End _parseBootResult.
-
-        function _createLabSection(lab) {
-            divNode = document.createElement('div');
-            divNode.id = lab;
-
-            otherDivNode = document.createElement('div');
-            otherDivNode.className = 'other-header';
-
-            hNode = document.createElement('h4');
-            hNode.insertAdjacentHTML(
-                'beforeend', sprintf('Lab &#171;%s&#187;', lab));
-
-            otherDivNode.appendChild(hNode);
-            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
-
-            spanNode = document.createElement('span');
-            spanNode.id = 'boot-count-' + lab;
-
-            otherDivNode.appendChild(spanNode);
-            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
-
-            spanNode = document.createElement('span');
-            spanNode.id = 'unique-count-' + lab;
-
-            otherDivNode.appendChild(spanNode);
-            otherDivNode.insertAdjacentHTML('beforeend', '&nbsp;');
-
-            spanNode = document.createElement('span');
-            spanNode.className = 'pull-right';
-            spanNode.id = 'view-eye-' + lab;
-            spanNode.appendChild(bootBtns.createShowHideLabBtn(lab, 'hide'));
-
-            otherDivNode.appendChild(spanNode);
-
-            ruleNode = document.createElement('hr');
-            ruleNode.className = 'blurred subheader';
-
-            otherDivNode.appendChild(ruleNode);
-            divNode.appendChild(otherDivNode);
-
-            otherDivNode = document.createElement('div');
-            otherDivNode.className = 'pull-center';
-            otherDivNode.id = 'view-' + lab;
-
-            divNode.appendChild(otherDivNode);
-
-            otherDivNode = document.createElement('div');
-            otherDivNode.className = 'panel-group';
-            otherDivNode.id = 'accordion-' + lab;
-
-            allLabs[lab].forEach(function(node) {
-                otherDivNode.appendChild(node);
-            });
-
-            divNode.appendChild(otherDivNode);
-            accordionElement.appendChild(divNode);
-        } // End _createLabSection.
-
         if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data found.'));
         } else {
-            // Parse the results.
-            results.forEach(_parseBootResult);
-            // Clean up all elements.
-            html.removeChildren(accordionElement);
-            // Then add the new ones.
-            Object.keys(allLabs).sort().forEach(_createLabSection);
+            bootPanel = bootView('accordion-container', gFileServer)
+                .draw(results);
 
-            if (hasFail) {
+            if (bootPanel.hasFail) {
                 document
                     .getElementById('fail-btn')
                     .removeAttribute('disabled');
             }
 
-            if (hasSuccess) {
+            if (bootPanel.hasSuccess) {
                 document
                     .getElementById('success-btn')
                     .removeAttribute('disabled');
             }
 
-            if (hasUnknown) {
+            if (bootPanel.hasUnknown) {
                 document
                     .getElementById('unknown-btn')
                     .removeAttribute('disabled');
@@ -730,7 +383,7 @@ define([
                         break;
                 }
             } else if (!loadSavedSession()) {
-                if (hasFail) {
+                if (bootPanel.hasFail) {
                     // If there is no saved session, show only the failed ones.
                     [].forEach.call(
                         document.getElementsByClassName('df-failed'),
@@ -990,6 +643,8 @@ define([
                 ];
             }
 
+            gResultFilter.unload();
+
             pageState['.df-success'] = {
                 type: 'attr',
                 name: 'style',
@@ -1074,6 +729,7 @@ define([
     });
 
     gSessionStorage = storage('soc-' + gSoc + '-' + gJob + '-' + gKernel);
+    gResultFilter = filter('data-filter');
     getBoots();
     registerEvents();
 });
