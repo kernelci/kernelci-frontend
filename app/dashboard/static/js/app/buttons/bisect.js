@@ -39,8 +39,8 @@ define([
         bisect_c_hidden_text: 'Content of bisection compared to ' +
             '&#171;%s&#187; hidden. Use the <i class="fa fa-eye"></i> ' +
             'button to show it again.',
-        show_class: 'fa fa-eye',
-        hide_class: 'fa fa-eye-slash'
+        show_class: ['fa', 'fa-eye'],
+        hide_class: ['fa', 'fa-eye-slash']
     };
 
     gBisectButtons = {};
@@ -97,8 +97,8 @@ define([
 
         if (element.getAttribute('data-action') === 'hide') {
             element.setAttribute('data-action', 'show');
-            html.removeClass(element, gStrings.hide_class);
-            html.addClass(element, gStrings.show_class);
+            html.removeClasses(element, gStrings.hide_class);
+            html.addClasses(element, gStrings.show_class);
             html.addClass(document.getElementById(
                 element.getAttribute('data-sh')), 'hidden');
 
@@ -126,8 +126,8 @@ define([
             }
 
             element.setAttribute('data-action', 'hide');
-            html.removeClass(element, gStrings.show_class);
-            html.addClass(element, gStrings.hide_class);
+            html.removeClasses(element, gStrings.show_class);
+            html.addClasses(element, gStrings.hide_class);
             html.removeClass(
                 document.getElementById(element.getAttribute('data-sh')),
                 'hidden');
@@ -149,7 +149,7 @@ define([
      * @param {Boolean} compared: If this is for a comparison bisection.
      * @return {string} The HTML of the buttons.
     **/
-    gBisectButtons.createPlusMinBisectBtn = function(rows, tableId, compared) {
+    gBisectButtons.plusMinButton = function(rows, tableId, compared) {
         var buttonNode,
             dataType,
             divNode,
@@ -197,8 +197,8 @@ define([
         buttonNode.insertAdjacentHTML('beforeend', '&#43;');
 
         divNode.appendChild(buttonNode);
-        // TODO: need to fix bisect and pass the node instead of the HTML.
-        return divNode.outerHTML;
+
+        return divNode;
     };
 
     /**
@@ -317,20 +317,20 @@ define([
      * @param {string} action: The action to take: 'show' or 'hide'.
      * @param {string} compareTo: The name of the compared tree or null.
     **/
-    gBisectButtons.createShowHideBisectBtn = function(
+    gBisectButtons.showHideButton = function(
             elementId, targetId, action, compareTo) {
-        var className,
+        var classes,
+            iNode,
             title,
-            tooltipNode,
-            iNode;
+            tooltipNode;
 
-        className = gStrings.show_class;
+        classes = gStrings.show_class;
         title = gStrings.bisect_show_tooltip;
 
         if (action === 'show' && compareTo) {
             title = sprintf(gStrings.bisect_c_show_tooltip, compareTo);
         } else if (action === 'hide') {
-            className = gStrings.hide_class;
+            classes = gStrings.hide_class;
 
             if (compareTo) {
                 title = sprintf(
@@ -348,11 +348,12 @@ define([
         iNode.setAttribute('data-id', elementId);
         iNode.setAttribute('data-sh', targetId);
         iNode.setAttribute('data-compared', compareTo);
-        iNode.className = 'bisect-click-btn ' + className;
+        iNode.className = 'bisect-click-btn';
+        html.addClasses(iNode, classes);
 
         tooltipNode.appendChild(iNode);
-        // TODO: fix where this is called and return the DOM node.
-        return tooltipNode.outerHTML;
+
+        return tooltipNode;
     };
 
     return gBisectButtons;

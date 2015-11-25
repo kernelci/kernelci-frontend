@@ -283,14 +283,14 @@ define([
     };
 
     html.replaceContent = function(element, child) {
-        if (element !== null) {
+        if (element) {
             _cleanElementChildren(element);
             element.appendChild(child);
         }
     };
 
     html.replaceContentHTML = function(element, replacement) {
-        if (element !== null) {
+        if (element) {
             _cleanElementChildren(element);
             element.insertAdjacentHTML('beforeend', replacement);
         }
@@ -314,10 +314,25 @@ define([
      * @param {Element} element: The DOM element.
     **/
     html.removeChildren = function(element) {
-        if (element !== null) {
+        if (element) {
             _cleanElementChildren(element);
         }
     };
+
+    /**
+     * The internal function to add a class to a DOM element.
+     *
+     * @private
+    **/
+    function _addClass(element, className) {
+        var classes;
+        classes = element.className.split(' ');
+
+        if (classes.indexOf(className) === -1) {
+            classes.push(className);
+            element.className = classes.join(' ').trim();
+        }
+    }
 
     /**
      * Add a CSS class to an element.
@@ -327,17 +342,38 @@ define([
      * @param {string} className: The name of the class to add.
     **/
     html.addClass = function(element, className) {
-        var classes;
-
-        if (element !== null) {
-            classes = element.className.split(' ');
-
-            if (classes.indexOf(className) === -1) {
-                classes.push(className);
-                element.className = classes.join(' ');
-            }
+        if (element) {
+            _addClass(element, className);
         }
     };
+
+    /**
+     * Add CSS classes to an element.
+     * The new classes won't be inserted if already there.
+     *
+     * @param {Element} element: The DOM element.
+     * @param {Array} classes: The list of classes to add.
+    **/
+    html.addClasses = function(element, classes) {
+        if (element) {
+            classes.forEach(function(className) {
+                _addClass(element, className);
+            });
+        }
+    };
+
+    function _removeClass(element, className) {
+        var classIdx,
+            classes;
+
+        classes = element.className.split(' ');
+        classIdx = classes.indexOf(className);
+
+        if (classIdx !== -1) {
+            classes.splice(classIdx, 1);
+            element.className = classes.join(' ').trim();
+        }
+    }
 
     /**
      * Remove a CSS class from an element.
@@ -346,17 +382,16 @@ define([
      * @param {string} className: The name of the class to add.
     **/
     html.removeClass = function(element, className) {
-        var classIdx,
-            classes;
+        if (element) {
+            _removeClass(element, className);
+        }
+    };
 
-        if (element !== null) {
-            classes = element.className.split(' ');
-            classIdx = classes.indexOf(className);
-
-            if (classIdx !== -1) {
-                classes.splice(classIdx, 1);
-                element.className = classes.join(' ');
-            }
+    html.removeClasses = function(element, classes) {
+        if (element) {
+            classes.forEach(function(className) {
+                _removeClass(element, className);
+            });
         }
     };
 
@@ -374,7 +409,7 @@ define([
 
         element = document.querySelector(selector);
         value = null;
-        if (element !== null) {
+        if (element) {
             value = element.getAttribute(attribute);
         }
 
@@ -387,7 +422,7 @@ define([
 
         element = document.getElementById(elementId);
         value = null;
-        if (element !== null) {
+        if (element) {
             value = element.getAttribute(attribute);
         }
 
@@ -395,7 +430,7 @@ define([
     };
 
     html.removeElement = function(element) {
-        if (element !== null) {
+        if (element) {
             element.parentElement.removeChild(element);
         }
     };

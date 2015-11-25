@@ -1,380 +1,530 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'sprintf',
-    'utils/base',
+    'utils/html',
+    'buttons/bisect',
     'utils/urls',
-    'utils/show-hide-btns'
-], function(p, b, u, btns) {
+    'sprintf'
+], function(html, btns, urls) {
     'use strict';
-    var bisect,
-        bisectBootComparisonDescription,
-        bisectBuildComparisonDescription,
-        bisectScriptElementF,
-        bootTooltipTitleF,
-        buildTooltipTitleF,
-        commitCellF,
-        // How many rows are too many?
-        bisectMaxElements = 6;
+    var gMaxElements,
+        gStrings,
+        kciBisect;
 
-    bisectBootComparisonDescription = 'The comparison with the ' +
-        '&#171;%s&#187; tree is based on the boot reports with the same ' +
-        'board, lab name, architecture and defconfig values.';
-    bisectBuildComparisonDescription = 'The comparison with the ' +
-        '&#171;%s&#187; tree is based on the build reports with the same ' +
-        'architecture and defconfig values.';
-    bootTooltipTitleF = 'Boot report details for %s &dash; %s';
-    commitCellF = '<td class="%s"><a href="%s">%s&nbsp;' +
-        '<i class="fa fa-external-link"></i></a></td>';
-    bisectScriptElementF = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="%s"><a download="%s" href="%s">' +
-        '<i class="fa fa-download"></i></a></span>';
-    buildTooltipTitleF = 'Build details for %s &dash; %s';
+    // How many rows are too many?
+    gMaxElements = 6;
+    gStrings = {
+        boot_compare_description: 'The comparison with the ' +
+            '&#171;%s&#187; tree is based on the boot reports with the same ' +
+            'board, lab name, architecture and defconfig values.',
+        build_compare_description: 'The comparison with the ' +
+            '&#171;%s&#187; tree is based on the build reports with the ' +
+            'same architecture and defconfig values.',
+        boot_tooltip: 'Boot report details for %s &dash; %s',
+        build_tooltip: 'Build details for %s &dash; %s'
+    };
 
-    // Create a simple bash script for git bisection.
-    // `bad`: The starting point for the bisect script.
-    // `good`: The end point.
-    function bisectShellScript(bad, good) {
-        var bisectScript = '';
+    /**
+     * Create a shell script for git bisection.
+     *
+     * @private
+     * @param {String} bad: The starting point of the bisect script.
+     * @param {String} good: The good commit.
+     * @return {String} The script as an encoded URI.
+    **/
+    function shellScript(bad, good) {
+        var script;
+
         if (bad !== null && good !== null) {
-            bisectScript = '#!/bin/bash\n';
-            bisectScript += 'git bisect start ' + bad + ' ' + good + '\n';
+            script = '#!/bin/bash\n';
+            script += 'git bisect start ' + bad + ' ' + good + '\n';
+        } else {
+            script = '';
         }
-        return 'data:text/plain;charset=UTF-8,' +
-            encodeURIComponent(bisectScript);
+
+        return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(script);
     }
 
-    // Create a bash script for git bisection for the compared one.
-    // `bad`: The starting point for the bisect script.
-    // `good`: The list of good commits.
-    function bisectCompareShellScript(bad, good) {
-        var bisectScript = '';
+    /**
+     * Create a shell script for git bisection (compared case).
+     *
+     * @private
+     * @param {String} bad: The starting point of the bisect script.
+     * @param {Array} good: List of good commits.
+     * @return {String} The script as an encoded URI.
+    **/
+    function shellScriptCompared(bad, good) {
+        var script;
+
         if (bad !== null && good.length > 0) {
-            bisectScript = '#!/bin/bash\ngit bisect start\n';
-            bisectScript += 'git bisect bad ' + bad + '\n';
-            good.forEach(function(element) {
-                bisectScript += 'git bisect good ' + element + '\n';
+            script = '#!/bin/bash\ngit bisect start\n';
+            script += 'git bisect bad ' + bad + '\n';
+
+            good.forEach(function(commit) {
+                script += 'git bisect good ' + commit + '\n';
             });
+        } else {
+            script = '';
         }
-        return 'data:text/plain;charset=UTF-8,' +
-            encodeURIComponent(bisectScript);
+
+        return 'data:text/plain;charset=UTF-8,' + encodeURIComponent(script);
     }
 
-    function defaultBisectSummary(bad, good, elements, type) {
-        if (bad !== null) {
-            b.replaceById(
-                elements.badCommitID,
-                '<span class="text-danger">' + bad + '</span>');
+    function _bindShowLess(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.lessRowsEvent);
+    }
+
+    function _bindShowMore(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.moreRowsEvent);
+    }
+
+    function _bindBisect(element) {
+        element.removeEventListener('click');
+        element.addEventListener('click', btns.showHideEvent);
+    }
+
+    function bindEvents() {
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-less'),
+            _bindShowLess);
+
+        [].forEach.call(
+            document.getElementsByClassName('bisect-pm-btn-more'),
+            _bindShowMore);
+
+        [].forEach.call(
+            document.getElementsByClassName('bisect-click-btn'), _bindBisect);
+    }
+
+    kciBisect = {
+        data: null,
+        isCompared: false,
+        table: null
+    };
+
+    kciBisect.setup = function() {
+        this.table = document.getElementById(this.tableID);
+        return this;
+    };
+
+    kciBisect.createDefaultSummary = function(bad, good, type) {
+        var aNode,
+            iNode,
+            spanNode;
+
+        // The bad commit.
+        spanNode = document.createElement('span');
+        if (bad) {
+            spanNode.className = 'text-danger';
+            spanNode.appendChild(document.createTextNode(bad));
         } else {
-            b.replaceById(
-                elements.badCommitID,
-                '<span class="text-warning">No bad commit found</span>');
-        }
-        if (good !== null) {
-            b.replaceById(
-                elements.goodCommitID,
-                '<span class="text-success">' + good + '</span>');
-        } else {
-            b.replaceById(
-                elements.goodCommitID,
-                '<span class="text-warning">No good commit found</span>');
+            spanNode.className = 'text-warning';
+            spanNode.appendChild(
+                document.createTextNode('No bad commit found'));
         }
 
-        if (bad !== null && good !== null) {
-            b.removeClass(elements.bisectScriptContainerID, 'hidden');
+        html.replaceContent(
+            document.getElementById(this.badCommitID), spanNode);
+
+        // The good commit.
+        spanNode = document.createElement('span');
+        if (good) {
+            spanNode.className = 'text-success';
+            spanNode.appendChild(document.createTextNode(good));
+        } else {
+            spanNode.className = 'text-warning';
+            spanNode.appendChild(
+                document.createTextNode('No good commit found'));
+        }
+
+        html.replaceContent(
+            document.getElementById(this.goodCommitID), spanNode);
+
+        // The bisect script.
+        if (bad && good) {
+            html.removeClass(
+                document.getElementById(this.bisectScriptContainerID),
+                'hidden');
+
+            spanNode = html.tooltip();
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('download', 'bisect.sh');
+            aNode.setAttribute('href', shellScript(bad, good));
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-download';
+
+            aNode.appendChild(iNode);
+            spanNode.appendChild(aNode);
+
             if (type === 'boot') {
-                b.replaceById(
-                    elements.bisectScriptContentID,
-                    p.sprintf(
-                        bisectScriptElementF,
-                        'Download boot bisect script',
-                        'bisect.sh',
-                        bisectShellScript(bad, good)
-                    )
-                );
+                spanNode.setAttribute('title', 'Download boot bisect script');
             } else if (type === 'build') {
-                b.replaceById(
-                    elements.bisectScriptContentID,
-                    p.sprintf(
-                        bisectScriptElementF,
-                        'Download build bisect script',
-                        'bisect.sh',
-                        bisectShellScript(bad, good)
-                    )
-                );
-            }
-        } else {
-            b.removeElement(elements.bisectScriptContainerID);
-        }
-    }
-
-    function dataToRow(bisectData, job, bisectType) {
-        var bisectStatus = null,
-            gitDescribeVal = bisectData.git_describe,
-            gitCommit = bisectData.git_commit,
-            gitURL = bisectData.git_url,
-            tooltipTitle = '',
-            tooltipLink = '',
-            gitDescribeCell = '',
-            gitURLs = '',
-            goodCommitCell = '',
-            badCommitCell = '',
-            unknownCommitCell = '',
-            row = '<tr></tr>',
-            goodCommit = null,
-            board = null,
-            lab = null,
-            defconfigFull = null,
-            docId = null;
-
-        defconfigFull = bisectData.defconfig_full;
-        if (bisectType === 'boot') {
-            board = bisectData.board;
-            lab = bisectData.lab_name;
-            docId = bisectData.boot_id.$oid;
-        } else {
-            docId = bisectData._id.$oid;
-        }
-
-        if (bisectData.hasOwnProperty('status')) {
-            bisectStatus = bisectData.status;
-        } else {
-            bisectStatus = bisectData.boot_status;
-        }
-
-        if (gitCommit === '' || gitCommit === undefined) {
-            gitCommit = null;
-        }
-
-        if (gitCommit !== null) {
-            if (bisectType === 'boot') {
-                tooltipLink = '<a href="/boot/' + board + '/job/' + job +
-                    '/kernel/' + gitDescribeVal + '/defconfig/' +
-                    defconfigFull + '/lab/' + lab +
-                    '/?_id=' + docId + '">' + gitDescribeVal + '</a>';
-                tooltipTitle = p.sprintf(
-                    bootTooltipTitleF, job, gitDescribeVal);
-            } else if (bisectType === 'build') {
-                tooltipLink = '<a href="/build/' + job + '/kernel/' +
-                    gitDescribeVal + '/defconfig/' + defconfigFull +
-                    '/?_id=' + docId + '">' + gitDescribeVal + '</a>';
-                tooltipTitle = p.sprintf(
-                    buildTooltipTitleF, job, gitDescribeVal);
-            } else {
-                tooltipLink = gitDescribeVal;
+                spanNode.setAttribute('title', 'Download build bisect script');
             }
 
-            gitDescribeCell = '<td><span class="bisect-tooltip"> ' +
-                '<span rel="tooltip" data-toggle="tooltip" title="' +
-                tooltipTitle + '"><span class="bisect-text">' + tooltipLink +
-                '</span></span></span></td>';
-
-            gitURLs = u.translateCommit(gitURL, gitCommit);
-
-            switch (bisectStatus) {
-                case 'PASS':
-                    goodCommit = bisectData;
-                    goodCommitCell = p.sprintf(
-                        commitCellF, 'bg-success', gitURLs[1], gitCommit);
-                    badCommitCell = '<td class="bg-danger"></td>';
-                    unknownCommitCell = '<td class="bg-warning"></td>';
-                    break;
-                case 'FAIL':
-                    goodCommitCell = '<td class="bg-success"></td>';
-                    badCommitCell = p.sprintf(
-                        commitCellF, 'bg-danger', gitURLs[1], gitCommit);
-                    unknownCommitCell = '<td class="bg-warning"></td>';
-                    break;
-                default:
-                    goodCommitCell = '<td class="bg-success"></td>';
-                    badCommitCell = '<td class="bg-danger"></td>';
-                    unknownCommitCell = p.sprintf(
-                        commitCellF, 'bg-warning', gitURLs[1], gitCommit);
-                    break;
-            }
-
-            row = '<tr>' + gitDescribeCell + badCommitCell +
-                unknownCommitCell + goodCommitCell + '</tr>';
+            html.replaceContent(
+                document.getElementById(this.bisectScriptContentID),
+                spanNode);
+        } else {
+            html.removeElement(
+                document.getElementById(this.bisectScriptContainerID));
         }
 
-        return [row, goodCommit];
-    }
+        return this;
+    };
 
-    function comparedBisectSummary(elements, type, comparedCommits) {
-        var prevData = null,
-            prevBadCommit = null,
-            prevGoodCommit = null,
-            prevGoodCommitDate = null,
-            otherCommitDate = null,
-            otherCommitsArray = [],
-            prevCommitInserted = false;
+    kciBisect.createComparedSummary = function(type, commits) {
+        var aNode,
+            iNode,
+            otherCommitDate,
+            otherCommitsArray,
+            prevBadCommit,
+            prevCommitInserted,
+            prevData,
+            prevGoodCommit,
+            prevGoodCommitDate,
+            spanNode;
 
-        if (comparedCommits.length > 0) {
-            prevData = elements.prevBisect;
+        otherCommitsArray = [];
+
+        if (commits.length > 0) {
+            prevData = this.prevBisect;
             prevBadCommit = prevData.bad_commit;
             prevGoodCommit = prevData.good_commit;
 
-            if (prevGoodCommit !== null) {
+            if (prevGoodCommit) {
                 prevGoodCommitDate = new Date(prevData.good_commit_date.$date);
             }
 
-            comparedCommits.forEach(function(element) {
+            commits.forEach(function(commit) {
                 if (type === 'boot') {
-                    otherCommitDate = new Date(element.boot_created_on.$date);
-                } else if (type === 'build') {
-                    otherCommitDate = new Date(element.created_on.$date);
+                    otherCommitDate = new Date(commit.boot_created_on.$date);
+                } else {
+                    otherCommitDate = new Date(commit.created_on.$date);
                 }
 
-                if (!prevCommitInserted && prevGoodCommitDate !== null &&
+                if (!prevCommitInserted && prevGoodCommitDate &&
                         prevGoodCommitDate < otherCommitDate) {
                     otherCommitsArray.push(prevGoodCommit);
-                    otherCommitsArray.push(element.git_commit);
+                    otherCommitsArray.push(commit.git_commit);
                     prevCommitInserted = true;
                 } else {
-                    otherCommitsArray.push(element.git_commit);
+                    otherCommitsArray.push(commit.git_commit);
                 }
             });
 
+            spanNode = html.tooltip();
+
+            iNode = document.createElement('i');
+            iNode.className = 'fa fa-download';
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('download', 'bisect-compared.sh');
+            aNode.setAttribute(
+                'href', shellScriptCompared(prevBadCommit, otherCommitsArray));
+
+            aNode.appendChild(iNode);
+            spanNode.appendChild(aNode);
+
             if (type === 'boot') {
-                b.replaceById(
-                    elements.bisectScriptContentID,
-                    p.sprintf(
-                        bisectScriptElementF,
-                        'Download boot bisect comparison script',
-                        'bisect-compared.sh',
-                        bisectCompareShellScript(
-                            prevBadCommit, otherCommitsArray)
-                    )
-                );
-            } else if (type === 'build') {
-                b.replaceById(
-                    elements.bisectScriptContentID,
-                    p.sprintf(
-                        bisectScriptElementF,
-                        'Download build bisect comparison script',
-                        'bisect-compared.sh',
-                        bisectCompareShellScript(
-                            prevBadCommit, otherCommitsArray)
-                    )
-                );
-            }
-            b.removeClass(elements.bisectScriptContainerID, 'hidden');
-        } else {
-            b.removeElement(elements.bisectScriptContainerID);
-        }
-    }
-
-    function bisectSummary(
-            bad, good, elements, type, comparedCommits, compared) {
-        if (compared) {
-            comparedBisectSummary(elements, type, comparedCommits);
-        } else {
-            defaultBisectSummary(bad, good, elements, type);
-        }
-    }
-
-    bisect = function(data, elements, compared) {
-        var result = data.result[0],
-            localData = result.bisect_data,
-            dataLen = localData.length,
-            idx = 0,
-            tableRows = '',
-            bisectType = null,
-            job = null,
-            compareTo = null,
-            badCommit = null,
-            goodCommit = null,
-            rowResult = null,
-            button = null,
-            // Contains the good commit for comparison purposes.
-            compareGoodCommits = [];
-
-        b.replaceById(elements.loadingContentID, elements.loadingContentText);
-
-        badCommit = result.bad_commit;
-        goodCommit = result.good_commit;
-        bisectType = result.type;
-
-        if (compared) {
-            job = result.compare_to;
-            compareTo = job;
-        } else {
-            job = result.job;
-        }
-
-        if (badCommit === '' || badCommit === undefined) {
-            badCommit = null;
-        }
-
-        if (goodCommit === '' || goodCommit === undefined) {
-            goodCommit = null;
-        }
-
-        // If it is a comparison bisect, add the description to the summary.
-        if (compared) {
-            if (bisectType === 'boot') {
-                b.replaceById(
-                    elements.bisectCompareDescriptionID,
-                    '<p>' + p.sprintf(bisectBootComparisonDescription, job) +
-                    '</p>'
-                );
-            } else if (bisectType === 'build') {
-                b.replaceById(
-                    elements.bisectCompareDescriptionID,
-                    '<p>' + p.sprintf(bisectBuildComparisonDescription, job) +
-                    '</p>'
-                );
+                spanNode.setAttribute(
+                    'title', 'Download boot bisect comparison script');
             } else {
-                b.removeElement(elements.bisectCompareDescriptionID);
+                spanNode.setAttribute(
+                    'title', 'Download build bisect comparison script');
             }
-        }
 
-        if (dataLen === 0) {
-            b.removeElement(elements.tableID);
-            b.replaceById(
-                elements.contentDivID,
-                '<div class="pull-center"><strong>' +
-                'No bisect data available.<strong></div>'
-            );
+            html.replaceContent(
+                document.getElementById(this.bisectScriptContentID), spanNode);
+            html.removeClass(
+                document.getElementById(this.bisectScriptContainerID),
+                'hidden');
         } else {
-            for (idx; idx < dataLen; idx = idx + 1) {
-                rowResult = dataToRow(localData[idx], job, bisectType);
-                tableRows += rowResult[0];
-                if (rowResult[1] !== null) {
-                    compareGoodCommits.push(rowResult[1]);
-                }
-            }
-
-            bisectSummary(
-                badCommit,
-                goodCommit,
-                elements, bisectType, compareGoodCommits, compared
-            );
-
-            button = btns.createShowHideBisectBtn(
-                elements.showHideID, elements.contentDivID, 'hide', compareTo);
-
-            b.replaceById(elements.showHideID, button);
-            b.replaceById(elements.tableBodyID, tableRows);
-
-            if (dataLen > bisectMaxElements) {
-                button = btns.createPlusMinBisectBtn(
-                    dataLen, elements.tableID, compared);
-
-                b.replaceById(elements.bisectShowHideID, button);
-                b.addContent(
-                    elements.tableDivID,
-                    '<div class="pull-right bisect-back">' +
-                    '<span rel="tooltip" data-toggle="tooltip" ' +
-                    'title="Go back to bisect summary">' +
-                    '<small><a href="#' +
-                    elements.contentDivID +
-                    '">Back to Summary</a></small></span></div>'
-                );
-            }
+            html.removeElement(
+                document.getElementById(this.bisectScriptContainerID));
         }
-        b.removeElement(elements.loadingDivID);
-        b.removeClass(elements.contentDivID, 'hidden');
+
+        return this;
     };
 
-    return bisect;
+    kciBisect.createSummary = function(bad, good, type, commits) {
+        if (this.isCompared) {
+            this.createComparedSummary(type, commits);
+        } else {
+            this.createDefaultSummary(bad, good, type);
+        }
+        return this;
+    };
+
+    kciBisect.parseData = function(data, type, job) {
+        var aNode,
+            bisectStatus,
+            board,
+            cellNode,
+            defconfigFull,
+            docId,
+            gitCommit,
+            gitDescribe,
+            gitURL,
+            gitURLs,
+            goodCommit,
+            lab,
+            rowNode,
+            spanNode,
+            tooltipNode;
+
+        gitDescribe = data.git_describe;
+        defconfigFull = data.defconfig_full;
+        gitCommit = data.git_commit;
+        gitURL = data.git_url;
+
+        if (type === 'boot') {
+            board = data.board;
+            lab = data.lab_name;
+            docId = data.boot_id.$oid;
+        } else {
+            docId = data._id.$oid;
+        }
+
+        if (data.hasOwnProperty('status')) {
+            bisectStatus = data.status;
+        } else {
+            bisectStatus = data.boot_status;
+        }
+
+        if (gitCommit) {
+            rowNode = this.table.tBodies[0].insertRow();
+
+            aNode = document.createElement('a');
+            aNode.appendChild(document.createTextNode(gitDescribe));
+
+            tooltipNode = html.tooltip();
+            html.addClass(tooltipNode, 'bisect-tooltip');
+
+            if (type === 'boot') {
+                aNode.setAttribute(
+                    'href',
+                    '/boot/' + board + '/job/' + job +
+                    '/kernel/' + gitDescribe + '/defconfig/' +
+                    defconfigFull + '/lab/' + lab +
+                    '/?_id=' + docId
+                );
+
+                tooltipNode.setAttribute(
+                    'title',
+                    sprintf(gStrings.boot_tooltip, job, gitDescribe));
+            } else {
+                aNode.setAttribute(
+                    'href',
+                    '/build/' + job + '/kernel/' +
+                    gitDescribe + '/defconfig/' + defconfigFull +
+                    '/?_id=' + docId
+                );
+
+                tooltipNode.setAttribute(
+                    'title',
+                    sprintf(gStrings.build_tooltip, job, gitDescribe));
+            }
+
+            spanNode = document.createElement('span');
+            spanNode.className = 'bisect-text';
+            spanNode.appendChild(aNode);
+
+            tooltipNode.appendChild(spanNode);
+
+            cellNode = rowNode.insertCell();
+            cellNode.appendChild(tooltipNode);
+
+            gitURLs = urls.translateCommit(gitURL, gitCommit);
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', gitURLs[1]);
+            aNode.appendChild(document.createTextNode(gitCommit));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+
+            switch (bisectStatus) {
+                case 'PASS':
+                    goodCommit = data;
+                    // Bad cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-danger';
+                    // Unknown cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-warning';
+                    // Good cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-success';
+                    cellNode.appendChild(aNode);
+                    break;
+                case 'FAIL':
+                    // Bad cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-danger';
+                    cellNode.appendChild(aNode);
+                    // Unknown cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-warning';
+                    // Good cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-success';
+                    break;
+                default:
+                    // Bad cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-danger';
+                    // Unknown cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-warning';
+                    cellNode.appendChild(aNode);
+                    // Good cell.
+                    cellNode = rowNode.insertCell();
+                    cellNode.className = 'bg-success';
+                    break;
+            }
+        }
+
+        return goodCommit;
+    };
+
+    kciBisect.draw = function() {
+        var divNode,
+            spanNode,
+            result,
+            bisectData,
+            bisectLength,
+            bisectType,
+            job,
+            compareTo,
+            goodCommit,
+            aNode,
+            smallNode,
+            pNode,
+            compareGoodCommits;
+
+        result = this.data.result[0];
+        bisectType = result.type;
+        bisectData = result.bisect_data;
+        bisectLength = bisectData.length;
+        // Contains the good commit for comparison purposes.
+        compareGoodCommits = [];
+
+        html.replaceContentHTML(
+            document.getElementById(this.loadingContentID),
+            this.loadingContentText);
+
+        // Internal wrapper to bind 'this'.
+        function _parseData(data) {
+            goodCommit = this.parseData(data, bisectType, job);
+            if (goodCommit) {
+                compareGoodCommits.push(goodCommit);
+            }
+        }
+
+        if (this.isCompared) {
+            job = result.compare_to;
+            compareTo = job;
+
+            // Add the description to the summary.
+            pNode = document.createElement('p');
+            if (bisectType === 'boot') {
+                pNode.insertAdjacentHTML(
+                    'beforeend',
+                    sprintf(gStrings.boot_compare_description, job));
+            } else {
+                pNode.insertAdjacentHTML(
+                    'beforeend',
+                    sprintf(gStrings.build_compare_description, job));
+            }
+
+            html.replaceContent(
+                document.getElementById(this.bisectCompareDescriptionID),
+                pNode);
+        } else {
+            job = result.job;
+            compareTo = null;
+        }
+
+        if (bisectLength === 0) {
+            html.removeElement(document.getElementById(this.tableID));
+            html.replaceContent(
+                document.getElementById(this.contentDivID),
+                html.errorDiv('No bisect data available'));
+        } else {
+            bisectData.forEach(_parseData.bind(this));
+
+            // Create the bisect summary.
+            this.createSummary(
+                result.bad_commit,
+                result.good_commit, bisectType, compareGoodCommits);
+
+            html.replaceContent(
+                document.getElementById(this.showHideID),
+                btns.showHideButton(
+                    this.showHideID, this.contentDivID, 'hide', compareTo)
+                );
+
+
+            if (bisectLength > gMaxElements) {
+                divNode = document.createElement('div');
+                divNode.className = 'pull-right bisect-back';
+
+                spanNode = html.tooltip();
+                spanNode.setAttribute('title', 'Go back to bisect summary');
+
+                smallNode = document.createElement('small');
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', '#' + this.contentDivID);
+                aNode.appendChild(document.createTextNode('Back to Summary'));
+
+                smallNode.appendChild(aNode);
+                spanNode.appendChild(smallNode);
+                divNode.appendChild(spanNode);
+
+                html.replaceContent(
+                    document.getElementById(this.bisectShowHideID),
+                    btns.plusMinButton(
+                        bisectLength, this.tableID, this.isCompared)
+                );
+
+                document.getElementById(this.tableDivID)
+                    .appendChild(divNode);
+
+            }
+
+            bindEvents();
+            if (bisectLength > gMaxElements) {
+                btns.minusClick(this.isCompared);
+            }
+        }
+
+        html.removeElement(document.getElementById(this.loadingDivID));
+        html.removeClass(
+            document.getElementById(this.contentDivID), 'hidden');
+
+        return this;
+    };
+
+    var gBisect = function(settings) {
+        var key,
+            newObject;
+
+        newObject = Object.create(kciBisect);
+        if (settings) {
+            for (key in settings) {
+                if (settings.hasOwnProperty(key)) {
+                    newObject[key] = settings[key];
+                }
+            }
+        } else {
+            throw 'No settings provided';
+        }
+
+        return newObject.setup();
+    };
+
+    return gBisect;
 });

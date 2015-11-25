@@ -7,11 +7,10 @@ require([
     'utils/request',
     'utils/urls',
     'utils/bisect',
-    'utils/show-hide-btns',
     'utils/html',
     'utils/table',
     'utils/date'
-], function($, format, e, init, r, urls, bisect, btns, html, table) {
+], function($, format, e, init, r, urls, bisect, html, table) {
     'use strict';
     var buildId,
         defconfigFull,
@@ -20,34 +19,6 @@ require([
         kernelName;
 
     document.getElementById('li-build').setAttribute('class', 'active');
-
-    function bindBisectMoreLessBtns() {
-        [].forEach.call(
-            document.getElementsByClassName('bisect-pm-btn-less'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showLessBisectRowsBtn);
-            }
-        );
-
-        [].forEach.call(
-            document.getElementsByClassName('bisect-pm-btn-more'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showMoreBisectRowsBtn);
-            }
-        );
-    }
-
-    function bindBisectButtons() {
-        [].forEach.call(
-            document.getElementsByClassName('bisect-click-btn'),
-            function(element) {
-                element.removeEventListener('click');
-                element.addEventListener('click', btns.showHideBisect);
-            }
-        );
-    }
 
     function getBisectFail() {
         html.removeElement('bisect-loading-div');
@@ -68,9 +39,9 @@ require([
 
     function getBisectToMainline(bisectData, build) {
         var deferred,
-            elements;
+            settings;
 
-        elements = {
+        settings = {
             showHideID: 'buildb-compare-showhide',
             tableDivID: 'table-compare-div',
             tableID: 'bisect-compare-table',
@@ -85,7 +56,8 @@ require([
             bisectScriptContentID: 'bisect-compare-script',
             bisectCompareDescriptionID: 'bisect-compare-description',
             prevBisect: bisectData,
-            bisectShowHideID: 'bisect-compare-hide-div'
+            bisectShowHideID: 'bisect-compare-hide-div',
+            isCompared: true
         };
 
         deferred = r.get(
@@ -97,10 +69,8 @@ require([
         $.when(deferred)
             .fail(e.error, getBisectToMainlineFail)
             .done(function(data) {
-                bisect(data, elements, true);
-                bindBisectButtons();
-                bindBisectMoreLessBtns();
-                btns.triggerMinusBisectBtns(true);
+                settings.data = data;
+                bisect(settings).draw();
             });
     }
 
@@ -129,9 +99,9 @@ require([
     }
 
     function getBisectDone(response) {
-        var elements;
+        var settings;
 
-        elements = {
+        settings = {
             showHideID: 'buildb-showhide',
             tableDivID: 'table-div',
             tableID: 'bisect-table',
@@ -146,13 +116,11 @@ require([
             bisectScriptContentID: 'bisect-script',
             bisectCompareDescriptionID: null,
             prevBisect: null,
-            bisectShowHideID: 'bisect-hide-div'
+            bisectShowHideID: 'bisect-hide-div',
+            data: response
         };
 
-        bisect(response, elements, false);
-        bindBisectButtons();
-        bindBisectMoreLessBtns();
-        btns.triggerMinusBisectBtns(false);
+        bisect(settings).draw();
     }
 
     function getBisect(response) {
