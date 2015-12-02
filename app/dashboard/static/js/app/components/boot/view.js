@@ -4,9 +4,10 @@ define([
     'utils/html',
     'utils/urls',
     'buttons/boot',
+    'buttons/common',
     'components/boot/common',
     'utils/date'
-], function(format, html, urls, bootBtns, common) {
+], function(format, html, urls, bootBtns, commonBtns, common) {
     'use strict';
     var gBootViews,
         kciView;
@@ -14,13 +15,73 @@ define([
     gBootViews = {};
 
     kciView = {
-        element: null,
+        accordionElement: null,
         allLabs: null,
+        buttonAll: document.getElementById('all-btn'),
+        buttonFail: document.getElementById('fail-btn'),
+        buttonSuccess: document.getElementById('success-btn'),
+        buttonUnknown: document.getElementById('unknown-btn'),
+        element: null,
         fileServer: null,
+        lastPressedButton: null,
         hasFail: false,
         hasSuccess: false,
-        hasUnknown: false
+        hasUnknown: false,
+        results: null
     };
+
+    function showHideBind(element) {
+        element.addEventListener('click', commonBtns.showHideElements, true);
+    }
+
+    function bindButtonsEvents() {
+        Array.prototype.forEach.call(
+            document.getElementsByClassName('click-btn'), showHideBind);
+    }
+
+    function createConflictLab(lab, status) {
+        var spanNode,
+            tooltipNode;
+
+        spanNode = document.createElement('span');
+        spanNode.appendChild(document.createTextNode(lab));
+        tooltipNode = html.tooltip();
+
+        switch (status) {
+            case 'PASS':
+                tooltipNode.setAttribute('title', 'Boot successfull');
+                spanNode.className = 'green-font';
+                break;
+            case 'FAIL':
+                tooltipNode.setAttribute('title', 'Boot failed');
+                spanNode.className = 'red-font';
+                break;
+            default:
+                tooltipNode.setAttribute('title', 'Boot status unknown');
+                spanNode.className = 'yellow-font';
+                break;
+        }
+
+        tooltipNode.appendChild(spanNode);
+        return tooltipNode;
+    }
+
+    function createConflictIndex(result) {
+        var conflictIndex;
+
+        conflictIndex = result.arch.toLowerCase();
+
+        if (result.defconfig_full) {
+            conflictIndex += result.defconfig_full.toLowerCase();
+        } else {
+            conflictIndex += result.defconfig.toLowerCase();
+        }
+        if (result.board) {
+            conflictIndex += result.board.toLowerCase();
+        }
+
+        return conflictIndex;
+    }
 
     function createDataIndex(result) {
         var dataIndex;
@@ -119,10 +180,10 @@ define([
         });
 
         divNode.appendChild(otherDivNode);
-        this.element.appendChild(divNode);
+        this.accordionElement.appendChild(divNode);
     };
 
-    kciView.createPanels = function(result, index, fileServer) {
+    kciView.createPanels = function(result, index) {
         var aNode,
             arch,
             board,
@@ -178,7 +239,7 @@ define([
         mach = result.mach;
 
         if (!serverURL) {
-            serverURL = fileServer;
+            serverURL = this.fileServer;
         }
 
         translatedURI = urls.translateServerURL(
@@ -414,6 +475,8 @@ define([
 
         // Set the data-index attribute to filter the results.
         panelNode.setAttribute('data-index', createDataIndex(result));
+        // Set the data-conflict attribute to filter possible boot conflicts.
+        panelNode.setAttribute('data-conflict', createConflictIndex(result));
 
         if (this.allLabs.hasOwnProperty(labName)) {
             this.allLabs[labName].push(panelNode);
@@ -426,31 +489,255 @@ define([
     };
 
     kciView.createLabs = function() {
-        html.removeChildren(this.element);
+        html.removeChildren(this.accordionElement);
         Object.keys(this.allLabs).sort()
             .forEach(this.createLabSection.bind(this));
 
         return this;
     };
 
-    kciView.draw = function(results) {
-        function _draw(result, index) {
-            this.createPanels(result, index, this.fileServer);
+    kciView.conflictSelectEvent = function(event) {
+        var inputGroup,
+            selector,
+            target;
+
+        target = event.target || event.srcElement;
+
+        /**
+         * Hide an element.
+         * Apply a "style: none;" to a DOM element.
+         *
+         * @param {HTMLElement} element: The DOM element.
+        **/
+        function _hide(element) {
+            element.style.display = 'none';
         }
 
-        results.forEach(_draw.bind(this));
+        /**
+         * Uncheck an input element.
+         *
+         * @param {HTMLElement} element: The DOM element.
+        **/
+        function _unchecked(element) {
+            element.checked = false;
+        }
+
+        if (target.checked) {
+            if (html.classed(this.buttonAll, 'active')) {
+                this.lastPressedButton = this.buttonAll;
+            } else if (html.classed(this.buttonFail, 'active')) {
+                this.lastPressedButton = this.buttonFail;
+            } else if (html.classed(this.buttonSuccess, 'active')) {
+                this.lastPressedButton = this.buttonSuccess;
+            } else {
+                this.lastPressedButton = this.buttonUnknown;
+            }
+
+            inputGroup = document.querySelectorAll(
+                'input.radio[name="' + target.name + '"]');
+
+            Array.prototype.forEach.call(inputGroup, _unchecked);
+
+            target.checked = true;
+            selector = 'div.searchable:not([data-conflict="' +
+                target.getAttribute('data-arch') +
+                target.getAttribute('data-defconfig') +
+                target.getAttribute('data-board') + '"])';
+
+            // Fake a click on the all button prior to filtering so we have
+            // all the elements as "display: block".
+            this.buttonAll.click();
+            Array.prototype.forEach.call(
+                this.accordionElement.querySelectorAll(selector), _hide);
+        } else {
+            target.checked = false;
+            this.lastPressedButton.click();
+        }
+    };
+
+    kciView.checkConflictsDone = function(message) {
+        var arch,
+            board,
+            cellNode,
+            conflicts,
+            conflictsDiv,
+            count,
+            defconfig,
+            divNode,
+            headCell,
+            headRow,
+            htmlNode,
+            inputNode,
+            listItem,
+            listNode,
+            splitKey,
+            tableBody,
+            tableHead,
+            tableNode;
+
+        function _createRow(key) {
+            splitKey = key.split('|');
+            arch = splitKey[0];
+            defconfig = splitKey[1];
+            board = splitKey[2];
+
+            htmlNode = tableBody.insertRow(-1);
+
+            cellNode = htmlNode.insertCell();
+            cellNode.appendChild(document.createTextNode(arch));
+
+            cellNode = htmlNode.insertCell();
+            cellNode.appendChild(document.createTextNode(defconfig));
+
+            cellNode = htmlNode.insertCell();
+            cellNode.appendChild(document.createTextNode(board));
+
+            cellNode = htmlNode.insertCell();
+            divNode = document.createElement('div');
+
+            listNode = document.createElement('ul');
+            listNode.className = 'list-unstyled';
+
+            conflicts[key].forEach(function(element) {
+                listItem = document.createElement('li');
+                listItem.appendChild(
+                    createConflictLab(element[0], element[1]));
+                listNode.appendChild(listItem);
+            });
+
+            divNode.appendChild(listNode);
+            cellNode.appendChild(divNode);
+
+            // The select cell.
+            cellNode = htmlNode.insertCell();
+            inputNode = document.createElement('input');
+            inputNode.setAttribute('type', 'checkbox');
+            inputNode.className = 'radio';
+            inputNode.setAttribute('autocomplete', 'off');
+            inputNode.name = 'conflict-radio';
+            inputNode.setAttribute('data-arch', arch.toLowerCase());
+            inputNode.setAttribute('data-defconfig', defconfig.toLowerCase());
+            inputNode.setAttribute('data-board', board.toLowerCase());
+            inputNode.setAttribute('title', 'Show this conflict');
+
+            /* jshint ignore: start */
+            inputNode.addEventListener(
+                'click', this.conflictSelectEvent.bind(this));
+            /* jshint ignore: end */
+
+            cellNode.appendChild(inputNode);
+        }
+
+        count = message.data[0];
+        conflicts = message.data[1];
+
+        if (count > 0) {
+            conflictsDiv = document.getElementById('conflicts-div');
+
+            divNode = document.createElement('div');
+            divNode.className = 'other-header';
+
+            htmlNode = document.createElement('h5');
+            htmlNode.appendChild(
+                document.createTextNode('Boot Conflicts Detected'));
+
+            divNode.appendChild(htmlNode);
+
+            htmlNode = document.createElement('hr');
+            htmlNode.className = 'blurred subheader';
+
+            divNode.appendChild(htmlNode);
+
+            conflictsDiv.appendChild(divNode);
+
+            htmlNode = document.createElement('div');
+            htmlNode.className = 'table';
+
+            tableNode = document.createElement('table');
+            tableNode.className =
+                'table table-condensed table-striped conflicts-table';
+
+            tableHead = tableNode.createTHead();
+            headRow = tableHead.insertRow();
+
+            headCell = headRow.insertCell();
+            headCell.appendChild(document.createTextNode('Architecture'));
+
+            headCell = headRow.insertCell();
+            headCell.appendChild(document.createTextNode('Defconfig'));
+
+            headCell = headRow.insertCell();
+            headCell.appendChild(document.createTextNode('Board'));
+
+            headCell = headRow.insertCell();
+            headCell.appendChild(document.createTextNode('Results'));
+            // Empty cell for the details column.
+            headRow.insertCell();
+
+            htmlNode.appendChild(tableNode);
+
+            conflictsDiv.appendChild(htmlNode);
+
+            tableBody = document.createElement('tbody');
+            tableNode.appendChild(tableBody);
+
+            Object.keys(conflicts).forEach(_createRow.bind(this));
+        }
+    };
+
+    kciView.checkConflicts = function() {
+        var worker;
+        if (window.Worker) {
+            worker = new Worker('/static/js/worker/boot-conflicts.js');
+
+            worker.onmessage = this.checkConflictsDone.bind(this);
+            worker.postMessage(this.results);
+        }
+    };
+
+    kciView.draw = function() {
+        this.checkConflicts();
+
+        this.results.forEach(this.createPanels.bind(this));
         this.createLabs();
+
+        if (this.hasFail) {
+            this.buttonFail.removeAttribute('disabled');
+        }
+
+        if (this.hasSuccess) {
+            this.buttonSuccess.removeAttribute('disabled');
+        }
+
+        if (this.hasUnknown) {
+            this.buttonUnknown.removeAttribute('disabled');
+        }
+
+        this.buttonAll.removeAttribute('disabled');
+
+        this.buttonSuccess.addEventListener(
+            'click', commonBtns.showHideElements, true);
+        this.buttonFail.addEventListener(
+            'click', commonBtns.showHideElements, true);
+        this.buttonUnknown.addEventListener(
+            'click', commonBtns.showHideElements, true);
+        this.buttonAll.addEventListener(
+            'click', commonBtns.showHideElements, true);
+
+        bindButtonsEvents();
 
         return this;
     };
 
-    gBootViews = function(containerId, fileServer) {
+    gBootViews = function(results, fileServer) {
         var newObject;
 
         newObject = Object.create(kciView);
-        newObject.element = document.getElementById(containerId);
+        newObject.results = results;
         newObject.fileServer = fileServer || '';
         newObject.allLabs = {};
+        newObject.accordionElement =
+            document.getElementById('accordion-container');
 
         return newObject;
     };

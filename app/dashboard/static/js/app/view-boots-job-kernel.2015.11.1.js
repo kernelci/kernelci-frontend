@@ -13,7 +13,6 @@ require([
     'utils/html',
     'utils/filter',
     'components/boot/view',
-    'buttons/common',
     'utils/date',
     'sprintf'
 ], function(
@@ -25,7 +24,7 @@ require([
         urls,
         chart,
         unique,
-        storage, session, html, filter, bootView, commonBtns) {
+        storage, session, html, filter, bootView) {
     'use strict';
     var gFileServer,
         gJob,
@@ -33,15 +32,6 @@ require([
         gResultFilter,
         gSearchFilter,
         gSessionStorage;
-
-    function showHideBind(element) {
-        element.addEventListener('click', commonBtns.showHideElements, true);
-    }
-
-    function bindDetailButtons() {
-        [].forEach.call(
-            document.getElementsByClassName('click-btn'), showHideBind);
-    }
 
     function uniqueCountFail() {
        html.replaceByClassHTML('unique-values', '&infin;');
@@ -335,31 +325,7 @@ require([
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data found.'));
         } else {
-            bootPanel = bootView('accordion-container', gFileServer)
-                .draw(results);
-
-            if (bootPanel.hasFail) {
-                document
-                    .getElementById('fail-btn')
-                    .removeAttribute('disabled');
-            }
-
-            if (bootPanel.hasSuccess) {
-                document
-                    .getElementById('success-btn')
-                    .removeAttribute('disabled');
-            }
-
-            if (bootPanel.hasUnknown) {
-                document
-                    .getElementById('unknown-btn')
-                    .removeAttribute('disabled');
-            }
-
-            document.getElementById('all-btn').removeAttribute('disabled');
-
-            // Bind buttons to the correct functions.
-            bindDetailButtons();
+            bootPanel = bootView(results, gFileServer).draw();
 
             if (gSearchFilter && gSearchFilter.length > 0) {
                 switch (gSearchFilter) {
@@ -376,19 +342,19 @@ require([
             } else if (!loadSavedSession()) {
                 if (bootPanel.hasFail) {
                     // If there is no saved session, show only the failed ones.
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-failed'),
                         function(element) {
                             element.style.setProperty('display', 'block');
                         }
                     );
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-success'),
                         function(element) {
                             element.style.setProperty('display', 'none');
                         }
                     );
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-unknown'),
                         function(element) {
                             element.style.setProperty('display', 'none');
@@ -396,7 +362,7 @@ require([
                     );
 
                     failButton = document.getElementById('fail-btn');
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         failButton.parentElement.children, function(element) {
                             if (element === failButton) {
                                 html.addClass(element, 'active');
@@ -633,11 +599,11 @@ require([
             };
 
 
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll('[id^="panel-boot"]'),
                 _saveElementState);
 
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll('[id^="collapse-boot"]'),
                 _saveElementState);
 
@@ -649,11 +615,12 @@ require([
     init.hotkeys();
     init.tooltip();
 
-    [].forEach.call(
+    Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
         function(btn) {
             btn.addEventListener('click', function() {
-                [].forEach.call(btn.parentElement.children, function(element) {
+                Array.prototype.forEach.call(
+                    btn.parentElement.children, function(element) {
                     if (element === btn) {
                         html.addClass(element, 'active');
                     } else {
