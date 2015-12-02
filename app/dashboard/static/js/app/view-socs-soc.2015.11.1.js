@@ -354,7 +354,7 @@ require([
                 aggregate: 'job',
                 date_range: gDateRange,
                 field: [
-                    'job', 'job_id', 'git_branch', 'created_on'
+                    'job', 'job_id', 'git_branch', 'created_on', 'mach'
                 ],
                 mach: gSoc,
                 sort: 'created_on',
