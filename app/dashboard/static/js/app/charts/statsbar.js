@@ -3,14 +3,12 @@ define([
     'jquery',
     'd3',
     'utils/base',
+    'utils/format',
     'charts/base',
     'charts/bar'
-], function($, d3, b, k) {
+], function($, d3, b, format, k) {
     'use strict';
-    var statsbar = {},
-        numFormat;
-
-    numFormat = new Intl.NumberFormat(['en-US']);
+    var statsbar = {};
 
     function setupTooltips(element) {
         $(element + ' .bar').tooltip({
@@ -27,16 +25,16 @@ define([
                 if (prev !== null && prev !== undefined) {
                     prev = parseInt(prev, 10);
                     if (prev === 0) {
-                        prev = '&#177;' + numFormat.format(prev);
+                        prev = '&#177;' + format.number(prev);
                     } else if (prev > 0) {
-                        prev = '&#43;' + numFormat.format(prev);
+                        prev = '&#43;' + format.number(prev);
                     } else {
-                        prev = numFormat.format(prev);
+                        prev = format.number(prev);
                     }
-                    tooltipString = numFormat.format(total) + '<br/>(' +
+                    tooltipString = format.number(total) + '<br/>(' +
                         prev + ')';
                 } else {
-                    tooltipString = numFormat.format(total);
+                    tooltipString = format.number(total);
                 }
                 return tooltipString;
             }
