@@ -554,7 +554,6 @@ require([
             pathURI,
             resLen,
             results,
-            sizeNode,
             spanNode,
             textOffset,
             tooltipNode,
@@ -562,6 +561,17 @@ require([
 
         results = response.result;
         resLen = results.length;
+
+        function _createSizeNode(size) {
+            var sizeNode;
+            sizeNode = document.createElement('small');
+
+            sizeNode.appendChild(document.createTextNode('('));
+            sizeNode.appendChild(document.createTextNode(format.bytes(size)));
+            sizeNode.appendChild(document.createTextNode(')'));
+
+            return sizeNode;
+        }
 
         if (resLen === 0) {
             html.removeElement('bisect-div');
@@ -859,14 +869,8 @@ require([
 
                 if (buildModulesSize !== null &&
                         buildModulesSize !== undefined) {
-                    sizeNode = document.createElement('small');
-                    sizeNode.appendChild(
-                        document.createTextNode(
-                            '(' + format.bytes(buildModulesSize) + ')')
-                    );
-
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(sizeNode);
+                    spanNode.appendChild(_createSizeNode(buildModulesSize));
                 }
 
                 html.replaceContent(
@@ -938,14 +942,8 @@ require([
 
                 if (kernelImageSize !== null &&
                         kernelImageSize !== undefined) {
-                    sizeNode = document.createElement('small');
-                    sizeNode.appendChild(
-                        document.createTextNode(
-                            '(' + format.bytes(kernelImageSize) + ')')
-                    );
-
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(sizeNode);
+                    spanNode.appendChild(_createSizeNode(kernelImageSize));
                 }
 
                 html.replaceContent(
@@ -956,6 +954,7 @@ require([
             }
 
             if (kernelConfig !== null) {
+                spanNode = document.createElement('span');
                 aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
@@ -967,14 +966,54 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
+                spanNode.appendChild(aNode);
+
+                if (results.kernel_config_size !== null &&
+                        results.kernel_config_size !== undefined) {
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(
+                        _createSizeNode(results.kernel_config_size));
+                }
+
                 html.replaceContent(
-                    document.getElementById('kernel-config'), aNode);
+                    document.getElementById('kernel-config'), spanNode);
             } else {
                 html.replaceContent(
                     document.getElementById('kernel-config'), html.nonavail());
             }
 
-            if (buildLog !== null) {
+            if (results.system_map) {
+                spanNode = document.createElement('span');
+                aNode = document.createElement('a');
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + results.system_map)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode(results.system_map));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                spanNode.appendChild(aNode);
+
+                if (results.system_map_size !== null &&
+                        results.system_map_size !== undefined) {
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(
+                        _createSizeNode(results.system_map_size));
+                }
+
+                html.replaceContent(
+                    document.getElementById('system-map'), spanNode);
+            } else {
+                html.replaceContent(
+                    document.getElementById('system-map'), html.nonavail());
+            }
+
+            if (buildLog) {
+                spanNode = document.createElement('span');
+
                 aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
@@ -986,8 +1025,17 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
+                spanNode.appendChild(aNode);
+
+                if (results.build_log_size !== null &&
+                        results.build_log_size !== undefined) {
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(
+                        _createSizeNode(results.build_log_size));
+                }
+
                 html.replaceContent(
-                    document.getElementById('build-log'), aNode);
+                    document.getElementById('build-log'), spanNode);
             } else {
                 html.replaceContent(
                     document.getElementById('build-log'), html.nonavail());
