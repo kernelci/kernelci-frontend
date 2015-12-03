@@ -1,12 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define(function() {
     'use strict';
-    var base = {},
-        sizes,
-        numFormat;
-
-    sizes = ['bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-    numFormat = new Intl.NumberFormat(['en-US']);
+    var base = {};
 
     base.sliceText = function(text, max) {
         var sliced = text;
@@ -14,10 +9,6 @@ define(function() {
             sliced = text.slice(0, max - 1) + '\u2026';
         }
         return sliced;
-    };
-
-    base.formatNumber = function(value) {
-        return numFormat.format(value);
     };
 
     base.replaceByClass = function(name, content) {
@@ -74,30 +65,6 @@ define(function() {
         if (el !== null) {
             el.remove();
         }
-    };
-
-    // Round a number down to 2 decimal positions.
-    // This should work even when a integer is passed and should be returned
-    // unchanged.
-    function roundToTwo(value) {
-        return +(Math.round(value + 'e+2') + 'e-2');
-    }
-
-    // Parse a byte number and return its human-readable form.
-    base.bytesToHuman = function(bytes) {
-        var calcBase,
-            idx,
-            retVal;
-        calcBase = 1024;
-        if (bytes === 0 || isNaN(bytes)) {
-            retVal = '0 bytes';
-        } else {
-            idx = Math.floor(Math.log(bytes) / Math.log(calcBase));
-            retVal = numFormat.format(
-                roundToTwo(
-                    bytes / Math.pow(calcBase, idx))) + ' ' + sizes[idx];
-        }
-        return retVal;
     };
 
     return base;
