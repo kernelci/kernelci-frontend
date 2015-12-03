@@ -28,13 +28,13 @@ require([
         gSessionStorage;
 
     function bindDetailButtons() {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName('click-btn'),
             function(value) {
                 value.addEventListener(
                     'click', commonBtns.showHideElements, true);
         });
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName('warn-err-btn'),
             function(value) {
                 value.addEventListener(
@@ -98,7 +98,6 @@ require([
             pathURI,
             results,
             rowNode,
-            sizeNode,
             smallNode,
             status,
             statusNode,
@@ -114,6 +113,17 @@ require([
         hasSuccess = false;
         hasUnknown = false;
         results = response.result;
+
+        function _createSizeNode(size) {
+            var sizeNode;
+            sizeNode = document.createElement('small');
+
+            sizeNode.appendChild(document.createTextNode('('));
+            sizeNode.appendChild(document.createTextNode(format.bytes(size)));
+            sizeNode.appendChild(document.createTextNode(')'));
+
+            return sizeNode;
+        }
 
         function _createDataIndex(result) {
             var dataIndex;
@@ -376,13 +386,8 @@ require([
 
                 if (result.modules_size !== null &&
                         result.modules_size !== undefined) {
-                    sizeNode = document.createElement('small');
-                    sizeNode.appendChild(
-                        document.createTextNode('(' +
-                            format.bytes(result.modules_size) + ')'));
-
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp');
-                    ddNode.appendChild(sizeNode);
+                    ddNode.appendChild(_createSizeNode(result.modules_size));
                 }
 
                 dlNode.appendChild(dtNode);
@@ -407,7 +412,6 @@ require([
                 ddNode = document.createElement('dd');
                 aNode = document.createElement('a');
                 iNode = document.createElement('i');
-                sizeNode = document.createElement('small');
 
                 dtNode.appendChild(document.createTextNode('Kernel image'));
                 aNode.setAttribute(
@@ -426,10 +430,8 @@ require([
                 if (result.kernel_image_size !== null &&
                         result.kernel_image_size !== undefined) {
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    sizeNode.appendChild(
-                        document.createTextNode(
-                            format.bytes(result.kernel_image_size)));
-                    ddNode.appendChild(sizeNode);
+                    ddNode.appendChild(
+                        _createSizeNode(result.kernel_image_size));
                 }
 
                 dlNode.appendChild(dtNode);
@@ -456,6 +458,13 @@ require([
                 aNode.appendChild(iNode);
                 ddNode.appendChild(aNode);
 
+                if (result.kernel_config_size !== null &&
+                        result.kernel_config_size !== undefined) {
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    ddNode.appendChild(
+                        _createSizeNode(result.kernel_config_size));
+                }
+
                 dlNode.appendChild(dtNode);
                 dlNode.appendChild(ddNode);
             }
@@ -479,6 +488,14 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(iNode);
                 ddNode.appendChild(aNode);
+
+                if (result.build_log_size !== null &&
+                        result.build_log_size !== undefined) {
+                    ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    ddNode.appendChild(
+                        _createSizeNode(result.build_log_size));
+                }
+
                 dlNode.appendChild(dtNode);
                 dlNode.appendChild(ddNode);
             }
@@ -624,19 +641,19 @@ require([
             if (!loadSavedSession()) {
                 if (hasFailed) {
                     // If there is no saved session, show only the failed ones.
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-failed'),
                         function(element) {
                             element.style.setProperty('display', 'block');
                         }
                     );
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-success'),
                         function(element) {
                             element.style.setProperty('display', 'none');
                         }
                     );
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         document.getElementsByClassName('df-unknown'),
                         function(element) {
                             element.style.setProperty('display', 'none');
@@ -644,7 +661,7 @@ require([
                     );
 
                     failBtn = document.getElementById('fail-btn');
-                    [].forEach.call(
+                    Array.prototype.forEach.call(
                         failBtn.parentElement.children, function(element) {
                             if (element === failBtn) {
                                 html.addClass(element, 'active');
@@ -1032,11 +1049,11 @@ require([
                 value: html.attrById('unknown-btn', 'class')
             };
 
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll('[id^="panel-defconf"]'),
                 _saveElementState);
 
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll('[id^="collapse-defconf"]'),
                 _saveElementState);
 
@@ -1050,11 +1067,12 @@ require([
     init.hotkeys();
     init.tooltip();
 
-    [].forEach.call(
+    Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
         function(btn) {
             btn.addEventListener('click', function() {
-                [].forEach.call(btn.parentElement.children, function(element) {
+                Array.prototype.forEach.call(
+                    btn.parentElement.children, function(element) {
                     if (element === btn) {
                         html.addClass(element, 'active');
                     } else {
