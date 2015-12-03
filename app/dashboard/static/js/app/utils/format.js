@@ -1,13 +1,44 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
-define(function() {
+define([
+    'utils/date'
+], function() {
     'use strict';
-    var format,
+    var dateFormat,
+        format,
         numFormat,
         sizes;
 
     format = {};
 
-    numFormat = new Intl.NumberFormat(['en-US']);
+    try {
+        dateFormat = new Intl.DateTimeFormat(
+            ['en-US'], {month: 'long', year: 'numeric'});
+    } catch (ignore) {
+        /*
+         * WebKit does not have the Intl library implementation.
+         * So do the mobile browsers.
+        */
+        dateFormat = {
+            format: function(value) {
+                return value.toCustomISODate();
+            }
+        };
+    }
+
+    try {
+        numFormat = new Intl.NumberFormat(['en-US']);
+    } catch (ignore) {
+        /*
+         * WebKit does not have the Intl library implementation.
+         * So do the mobile browsers.
+        */
+        numFormat = {
+            format: function(value) {
+                return value;
+            }
+        };
+    }
+
     sizes = [
         'bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'
     ];
@@ -55,6 +86,17 @@ define(function() {
                     bytes / Math.pow(calcBase, idx))) + ' ' + sizes[idx];
         }
         return retVal;
+    };
+
+    /**
+     * Format a Date object through the Intl library (if available).
+     * If the Intl library is not available return the custom ISO format.
+     *
+     * @param {Date} value: The date object to format.
+     * @return {String} The formatted date.
+    **/
+    format.date = function(value) {
+        return dateFormat.format(value);
     };
 
     return format;
