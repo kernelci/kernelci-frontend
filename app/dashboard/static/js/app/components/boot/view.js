@@ -504,6 +504,26 @@ define([
         target = event.target || event.srcElement;
 
         /**
+         * Check if an element has the "checked" attribute set.
+         * The element must be different from the event target one.
+         *
+         * @param {NodeList} elements: The list of DOM nodes.
+         * @return {Boolean}
+        **/
+        function _anyChecked(elements) {
+            var elementsLen,
+                idx;
+
+            elementsLen = elements.length;
+            for (idx = 0; idx < elementsLen; idx = idx + 1) {
+                if (elements[idx] !== target && elements[idx].checked) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /**
          * Hide an element.
          * Apply a "style: none;" to a DOM element.
          *
@@ -523,18 +543,20 @@ define([
         }
 
         if (target.checked) {
-            if (html.classed(this.buttonAll, 'active')) {
-                this.lastPressedButton = this.buttonAll;
-            } else if (html.classed(this.buttonFail, 'active')) {
-                this.lastPressedButton = this.buttonFail;
-            } else if (html.classed(this.buttonSuccess, 'active')) {
-                this.lastPressedButton = this.buttonSuccess;
-            } else {
-                this.lastPressedButton = this.buttonUnknown;
-            }
-
             inputGroup = document.querySelectorAll(
                 'input.radio[name="' + target.name + '"]');
+
+            if (!_anyChecked(inputGroup)) {
+                if (html.classed(this.buttonAll, 'active')) {
+                    this.lastPressedButton = this.buttonAll;
+                } else if (html.classed(this.buttonFail, 'active')) {
+                    this.lastPressedButton = this.buttonFail;
+                } else if (html.classed(this.buttonSuccess, 'active')) {
+                    this.lastPressedButton = this.buttonSuccess;
+                } else {
+                    this.lastPressedButton = this.buttonUnknown;
+                }
+            }
 
             Array.prototype.forEach.call(inputGroup, _unchecked);
 
