@@ -661,7 +661,7 @@ define([
 
             htmlNode = document.createElement('h5');
             htmlNode.appendChild(
-                document.createTextNode('Boot Conflicts Detected'));
+                document.createTextNode('Conflicting Boot Reports'));
 
             divNode.appendChild(htmlNode);
 

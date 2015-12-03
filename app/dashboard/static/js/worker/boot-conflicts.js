@@ -36,32 +36,45 @@ onmessage = function(message) {
      * @param {String} key: The bootData key we are working on.
     **/
     function _searchConflicts(key) {
-        /**
-         * This is a fake reduce function.
-         * We are not interested in reducing the orginal array, what we are
-         * looking for is a difference between boot statues.
-         *
-         * @param {Array} prev: The previous value.
-         * @param {Array} cur: The current value.
-         * @param {Array} ignore: The index in the array (not used).
-         * @param {Array} arr: The array we are looping through.
-         * @return {Array}
-        **/
-        function _reduceData(prev, cur, ignore, arr) {
-            // TODO: need rework.
-            if (prev[1] !== 'OFFLINE' && cur[1] !== 'OFFLINE') {
-                if (prev[1] !== cur[1]) {
-                    if (!conflicts.hasOwnProperty(key)) {
-                        conflicts[key] = arr;
-                        conflictsCount = conflictsCount + 1;
+        var arrayLen,
+            hasConflict,
+            idx,
+            jdx;
+
+        function _reduce(array) {
+            hasConflict = false;
+            arrayLen = array.length;
+
+            for (idx = 0; idx < arrayLen; idx = idx + 1) {
+                if (array[idx][1] === 'OFFLINE') {
+                    continue;
+                }
+
+                for (jdx = idx + 1; jdx < arrayLen; jdx = jdx + 1) {
+                    if (array[jdx][1] === 'OFFLINE') {
+                        continue;
+                    }
+
+                   if (array[idx][1] !== array[jdx][1]) {
+                        if (!conflicts.hasOwnProperty(key)) {
+                            conflicts[key] = array;
+                            conflictsCount = conflictsCount + 1;
+                        }
+
+                        // Sentinel to break out of the external loop.
+                        hasConflict = true;
+                        break;
                     }
                 }
+
+                if (hasConflict) {
+                    break;
+                }
             }
-            return cur;
         }
 
         if (bootData[key].length > 1) {
-            bootData[key].reduce(_reduceData);
+            _reduce(bootData[key]);
         }
     }
 
@@ -70,5 +83,18 @@ onmessage = function(message) {
         bootDataKeys.forEach(_searchConflicts);
     }
 
+    /*
+     * Return a 2-elements array as:
+     * 0. Count of the conflicts found.
+     * 1. Object with the conflicts found.
+     *
+     * The conflict object is:
+     * {
+     *   key: [[lab_name, status], ...]
+     * }
+     *
+     * The key is composed of the "arch", "defconfing" and "board" values
+     * joined together and separated by the "|" (pipe) character.
+    */
     postMessage([conflictsCount, conflicts]);
 };
