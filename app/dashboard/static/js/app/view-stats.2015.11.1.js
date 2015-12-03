@@ -10,15 +10,11 @@ require([
     'utils/date'
 ], function($, init, format, e, r, chart, html) {
     'use strict';
-    var dateFormat,
-        oneDay,
+    var oneDay,
         startDate;
 
     oneDay = 86400000;
     startDate = null;
-
-    dateFormat = new Intl.DateTimeFormat(
-        ['en-US'], {month: 'long', year: 'numeric'});
 
     function getStatsFail() {
         html.replaceByClass('loading-stats', '&infin;');
@@ -137,7 +133,7 @@ require([
             startNode = document.createElement('time');
             startNode.setAttribute('datetime', startDate.toISOString());
             startNode.appendChild(
-                document.createTextNode(dateFormat.format(startDate)));
+                document.createTextNode(format.date(startDate)));
 
             html.replaceContent(
                 document.getElementById('start-date'), startNode);
