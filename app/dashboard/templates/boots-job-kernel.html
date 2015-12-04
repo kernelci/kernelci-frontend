@@ -9,11 +9,9 @@
     .conflicts-table > thead {
         font-weight: bold;
     }
-    .conflicts-table > tbody > tr > td {
-        vertical-align: middle;
-    }
-    .conflicts-table > tbody > tr > td > div {
-        font-size: smaller;
+    input[type="checkbox"] {
+        display: block;
+        margin: 0 auto;
     }
 </style>
 {%- endblock %}
@@ -101,6 +99,7 @@
         </div>
     </div>
 </div>
+{%- include "conflicts-row.html" %}
 <div class="row">
     <div class="page-header">
         <h3>Boards Tested</h3>

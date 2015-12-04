@@ -39,33 +39,6 @@ define([
             document.getElementsByClassName('click-btn'), showHideBind);
     }
 
-    function createConflictLab(lab, status) {
-        var spanNode,
-            tooltipNode;
-
-        spanNode = document.createElement('span');
-        spanNode.appendChild(document.createTextNode(lab));
-        tooltipNode = html.tooltip();
-
-        switch (status) {
-            case 'PASS':
-                tooltipNode.setAttribute('title', 'Boot successfull');
-                spanNode.className = 'green-font';
-                break;
-            case 'FAIL':
-                tooltipNode.setAttribute('title', 'Boot failed');
-                spanNode.className = 'red-font';
-                break;
-            default:
-                tooltipNode.setAttribute('title', 'Boot status unknown');
-                spanNode.className = 'yellow-font';
-                break;
-        }
-
-        tooltipNode.appendChild(spanNode);
-        return tooltipNode;
-    }
-
     function createConflictIndex(result) {
         var conflictIndex;
 
@@ -590,12 +563,11 @@ define([
             headRow,
             htmlNode,
             inputNode,
-            listItem,
-            listNode,
             splitKey,
             tableBody,
             tableHead,
-            tableNode;
+            tableNode,
+            tableRow;
 
         function _createRow(key) {
             splitKey = key.split('|');
@@ -603,63 +575,60 @@ define([
             defconfig = splitKey[1];
             board = splitKey[2];
 
-            htmlNode = tableBody.insertRow(-1);
+            tableRow = tableBody.insertRow(-1);
 
-            cellNode = htmlNode.insertCell();
+            cellNode = tableRow.insertCell();
             cellNode.appendChild(document.createTextNode(arch));
 
-            cellNode = htmlNode.insertCell();
+            cellNode = tableRow.insertCell();
             cellNode.appendChild(document.createTextNode(defconfig));
 
-            cellNode = htmlNode.insertCell();
+            cellNode = tableRow.insertCell();
             cellNode.appendChild(document.createTextNode(board));
 
-            cellNode = htmlNode.insertCell();
-            divNode = document.createElement('div');
+            cellNode = tableRow.insertCell();
+            cellNode.className = 'pull-center';
 
-            listNode = document.createElement('ul');
-            listNode.className = 'list-unstyled';
+            htmlNode = html.tooltip();
+            htmlNode.setAttribute('title', 'Number of conflicting labs');
+            htmlNode.appendChild(
+                document.createTextNode(conflicts[key].length));
 
-            conflicts[key].forEach(function(element) {
-                listItem = document.createElement('li');
-                listItem.appendChild(
-                    createConflictLab(element[0], element[1]));
-                listNode.appendChild(listItem);
-            });
-
-            divNode.appendChild(listNode);
-            cellNode.appendChild(divNode);
+            cellNode.appendChild(htmlNode);
 
             // The select cell.
-            cellNode = htmlNode.insertCell();
+            cellNode = tableRow.insertCell();
+
+            htmlNode = html.tooltip();
+            htmlNode.setAttribute('title', 'Show/Hide this conflict');
+
             inputNode = document.createElement('input');
             inputNode.setAttribute('type', 'checkbox');
-            inputNode.className = 'radio';
+            inputNode.className = 'checkbox';
             inputNode.setAttribute('autocomplete', 'off');
-            inputNode.name = 'conflict-radio';
+            inputNode.name = 'conflict-checkbox';
             inputNode.setAttribute('data-arch', arch.toLowerCase());
             inputNode.setAttribute('data-defconfig', defconfig.toLowerCase());
             inputNode.setAttribute('data-board', board.toLowerCase());
-            inputNode.setAttribute('title', 'Show this conflict');
 
             /* jshint ignore: start */
+            // Here "this" is bound to our object.
             inputNode.addEventListener(
                 'click', this.conflictSelectEvent.bind(this));
             /* jshint ignore: end */
 
-            cellNode.appendChild(inputNode);
+            htmlNode.appendChild(inputNode);
+            cellNode.appendChild(htmlNode);
         }
 
         count = message.data[0];
         conflicts = message.data[1];
 
         if (count > 0) {
-            conflictsDiv = document.getElementById('conflicts-div');
+            // Set the header first.
+            divNode = document.getElementById('conflicts-header');
 
-            divNode = document.createElement('div');
-            divNode.className = 'other-header';
-
-            htmlNode = document.createElement('h5');
+            htmlNode = document.createElement('h4');
             htmlNode.appendChild(
                 document.createTextNode('Conflicting Boot Reports'));
 
@@ -670,10 +639,28 @@ define([
 
             divNode.appendChild(htmlNode);
 
+            // Then get the content.
+            conflictsDiv = document.getElementById('conflicts-div');
+
+            divNode = document.createElement('div');
+            htmlNode = document.createElement('p');
+            htmlNode.appendChild(
+                document.createTextNode(
+                    'Boot report conflicts have been detected.'));
+
+            divNode.appendChild(htmlNode);
+            htmlNode = document.createElement('p');
+            htmlNode.appendChild(
+                document.createTextNode(
+                    'These are likely not failures since other boot labs ' +
+                    'are reporting a successful state: they need to ' +
+                    'be reviewed.'));
+
+            divNode.appendChild(htmlNode);
             conflictsDiv.appendChild(divNode);
 
-            htmlNode = document.createElement('div');
-            htmlNode.className = 'table';
+            divNode = document.createElement('div');
+            divNode.className = 'table';
 
             tableNode = document.createElement('table');
             tableNode.className =
@@ -692,13 +679,20 @@ define([
             headCell.appendChild(document.createTextNode('Board'));
 
             headCell = headRow.insertCell();
-            headCell.appendChild(document.createTextNode('Results'));
-            // Empty cell for the details column.
+            headCell.className = 'pull-center';
+
+            htmlNode = html.tooltip();
+            htmlNode.setAttribute('title', 'Number of conflicting labs');
+            htmlNode.appendChild(document.createTextNode('Results'));
+
+            headCell.appendChild(htmlNode);
+
+            // Empty cell for the checkbox column.
             headRow.insertCell();
 
-            htmlNode.appendChild(tableNode);
+            divNode.appendChild(tableNode);
 
-            conflictsDiv.appendChild(htmlNode);
+            conflictsDiv.appendChild(divNode);
 
             tableBody = document.createElement('tbody');
             tableNode.appendChild(tableBody);
