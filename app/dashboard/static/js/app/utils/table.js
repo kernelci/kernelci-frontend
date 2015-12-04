@@ -2,7 +2,7 @@
 define([
     'jquery',
     'sprintf',
-    'datatables',
+    'datatables.net',
     'datatables.bootstrap'
 ], function($) {
     'use strict';

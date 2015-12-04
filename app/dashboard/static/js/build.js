@@ -16,8 +16,8 @@
         'bootstrap': 'lib/bootstrap-3.3.5',
         'sprintf': 'lib/sprintf-1.0.3',
         'd3': 'lib/d3-3.5.6',
-        'datatables': 'lib/jquery.dataTables-1.10.9',
-        'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.9',
+        'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.10',
+        'datatables.net': 'lib/jquery.dataTables-1.10.10',
         'URI': 'lib/URI-1.16.0',
         'punycode': 'lib/punycode-1.16.0',
         'IPv6': 'lib/IPv6-1.16.0',
@@ -61,7 +61,7 @@
             deps: ['jquery']
         },
         'datatables.bootstrap': {
-            deps: ['datatables']
+            deps: ['datatables.net']
         },
         'jquery.hotkeys': {
             deps: ['jquery'],
