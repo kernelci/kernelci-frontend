@@ -36,8 +36,12 @@ BACKEND_BOOT_URL = backend.create_url(CONFIG_GET("BOOT_API_ENDPOINT"))
 BACKEND_BATCH_URL = backend.create_url(CONFIG_GET("BATCH_API_ENDPOINT"))
 BASE_URL = CONFIG_GET("BASE_URL")
 
-SOC_JOB_TITLE = u"Boot tested tree: %(job)s (%(git_branch)s)"
-SOC_KERNEL_TITLE = u"Boot tested kernel: %(kernel)s"
+SOC_JOB_TITLE = (
+    u"%(job)s (%(git_branch)s) boot: %(failed_boots)s failed, "
+    u"%(passed_boots)s passed, %(other_boots)s unknown, %(total_boots)s total")
+SOC_KERNEL_TITLE = (
+    u"%(kernel)s boot: %(failed_boots)s failed, "
+    u"%(passed_boots)s passed, %(other_boots)s unknown, %(total_boots)s total")
 
 FRONTEND_SOC_URL = BASE_URL + u"/soc/%(mach)s/"
 FRONTEND_SOC_JOB_URL = BASE_URL + u"/soc/%(mach)s/job/%(job)s/"
@@ -63,10 +67,10 @@ def _parse_batch_results(results):
     :return: A dictionary with the counts.
     """
     count_results = {
-        "failed_boots": u"N/A",
-        "other_boots": u"N/A",
-        "passed_boots": u"N/A",
-        "total_boots": u"N/A"
+        "failed_boots": 0,
+        "other_boots": 0,
+        "passed_boots": 0,
+        "total_boots": 0
     }
 
     if results and results["result"]:
@@ -152,10 +156,10 @@ def _get_boot_counts(query_params):
             backend.extract_gzip_data(data, headers))
     else:
         count_results = {
-            "failed_boots": u"N/A",
-            "other_boots": u"N/A",
-            "passed_boots": u"N/A",
-            "total_boots": u"N/A"
+            "failed_boots": 0,
+            "other_boots": 0,
+            "passed_boots": 0,
+            "total_boots": 0
         }
 
     return count_results
@@ -282,9 +286,10 @@ def soc_job_feed(soc, job):
     }
 
     feed_data["subtitle"] = \
-        u"Latest available kernels for %s - %s" % (soc, job)
-    feed_data["title"] = \
-        u"kernelci.org \u2014 Kernels for SoC \u00AB%s\u00BB - %s" % (soc, job)
+        u"Latest available kernels tested for %s - %s" % (soc, job)
+    feed_data["title"] = (
+        u"kernelci.org \u2014 Boot Reports for SoC \u00AB%s\u00BB - %s" %
+        (soc, job))
 
     return feed.create_feed(
         [
@@ -328,9 +333,9 @@ def soc_feed(soc):
         "template_name": "soc-job.html",
     }
 
-    feed_data["subtitle"] = u"Latest available trees for %s" % soc
+    feed_data["subtitle"] = u"Latest available trees tested for %s" % soc
     feed_data["title"] = \
-        u"kernelci.org \u2014 Trees for SoC \u00AB%s\u00BB" % soc
+        u"kernelci.org \u2014 Boot Reports for SoC \u00AB%s\u00BB" % soc
 
     return feed.create_feed(
         [

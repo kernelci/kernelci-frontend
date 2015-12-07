@@ -57,10 +57,10 @@ def _parse_batch_results(results):
     :return: A dictionary with the counts.
     """
     count_results = {
-        "failed_boots": u"N/A",
-        "other_boots": u"N/A",
-        "passed_boots": u"N/A",
-        "total_boots": u"N/A",
+        "failed_boots": 0,
+        "other_boots": 0,
+        "passed_boots": 0,
+        "total_boots": 0,
     }
 
     if results and results["result"]:
@@ -128,10 +128,10 @@ def _get_boots_count(result):
             backend.extract_gzip_data(data, headers))
     else:
         count_results = {
-            "failed_boots": u"N/A",
-            "other_boots": u"N/A",
-            "passed_boots": u"N/A",
-            "total_boots": u"N/A",
+            "failed_boots": 0,
+            "other_boots": 0,
+            "passed_boots": 0,
+            "total_boots": 0,
         }
 
     return count_results
