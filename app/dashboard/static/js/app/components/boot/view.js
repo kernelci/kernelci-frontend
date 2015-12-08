@@ -517,7 +517,7 @@ define([
 
         if (target.checked) {
             inputGroup = document.querySelectorAll(
-                'input.radio[name="' + target.name + '"]');
+                'input.checkbox[name="' + target.name + '"]');
 
             if (!_anyChecked(inputGroup)) {
                 if (html.classed(this.buttonAll, 'active')) {
