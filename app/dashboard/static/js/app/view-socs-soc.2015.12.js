@@ -17,12 +17,14 @@ require([
         gJobsTable,
         gPageLen,
         gSearchFilter,
-        gSoc;
+        gSoc,
+        gTableCount;
 
     gBatchCountMissing = {};
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
+    gTableCount = {};
 
     function getDistinctBoardsTable(response) {
         var columns,
@@ -170,11 +172,6 @@ require([
         }
     }
 
-    function updateCount(result) {
-        updateOrStageCount(
-            result.operation_id, parseInt(result.result[0].count, 10));
-    }
-
     /**
      * Function to be bound to the draw event of the table.
      * This is done to update dynamic elements that are not yet available
@@ -199,9 +196,27 @@ require([
     function getBatchCountDone(response) {
         var results;
 
+        function _parseOperationsResult(result) {
+            gTableCount[result.operation_id] =
+                parseInt(result.result[0].count, 10);
+        }
+
+        function _updateTable(opId) {
+            updateOrStageCount(opId, gTableCount[opId]);
+        }
+
         results = response.result;
         if (results.length > 0) {
-            results.forEach(updateCount);
+            // Parse all the results and update a global object with
+            // the operation IDs and the count found.
+            results.forEach(_parseOperationsResult);
+            // Invalidate the cells in column #2 before updating the DOM
+            // elements. In this way we have the correct 'filter' values in the
+            // global object that we can use to provide the search parameters.
+            gJobsTable.invalidateColumn(2);
+            // Now update the DOM with the results.
+            Object.keys(gTableCount).forEach(_updateTable);
+
             // Bind a new function to the draw event of the table.
             gJobsTable.addDrawEvent(updateBootCount);
         }
@@ -264,14 +279,37 @@ require([
             html.errorDiv('Error loading data.'));
     }
 
+    function getFilterBootCount(tree) {
+        var filter;
+
+        filter = '';
+        if (gTableCount.hasOwnProperty('boot-success-count-' + tree)) {
+            if (gTableCount['boot-success-count-' + tree]) {
+                filter += 'successfulpass';
+            }
+        }
+
+        if (gTableCount.hasOwnProperty('boot-fail-count-' + tree)) {
+            if (gTableCount['boot-fail-count-' + tree]) {
+                filter += 'failed';
+            }
+        }
+
+        return filter;
+    }
+
     function getJobsDone(response) {
         var columns,
             results;
 
         // Internal wrapper to provide the href.
         function _renderBootCount(data, type) {
-            return tsoc.renderBootCount(
-                data, type, '/soc/' + gSoc + '/job/' + data + '/');
+            if (type === 'filter') {
+                return getFilterBootCount(data);
+            } else {
+                return tsoc.renderBootCount(
+                    data, type, '/soc/' + gSoc + '/job/' + data + '/');
+            }
         }
 
         // Internal wrapper to provide the href.
@@ -292,18 +330,20 @@ require([
                 {
                     data: 'job',
                     title: 'Tree',
+                    type: 'string',
                     className: 'tree-column',
                     render: _renderTree
                 },
                 {
                     data: 'git_branch',
                     title: 'Branch',
+                    type: 'string',
                     className: 'branch-column'
                 },
                 {
                     data: 'job',
-                    searchable: false,
                     orderable: false,
+                    type: 'string',
                     title: 'Latest Boot Results',
                     className: 'pull-center',
                     render: _renderBootCount
@@ -311,12 +351,14 @@ require([
                 {
                     data: 'created_on',
                     title: 'Date',
+                    type: 'date',
                     className: 'date-column pull-center',
                     render: tsoc.renderDate
                 },
                 {
                     data: 'job',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
