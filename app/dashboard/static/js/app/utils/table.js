@@ -49,7 +49,6 @@ define([
         tableLoadingNode: null,
         tableDivNode: null,
         table: null,
-        oldSearch: null,
         inputNode: null,
         selectNode: null,
         _noIdURL: false,
@@ -253,8 +252,7 @@ define([
         }
 
         if (value && value.length > 0) {
-            this.oldSearch = null;
-            this.table.search(value, true, true).draw();
+            this.table.search(value, true).draw();
         }
 
         return this;
@@ -277,6 +275,18 @@ define([
             this.table.page.len(len).draw();
         }
 
+        return this;
+    };
+
+    /**
+     * Invalidate the cache/data of a single column in the table.
+     * It will invalidate all the cells of a column.
+     *
+     * @param {Number} index: The column index number.
+    **/
+    kciTable.invalidateColumn = function(index) {
+        // Get all the cells for a single column.
+        this.table.cells(undefined, index).invalidate();
         return this;
     };
 
