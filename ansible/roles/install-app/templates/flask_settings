@@ -1,6 +1,6 @@
 # Managed via ansible, do not edit!
 
-PREFERRED_URL_SCHEME = 'http'
+PREFERRED_URL_SCHEME = 'https'
 # Add the trailing slash!
 BACKEND_URL = '{{ backend_url }}'
 BASE_URL = '{{ base_url }}'
