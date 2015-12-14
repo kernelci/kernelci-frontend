@@ -436,7 +436,7 @@ require([
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reporst available.'));
+                html.errorDiv('No boot reports available.'));
         }
     }
 
@@ -495,7 +495,7 @@ require([
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reporst found.'));
+                html.errorDiv('No boot reports found.'));
         }
     }
 
