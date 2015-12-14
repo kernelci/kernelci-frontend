@@ -97,7 +97,7 @@ define([
     };
 
     /**
-     * Create the success/count fail count badges.
+     * Create the total/success/fail/other count badges.
      *
      * @param {Object} settings: An object with the necessary data. Its
      * properties include:

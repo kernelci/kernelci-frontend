@@ -21,38 +21,6 @@ require([
     gPageLen = null;
     gSearchFilter = null;
 
-    /**
-     * Create the table column title for the boots count.
-     * @private
-    **/
-    function _bootColumnTitle() {
-        var tooltipNode;
-
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title', 'Successful/Failed boot reports for latest job');
-        tooltipNode.appendChild(
-            document.createTextNode('Latest Boot Status'));
-
-        return tooltipNode.outerHTML;
-    }
-
-    /**
-     * Create the table column title for the builds count.
-     * @private
-    **/
-    function _buildColumTitle() {
-        var tooltipNode;
-
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title', 'Successful/Failed build reports for latest job');
-        tooltipNode.appendChild(
-            document.createTextNode('Latest Build Status'));
-
-        return tooltipNode.outerHTML;
-    }
-
     function getBatchCountFail() {
         html.replaceByClass('count-badge', '&infin;');
     }
@@ -78,70 +46,95 @@ require([
     }
 
     function getBatchCount(response) {
-        var batchElements,
-            batchOps,
+        var batchOps,
             deferred,
-            idx,
-            jdx,
             job,
             kernel,
-            queriesLen,
-            resLen,
+            queryStr,
             results;
 
+        function _createOp(result) {
+            job = result.job;
+            kernel = result.kernel;
+            queryStr = 'job=' + job + '&kernel=' + kernel;
+
+            // Get total build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-total-count-' + job,
+                resource: 'count',
+                document: 'build',
+                query: queryStr
+            });
+
+            // Get successful build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-success-count-' + job,
+                resource: 'count',
+                document: 'build',
+                query: 'status=PASS&' + queryStr
+            });
+
+            // Get failed build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-fail-count-' + job,
+                resource: 'count',
+                document: 'build',
+                query: 'status=FAIL&' + queryStr
+            });
+
+            // Get unknown build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-unknown-count-' + job,
+                resource: 'count',
+                document: 'build',
+                query: 'status=UNKNOWN&' + queryStr
+            });
+
+            // Get total boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-total-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr
+            });
+
+            // Get successful boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-success-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=PASS&' + queryStr
+            });
+
+            // Get failed boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-fail-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=FAIL&' + queryStr
+            });
+
+            // Get unknown boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-unknown-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=OFFLINE&status=UNTRIED&' + queryStr
+            });
+        }
+
         results = response.result;
-        resLen = results.length;
-
-        if (resLen > 0) {
-            idx = 0;
-            jdx = 0;
-            batchElements = 4;
-            queriesLen = resLen * 4;
-            batchOps = new Array(queriesLen);
-            job = '';
-            kernel = '';
-
-            for (idx; idx < queriesLen; idx += batchElements) {
-                jdx = idx;
-                job = results[idx / batchElements].job;
-                kernel = results[idx / batchElements].kernel;
-
-                // Get successful build count.
-                batchOps[idx] = {
-                    method: 'GET',
-                    operation_id: 'build-success-count-' + job,
-                    resource: 'count',
-                    document: 'build',
-                    query: 'status=PASS&job=' + job + '&kernel=' + kernel
-                };
-
-                // Get failed build count.
-                batchOps[jdx + 1] = {
-                    method: 'GET',
-                    operation_id: 'build-fail-count-' + job,
-                    resource: 'count',
-                    document: 'build',
-                    query: 'status=FAIL&job=' + job + '&kernel=' + kernel
-                };
-
-                // Get successful boot reports count.
-                batchOps[jdx + 2] = {
-                    method: 'GET',
-                    operation_id: 'boot-success-count-' + job,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=PASS&job=' + job + '&kernel=' + kernel
-                };
-
-                // Get failed boot reports count.
-                batchOps[jdx + 3] = {
-                    method: 'GET',
-                    operation_id: 'boot-fail-count-' + job,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=FAIL&job=' + job + '&kernel=' + kernel
-                };
-            }
+        if (results.length > 0) {
+            batchOps = [];
+            results.forEach(_createOp);
 
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -159,6 +152,38 @@ require([
     function getJobsDone(response) {
         var columns,
             results;
+
+        /**
+         * Create the table column title for the builds count.
+        **/
+        function _buildColumTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Total/Successful/Failed/Unknown build reports for latest job');
+            tooltipNode.appendChild(
+                document.createTextNode('Latest Build Status'));
+
+            return tooltipNode.outerHTML;
+        }
+
+        /**
+         * Create the table column title for the boots count.
+        **/
+        function _bootColumnTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Total/Successful/Failed/Other boot reports for latest job');
+            tooltipNode.appendChild(
+                document.createTextNode('Latest Boot Status'));
+
+            return tooltipNode.outerHTML;
+        }
 
         results = response.result;
         if (results.length === 0) {
