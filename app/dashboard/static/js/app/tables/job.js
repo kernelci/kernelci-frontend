@@ -25,11 +25,12 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderTableBootCount = function(job, type) {
-        return tcommon.countSuccessFail({
+        return tcommon.countAll({
             data: job,
             type: type,
             extraClasses: ['extra-margin'],
-            idStart: 'boot-'
+            idStart: 'boot-',
+            href: '/boot/all/job/' + job + '/'
         });
     };
 
@@ -41,7 +42,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderTableBuildCount = function(job, type) {
-        return tcommon.countSuccessFail({
+        return tcommon.countAll({
             data: job,
             type: type,
             extraClasses: ['extra-margin'],
