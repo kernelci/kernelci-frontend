@@ -52,6 +52,14 @@ define([
                 nodeId = nodeId + 'fail-count-' + data;
                 classes = ['badge', 'alert-danger', 'count-badge'];
                 break;
+            case 'unknown':
+                nodeId = nodeId + 'unknown-count-' + data;
+                classes = ['badge', 'alert-warning', 'count-badge'];
+                break;
+            case 'total':
+                nodeId = nodeId + 'total-count-' + data;
+                classes = ['badge', 'count-badge'];
+                break;
             default:
                 nodeId = nodeId + 'count-' + data;
                 classes = ['badge', 'count-badge'];
@@ -86,6 +94,67 @@ define([
     **/
     gTablesUtils.countBadge = function(data, type, extraClasses, idStart) {
         return _countBadge(data, type, extraClasses, idStart);
+    };
+
+    /**
+     * Create the success/count fail count badges.
+     *
+     * @param {Object} settings: An object with the necessary data. Its
+     * properties include:
+     * - data: The actual data.
+     * - href: The href attribute for the link.
+     * - extraClasses: Extra CSS classes to add to the badge.
+     * - idStart: Head element for the id of the badge.
+    **/
+    gTablesUtils.countAll = function(settings) {
+        var aNode,
+            divNode,
+            failNode,
+            rendered,
+            successNode,
+            totalNode,
+            unknownNode;
+
+        if (settings.type === 'display') {
+            divNode = document.createElement('div');
+
+            totalNode = _countBadge(
+                settings.data,
+                'total', settings.extraClasses, settings.idStart);
+            successNode = _countBadge(
+                settings.data,
+                'success', settings.extraClasses, settings.idStart);
+            failNode = _countBadge(
+                settings.data,
+                'fail', settings.extraClasses, settings.idStart);
+            unknownNode = _countBadge(
+                settings.data,
+                'unknown', settings.extraClasses, settings.idStart);
+
+            if (settings.href) {
+                aNode = document.createElement('a');
+                aNode.className = 'clean-link';
+                aNode.setAttribute('href', settings.href);
+
+                aNode.appendChild(totalNode);
+                aNode.appendChild(successNode);
+                aNode.appendChild(failNode);
+                aNode.appendChild(unknownNode);
+
+                divNode.appendChild(aNode);
+            } else {
+                divNode.appendChild(totalNode);
+                divNode.appendChild(successNode);
+                divNode.appendChild(failNode);
+                divNode.appendChild(unknownNode);
+            }
+
+            rendered = divNode.outerHTML;
+        } else {
+            rendered = null;
+        }
+
+        return rendered;
     };
 
     /**
