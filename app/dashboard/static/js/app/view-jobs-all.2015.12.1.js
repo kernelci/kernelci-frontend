@@ -185,6 +185,21 @@ require([
             return tooltipNode.outerHTML;
         }
 
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderDetails(data, type) {
+            return jobt.renderDetails('/job/' + data + '/', type);
+        }
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderBootCount(data, type) {
+            return jobt.renderTableBootCount(
+                data, type, '/boot/all/job/' + data + '/');
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.replaceContent(
@@ -195,16 +210,19 @@ require([
                 {
                     data: 'job',
                     title: 'Tree',
+                    type: 'string',
                     render: jobt.renderTree
                 },
                 {
                     data: 'git_branch',
                     title: 'Branch',
+                    type: 'string',
                     className: 'branch-column'
                 },
                 {
                     data: 'job',
                     title: _buildColumTitle(),
+                    type: 'string',
                     searchable: false,
                     orderable: false,
                     className: 'pull-center',
@@ -213,10 +231,11 @@ require([
                 {
                     data: 'job',
                     title: _bootColumnTitle(),
+                    type: 'string',
                     searchable: false,
                     orderable: false,
                     className: 'pull-center',
-                    render: jobt.renderTableBootCount
+                    render: _renderBootCount
                 },
                 {
                     data: 'created_on',
@@ -228,17 +247,18 @@ require([
                 {
                     data: 'status',
                     title: 'Status',
+                    type: 'string',
                     className: 'pull-center',
                     render: jobt.renderStatus
                 },
                 {
                     data: 'job',
                     title: '',
+                    type: 'string',
                     searchable: false,
                     orderable: false,
-                    width: '30px',
-                    className: 'pull-center',
-                    render: jobt.renderDetails
+                    className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
 

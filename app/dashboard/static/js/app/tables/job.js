@@ -20,30 +20,31 @@ define([
     /**
      * Function to render the boots count column on a table.
      *
-     * @param {object} job: The name of the tree/job.
+     * @param {string} data: The actual data passed (tree or kernel).
      * @param {string} type: The type of the display option.
+     * @param {string} href: The href to associate with the element.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableBootCount = function(job, type) {
+    gJobUtils.renderTableBootCount = function(data, type, href) {
         return tcommon.countAll({
-            data: job,
+            data: data,
             type: type,
             extraClasses: ['extra-margin'],
             idStart: 'boot-',
-            href: '/boot/all/job/' + job + '/'
+            href: href
         });
     };
 
     /**
      * Function to render the builds count column on a table.
      *
-     * @param {object} job: The name of the tree/job.
+     * @param {string} data: The actual data passed (tree or kernel).
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTableBuildCount = function(job, type) {
+    gJobUtils.renderTableBuildCount = function(data, type) {
         return tcommon.countAll({
-            data: job,
+            data: data,
             type: type,
             extraClasses: ['extra-margin'],
             idStart: 'build-'
@@ -108,11 +109,12 @@ define([
     /**
      * Function to render the detail column on a table.
      *
-     * @param {string} job: The name of the tree/job.
+     * @param {string} href: The link to associate with the element.
      * @param {string} type: The type of the display option.
+     * @param {string} tooltip: The tooltip title.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderDetails = function(job, type) {
+    gJobUtils.renderDetails = function(href, type, tooltip) {
         var aNode,
             rendered,
             tooltipNode;
@@ -120,10 +122,14 @@ define([
         rendered = null;
         if (type === 'display') {
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', 'Details for&nbsp;' + job);
+            if (tooltip) {
+                tooltipNode.setAttribute('title', tooltip);
+            } else {
+                tooltipNode.setAttribute('title', 'More details');
+            }
 
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/job/' + job + '/');
+            aNode.setAttribute('href', href);
 
             aNode.appendChild(html.search());
             tooltipNode.appendChild(aNode);
