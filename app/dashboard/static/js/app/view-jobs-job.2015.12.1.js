@@ -9,8 +9,9 @@ require([
     'utils/urls',
     'charts/passrate',
     'utils/html',
+    'tables/job',
     'utils/date'
-], function($, init, format, r, e, table, u, chart, html) {
+], function($, init, format, r, e, table, u, chart, html, jobt) {
     'use strict';
     var gBranchRegEx,
         gBuildsTable,
@@ -144,76 +145,96 @@ require([
     }
 
     function getBuildBootCount(response) {
-        var batchElements,
-            batchQueries,
-            data,
+        var batchOps,
             deferred,
-            jdx,
-            kdx,
             kernel,
-            resLen,
-            results,
-            queriesLen,
-            zdx;
+            queryStr,
+            results;
 
-        results = response.result;
-        resLen = results.length;
-        batchElements = 4;
+        function _createOp(result) {
+            kernel = result.kernel;
+            queryStr = 'job=' + gJobName + '&kernel=' + kernel;
 
-        if (resLen > 0) {
-            queriesLen = resLen * 4;
-            batchQueries = new Array(queriesLen);
-            zdx = 0;
-            jdx = 0;
-            kdx = 0;
-
-            for (zdx; zdx < queriesLen; zdx = zdx + batchElements) {
-                jdx = zdx;
-                kdx = zdx / batchElements;
-                kernel = results[kdx].kernel;
-
-                // Get successful build count.
-                batchQueries[zdx] = {
-                    method: 'GET',
-                    operation_id: 'build-success-count-' + kdx,
-                    resource: 'count',
-                    document: 'build',
-                    query: 'status=PASS&job=' + gJobName + '&kernel=' + kernel
-                };
-
-                // Get failed build count.
-                batchQueries[jdx + 1] = {
-                    method: 'GET',
-                    operation_id: 'build-fail-count-' + kdx,
-                    resource: 'count',
-                    document: 'build',
-                    query: 'status=FAIL&job=' + gJobName + '&kernel=' + kernel
-                };
-
-                // Get successful boot reports count.
-                batchQueries[jdx + 2] = {
-                    method: 'GET',
-                    operation_id: 'boot-success-count-' + kdx,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=PASS&job=' + gJobName + '&kernel=' + kernel
-                };
-
-                // Get failed boot reports count.
-                batchQueries[jdx + 3] = {
-                    method: 'GET',
-                    operation_id: 'boot-fail-count-' + kdx,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=FAIL&job=' + gJobName + '&kernel=' + kernel
-                };
-            }
-
-            data = JSON.stringify({
-                batch: batchQueries
+            // Get total build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-total-count-' + kernel,
+                resource: 'count',
+                document: 'build',
+                query: queryStr
             });
 
-            deferred = r.post('/_ajax/batch', data);
+            // Get the successful build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-success-count-' + kernel,
+                resource: 'count',
+                document: 'build',
+                query: 'status=PASS&' + queryStr
+            });
+
+            // Get failed build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-fail-count-' + kernel,
+                resource: 'count',
+                document: 'build',
+                query: 'status=FAIL&' + queryStr
+            });
+
+            // Get unknown build count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'build-unknown-count-' + kernel,
+                resource: 'count',
+                document: 'build',
+                query: 'status=UNKNOWN&' + queryStr
+            });
+
+            // Get total boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-total-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr
+            });
+
+            // Get successful boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-success-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=PASS&' + queryStr
+            });
+
+            // Get failed boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-fail-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=FAIL&' + queryStr
+            });
+
+            // Get unknown boot reports count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-unknown-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=OFFLINE&status=UNTRIED&' + queryStr
+            });
+        }
+
+        results = response.result;
+        if (results.length > 0) {
+            batchOps = [];
+            results.forEach(_createOp);
+
+            deferred = r.post(
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
                 .fail(e.error, getBuildBootCountFail)
@@ -227,6 +248,96 @@ require([
         var columns,
             results;
 
+        /**
+         * Create the table column title for the builds count.
+        **/
+        function _buildColumTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Total/Successful/Failed/Unknown build reports');
+            tooltipNode.appendChild(
+                document.createTextNode('Build Status'));
+
+            return tooltipNode.outerHTML;
+        }
+
+        /**
+         * Create the table column title for the boots count.
+        **/
+        function _bootColumnTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Total/Successful/Failed/Other boot reports');
+            tooltipNode.appendChild(
+                document.createTextNode('Boot Status'));
+
+            return tooltipNode.outerHTML;
+        }
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderDetails(data, type) {
+            return jobt.renderDetails(
+                '/build/' + gJobName + '/kernel/' + data + '/', type);
+        }
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderBootCount(data, type) {
+            return jobt.renderTableBootCount(
+                data, type, '/boot/all/job/' + gJobName + '/kernel/' + data);
+        }
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderKernel(data, type) {
+            return jobt.renderKernel(
+                data, type, '/build/' + gJobName + '/kernel/' + data + '/');
+        }
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderCommit(data, type, object) {
+            var gitURLs;
+
+            gitURLs = u.translateCommit(object.git_url, data);
+            return jobt.renderCommit(data, type, gitURLs[1]);
+        }
+
+        function _renderBranch(data, type) {
+            var aNode,
+                branch,
+                rendered,
+                tooltipNode;
+
+            branch = data.replace(gBranchRegEx, ':', 'g');
+            rendered = data;
+            if (type === 'display') {
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', data);
+
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                aNode.setAttribute(
+                    'href', '/job/' + gJobName + '/branch/' + branch);
+
+                aNode.appendChild(document.createTextNode(data));
+                tooltipNode.appendChild(aNode);
+
+                rendered = tooltipNode.outerHTML;
+            }
+
+            return rendered;
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.replaceContent(
@@ -239,261 +350,51 @@ require([
                     title: 'Kernel',
                     type: 'string',
                     className: 'kernel-column',
-                    render: function(data, type) {
-                        var aNode,
-                            rendered,
-                            tooltipNode;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', data);
-
-                            aNode = document.createElement('a');
-                            aNode.className = 'table-link';
-                            aNode.setAttribute(
-                                'href',
-                                '/build/' + gJobName + '/kernel/' + data);
-
-                            aNode.appendChild(document.createTextNode(data));
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderKernel
                 },
                 {
                     data: 'git_branch',
                     title: 'Branch',
                     type: 'string',
                     className: 'branch-column',
-                    render: function(data, type) {
-                        var aNode,
-                            branch,
-                            rendered,
-                            tooltipNode;
-
-                        branch = data.replace(gBranchRegEx, ':', 'g');
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', data);
-
-                            aNode = document.createElement('a');
-                            aNode.className = 'table-link';
-                            aNode.setAttribute(
-                                'href',
-                                '/job/' + gJobName + '/branch/' + branch);
-
-                            aNode.appendChild(document.createTextNode(data));
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderBranch
                 },
                 {
                     data: 'git_commit',
                     title: 'Commit',
                     type: 'string',
                     className: 'commit-column',
-                    render: function(data, type, object) {
-                        var aNode,
-                            gitURLs,
-                            rendered,
-                            tooltipNode;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', data);
-
-                            gitURLs = u.translateCommit(object.git_url, data);
-
-                            if (gitURLs[1] !== null) {
-                                aNode = document.createElement('a');
-                                aNode.className = 'table-link';
-                                aNode.setAttribute(
-                                    'href', gitURLs[1]);
-
-                                aNode.appendChild(
-                                    document.createTextNode(data));
-                            } else {
-                                aNode = document.createTextNode(data);
-                            }
-
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderCommit
                 },
                 {
                     data: 'kernel',
-                    title: '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="Successful/Failed defconfigs built">' +
-                        'Build Status</span>',
+                    title: _buildColumTitle(),
                     type: 'string',
                     className: 'build-count pull-center',
-                    render: function(data, type, object, meta) {
-                        var badgeNode,
-                            divNode,
-                            iNode,
-                            idx,
-                            rendered;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            idx = meta.row;
-                            divNode = document.createElement('div');
-
-                            badgeNode = document.createElement('span');
-                            badgeNode.className =
-                                'badge alert-success extra-margin count-badge';
-                            badgeNode.id = 'build-success-count-' + idx;
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            badgeNode.appendChild(iNode);
-
-                            divNode.appendChild(badgeNode);
-
-                            badgeNode = document.createElement('span');
-                            badgeNode.className =
-                                'badge alert-danger extra-margin count-badge';
-                            badgeNode.id = 'build-fail-count-' + idx;
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            badgeNode.appendChild(iNode);
-                            divNode.appendChild(badgeNode);
-
-                            rendered = divNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: jobt.renderTableBuildCount
                 },
                 {
                     data: 'kernel',
-                    title: '<span rel="tooltip" data-toggle="tooltip" ' +
-                        'title="Successful/Failed boot reports">' +
-                        'Boot Status</span>',
+                    title: _bootColumnTitle(),
                     type: 'string',
                     className: 'boot-count pull-center',
-                    render: function(data, type, object, meta) {
-                        var aNode,
-                            badgeNode,
-                            divNode,
-                            iNode,
-                            idx,
-                            rendered;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            idx = meta.row;
-                            divNode = document.createElement('div');
-                            aNode = document.createElement('a');
-                            aNode.setAttribute(
-                                'href',
-                                '/boot/all/job/' + object.job +
-                                '/kernel/' + data
-                            );
-
-                            badgeNode = document.createElement('span');
-                            badgeNode.className =
-                                'badge alert-success extra-margin count-badge';
-                            badgeNode.id = 'boot-success-count-' + idx;
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            badgeNode.appendChild(iNode);
-
-                            aNode.appendChild(badgeNode);
-
-                            badgeNode = document.createElement('span');
-                            badgeNode.className =
-                                'badge alert-danger extra-margin count-badge';
-                            badgeNode.id = 'boot-fail-count-' + idx;
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-cog fa-spin';
-
-                            badgeNode.appendChild(iNode);
-                            aNode.appendChild(badgeNode);
-                            divNode.appendChild(aNode);
-
-                            rendered = divNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderBootCount
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: function(data, type) {
-                        var created;
-
-                        created = new Date(data.$date);
-                        if (type === 'display' || type === 'filter') {
-                            created = created.toCustomISODate();
-                        }
-
-                        return created;
-                    }
+                    render: jobt.renderDate
                 },
                 {
                     data: 'kernel',
                     title: '',
                     orderable: false,
                     searchable: false,
+                    type: 'string',
                     className: 'select-column pull-center',
-                    render: function(data, type, object) {
-                        var aNode,
-                            iNode,
-                            job,
-                            rendered,
-                            tooltipNode;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            job = object.job;
-
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute(
-                                'title',
-                                'Details for build&nbsp;' + job +
-                                '&nbsp;&dash;&nbsp;' + data
-                            );
-
-                            aNode = document.createElement('a');
-                            aNode.setAttribute(
-                                'href',
-                                '/build/' + job + '/kernel/' + data + '/');
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-search';
-
-                            aNode.appendChild(iNode);
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderDetails
                 }
             ];
 
