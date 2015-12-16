@@ -358,7 +358,6 @@ require([
                     type: 'string',
                     orderable: false,
                     searchable: false,
-                    width: '30px',
                     className: 'select-column pull-center',
                     render: _renderDetails
                 }
