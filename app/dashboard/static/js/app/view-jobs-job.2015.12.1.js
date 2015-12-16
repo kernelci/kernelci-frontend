@@ -484,39 +484,39 @@ require([
     }
 
     function getDetails() {
-        var batchQueries,
+        var batchOps,
             deferred,
             queryString;
 
         queryString = 'job=' + gJobName;
-        batchQueries = new Array(3);
+        batchOps = [];
 
-        batchQueries[0] = {
+        batchOps.push({
             operation_id: 'builds-count',
             method: 'GET',
             resource: 'count',
             document: 'job',
             query: queryString
-        };
+        });
 
-        batchQueries[1] = {
+        batchOps.push({
             operation_id: 'defconfs-count',
             method: 'GET',
             resource: 'count',
             document: 'build',
             query: queryString
-        };
+        });
 
-        batchQueries[2] = {
+        batchOps.push({
             operation_id: 'boot-reports-count',
             method: 'GET',
             resource: 'count',
             document: 'boot',
             query: queryString
-        };
+        });
 
         deferred = r.post(
-            '/_ajax/batch', JSON.stringify({batch: batchQueries}));
+            '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
             .fail(e.error, getDetailsFailed)
