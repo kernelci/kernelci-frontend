@@ -20,6 +20,10 @@ require([
         gSoc,
         gTableCount;
 
+    document.getElementById('li-soc').setAttribute('class', 'active');
+    init.hotkeys();
+    init.tooltip();
+
     gBatchCountMissing = {};
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
@@ -52,13 +56,6 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            dom = '<"row"<"col-xs-12 col-sm-12 col-md-4 col-lg-4"' +
-                '<"length-menu"l>>' +
-                '<"col-xs-12 col-sm-12 col-md-4 col-lg-4"<"table-process">>' +
-                '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>' +
-                '<"row paging"<"col-xs-12 col-sm-12 col-md-6 col-lg-6"i>' +
-                '<"col-xs-12 col-sm-12 col-md-6 col-lg-6"p>>';
-
             columns = [
                 {
                     data: 'board',
@@ -78,9 +75,8 @@ require([
             tableResults = results.map(_remapResults);
 
             gBoardsTable
-                .dom(dom)
-                .noIdURL(true)
                 .rowURL('/boot/%(board)s/')
+                .noIdURL(true)
                 .rowURLElements(['board'])
                 .data(tableResults)
                 .columns(columns)
@@ -178,15 +174,9 @@ require([
      * in the DOM due to the derefer rendering of dataTables.
     **/
     function updateBootCount() {
-        var key;
-
-        if (Object.keys(gBatchCountMissing).length > 0) {
-            for (key in gBatchCountMissing) {
-                if (gBatchCountMissing.hasOwnProperty(key)) {
-                    updateOrStageCount(key, gBatchCountMissing[key]);
-                }
-            }
-        }
+        Object.keys(gBatchCountMissing).forEach(function(key) {
+            updateOrStageCount(key, gBatchCountMissing[key]);
+        });
     }
 
     function getBatchCountFail() {
@@ -230,38 +220,56 @@ require([
             queryStr,
             results;
 
+        function _createOp(result) {
+            job = result.job;
+            jobId = result.job_id;
+
+            if (jobId) {
+                jobId = '&job_id=' + jobId.$oid;
+            } else {
+                // No job_id value, search only in the last X days.
+                jobId = '&date_range=' + gDateRange;
+            }
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-total-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr + '&job=' + job + jobId
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-success-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr + '&status=PASS&job=' + job + jobId
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-fail-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr + '&status=FAIL&job=' + job + jobId
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boot-unknown-count-' + job,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr + '&status=OFFLINE&status=UNKNOWN&job=' +
+                    job + jobId
+            });
+        }
+
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
             queryStr = 'mach=' + gSoc;
-
-            results.forEach(function(result) {
-                job = result.job;
-                jobId = result.job_id;
-
-                if (jobId) {
-                    jobId = '&job_id=' + jobId.$oid;
-                } else {
-                    // No job_id value, search only in the last X days.
-                    jobId = '&date_range=' + gDateRange;
-                }
-
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'boot-success-count-' + job,
-                    resource: 'count',
-                    document: 'boot',
-                    query: queryStr + '&status=PASS&job=' + job + jobId
-                });
-
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'boot-fail-count-' + job,
-                    resource: 'count',
-                    document: 'boot',
-                    query: queryStr + '&status=FAIL&job=' + job + jobId
-                });
-            });
+            results.forEach(_createOp);
 
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -324,6 +332,21 @@ require([
                 '/soc/' + gSoc + '/job/' + data + '/', type);
         }
 
+        /**
+         * Create the table column title for the boots count.
+        **/
+        function _bootColumnTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Total/Successful/Failed/Other boot reports');
+            tooltipNode.appendChild(
+                document.createTextNode('Latest Boot Results'));
+
+            return tooltipNode.outerHTML;
+        }
+
         results = response.result;
         if (results.length > 0) {
             columns = [
@@ -344,7 +367,7 @@ require([
                     data: 'job',
                     orderable: false,
                     type: 'string',
-                    title: 'Latest Boot Results',
+                    title: _bootColumnTitle(),
                     className: 'pull-center',
                     render: _renderBootCount
                 },
@@ -408,10 +431,6 @@ require([
             .fail(e.error, getJobsFail)
             .done(getJobsDone, getBatchCount);
     }
-
-    document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
 
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;

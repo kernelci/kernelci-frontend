@@ -97,7 +97,7 @@ define([
     };
 
     gSocTables.renderBootCount = function(data, type, href) {
-        return tcommon.countSuccessFail({
+        return tcommon.countAll({
             data: data,
             type: type,
             href: href,
