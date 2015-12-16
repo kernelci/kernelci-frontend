@@ -142,14 +142,13 @@ define([
     };
 
     /**
-     * Function to render the kernel column on a table.
-     * Special case for the count of builds/boots.
+     * Function to render the success count column on a table.
      *
-     * @param {string} kernel: The kernel value.
+     * @param {string} data: The data value being passed.
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.rendereTableCountSuccess = function(kernel, type) {
+    gBootUtils.countSuccess = function(kernel, type) {
         var rendered;
 
         rendered = null;
@@ -161,14 +160,13 @@ define([
     };
 
     /**
-     * Function to render the kernel column on a table with.
-     * Special case for the count of builds/boots.
+     * Function to render the fail count column on a table.
      *
-     * @param {string} kernel: The kernel value.
+     * @param {string} data: The data value being passed.
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.rendereTableCountFail = function(kernel, type) {
+    gBootUtils.countFail = function(kernel, type) {
         var rendered;
 
         rendered = null;
@@ -176,6 +174,41 @@ define([
             rendered = tcommon.countBadge(kernel, 'fail').outerHTML;
         }
 
+        return rendered;
+    };
+
+    /**
+     * Function to render the total count column on a table.
+     *
+     * @param {string} data: The data value being passed.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    gBootUtils.countTotal = function(data, type) {
+        var rendered;
+
+        rendered = null;
+        if (type === 'display') {
+            rendered = tcommon.countBadge(data, 'total').outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Function to render the count of other/unknown on a table.
+     *
+     * @param {string} data: The data value being passed.
+     * @param {string} type: The type of the display option.
+     * @return {string} The rendered element as a string.
+    **/
+    gBootUtils.countUnknown = function(data, type) {
+        var rendered;
+
+        rendered = null;
+        if (type === 'display') {
+            rendered = tcommon.countBadge(data, 'unknown').outerHTML;
+        }
         return rendered;
     };
 
