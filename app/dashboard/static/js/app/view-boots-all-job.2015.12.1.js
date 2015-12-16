@@ -11,16 +11,22 @@ require([
     'utils/const'
 ], function($, format, e, init, r, table, html, boot, appconst) {
     'use strict';
-    var bootsTable,
-        jobName,
-        numberRange,
-        pageLen,
-        searchFilter;
+    var gBootsTable,
+        gJobName,
+        gNumberRange,
+        gPageLen,
+        gSearchFilter,
+        gTableCount;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
-    numberRange = appconst.MAX_NUMBER_RANGE;
-    pageLen = null;
-    searchFilter = null;
+    // Setup and perform base operations.
+    init.hotkeys();
+    init.tooltip();
+
+    gNumberRange = appconst.MAX_NUMBER_RANGE;
+    gPageLen = null;
+    gSearchFilter = null;
+    gTableCount = {};
 
     function getDetailsCountFail() {
         html.replaceContentHTML(
@@ -60,28 +66,24 @@ require([
         var batchQueries,
             deferred;
 
-        batchQueries = new Array(2);
-        batchQueries[0] = {
+        batchQueries = [];
+        batchQueries.push({
             method: 'GET',
             operation_id: 'boot-reports-count',
             resource: 'count',
             document: 'boot',
-            query: 'job=' + jobName
-        };
+            query: 'job=' + gJobName
+        });
 
-        batchQueries[1] = {
+        batchQueries.push({
             method: 'GET',
             operation_id: 'boot-boards-count',
             resource: 'boot',
-            query: 'job=' + jobName + '&aggregate=board&field=board'
-        };
+            query: 'job=' + gJobName + '&aggregate=board&field=board'
+        });
 
         deferred = r.post(
-            '/_ajax/batch',
-            JSON.stringify({
-                batch: batchQueries
-            })
-        );
+            '/_ajax/batch', JSON.stringify({batch: batchQueries}));
         $.when(deferred)
             .fail(e.error, getDetailsCountFail)
             .done(getDetailsCountDone);
@@ -91,74 +93,95 @@ require([
         html.replaceByClass('count-badge', '&infin;');
     }
 
-    function _parseBootsCount(result) {
-        var count;
-
-        count = parseInt(result.result[0].count, 10);
-        html.replaceContent(
-            document.getElementById(result.operation_id),
-            document.createTextNode(format.number(count)));
-    }
-
     function getBootsCountDone(response) {
         var results;
+
+        function _parseOperationResult(result) {
+            gTableCount[result.operation_id] =
+                parseInt(result.result[0].count, 10);
+        }
+
+        function _updateTable(opId) {
+            html.replaceContent(
+                document.getElementById(opId),
+                document.createTextNode(format.number(gTableCount[opId])));
+        }
 
         results = response.result;
         if (results.length === 0) {
             html.replaceByClass('count-badge', '&#63;');
         } else {
-            results.forEach(_parseBootsCount);
+            // Parse all the results and update a global object with
+            // the operation IDs and the count found.
+            results.forEach(_parseOperationResult);
+            // Invalidate the cells in column #1 before updating the DOM
+            // elements. In this way we have the correct 'sort' values in the
+            // global object that we can use to provide the sort parameters.
+            gBootsTable.invalidateColumn(1);
+            // Now update the DOM with the results.
+            Object.keys(gTableCount).forEach(_updateTable);
         }
         // Re-enable the search here.
-        bootsTable
-            .pageLen(pageLen)
-            .search(searchFilter);
+        gBootsTable
+            .pageLen(gPageLen)
+            .search(gSearchFilter);
     }
 
     function getBootsCount(response) {
-        var batchElements,
-            batchQueries,
+        var batchOps,
             deferred,
-            idx,
-            jdx,
             kernel,
-            queriesLen,
+            queryStr,
             results;
 
-        batchElements = 2;
-        results = response.result;
-        queriesLen = results.length * batchElements;
-        idx = 0;
+        function _createOp(result) {
+            kernel = result.kernel;
+            queryStr = 'job=' + gJobName + '&kernel=' + kernel;
 
+            // Get the total count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'total-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: queryStr
+            });
+
+            // Get the success count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'success-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=PASS&' + queryStr
+            });
+
+            // Get the fail count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'fail-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=FAIL&' + queryStr
+            });
+
+            // Get the other count.
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'unknown-count-' + kernel,
+                resource: 'count',
+                document: 'boot',
+                query: 'status=OFFLINE&status=UNKNOWN&' + queryStr
+            });
+        }
+
+        results = response.result;
         if (results.length > 0) {
-            batchQueries = new Array(queriesLen);
-            for (idx; idx < queriesLen; idx = idx + batchElements) {
-                jdx = idx;
-                kernel = results[idx / batchElements].kernel;
-                batchQueries[idx] = {
-                    method: 'GET',
-                    operation_id: 'success-count-' + kernel,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=PASS&job=' + jobName + '&kernel=' +
-                        kernel
-                };
-                batchQueries[jdx + 1] = {
-                    method: 'GET',
-                    operation_id: 'fail-count-' + kernel,
-                    resource: 'count',
-                    document: 'boot',
-                    query: 'status=FAIL&job=' + jobName + '&kernel=' +
-                        kernel
-                };
-            }
+            batchOps = [];
+            results.forEach(_createOp);
 
             deferred = r.post(
-                '/_ajax/batch',
-                JSON.stringify({
-                    batch: batchQueries
-                })
-            );
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
             $.when(deferred)
                 .fail(e.error, getBootsCountFail)
                 .done(getBootsCountDone);
@@ -172,10 +195,65 @@ require([
             html.errorDiv('Error loading board data.'));
     }
 
+    function getSortCount(key) {
+        var sortValue;
+
+        sortValue = null;
+        if (gTableCount.hasOwnProperty(key)) {
+            sortValue = gTableCount[key];
+        }
+
+        return sortValue;
+    }
+
     function getBootsDone(response) {
         var columns,
             results,
             rowURLFmt;
+
+        /**
+         * Wrapper to provide the sort value.
+        **/
+        function _countTotal(data, type) {
+            if (type === 'sort') {
+                return getSortCount('total-count-' + data);
+            } else {
+                return boot.countTotal(data, type);
+            }
+        }
+
+        /**
+         * Wrapper to provide the sort value.
+        **/
+        function _countSuccessful(data, type) {
+            if (type === 'sort') {
+                return getSortCount('success-count-' + data);
+            } else {
+                return boot.countSuccess(data, type);
+            }
+        }
+
+        /**
+         * Wrapper to provide the sort value.
+        **/
+        function _countFailed(data, type) {
+            if (type === 'sort') {
+                return getSortCount('fail-count-' + data);
+            } else {
+                return boot.countFail(data, type);
+            }
+        }
+
+        /**
+         * Wrapper to provide the sort value.
+        **/
+        function _countUnknown(data, type) {
+            if (type === 'sort') {
+                return getSortCount('unknown-count-' + data);
+            } else {
+                return boot.countUnknown(data, type);
+            }
+        }
 
         results = response.result;
         if (results.length === 0) {
@@ -185,51 +263,62 @@ require([
                 html.errorDiv('No board data found'));
         } else {
             rowURLFmt = '/boot/all/job/%(job)s/kernel/%(kernel)s/';
-
             columns = [
                 {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string'
                 },
                 {
                     data: 'kernel',
-                    title: 'Kernel'
+                    title: 'Total',
+                    type: 'number',
+                    className: 'pull-center',
+                    render: _countTotal
                 },
                 {
                     data: 'kernel',
                     title: 'Successful',
+                    type: 'number',
                     className: 'pull-center',
-                    render: boot.rendereTableCountSuccess
+                    render: _countSuccessful
                 },
                 {
                     data: 'kernel',
                     title: 'Failed',
+                    type: 'number',
                     className: 'pull-center',
-                    render: boot.rendereTableCountFail
+                    render: _countFailed
+                },
+                {
+                    data: 'kernel',
+                    title: 'Other',
+                    type: 'number',
+                    className: 'pull-center',
+                    render: _countUnknown
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
+                    type: 'date',
                     className: 'date-column pull-center',
                     render: boot.renderDate
                 },
                 {
                     data: 'job',
                     title: '',
-                    width: '30px',
+                    type: 'string',
                     searchable: false,
                     orderable: false,
-                    className: 'pull-center',
+                    className: 'select-column pull-center',
                     render: boot.renderTableDetailJob
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([4, 'desc'])
+                .order([5, 'desc'])
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job', 'kernel'])
                 .noIdURL(true)
@@ -246,10 +335,10 @@ require([
             '/_ajax/boot',
             {
                 aggregate: 'kernel',
-                job: jobName,
+                job: gJobName,
                 sort: 'created_on',
                 sort_order: -1,
-                limit: numberRange,
+                limit: gNumberRange,
                 field: ['job', 'kernel', 'created_on']
             }
         );
@@ -258,24 +347,20 @@ require([
             .done(getBootsDone, getBootsCount);
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('number-range') !== null) {
-        numberRange = document.getElementById('number-range').value;
+        gNumberRange = document.getElementById('number-range').value;
     }
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
 
-    bootsTable = table({
+    gBootsTable = table({
         tableDivId: 'table-div',
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading'
