@@ -37,43 +37,13 @@ define([
     }
 
     /**
-     * Function to render the detail column on a table.
-     *
-     * @private
-     * @param {string} board: The board name.
-     * @param {object} object: The entire data set.
-     * @return {Element} The DOM element.
-    **/
-    function _bootDetail(board, object) {
-        var aNode,
-            tooltipNode;
-
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Boot report details');
-
-        aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href',
-            '/boot/' + board + '/job/' + object.job +
-            '/kernel/' + object.kernel +
-            '/defconfig/' + object.defconfig_full +
-            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid
-        );
-
-        aNode.appendChild(html.search());
-        tooltipNode.appendChild(aNode);
-
-        return tooltipNode;
-    }
-
-    /**
      * Function to render the lab column on a table.
      *
      * @param {string} lab: The lab name.
      * @param {string} type: The type of the display option.
      * @return {string} The HTML string of the cell node.
     **/
-    gBootUtils.renderTableLabAll = function(lab, type) {
+    gBootUtils.renderLab = function(lab, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -81,8 +51,7 @@ define([
         rendered = lab;
         if (type === 'display') {
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for lab&nbsp;' + lab);
+            tooltipNode.setAttribute('title', lab);
 
             aNode = document.createElement('a');
             aNode.className = 'table-link';
@@ -92,6 +61,9 @@ define([
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
         }
 
         return rendered;
@@ -106,7 +78,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableBoard = function(board, type, object) {
+    gBootUtils.renderBoard = function(board, type, object) {
         var aNode,
             job,
             kernel,
@@ -119,23 +91,21 @@ define([
             kernel = object.kernel;
 
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title',
-                'Boot reports for board&nbsp;' + board +
-                '&nbsp;with&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel
-            );
+            tooltipNode.setAttribute('title', board);
 
             aNode = document.createElement('a');
             aNode.className = 'table-link';
             aNode.setAttribute(
                 'href',
-                '/boot/' + board + '/job/' + job + '/kernel/' + kernel + '/'
-            );
+                '/boot/' + board + '/job/' + job + '/kernel/' + kernel + '/');
 
             aNode.appendChild(document.createTextNode(board));
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
         }
 
         return rendered;
@@ -149,11 +119,15 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countSuccess = function(kernel, type) {
-        var rendered;
+        var node,
+            rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = tcommon.countBadge(kernel, 'success').outerHTML;
+            node = tcommon.countBadge(kernel, 'success');
+            rendered = node.outerHTML;
+            // Remove the node.
+            node.remove();
         }
 
         return rendered;
@@ -167,11 +141,15 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countFail = function(kernel, type) {
-        var rendered;
+        var node,
+            rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = tcommon.countBadge(kernel, 'fail').outerHTML;
+            node = tcommon.countBadge(kernel, 'fail');
+            rendered = node.outerHTML;
+            // Remove the node.
+            node.remove();
         }
 
         return rendered;
@@ -185,11 +163,15 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countTotal = function(data, type) {
-        var rendered;
+        var node,
+            rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = tcommon.countBadge(data, 'total').outerHTML;
+            node = tcommon.countBadge(data, 'total');
+            rendered = node.outerHTML;
+            // Remove the node.
+            node.remove();
         }
 
         return rendered;
@@ -203,11 +185,15 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countUnknown = function(data, type) {
-        var rendered;
+        var node,
+            rendered;
 
         rendered = null;
         if (type === 'display') {
-            rendered = tcommon.countBadge(data, 'unknown').outerHTML;
+            node = tcommon.countBadge(data, 'unknown');
+            rendered = node.outerHTML;
+            // Remove the node.
+            node.remove();
         }
         return rendered;
     };
@@ -217,64 +203,11 @@ define([
      *
      * @param {string} tree: The tree value.
      * @param {string} type: The type of the display option.
-     * @param {object} object: The entire data set for the row, plus the
-     * default value for the file server URL.
+     * @param {string} href: The href value to associate wit the node.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTree = function(tree, type, object) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        rendered = tree;
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + tree);
-
-            aNode = document.createElement('a');
-            aNode.className = 'table-link';
-            aNode.setAttribute(
-                'href', '/boot/' + object.board + '/job/' + tree + '/');
-
-            aNode.appendChild(document.createTextNode(tree));
-            tooltipNode.appendChild(aNode);
-
-            rendered = tooltipNode.outerHTML;
-        }
-
-        return rendered;
-    };
-
-    /**
-     * Function to render the tree column on a table.
-     *
-     * @param {string} tree: The tree value.
-     * @param {string} type: The type of the display option.
-     * @param {object} object: The entire data set for the row, plus the
-     * default value for the file server URL.
-     * @return {string} The rendered element as a string.
-    **/
-    gBootUtils.renderTreeAll = function(tree, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        rendered = tree;
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + tree);
-
-            aNode = document.createElement('a');
-            aNode.className = 'table-link';
-            aNode.setAttribute('href', '/boot/all/job/' + tree + '/');
-
-            aNode.appendChild(document.createTextNode(tree));
-            tooltipNode.appendChild(aNode);
-
-            rendered = tooltipNode.outerHTML;
-        }
-
-        return rendered;
+    gBootUtils.renderTree = function(tree, type, href) {
+        return tcommon.renderTree(tree, type, href);
     };
 
     /**
@@ -286,7 +219,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableDefconfig = function(defconfig, type, object) {
+    gBootUtils.renderDefconfig = function(defconfig, type, object) {
         var aNode,
             board,
             job,
@@ -301,8 +234,7 @@ define([
             kernel = object.kernel;
 
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for&nbsp;' + defconfig);
+            tooltipNode.setAttribute('title', defconfig);
 
             aNode = document.createElement('a');
             aNode.className = 'table-link';
@@ -317,6 +249,10 @@ define([
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
+
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
         }
 
         return rendered;
@@ -331,7 +267,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableKernel = function(kernel, type, object) {
+    gBootUtils.renderKernel = function(kernel, type, object) {
         var aNode,
             job,
             tooltipNode,
@@ -341,8 +277,7 @@ define([
         if (type === 'display') {
             job = object.job;
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for&nbsp;' + kernel);
+            tooltipNode.setAttribute('title', kernel);
 
             aNode = document.createElement('a');
             aNode.className = 'table-link';
@@ -356,6 +291,10 @@ define([
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
+
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
         }
 
         return rendered;
@@ -367,7 +306,7 @@ define([
      * @param {string} data: The failure description.
      * @return {Element} The DOM element.
     **/
-    gBootUtils.resultDescription = function(data) {
+    gBootUtils.resultDescriptionNode = function(data) {
         return _resultDescription(data);
     };
 
@@ -378,7 +317,7 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableResultDescription = function(data, type) {
+    gBootUtils.renderResultDescription = function(data, type) {
         var rendered;
 
         rendered = '';
@@ -401,7 +340,7 @@ define([
      * default value for the file server URL.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderTableLogs = function(data, type, object) {
+    gBootUtils.renderBootLogs = function(data, type, object) {
         var arch,
             defconfig,
             job,
@@ -442,6 +381,8 @@ define([
 
             if (logNode) {
                 rendered = logNode.outerHTML;
+                // Remove the node.
+                logNode.remove();
             }
         }
 
@@ -465,7 +406,7 @@ define([
      * @param {object} date: The date object.
      * @return {Element} The DOM element.
     **/
-    gBootUtils.bootDate = function(date) {
+    gBootUtils.dateNode = function(date) {
         return tcommon.dateNode(date);
     };
 
@@ -476,7 +417,7 @@ define([
      * @return {HTMLElement} The status node.
     **/
     gBootUtils.statusNode = function(status) {
-        return tcommon.renderStatus(status, gStatusDefaults);
+        return tcommon.statusNode(status, gStatusDefaults);
     };
 
     /**
@@ -487,15 +428,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderStatus = function(status, type) {
-        var rendered;
-
-        rendered = status;
-        if (type === 'display') {
-            rendered = tcommon.renderStatus(
-                status, gStatusDefaults).outerHTML;
-        }
-
-        return rendered;
+        return tcommon.renderStatus(status, type, gStatusDefaults);
     };
 
     /**
@@ -505,28 +438,46 @@ define([
      * @param {object} object: The entire data set.
      * @return {Element} The DOM element.
     **/
-    gBootUtils.bootDetail = function(board, object) {
-        return _bootDetail(board, object);
+    gBootUtils.detailsNode = function(board, object) {
+        var aNode,
+            tooltipNode;
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'More info');
+
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href',
+            '/boot/' + board + '/job/' + object.job +
+            '/kernel/' + object.kernel +
+            '/defconfig/' + object.defconfig_full +
+            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid
+        );
+
+        aNode.appendChild(html.search());
+        tooltipNode.appendChild(aNode);
+
+        return tooltipNode;
     };
 
     /**
      * Function to render the detail column on a table.
      * This is tightly couple with how dataTables work.
      *
-     * @param {string} board: The board name.
+     * @param {string} data: The board name.
      * @param {string} type: The type of the display option.
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderDetails = function(board, type, object) {
-        var rendered;
+    gBootUtils.renderDetails = function(data, type, object) {
+        var href;
 
-        rendered = null;
-        if (type === 'display') {
-            rendered = _bootDetail(board, object).outerHTML;
-        }
+        href = '/boot/' + data + '/job/' + object.job +
+            '/kernel/' + object.kernel +
+            '/defconfig/' + object.defconfig_full +
+            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid;
 
-        return rendered;
+        return tcommon.renderDetails(href, type);
     };
 
     /**
