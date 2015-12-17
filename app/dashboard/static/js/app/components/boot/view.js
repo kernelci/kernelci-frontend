@@ -598,6 +598,7 @@ define([
 
             // The select cell.
             cellNode = tableRow.insertCell();
+            cellNode.className = 'pull-middle';
 
             htmlNode = html.tooltip();
             htmlNode.setAttribute('title', 'Show/Hide this conflict');
