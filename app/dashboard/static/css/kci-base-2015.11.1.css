@@ -286,6 +286,7 @@ hr.blurred {
 textarea.build-logs {
     font-family: monospace;
     font-size: 83%;
+    margin-bottom: 0.75em;
 }
 /* Override some dataTables values. */
 div.dataTables_info,
