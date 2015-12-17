@@ -10,6 +10,28 @@ define([
 
     init = {};
 
+    // Polyfill for Element.remove().
+    if (!('remove' in Element.prototype)) {
+        Element.prototype.remove = function() {
+            if (this.parentNode) {
+                this.parentNode.removeChild(this);
+            }
+        };
+    }
+
+    function setTooltip() {
+        $('body').tooltip({
+            selector: '[rel=tooltip]',
+            html: true
+        });
+    }
+
+    function setPopover() {
+        $('[data-toggle="popover"]').popover({
+            html: true
+        });
+    }
+
     function setHotKeys() {
         var goToBoot,
             goToBuild,
@@ -86,22 +108,9 @@ define([
         setHotKeys();
     };
 
-    function setTooltip() {
-        $('body').tooltip({
-            selector: '[rel=tooltip]',
-            html: true
-        });
-    }
-
     init.tooltip = function() {
         setTooltip();
     };
-
-    function setPopover() {
-        $('[data-toggle="popover"]').popover({
-            html: true
-        });
-    }
 
     init.popover = function() {
         setPopover();

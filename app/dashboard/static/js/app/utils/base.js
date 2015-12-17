@@ -56,10 +56,6 @@ define(function() {
         }
     };
 
-    Element.prototype.remove = function() {
-        this.parentElement.removeChild(this);
-    };
-
     base.removeElement = function(id) {
         var el = document.getElementById(id);
         if (el !== null) {
