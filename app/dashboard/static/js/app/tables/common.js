@@ -3,8 +3,10 @@ define([
     'utils/html'
 ], function(html) {
     'use strict';
-    var gTablesUtils;
+    var gCache,
+        gTablesUtils;
 
+    gCache = {};
     gTablesUtils = {};
 
     /**
@@ -24,6 +26,17 @@ define([
         }
 
         return timeNode;
+    }
+
+    function _toStatusCacheKey(status, defaults) {
+        var objKey;
+
+        objKey = status;
+        Object.keys(defaults).forEach(function(key) {
+            objKey = objKey + key + defaults[key];
+        });
+
+        return objKey;
     }
 
     /**
@@ -80,6 +93,36 @@ define([
         spanNode.appendChild(iNode);
 
         return spanNode;
+    }
+
+    function _statusNode(status, defaults) {
+        var tooltipNode;
+        tooltipNode = html.tooltip();
+
+        switch (status) {
+            case 'BUILD':
+                tooltipNode.setAttribute('title', defaults.build);
+                tooltipNode.appendChild(html.building());
+                break;
+            case 'PASS':
+                tooltipNode.setAttribute('title', defaults.pass);
+                tooltipNode.appendChild(html.success());
+                break;
+            case 'FAIL':
+                tooltipNode.setAttribute('title', defaults.fail);
+                tooltipNode.appendChild(html.fail());
+                break;
+            case 'OFFLINE':
+                tooltipNode.setAttribute('title', defaults.offline);
+                tooltipNode.appendChild(html.offline());
+                break;
+            default:
+                tooltipNode.setAttribute('title', defaults.default);
+                tooltipNode.appendChild(html.unknown());
+                break;
+        }
+
+        return tooltipNode;
     }
 
     /**
@@ -150,6 +193,16 @@ define([
             }
 
             rendered = divNode.outerHTML;
+
+            // Remove the nodes.
+            totalNode.remove();
+            successNode.remove();
+            failNode.remove();
+            unknownNode.remove();
+            if (aNode) {
+                aNode.remove();
+            }
+            divNode.remove();
         } else {
             rendered = null;
         }
@@ -157,50 +210,21 @@ define([
         return rendered;
     };
 
-    /**
-     * Create the success/count fail count badges.
-     *
-     * @param {Object} settings: An object with the necessary data. Its
-     * properties include:
-     * - data: The actual data.
-     * - href: The href attribute for the link.
-     * - extraClasses: Extra CSS classes to add to the badge.
-     * - idStart: Head element for the id of the badge.
-    **/
-    gTablesUtils.countSuccessFail = function(settings) {
+    gTablesUtils.renderTree = function(tree, type, href) {
         var aNode,
-            divNode,
-            failNode,
-            successNode,
             rendered;
 
-        if (settings.type === 'display') {
-            divNode = document.createElement('div');
-
-            successNode = _countBadge(
-                settings.data,
-                'success', settings.extraClasses, settings.idStart);
-            failNode = _countBadge(
-                settings.data,
-                'fail', settings.extraClasses, settings.idStart);
-
-            if (settings.href) {
+        rendered = tree;
+        if (type === 'display') {
+            if (href && href.length > 0) {
                 aNode = document.createElement('a');
-                aNode.className = 'clean-link';
-                aNode.setAttribute('href', settings.href);
-
-                aNode.appendChild(successNode);
-                aNode.appendChild(failNode);
-
-                divNode.appendChild(aNode);
-            } else {
-                divNode.appendChild(successNode);
-                divNode.appendChild(failNode);
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', href);
+                aNode.appendChild(document.createTextNode(tree));
+                rendered = aNode.outerHTML;
+                // Remove the node.
+                aNode.remove();
             }
-
-            rendered = divNode.outerHTML;
-        } else {
-            rendered = null;
         }
 
         return rendered;
@@ -225,11 +249,15 @@ define([
     **/
     gTablesUtils.renderDate = function(date, type) {
         var created,
+            node,
             rendered;
 
         if (date) {
             if (type === 'display') {
-                rendered = _dateNode(date).outerHTML;
+                node = _dateNode(date);
+                rendered = node.outerHTML;
+                // Remove the node.
+                node.remove();
             } else {
                 created = new Date(date.$date);
                 rendered = created.toCustomISODate();
@@ -237,11 +265,18 @@ define([
         } else {
             rendered = date;
             if (type === 'display') {
-                rendered = html.nonavail().outerHTML;
+                node = html.nonavail();
+                rendered = node.outerHTML;
+                // Remove the node.
+                node.remove();
             }
         }
 
         return rendered;
+    };
+
+    gTablesUtils.statusNode = function(status, defaults) {
+        return _statusNode(status, defaults);
     };
 
     /**
@@ -251,34 +286,27 @@ define([
      * @param {object} defaults: The default values for the status string.
      * @return {Element} The DOM element.
     **/
-    gTablesUtils.renderStatus = function(status, defaults) {
-        var tooltipNode;
+    gTablesUtils.renderStatus = function(status, type, defaults) {
+        var cacheKey,
+            node,
+            rendered;
 
-        tooltipNode = html.tooltip();
-        switch (status) {
-            case 'BUILD':
-                tooltipNode.setAttribute('title', defaults.build);
-                tooltipNode.appendChild(html.building());
-                break;
-            case 'PASS':
-                tooltipNode.setAttribute('title', defaults.pass);
-                tooltipNode.appendChild(html.success());
-                break;
-            case 'FAIL':
-                tooltipNode.setAttribute('title', defaults.fail);
-                tooltipNode.appendChild(html.fail());
-                break;
-            case 'OFFLINE':
-                tooltipNode.setAttribute('title', defaults.offline);
-                tooltipNode.appendChild(html.offline());
-                break;
-            default:
-                tooltipNode.setAttribute('title', defaults.default);
-                tooltipNode.appendChild(html.unknown());
-                break;
+        if (type === 'display') {
+            cacheKey = _toStatusCacheKey(status, defaults);
+            if (gCache.hasOwnProperty(cacheKey)) {
+                rendered = gCache[cacheKey];
+            } else {
+                node = _statusNode(status, defaults);
+                rendered = node.outerHTML;
+                gCache[cacheKey] = rendered;
+                // Remove the node.
+                node.remove();
+            }
+        } else {
+            rendered = status;
         }
 
-        return tooltipNode;
+        return rendered;
     };
 
     /**
@@ -310,6 +338,49 @@ define([
             tooltipNode.appendChild(aNode);
 
             rendered = tooltipNode.outerHTML;
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Render the kernel column on a table.
+     *
+     * @param {String} href: The link location.
+     * @param {String} type: The type of the display option.
+     * @param {String} href: The href to associate with the node.
+     * @return {String} The HTML string to be rendered by dataTables.
+    **/
+    gTablesUtils.renderKernel = function(data, type, href) {
+        var aNode,
+            rendered,
+            tooltipNode;
+
+        rendered = data;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', data);
+
+            if (href) {
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', href);
+
+                aNode.appendChild(document.createTextNode(data));
+                tooltipNode.appendChild(aNode);
+            } else {
+                tooltipNode.appendChild(document.createTextNode(data));
+            }
+
+            rendered = tooltipNode.outerHTML;
+            // Remove the nodes.
+            if (aNode) {
+                aNode.remove();
+            }
+            tooltipNode.remove();
         }
 
         return rendered;
