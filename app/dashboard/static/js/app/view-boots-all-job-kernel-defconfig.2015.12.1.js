@@ -34,6 +34,14 @@ require([
             results,
             rowURL;
 
+        /**
+         * Wrapper to inject the server URL.
+        **/
+        function _renderBootLogs(data, type, object) {
+            object.default_file_server = gFileServer;
+            return boot.renderBootLogs(data, type, object);
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -54,29 +62,30 @@ require([
                 {
                     data: 'board',
                     title: 'Board Model',
+                    type: 'string',
                     className: 'board-column',
-                    render: boot.renderTableBoard
+                    render: boot.renderBoard
                 },
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
+                    type: 'string',
                     class: 'lab-column',
-                    render: boot.renderTableLabAll
+                    render: boot.renderLab
                 },
                 {
                     data: 'boot_result_description',
                     title: 'Failure Reason',
+                    type: 'string',
                     className: 'failure-column',
-                    render: boot.renderTableResultDescription
+                    render: boot.renderResultDescription
                 },
                 {
                     data: 'file_server_url',
                     title: 'Boot Log',
+                    type: 'string',
                     className: 'log-column pull-center',
-                    render: function(data, type, object) {
-                        object.default_file_server = gFileServer;
-                        return boot.renderTableLogs(data, type, object);
-                    }
+                    render: _renderBootLogs
                 },
                 {
                     data: 'created_on',
@@ -88,16 +97,17 @@ require([
                 {
                     data: 'status',
                     title: 'Status',
+                    type: 'string',
                     className: 'pull-center',
                     render: boot.renderStatus
                 },
                 {
                     data: 'board',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
-                    className: 'pull-center',
-                    width: '30px',
+                    className: 'select-column pull-center',
                     render: boot.renderDetails
                 }
             ];
@@ -211,10 +221,6 @@ require([
             document.createTextNode(gDefconfigFull));
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('job-name') !== null) {
         gJobName = document.getElementById('job-name').value;
     }
@@ -241,4 +247,7 @@ require([
     });
     setupData();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

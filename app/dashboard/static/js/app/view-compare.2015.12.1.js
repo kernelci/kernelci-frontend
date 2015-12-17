@@ -6,9 +6,9 @@ require([
     'use strict';
     document.getElementById('li-compare').setAttribute('class', 'active');
 
+    choose(document.getElementById('compare-div')).create();
+
     init.hotkeys();
     init.tooltip();
-
-    choose(document.getElementById('compare-div')).create();
     init.popover();
 });

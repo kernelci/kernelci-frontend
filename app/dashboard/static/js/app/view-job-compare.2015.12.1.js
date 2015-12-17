@@ -1,21 +1,23 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
+    'utils/init',
     'utils/base',
     'utils/error',
-    'utils/init',
     'utils/request',
     'utils/table',
     'utils/urls',
     'charts/passpie',
     'charts/diffmatrix',
     'utils/date'
-], function($, b, e, init, r, table, u, pie, matrix) {
+], function($, init, b, e, r, table, u, pie, matrix) {
     'use strict';
     var compareId = null,
         comparedTable,
         nonAvail,
         tableDom;
+
+    document.getElementById('li-compare').setAttribute('class', 'active');
 
     nonAvail = '<span rel="tooltip" data-toggle="tooltip" ' +
         'title="Not available"><i class="fa fa-ban"></i>' +
@@ -328,15 +330,12 @@ require([
         }
     }
 
-    document.getElementById('li-compare').setAttribute('class', 'active');
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('compare-id') !== null) {
         compareId = document.getElementById('compare-id').value;
     }
 
     getJobCompare();
 
+    init.hotkeys();
+    init.tooltip();
 });

@@ -1,14 +1,14 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/error',
     'utils/init',
+    'utils/error',
     'utils/request',
     'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, e, init, r, table, html, boot, appconst) {
+], function($, init, e, r, table, html, tboot, appconst) {
     'use strict';
     var boardName,
         bootReqData,
@@ -100,6 +100,10 @@ require([
             results,
             rowURLFmt;
 
+        function _renderTree(data, type, object) {
+            return tboot.renderTree(
+                data, type, '/boot/' + object.board + '/job/' + data + '/');
+        }
 
         results = response.result;
         if (results.length === 0) {
@@ -123,7 +127,7 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTree
+                    render: _renderTree
                 },
                 {
                     data: 'git_branch',
@@ -134,13 +138,13 @@ require([
                     data: 'kernel',
                     title: 'Kernel',
                     className: 'kernel-column',
-                    render: boot.renderTableKernel
+                    render: tboot.renderKernel
                 },
                 {
                     data: 'defconfig_full',
                     title: 'Defconfig',
                     className: 'defconfig-column',
-                    render: boot.renderTableDefconfig
+                    render: tboot.renderDefconfig
                 },
                 {
                     data: 'arch',
@@ -157,14 +161,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
                     data: 'board',
@@ -173,7 +177,7 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderDetails
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -200,10 +204,6 @@ require([
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getMoreBoots);
     }
-
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
 
     if (document.getElementById('board-name') !== null) {
         boardName = document.getElementById('board-name').value;
@@ -244,4 +244,7 @@ require([
         tableDivId: 'table-div'
     });
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

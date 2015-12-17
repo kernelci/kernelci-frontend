@@ -523,9 +523,6 @@ require([
             .done(getDetailsDone);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('number-range') !== null) {
         gNumberRange = document.getElementById('number-range').value;
     }
@@ -546,4 +543,7 @@ require([
     });
     getDetails();
     getBuilds();
+
+    init.hotkeys();
+    init.tooltip();
 });

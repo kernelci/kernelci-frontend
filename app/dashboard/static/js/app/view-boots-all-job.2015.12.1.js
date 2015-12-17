@@ -1,15 +1,15 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
+    'utils/init',
     'utils/format',
     'utils/error',
-    'utils/init',
     'utils/request',
     'utils/table',
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, format, e, init, r, table, html, boot, appconst) {
+], function($, init, format, e, r, table, html, tboot, appconst) {
     'use strict';
     var gBootsTable,
         gJobName,
@@ -19,9 +19,6 @@ require([
         gTableCount;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
 
     gNumberRange = appconst.MAX_NUMBER_RANGE;
     gPageLen = null;
@@ -218,7 +215,7 @@ require([
             if (type === 'sort') {
                 return getSortCount('total-count-' + data);
             } else {
-                return boot.countTotal(data, type);
+                return tboot.countTotal(data, type);
             }
         }
 
@@ -229,7 +226,7 @@ require([
             if (type === 'sort') {
                 return getSortCount('success-count-' + data);
             } else {
-                return boot.countSuccess(data, type);
+                return tboot.countSuccess(data, type);
             }
         }
 
@@ -240,7 +237,7 @@ require([
             if (type === 'sort') {
                 return getSortCount('fail-count-' + data);
             } else {
-                return boot.countFail(data, type);
+                return tboot.countFail(data, type);
             }
         }
 
@@ -251,7 +248,7 @@ require([
             if (type === 'sort') {
                 return getSortCount('unknown-count-' + data);
             } else {
-                return boot.countUnknown(data, type);
+                return tboot.countUnknown(data, type);
             }
         }
 
@@ -302,7 +299,7 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'job',
@@ -311,7 +308,7 @@ require([
                     searchable: false,
                     orderable: false,
                     className: 'select-column pull-center',
-                    render: boot.renderTableDetailJob
+                    render: tboot.renderTableDetailJob
                 }
             ];
 
@@ -367,4 +364,7 @@ require([
     });
     getDetailsCount();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

@@ -1,9 +1,9 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
+    'utils/init',
     'utils/format',
     'utils/error',
-    'utils/init',
     'utils/request',
     'utils/urls',
     'buttons/common',
@@ -16,9 +16,9 @@ require([
     'utils/date'
 ], function(
         $,
+        init,
         format,
         e,
-        init,
         r, u, commonBtns, buildBtns, chart, html, storage, session, filter) {
     'use strict';
     var gFileServer,
@@ -26,6 +26,8 @@ require([
         gKernelName,
         gResultFilter,
         gSessionStorage;
+
+    document.getElementById('li-build').setAttribute('class', 'active');
 
     function bindDetailButtons() {
         Array.prototype.forEach.call(
@@ -1063,10 +1065,6 @@ require([
         });
     }
 
-    document.getElementById('li-build').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
     Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
         function(btn) {
@@ -1099,4 +1097,7 @@ require([
 
     getJob();
     getLogs();
+
+    init.hotkeys();
+    init.tooltip();
 });

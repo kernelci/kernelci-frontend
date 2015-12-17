@@ -1,16 +1,16 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
+    'utils/init',
     'utils/format',
     'utils/error',
-    'utils/init',
     'utils/request',
     'utils/urls',
     'utils/bisect',
     'utils/html',
     'utils/table',
     'utils/date'
-], function($, format, e, init, r, urls, bisect, html, table) {
+], function($, init, format, e, r, urls, bisect, html, table) {
     'use strict';
     var buildId,
         defconfigFull,
@@ -1093,9 +1093,6 @@ require([
             .done(getBuildsDone, getBoots, getBisect);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('file-server') !== null) {
         fileServer = document.getElementById('file-server').value;
     }
@@ -1113,4 +1110,7 @@ require([
     }
 
     getBuilds();
+
+    init.hotkeys();
+    init.tooltip();
 });

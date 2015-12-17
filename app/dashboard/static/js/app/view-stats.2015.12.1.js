@@ -13,6 +13,8 @@ require([
     var oneDay,
         startDate;
 
+    document.getElementById('li-info').setAttribute('class', 'active');
+
     oneDay = 86400000;
     startDate = null;
 
@@ -217,9 +219,8 @@ require([
             .done(getStatsDone, createGraphs);
     }
 
-    document.getElementById('li-info').setAttribute('class', 'active');
+    getStats();
+
     init.hotkeys();
     init.tooltip();
-
-    getStats();
 });

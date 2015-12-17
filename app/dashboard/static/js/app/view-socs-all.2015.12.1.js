@@ -1,8 +1,8 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/format',
     'utils/init',
+    'utils/format',
     'utils/error',
     'utils/request',
     'utils/table',
@@ -12,7 +12,7 @@ require([
     'utils/storage'
 ], function(
         $,
-        format, init, error, request, table, html, appconst, tsoc, storage) {
+        init, format, error, request, table, html, appconst, tsoc, storage) {
     'use strict';
     var gBatchCountMissing,
         gBoardsCount,
@@ -474,9 +474,6 @@ require([
         }
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
     }
@@ -494,4 +491,7 @@ require([
         tableLoadingDivId: 'table-loading'
     });
     getSocs();
+
+    init.hotkeys();
+    init.tooltip();
 });

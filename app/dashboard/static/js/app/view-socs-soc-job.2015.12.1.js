@@ -20,8 +20,6 @@ require([
         gTableCount;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
 
     gTableCount = {};
     gBatchCountMissing = {};
@@ -180,7 +178,7 @@ require([
                 method: 'GET',
                 resource: 'count',
                 document: 'boot',
-                query: gQueryStr + '&staus=OFFLINE&status=UNKNOWN&kernel=' +
+                query: gQueryStr + '&status=OFFLINE&status=UNKNOWN&kernel=' +
                     kernel
             });
         }
@@ -374,4 +372,7 @@ require([
     });
     getDetails();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

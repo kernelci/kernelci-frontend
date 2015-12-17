@@ -21,9 +21,6 @@ require([
         gSearchFilter;
 
     document.getElementById('li-job').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
     gNumberRange = 20;
 
     function getBootStatsFail() {
@@ -512,4 +509,6 @@ require([
     getDetails();
     getBuilds();
 
+    init.hotkeys();
+    init.tooltip();
 });

@@ -33,6 +33,8 @@ require([
         gSearchFilter,
         gSessionStorage;
 
+    document.getElementById('li-boot').setAttribute('class', 'active');
+
     function uniqueCountFail() {
        html.replaceByClassHTML('unique-values', '&infin;');
     }
@@ -611,10 +613,6 @@ require([
         });
     }
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
     Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
         function(btn) {
@@ -648,4 +646,7 @@ require([
 
     getJob();
     registerEvents();
+
+    init.hotkeys();
+    init.tooltip();
 });

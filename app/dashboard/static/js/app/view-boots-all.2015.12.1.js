@@ -8,7 +8,7 @@ require([
     'utils/html',
     'utils/const',
     'tables/boot'
-], function($, init, e, r, table, html, appconst, boot) {
+], function($, init, e, r, table, html, appconst, tboot) {
     'use strict';
     var gBootReqData,
         gBootsTable,
@@ -96,6 +96,13 @@ require([
             results,
             rowURL;
 
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderTree(data, type) {
+            return tboot.renderTree(data, type, '/boot/all/job/' + data + '/');
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.replaceContent(
@@ -117,11 +124,12 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
-                    render: boot.renderTreeAll
+                    render: _renderTree
                 },
                 {
                     data: 'git_branch',
                     title: 'Branch',
+                    type: 'string',
                     className: 'branch-column'
                 },
                 {
@@ -129,29 +137,32 @@ require([
                     title: 'Kernel',
                     type: 'string',
                     className: 'kernel-column',
-                    render: boot.renderTableKernel
+                    render: tboot.renderKernel
                 },
                 {
                     data: 'board',
                     title: 'Board Model',
                     type: 'string',
                     className: 'board-column',
-                    render: boot.renderTableBoard
+                    render: tboot.renderBoard
                 },
                 {
                     data: 'defconfig_full',
                     title: 'Defconfig',
+                    type: 'string',
                     className: 'defconfig-column',
-                    render: boot.renderTableDefconfig
+                    render: tboot.renderDefconfig
                 },
                 {
                     data: 'arch',
                     title: 'Arch.',
+                    type: 'string',
                     className: 'arch-column'
                 },
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
+                    type: 'string',
                     className: 'lab-column'
                 },
                 {
@@ -159,23 +170,23 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
                     data: 'board',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
-                    width: '30px',
-                    className: 'pull-center',
-                    render: boot.renderDetails
+                    className: 'select-column pull-center',
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -204,9 +215,6 @@ require([
             .done(getBootsDone, getMoreBoots);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
     }
@@ -231,4 +239,7 @@ require([
         tableLoadingDivId: 'table-loading'
     });
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

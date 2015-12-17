@@ -1,14 +1,14 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/error',
     'utils/init',
+    'utils/error',
     'utils/request',
     'utils/table',
     'utils/html',
     'utils/const',
     'utils/date'
-], function($, e, init, r, table, html, appconst) {
+], function($, init, e, r, table, html, appconst) {
     'use strict';
     var bootReqData,
         bootsTable,
@@ -462,9 +462,6 @@ require([
             .done(getBootsDone, getMoreBoots);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('lab-name') !== null) {
         labName = document.getElementById('lab-name').value;
     }
@@ -504,4 +501,7 @@ require([
         tableDivId: 'table-div'
     });
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

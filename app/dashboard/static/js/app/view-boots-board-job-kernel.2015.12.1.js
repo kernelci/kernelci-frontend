@@ -1,14 +1,14 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/error',
     'utils/init',
+    'utils/error',
     'utils/request',
     'utils/table',
     'utils/html',
     'tables/boot',
     'utils/date'
-], function($, e, init, r, table, html, boot) {
+], function($, init, e, r, table, html, tboot) {
     'use strict';
     var gBoardName,
         gBootsTable,
@@ -32,6 +32,14 @@ require([
             columns,
             rowURL;
 
+        /**
+         * Wrapper to inject the server URL.
+        **/
+        function _renderBootLogs(data, type, object) {
+            object.default_file_server = gFileServer;
+            return tboot.renderBootLogs(data, type, object);
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -53,41 +61,38 @@ require([
                     data: 'lab_name',
                     title: 'Lab Name',
                     className: 'lab-column',
-                    render: boot.renderTableLabAll
+                    render: tboot.renderLab
                 },
                 {
                     data: 'defconfig_full',
                     title: 'Defconfig',
                     className: 'defconfig-column',
-                    render: boot.renderTableDefconfig
+                    render: tboot.renderDefconfig
                 },
                 {
                     data: 'boot_result_description',
                     title: 'Failure Reason',
                     className: 'failure-column',
-                    render: boot.renderTableResultDescription
+                    render: tboot.renderResultDescription
                 },
                 {
                     data: 'file_server_url',
                     title: 'Boot Log',
                     className: 'log-column pull-center',
-                    render: function(data, type, object) {
-                        object.default_file_server = gFileServer;
-                        return boot.renderTableLogs(data, type, object);
-                    }
+                    render: _renderBootLogs
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
                     data: 'board',
@@ -96,7 +101,7 @@ require([
                     searchable: false,
                     width: '30px',
                     className: 'pull-center',
-                    render: boot.renderDetails
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -218,10 +223,6 @@ require([
         html.replaceContent(document.getElementById('dd-board'), tooltipNode);
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('board-name') !== null) {
         gBoardName = document.getElementById('board-name').value;
     }
@@ -248,4 +249,7 @@ require([
     });
     setupData();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

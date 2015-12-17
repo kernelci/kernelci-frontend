@@ -1,13 +1,13 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
+    'utils/init',
     'utils/base',
     'utils/error',
-    'utils/init',
     'utils/request',
     'utils/urls',
     'utils/date'
-], function($, b, e, init, r, u) {
+], function($, init, b, e, r, u) {
     'use strict';
     var fileServer,
         jobName,
@@ -356,9 +356,6 @@ require([
 
     $(document).ready(function() {
         document.getElementById('li-build').setAttribute('class', 'active');
-        // Setup and perform base operations.
-        init.hotkeys();
-        init.tooltip();
 
         if (document.getElementById('file-server') !== null) {
             fileServer = document.getElementById('file-server').value;
@@ -377,5 +374,8 @@ require([
         }
 
         getBuild();
+
+        init.hotkeys();
+        init.tooltip();
     });
 });

@@ -1,13 +1,13 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/error',
     'utils/init',
+    'utils/error',
     'utils/request',
     'utils/html',
     'tables/boot',
     'utils/table'
-], function($, e, init, r, html, boot, table) {
+], function($, init, e, r, html, tboot, table) {
     'use strict';
     var boardName,
         bootsTable,
@@ -31,6 +31,14 @@ require([
             results,
             rowURLFmt;
 
+        /**
+         * Wrapper to inject the server URL.
+        **/
+        function _renderBootLogs(data, type, object) {
+            object.default_file_server = fileServer;
+            return tboot.renderBootLogs(data, type, object);
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(
@@ -52,51 +60,52 @@ require([
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
+                    type: 'string',
                     className: 'lab-column',
-                    render: boot.renderTableLabAll
+                    render: tboot.renderLab
                 },
                 {
                     data: 'arch',
                     title: 'Arch.',
+                    type: 'string',
                     className: 'arch-column'
                 },
                 {
                     data: 'boot_result_description',
                     title: 'Failure Reason',
+                    type: 'string',
                     className: 'failure-column',
-                    render: boot.renderTableResultDescription
+                    render: tboot.renderResultDescription
                 },
                 {
                     data: 'file_server_url',
                     title: 'Boot Log',
+                    type: 'string',
                     className: 'log-column pull-center',
-                    render: function(data, type, object) {
-                        object.default_file_server = fileServer;
-                        return boot.renderTableLogs(data, type, object);
-                    }
+                    render: _renderBootLogs
                 },
                 {
                     data: 'created_on',
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
                     data: 'board',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
-                    width: '30px',
-                    className: 'pull-center',
-                    render: boot.renderDetails
+                    className: 'select-column pull-center',
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -205,10 +214,6 @@ require([
             document.createTextNode(defconfigFull));
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('board-name') !== null) {
         boardName = document.getElementById('board-name').value;
     }
@@ -232,4 +237,7 @@ require([
     });
     setUpData();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

@@ -21,8 +21,6 @@ require([
         gTableCount;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
 
     gBatchCountMissing = {};
     gDateRange = appconst.MAX_DATE_RANGE;
@@ -32,7 +30,6 @@ require([
 
     function getDistinctBoardsTable(response) {
         var columns,
-            dom,
             results,
             tableResults;
 
@@ -459,4 +456,7 @@ require([
 
     getDetails();
     getJobs();
+
+    init.hotkeys();
+    init.tooltip();
 });

@@ -310,9 +310,6 @@ require([
             .done(getJobsDoneMulti);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
     }
@@ -329,4 +326,7 @@ require([
         tableLoadingDivId: 'table-loading'
     });
     getJobs();
+
+    init.hotkeys();
+    init.tooltip();
 });

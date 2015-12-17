@@ -1,25 +1,27 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 require([
     'jquery',
-    'utils/error',
     'utils/init',
+    'utils/error',
     'utils/request',
     'utils/table',
     'utils/html',
     'utils/const',
+    'tables/build',
     'utils/date'
-], function($, e, init, r, table, html, appconst) {
+], function($, init, e, r, table, html, appconst, buildt) {
     'use strict';
-    var buildsTable,
-        buildReqData,
-        dateRange,
-        pageLen,
-        searchFilter;
+    var gBuildsTable,
+        gBuildReqData,
+        gDateRange,
+        gPageLen,
+        gSearchFilter;
 
     document.getElementById('li-build').setAttribute('class', 'active');
-    dateRange = appconst.MAX_DATE_RANGE;
-    pageLen = null;
-    searchFilter = null;
+
+    gDateRange = appconst.MAX_DATE_RANGE;
+    gPageLen = null;
+    gSearchFilter = null;
 
     /**
      * Update the table with the new data.
@@ -31,7 +33,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            buildsTable.addRows(results);
+            gBuildsTable.addRows(results);
         }
 
         // Remove the loading banner when we get the last response.
@@ -79,8 +81,8 @@ require([
 
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
-                buildReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                deferred = r.get('/_ajax/build', buildReqData);
+                gBuildReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+                deferred = r.get('/_ajax/build', gBuildReqData);
                 $.when(deferred)
                     .done(getMoreBuildsDone);
             }
@@ -96,13 +98,25 @@ require([
 
     function getBuildsDone(response) {
         var columns,
-            resLen,
+            href,
             results,
             rowUrl;
 
+        function _renderKernel(data, type, object) {
+            return buildt.renderKernel(
+                data, type, '/build/' + object.job + '/kernel/' + data + '/');
+        }
+
+        function _renderDetails(data, type, object) {
+            href = '/build/' + data + '/kernel/' + object.kernel +
+                '/defconfig/' + object.defconfig_full +
+                '/?_id=' + object._id.$oid;
+
+            return buildt.renderDetails(href, type);
+        }
+
         results = response.result;
-        resLen = results.length;
-        if (resLen === 0) {
+        if (results.length === 0) {
             html.removeElement('table-loading');
             html.replaceContent(
                 document.getElementById('table-div'),
@@ -120,92 +134,35 @@ require([
                 },
                 {
                     data: 'job',
-                    title: 'Tree &dash; Branch',
+                    title: 'Tree',
+                    type: 'string',
                     className: 'tree-column',
-                    render: function(data, type, object) {
-                        var aNode,
-                            branch,
-                            branchNode,
-                            rendered;
-
-                        branch = object.git_branch;
-                        rendered = data;
-
-                        if (branch !== null && branch !== undefined) {
-                            rendered = rendered + ' ' + branch;
-                        }
-
-                        if (type === 'display') {
-                            aNode = document.createElement('a');
-                            aNode.className = 'table-link';
-                            aNode.setAttribute('href', '/job/' + data + '/');
-
-                            aNode.appendChild(document.createTextNode(data));
-
-                            if (branch !== null && branch !== undefined) {
-                                branchNode = document.createElement('small');
-                                branchNode.appendChild(
-                                    document.createTextNode(branch));
-
-                                aNode.insertAdjacentHTML(
-                                    'beforeend', '&nbsp;&dash;&nbsp;');
-                                aNode.appendChild(branchNode);
-                            }
-
-                            rendered = aNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: buildt.renderTree
+                },
+                {
+                    data: 'git_branch',
+                    title: 'Branch',
+                    type: 'string',
+                    className: 'branch-column'
                 },
                 {
                     data: 'kernel',
                     title: 'Kernel',
                     type: 'string',
                     className: 'kernel-column',
-                    render: function(data, type) {
-                        var tooltipNode,
-                            rendered;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', data);
-
-                            tooltipNode.appendChild(
-                                document.createTextNode(data));
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderKernel
                 },
                 {
                     data: 'defconfig_full',
                     title: 'Defconfig',
+                    type: 'string',
                     className: 'defconfig-column',
-                    render: function(data, type) {
-                        var tooltipNode,
-                            rendered;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', data);
-
-                            tooltipNode.appendChild(
-                                document.createTextNode(data));
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: buildt.renderDefconfig
                 },
                 {
                     data: 'arch',
                     title: 'Arch.',
+                    type: 'string',
                     className: 'arch-column'
                 },
                 {
@@ -213,165 +170,64 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: function(data, type) {
-                        var created,
-                            iNode,
-                            rendered,
-                            timeNode,
-                            tooltipNode;
-
-                        if (data === null) {
-                            rendered = data;
-                            if (type === 'display') {
-                                tooltipNode = html.tooltip();
-                                tooltipNode.setAttribute('Not available');
-
-                                iNode = document.createElement('i');
-                                iNode.className = 'fa fa-ban';
-
-                                tooltipNode.appendChild(iNode);
-                                rendered = tooltipNode.outerHTML;
-                            }
-                        } else {
-                            created = new Date(data.$date);
-                            rendered = created.toCustomISODate();
-
-                            if (type === 'display') {
-                                timeNode = document.createElement('time');
-                                timeNode.setAttribute(
-                                    'datetime', created.toISOString());
-                                timeNode.appendChild(
-                                    document.createTextNode(
-                                        created.toCustomISODate())
-                                );
-                                rendered = timeNode.outerHTML;
-                            }
-                        }
-
-                        return rendered;
-                    }
+                    render: buildt.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: function(data, type) {
-                        var tooltipNode,
-                            rendered;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-
-                            switch (data) {
-                                case 'PASS':
-                                    tooltipNode.setAttribute(
-                                        'title', 'Build completed');
-                                    tooltipNode.appendChild(html.success());
-                                    break;
-                                case 'FAIL':
-                                    tooltipNode.setAttribute(
-                                        'title', 'Build failed');
-                                    tooltipNode.appendChild(html.fail());
-                                    break;
-                                default:
-                                    tooltipNode.setAttribute(
-                                        'title', 'Unknown status');
-                                    tooltipNode.appendChild(html.unknown());
-                                    break;
-                            }
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: buildt.renderStatus
                 },
                 {
                     data: 'job',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
-                    render: function(data, type, object) {
-                        var aNode,
-                            iNode,
-                            rendered,
-                            tooltipNode;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute(
-                                'title', 'Details for&nbsp;' + data +
-                                '&nbsp;&dash;&nbsp;' + object.kernel +
-                                '&nbsp;and&nbsp;' + object.defconfig_full
-                            );
-
-                            aNode = document.createElement('a');
-                            aNode.setAttribute(
-                                'href',
-                                '/build/' + data + '/kernel/' + object.kernel +
-                                '/defconfig/' + object.defconfig_full +
-                                '/?_id=' + object._id.$oid
-                            );
-
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-search';
-
-                            aNode.appendChild(iNode);
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderDetails
                 }
             ];
 
-            buildsTable
+            gBuildsTable
                 .data(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([6, 'desc'])
                 .languageLengthMenu('build reports per page')
                 .rowURL(rowUrl)
                 .rowURLElements(['job', 'kernel', 'defconfig_full'])
                 .draw();
 
-            buildsTable
-                .pageLen(pageLen)
-                .search(searchFilter);
+            gBuildsTable
+                .pageLen(gPageLen)
+                .search(gSearchFilter);
         }
     }
 
     function getBuilds() {
         var deferred;
 
-        deferred = r.get('/_ajax/build', buildReqData);
+        deferred = r.get('/_ajax/build', gBuildReqData);
         $.when(deferred)
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone, getMoreBuilds);
     }
 
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
     if (document.getElementById('date-range') !== null) {
-        dateRange = document.getElementById('date-range').value;
+        gDateRange = document.getElementById('date-range').value;
     }
 
-    buildReqData = {
+    gBuildReqData = {
         sort: 'created_on',
         sort_order: -1,
-        date_range: dateRange,
+        date_range: gDateRange,
         limit: appconst.MAX_QUERY_LIMIT,
         field: [
             '_id',
@@ -385,10 +241,13 @@ require([
         ]
     };
 
-    buildsTable = table({
+    gBuildsTable = table({
         tableId: 'builds-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
     getBuilds();
+
+    init.hotkeys();
+    init.tooltip();
 });

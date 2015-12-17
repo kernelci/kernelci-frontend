@@ -10,7 +10,7 @@ require([
     'utils/html',
     'utils/const',
     'utils/date'
-], function($, init, e, r, u, bisect, boot, html, appconst) {
+], function($, init, e, r, u, bisect, tboot, html, appconst) {
     'use strict';
     var gBoardName,
         gBootId,
@@ -87,13 +87,14 @@ require([
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'failure-column';
         if (resultDescription) {
-            cellNode.appendChild(boot.resultDescription(resultDescription));
+            cellNode.appendChild(
+                tboot.resultDescriptionNode(resultDescription));
         } else {
             cellNode.insertAdjacentHTML('beforeend', '&nbsp;');
         }
 
         // Boot log.
-        logsNode = boot.createBootLog(
+        logsNode = tboot.createBootLog(
             data.boot_log, data.boot_log_html, lab, serverURI, pathURI);
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'pull-center';
@@ -102,17 +103,17 @@ require([
         // Date.
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'date-column pull-center';
-        cellNode.appendChild(boot.bootDate(data.created_on));
+        cellNode.appendChild(tboot.dateNode(data.created_on));
 
         // Status.
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'pull-center';
-        cellNode.appendChild(boot.statusNode(data.status));
+        cellNode.appendChild(tboot.statusNode(data.status));
 
         // Detail.
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'pull-center';
-        cellNode.appendChild(boot.bootDetail(data.board, data));
+        cellNode.appendChild(tboot.detailsNode(data.board, data));
     }
 
     function generalCompareToTable(response, tableId) {
@@ -780,7 +781,7 @@ require([
         html.replaceContent(document.getElementById('dd-date'), spanNode);
 
         // Status.
-        statusNode = boot.statusNode(result.status);
+        statusNode = tboot.statusNode(result.status);
         if (resultDescription && result.status !== 'PASS') {
             spanNode = document.createElement('span');
             spanNode.appendChild(statusNode);
@@ -852,7 +853,7 @@ require([
             document.createTextNode(bootTime.toCustomTime()));
 
         // Boot log.
-        bootLog = boot.createBootLog(
+        bootLog = tboot.createBootLog(
             result.boot_log,
             result.boot_log_html,
             lab,
@@ -971,10 +972,6 @@ require([
             .done(getBootDataDone, getCompareData, getBisectData);
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('board-name') !== null) {
         gBoardName = document.getElementById('board-name').value;
     }
@@ -1002,4 +999,7 @@ require([
 
     getBootData();
     getMultiLabData();
+
+    init.hotkeys();
+    init.tooltip();
 });

@@ -8,7 +8,7 @@ require([
     'utils/html',
     'tables/boot',
     'utils/const'
-], function($, init, e, r, table, html, boot, appconst) {
+], function($, init, e, r, table, html, tboot, appconst) {
     'use strict';
     var boardName,
         bootReqData,
@@ -123,13 +123,13 @@ require([
                     title: 'Kernel',
                     type: 'string',
                     className: 'kernel-column',
-                    render: boot.renderTableKernel
+                    render: tboot.renderKernel
                 },
                 {
                     data: 'defconfig_full',
                     title: 'Defconfig',
                     className: 'defconfig-column-nf',
-                    render: boot.renderTableDefconfig
+                    render: tboot.renderDefconfig
                 },
                 {
                     data: 'arch',
@@ -146,14 +146,14 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
                     data: 'board',
@@ -162,7 +162,7 @@ require([
                     searchable: false,
                     className: 'pull-center',
                     width: '30px',
-                    render: boot.renderDetails
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -244,10 +244,6 @@ require([
         html.replaceContent(document.getElementById('dd-board'), tooltipNode);
     }
 
-    // Setup and perform base operations.
-    init.hotkeys();
-    init.tooltip();
-
     if (document.getElementById('board-name') !== null) {
         boardName = document.getElementById('board-name').value;
     }
@@ -280,4 +276,7 @@ require([
     });
     setUpData();
     getBoots();
+
+    init.hotkeys();
+    init.tooltip();
 });

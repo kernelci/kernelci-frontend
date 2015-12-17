@@ -33,6 +33,8 @@ define([
         gSessionStorage,
         gSoc;
 
+    document.getElementById('li-soc').setAttribute('class', 'active');
+
     function loadSavedSession() {
         var isLoaded;
 
@@ -662,15 +664,12 @@ define([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    document.getElementById('li-soc').setAttribute('class', 'active');
-    init.hotkeys();
-    init.tooltip();
-
     Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
         function(btn) {
             btn.addEventListener('click', function() {
-                Array.prototype.forEach.call(btn.parentElement.children, function(element) {
+                Array.prototype.forEach.call(
+                    btn.parentElement.children, function(element) {
                     if (element === btn) {
                         html.addClass(element, 'active');
                     } else {
@@ -684,4 +683,7 @@ define([
     gResultFilter = filter('data-filter');
     getBoots();
     registerEvents();
+
+    init.hotkeys();
+    init.tooltip();
 });
