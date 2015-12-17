@@ -32,6 +32,10 @@ define([
 
             tooltipNode.appendChild(aNode);
             rendered = tooltipNode.outerHTML;
+
+            // Remove the nodes.
+            aNode.remove();
+            tooltipNode.remove();
         } else {
             rendered = soc;
         }
@@ -43,57 +47,14 @@ define([
         return tcommon.renderDate(date, type);
     };
 
-    gSocTables.renderBoardDetail = function(board, type) {
-        var aNode,
-            tooltipNode,
-            rendered;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for&nbsp;' + board);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/boot/' + board + '/');
-
-            aNode.appendChild(html.search());
-            tooltipNode.appendChild(aNode);
-
-            rendered = tooltipNode.outerHTML;
-        } else {
-            rendered = board;
-        }
-
-        return rendered;
-    };
-
     gSocTables.renderTree = function(tree, type, href) {
-        var aNode,
-            rendered;
-
-        rendered = tree;
-        if (type === 'display') {
-            if (href) {
-                aNode = document.createElement('a');
-                aNode.className = 'table-link';
-                aNode.setAttribute('href', href);
-                aNode.appendChild(document.createTextNode(tree));
-
-                rendered = aNode.outerHTML;
-            }
-        }
-
-        return rendered;
+        return tcommon.renderTree(tree, type, href);
     };
 
     gSocTables.countBadge = function(settings) {
         return tcommon.countBadge(
             settings.data,
             settings.type, settings.extraClasses, settings.idStart).outerHTML;
-    };
-
-    gSocTables.countSuccessFail = function(settings) {
-        return tcommon.countSuccessFail(settings);
     };
 
     gSocTables.renderBootCount = function(data, type, href) {

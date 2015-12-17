@@ -1,8 +1,7 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'utils/html',
-    'tables/common',
-    'utils/date'
+    'tables/common'
 ], function(html, tcommon) {
     'use strict';
     var gJobUtils,
@@ -58,22 +57,8 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTree = function(job, type) {
-        var aNode,
-            rendered;
-
-        rendered = job;
-        if (type === 'display') {
-            aNode = document.createElement('a');
-            aNode.className = 'table-link';
-            aNode.setAttribute('href', '/job/' + job + '/');
-
-            aNode.appendChild(document.createTextNode(job));
-
-            rendered = aNode.outerHTML;
-        }
-
-        return rendered;
+    gJobUtils.renderTree = function(tree, type) {
+        return tcommon.renderTree(tree, type, '/job/' + tree + '/');
     };
 
     /**
@@ -95,15 +80,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderStatus = function(status, type) {
-        var rendered;
-
-        rendered = status;
-        if (type === 'display') {
-            rendered = tcommon.renderStatus(
-                status, gStatusDefaults).outerHTML;
-        }
-
-        return rendered;
+        return tcommon.renderStatus(status, type, gStatusDefaults);
     };
 
     /**
@@ -115,29 +92,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderDetails = function(href, type, tooltip) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        rendered = null;
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            if (tooltip) {
-                tooltipNode.setAttribute('title', tooltip);
-            } else {
-                tooltipNode.setAttribute('title', 'More details');
-            }
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', href);
-
-            aNode.appendChild(html.search());
-            tooltipNode.appendChild(aNode);
-
-            rendered = tooltipNode.outerHTML;
-        }
-
-        return rendered;
+        return tcommon.renderDetails(href, type, tooltip);
     };
 
     /**
@@ -149,30 +104,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gJobUtils.renderKernel = function(data, type, href) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        rendered = data;
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute('title', data);
-
-            if (href) {
-                aNode = document.createElement('a');
-                aNode.className = 'table-link';
-                aNode.setAttribute('href', href);
-
-                aNode.appendChild(document.createTextNode(data));
-                tooltipNode.appendChild(aNode);
-            } else {
-                tooltipNode.appendChild(document.createTextNode(data));
-            }
-
-            rendered = tooltipNode.outerHTML;
-        }
-
-        return rendered;
+        return tcommon.renderKernel(data, type, href);
     };
 
     /**
