@@ -2,164 +2,135 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
+    'utils/format',
     'utils/error',
     'utils/request',
     'utils/urls',
-    'utils/date'
-], function($, init, b, e, r, u) {
+    'utils/html'
+], function($, init, format, e, r, urls, html) {
     'use strict';
-    var fileServer,
-        jobName,
-        defconfigFull,
-        kernelName,
-        buildId,
-        nonAvail,
-        failLabel,
-        successLabel,
-        unknownLabel;
+    var gBuildId,
+        gDefconfigFull,
+        gFileServer,
+        gJobName,
+        gKernelName;
 
-    nonAvail = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Not available"><i class="fa fa-ban"></i></span>';
-    successLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Build completed"><span class="label ' +
-        'label-success"><i class="fa fa-check"></i></span></span>';
-    unknownLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Unknown status"><span class="label ' +
-        'label-warning"><i class="fa fa-question"></i></span></span>';
-    failLabel = '<span rel="tooltip" data-toggle="tooltip"' +
-        'title="Build failed"><span class="label label-danger">' +
-        '<i class="fa fa-exclamation-triangle"></i></span></span>';
-
-    function calculateRowCount(number) {
-        var rowCount = 10;
-        if (number > 10 && number <= 25) {
-            rowCount = 20;
-        } else if (number > 25 && number <= 50) {
-            rowCount = 35;
-        } else if (number > 50) {
-            rowCount = 60;
-        }
-        return rowCount;
-    }
+    document.getElementById('li-build').setAttribute('class', 'active');
 
     function getBuildLogsFail() {
-        b.removeElement('build-logs-loading');
-        b.replaceById(
-            'build-logs',
-            '<div class="pull-center"><strong>' +
-            'Error loading build logs.</strong></div>'
-        );
+        html.removeElement(document.getElementById('build-logs-loading'));
+        html.replaceContent(
+            document.getElementById('build-logs'),
+            html.errorDiv('Error loading build logs'));
     }
 
     function getBuildLogsDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            localResult,
-            errors,
-            warnings,
-            mismatches,
+        var divNode,
             errorsCount,
-            warningsCount,
+            hNode,
+            localResult,
+            logsNode,
             mismatchesCount,
-            idx,
-            rows,
-            logsContent = '';
+            results,
+            textArea,
+            warningsCount;
 
-        if (resLen === 0) {
-            b.removeElement('build-logs-loading');
-            b.replaceById(
-                'build-logs',
-                '<div class="pull-center"><strong>' +
-                'No build logs available.</strong></div>'
-            );
-            b.replaceByClass('logs-loading-content', '0');
+        /**
+         * Create the div and textarea to contain the log strings.
+        **/
+        function _parseLogStrings(title, strings) {
+            divNode = document.createElement('div');
+            divNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+
+            hNode = document.createElement('h5');
+            hNode.appendChild(document.createTextNode(title));
+
+            divNode.appendChild(hNode);
+
+            textArea = document.createElement('textarea');
+            textArea.className = 'build-logs form-control';
+            textArea.setAttribute('readonly', true);
+            textArea.setAttribute('cols', 100);
+            textArea.setAttribute('rows', 15);
+
+            divNode.appendChild(textArea);
+            logsNode.appendChild(divNode);
+
+            strings.forEach(function(value) {
+                textArea.appendChild(
+                    document.createTextNode(value.trimRight()));
+                textArea.appendChild(document.createTextNode('\n'));
+            });
+        }
+
+        results = response.result;
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('build-logs-loading'));
+            html.replaceContent(
+                document.getElementById('build-logs'),
+                html.errorDiv('No build logs available'));
+            html.replaceByClassTxt('logs-loading-content', '0');
         } else {
-            localResult = results[0];
-            errors = localResult.errors;
-            warnings = localResult.warnings;
-            mismatches = localResult.mismatches;
-            errorsCount = localResult.errors_count;
-            warningsCount = localResult.warnings_count;
-            mismatchesCount = localResult.mismatches_count;
+            logsNode = document.getElementById('build-logs');
 
-            b.replaceById('build-errors', errorsCount);
-            b.replaceById('build-warnings', warningsCount);
-            b.replaceById('build-mismatches', mismatchesCount);
+            localResult = results[0];
+            errorsCount = parseInt(localResult.errors_count, 10);
+            warningsCount = parseInt(localResult.warnings_count, 10);
+            mismatchesCount = parseInt(localResult.mismatches_count, 10);
+
+            html.replaceContent(
+                document.getElementById('build-errors'),
+                document.createTextNode(errorsCount));
+
+            html.replaceContent(
+                document.getElementById('build-warnings'),
+                document.createTextNode(warningsCount));
+
+            html.replaceContent(
+                document.getElementById('build-mismatches'),
+                document.createTextNode(mismatchesCount));
 
             if (errorsCount > 0) {
-                rows = calculateRowCount(warningsCount);
-                logsContent +=
-                    '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h5>Errors</h5>';
-                logsContent += '<textarea class="build-logs form-control" ' +
-                    'readonly="true" cols="105" rows="' + 5 + '">';
-
-                for (idx = 0; idx < errorsCount; idx = idx + 1) {
-                    logsContent += errors[idx] + '\n';
-                }
-                logsContent.trimRight();
-                logsContent += '</textarea></div>';
+                _parseLogStrings('Errors', localResult.errors);
             }
 
             if (warningsCount > 0) {
-                rows = calculateRowCount(warningsCount);
-                logsContent +=
-                    '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h5>Warnings</h5>';
-                logsContent += '<textarea class="build-logs form-control" ' +
-                    'readonly="true" cols="105" rows="' + rows + '">';
-
-                for (idx = 0; idx < warningsCount; idx = idx + 1) {
-                    logsContent += warnings[idx] + '\n';
-                }
-                logsContent.trimRight();
-                logsContent += '</textarea></div>';
+                _parseLogStrings('Warnings', localResult.warnings);
             }
 
             if (mismatchesCount > 0) {
-                rows = calculateRowCount(warningsCount);
-                logsContent +=
-                    '<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">' +
-                    '<h5>Mismatched sections</h5>';
-                logsContent += '<textarea class="build-logs form-control" ' +
-                    'readonly="true" cols="105" rows="' + rows + '">';
-
-                for (idx = 0; idx < mismatchesCount; idx = idx + 1) {
-                    logsContent += mismatches[idx] + '\n';
-                }
-                logsContent.trimRight();
-                logsContent += '</textarea></div>';
+                _parseLogStrings('Mismatched', localResult.mismatches);
             }
 
-            b.removeElement('build-logs-loading');
-            b.replaceById('build-logs', logsContent);
+            html.removeElement(document.getElementById('build-logs-loading'));
         }
     }
 
     function getBuildLogs(response) {
-        var results = response.result,
-            resLen = results.length,
-            deferred,
-            data = {};
+        var deferred,
+            results;
 
-        if (resLen === 0) {
-            b.removeElement('build-logs-loading');
-            b.replaceById(
-                'build-logs',
-                '<div class="pull-center"><strong>' +
-                'No data available.</strong></div>'
-            );
+        results = response.result;
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('build-logs-loading'));
+            html.replaceContent(
+                document.getElementById('build-logs'),
+                html.errorDiv('No data available.'));
         } else {
-            if (buildId !== 'None') {
+            if (gBuildId && gBuildId !== 'None' && gBuildId !== null) {
                 deferred = r.get(
-                    '/_ajax/build/' + buildId + '/logs', data);
+                    '/_ajax/build/' + gBuildId + '/logs', {});
             } else {
-                data.job = jobName;
-                data.kernel = kernelName;
-                data.defconfig_full = defconfigFull;
-                deferred = r.get('/_ajax/build/logs', data);
+                deferred = r.get(
+                    '/_ajax/build/logs',
+                    {
+                        job: gJobName,
+                        kernel: gKernelName,
+                        defconfig_full: gDefconfigFull
+                    }
+                );
             }
+
             $.when(deferred)
                 .fail(e.error, getBuildLogsFail)
                 .done(getBuildLogsDone);
@@ -167,29 +138,39 @@ require([
     }
 
     function getBuildDone(response) {
-        var results = response.result,
-            resLen = results.length,
-            job,
-            kernel,
+        var aNode,
             arch,
-            defconfig,
-            lDefconfigFull,
-            buildTime,
             buildLog,
-            fileServerURL,
-            fileServerResource,
-            fileServerURI,
-            fileServerData,
-            translatedURI,
-            pathURI,
+            buildTime,
+            defconfig,
+            defconfigNode,
+            detailNode,
+            gitCommit,
             gitURL,
             gitURLs,
-            gitCommit,
-            createdOn,
-            statusDisplay = '';
+            job,
+            kernel,
+            results,
+            serverResource,
+            serverURL,
+            spanNode,
+            tooltipNode,
+            translatedURI;
 
-        if (resLen === 0) {
-            b.replaceByClass('loading-content', '?');
+        function _createSizeNode(size) {
+            var sizeNode;
+            sizeNode = document.createElement('small');
+
+            sizeNode.appendChild(document.createTextNode('('));
+            sizeNode.appendChild(document.createTextNode(format.bytes(size)));
+            sizeNode.appendChild(document.createTextNode(')'));
+
+            return sizeNode;
+        }
+
+        results = response.result;
+        if (results.length === 0) {
+            html.replaceByClassTxt('loading-content', '?');
         } else {
             // We only have 1 result!
             results = response.result[0];
@@ -197,185 +178,293 @@ require([
             kernel = results.kernel;
             gitURL = results.git_url;
             gitCommit = results.git_commit;
-            createdOn = new Date(results.created_on.$date);
             arch = results.arch;
-            defconfig = results.defconfig;
-            lDefconfigFull = results.defconfig_full;
+            defconfig = results.defconfig_full;
             buildTime = results.build_time;
             buildLog = results.build_log;
-            fileServerURL = results.file_server_url;
-            fileServerResource = results.file_server_resource;
+            serverURL = results.file_server_url;
+            serverResource = results.file_server_resource;
 
-            if (fileServerURL === null || fileServerURL === undefined) {
-                fileServerURL = fileServer;
+            if (serverURL === null || serverURL === undefined) {
+                serverURL = gFileServer;
             }
 
-            fileServerData = [
-                job, kernel, arch + '-' + lDefconfigFull
-            ];
-            translatedURI = u.translateServerURL(
-                fileServerURL, fileServerResource, fileServerData);
-            fileServerURI = translatedURI[0];
-            pathURI = translatedURI[1];
+            translatedURI = urls.translateServerURL(
+                serverURL,
+                serverResource, [job, kernel, arch + '-' + defconfig]);
 
-            gitURLs = u.translateCommit(gitURL, gitCommit);
+            gitURLs = urls.translateCommit(gitURL, gitCommit);
 
-            b.addContent('details', '&nbsp<small>(' + defconfig + ')</small>');
+            // Details.
+            detailNode = document.getElementById('details');
+            detailNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-            b.replaceById(
-                'tree',
-                '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Details for tree ' + job + '">' +
-                '<a href="/job/' + job + '/">' + job + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Boot reports details for ' + job + '">' +
-                '<a href="/boot/all/job/' + job + '/">' +
-                '<i class="fa fa-hdd-o"></i>' +
-                '</a></span>'
+            defconfigNode = document.createElement('small');
+            defconfigNode.appendChild(
+                document.createTextNode('(' + results.defconfig + ')'));
+
+            detailNode.appendChild(defconfigNode);
+
+            // Tree.
+            spanNode = document.createElement('span');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/job/' + job + '/');
+            aNode.appendChild(document.createTextNode(job));
+
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for tree&nbsp;' + job);
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+            aNode.appendChild(html.boot());
+
+            tooltipNode.appendChild(aNode);
+
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
+
+            html.replaceContent(document.getElementById('tree'), spanNode);
+
+            // Git branch.
+            html.replaceContent(
+                document.getElementById('git-branch'),
+                document.createTextNode(results.git_branch));
+
+            // Kernel.
+            spanNode = document.createElement('span');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Build details for&nbsp;' + job +
+                '&nbsp;&dash;&nbsp;' + kernel
             );
-            b.replaceById('git-branch', results.git_branch);
-            b.replaceById(
-                'git-describe',
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + job + '&nbsp;&dash;&nbsp;' +
-                kernel + '">' +
-                '<a href="/build/' + job + '/kernel/' +
-                kernel + '/">' + kernel + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="All boot reports for ' + job + '&nbsp;&dash;&nbsp;' +
-                kernel + '">' +
-                '<a href="/boot/all/job/' + job + '/kernel/' + kernel + '/">' +
-                '<i class="fa fa-hdd-o"></i></a></span>'
+
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/build/' + job + '/kernel/' + kernel + '/');
+            aNode.appendChild(document.createTextNode(kernel));
+
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for&nbsp;' + job +
+                '&nbsp;&dash;&nbsp;' + kernel
             );
-            b.replaceById(
-                'build-defconfig',
-                lDefconfigFull +
-                '&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip"' +
-                'title="Boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName +
-                '&nbsp;&dash;&nbsp;' + lDefconfigFull + '">' +
-                '<a href="/boot/all/job/' + jobName + '/kernel/' +
-                kernelName + '/defconfig/' + lDefconfigFull + '">' +
-                '<i class="fa fa-hdd-o"></i></a></span>'
+
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+            aNode.appendChild(html.boot());
+
+            tooltipNode.appendChild(aNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
+
+            html.replaceContent(
+                document.getElementById('git-describe'), spanNode);
+
+            // Defconfig.
+            spanNode = document.createElement('span');
+
+            spanNode.appendChild(document.createTextNode(defconfig));
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for&nbsp;' + gJobName +
+                    '&nbsp;&dash;&nbsp;' + gKernelName +
+                    '&nbsp;&dash;&nbsp;' + defconfig
+                );
+
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href',
+                '/boot/all/job/' + gJobName + '/kernel/' +
+                gKernelName + '/defconfig/' + defconfig + '/'
             );
+            aNode.appendChild(html.boot());
+
+            tooltipNode.appendChild(aNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            spanNode.appendChild(tooltipNode);
+
+            html.replaceContent(
+                document.getElementById('build-defconfig'), spanNode);
 
             if (gitURLs[0] !== null) {
-                b.replaceById(
-                    'git-url',
-                    '<a href="' + gitURLs[0] + '">' + gitURL +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[0]);
+                aNode.appendChild(document.createTextNode(gitURL));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('git-url'), aNode);
             } else {
                 if (gitURL !== null) {
-                    b.replaceById('git-url', gitURL);
+                    html.replaceContent(
+                        document.getElementById('git-url'),
+                        document.createTextNode(gitURL));
                 } else {
-                    b.replaceById('git-url', nonAvail);
+                    html.replaceContent(
+                        document.getElementById('git-url'), html.nonavail());
                 }
             }
 
             if (gitURLs[1] !== null) {
-                b.replaceById(
-                    'git-commit',
-                    '<a href="' + gitURLs[1] + '">' + gitCommit +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
-                );
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[1]);
+                aNode.appendChild(document.createTextNode(gitCommit));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                html.replaceContent(
+                    document.getElementById('git-commit'), aNode);
             } else {
                 if (gitCommit !== null) {
-                    b.replaceById('git-commit', gitCommit);
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
+                        document.createTextNode(gitCommit));
                 } else {
-                    b.replaceById('git-commit', nonAvail);
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
+                        html.nonavail());
                 }
             }
 
-            b.replaceById(
-                'build-date',
-                '<time>' + createdOn.toCustomISODate() + '</time>');
+            // Date.
+            html.replaceContent(
+                document.getElementById('build-date'),
+                html.time(results.created_on));
 
+            // Status.
+            tooltipNode = html.tooltip();
             switch (results.status) {
                 case 'PASS':
-                    statusDisplay = successLabel;
+                    tooltipNode.setAttribute('title', 'Build completed');
+                    tooltipNode.appendChild(html.success());
                     break;
                 case 'FAIL':
-                    statusDisplay = failLabel;
+                    tooltipNode.setAttribute('title', 'Build failed');
+                    tooltipNode.appendChild(html.fail());
                     break;
                 default:
-                    statusDisplay = unknownLabel;
+                    tooltipNode.setAttribute('title', 'Unknown status');
+                    tooltipNode.appendChild(html.unknown());
                     break;
             }
 
-            if (arch !== null) {
-                b.replaceById('build-arch', arch);
+            html.replaceContent(
+                document.getElementById('build-status'), tooltipNode);
+
+            // Arch.
+            if (arch) {
+                html.replaceContent(
+                    document.getElementById('build-arch'),
+                    document.createTextNode(arch));
             } else {
-                b.replaceById('build-arch', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-arch'), html.nonavail());
             }
 
-            b.replaceById('build-status', statusDisplay);
-
+            // Build time.
             if (buildTime !== null) {
-                b.replaceById('build-time', buildTime + '&nbsp;sec.');
+                html.replaceContent(
+                    document.getElementById('build-time'),
+                    document.createTextNode(buildTime + 'sec.'));
             } else {
-                b.replaceById('build-time', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-time'), html.nonavail());
             }
 
-            if (buildLog !== null) {
-                b.replaceById('build-log',
-                    '<a href="' +
-                    fileServerURI.path(pathURI + '/' + buildLog)
-                        .normalizePath().href() +
-                    '">' + buildLog +
-                    '&nbsp;<i class="fa fa-external-link"></i></a>'
+            // Build log.
+            if (buildLog) {
+                spanNode = document.createElement('span');
+
+                aNode = document.createElement('a');
+                aNode.setAttribute(
+                    'href',
+                    translatedURI[0]
+                        .path(translatedURI[1] + '/' + buildLog)
+                        .normalizePath().href()
                 );
+                aNode.appendChild(document.createTextNode(buildLog));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                spanNode.appendChild(aNode);
+
+                if (results.build_log_size !== null &&
+                        results.build_log_size !== undefined) {
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(
+                        _createSizeNode(results.build_log_size));
+                }
+
+                html.replaceContent(
+                    document.getElementById('build-log'), spanNode);
             } else {
-                b.replaceById('build-log', nonAvail);
+                html.replaceContent(
+                    document.getElementById('build-log'), html.nonavail());
             }
         }
     }
 
     function getBuildFail() {
-        b.replaceByClass('loading-content', nonAvail);
+        html.replaceByClassNode('loading-content', html.nonavail());
     }
 
     function getBuild() {
-        var deferred,
-            data = {};
-        if (buildId !== 'None') {
-            data.id = buildId;
+        var deferred;
+
+        if (gBuildId && gBuildId !== 'None' && gBuildId !== null) {
+            deferred = r.get('/_ajax/build', {id: gBuildId});
         } else {
-            data.job = jobName;
-            data.kernel = kernelName;
-            data.defconfig_full = defconfigFull;
+            deferred = r.get(
+                '/_ajax/build',
+                {
+                    job: gJobName,
+                    kernel: gKernelName,
+                    defconfig_full: gDefconfigFull
+                }
+            );
         }
-        deferred = r.get('/_ajax/build', data);
+
         $.when(deferred)
             .fail(e.error, getBuildFail)
             .done(getBuildDone, getBuildLogs);
     }
 
-    $(document).ready(function() {
-        document.getElementById('li-build').setAttribute('class', 'active');
+    if (document.getElementById('file-server') !== null) {
+        gFileServer = document.getElementById('file-server').value;
+    }
+    if (document.getElementById('job-name') !== null) {
+        gJobName = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('kernel-name') !== null) {
+        gKernelName = document.getElementById('kernel-name').value;
+    }
+    if (document.getElementById('defconfig-full') !== null) {
+        gDefconfigFull = document.getElementById('defconfig-full').value;
+    }
+    if (document.getElementById('build-id') !== null) {
+        gBuildId = document.getElementById('build-id').value;
+    }
 
-        if (document.getElementById('file-server') !== null) {
-            fileServer = document.getElementById('file-server').value;
-        }
-        if (document.getElementById('job-name') !== null) {
-            jobName = document.getElementById('job-name').value;
-        }
-        if (document.getElementById('kernel-name') !== null) {
-            kernelName = document.getElementById('kernel-name').value;
-        }
-        if (document.getElementById('defconfig-full') !== null) {
-            defconfigFull = document.getElementById('defconfig-full').value;
-        }
-        if (document.getElementById('build-id') !== null) {
-            buildId = document.getElementById('build-id').value;
-        }
+    getBuild();
 
-        getBuild();
-
-        init.hotkeys();
-        init.tooltip();
-    });
+    init.hotkeys();
+    init.tooltip();
 });
