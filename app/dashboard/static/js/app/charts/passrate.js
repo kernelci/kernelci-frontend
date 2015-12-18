@@ -1,17 +1,14 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'd3',
-    'utils/base',
     'charts/base',
+    'utils/html',
     'charts/rate'
-], function(d3, b, k) {
+], function(d3, k, html) {
     'use strict';
-    var passrate = {},
-        emptyContent;
+    var passrate;
 
-    emptyContent = '<div class="pull-center">' +
-        '<strong>No data available to show.</strong>' +
-        '</div>';
+    passrate = {};
 
     function countBDReports(response) {
         var dataObj = null,
@@ -66,10 +63,8 @@ define([
     passrate.bootpassrate = function(element, response) {
         var chart,
             setup,
-            datat = null,
-            tElement;
+            datat = null;
 
-        tElement = b.checkElement(element);
         datat = countBDReports(response);
 
         if (datat !== null) {
@@ -82,24 +77,25 @@ define([
                 'clickFunction': k.toBootLinkClick
             };
 
-            b.replaceById(tElement[0], '');
-            d3.select(tElement[1])
+            html.removeChildren(document.getElementById(element));
+
+            d3.select('#' + element)
                 .data([setup])
                 .each(function(datum) {
                     d3.select(this).call(datum.chart);
                 });
         } else {
-            b.replaceById(tElement[0], emptyContent);
+            html.replaceContent(
+                document.getElementById(element),
+                html.errorDiv('No data available to show.'));
         }
     };
 
     passrate.buildpassrate = function(element, response) {
         var chart,
             setup,
-            datat = null,
-            tElement;
+            datat = null;
 
-        tElement = b.checkElement(element);
         datat = countBDReports(response);
 
         if (datat !== null) {
@@ -112,14 +108,17 @@ define([
                 'clickFunction': k.toBuildLinkClick
             };
 
-            b.replaceById(tElement[0], '');
-            d3.select(tElement[1])
+            html.removeChildren(document.getElementById(element));
+
+            d3.select('#' + element)
                 .data([setup])
                 .each(function(datum) {
                     d3.select(this).call(datum.chart);
                 });
         } else {
-            b.replaceById(tElement[0], emptyContent);
+            html.replaceContent(
+                document.getElementById(element),
+                html.errorDiv('No data available to show.'));
         }
     };
 

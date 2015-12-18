@@ -2,11 +2,11 @@
 define([
     'jquery',
     'd3',
-    'utils/base',
     'utils/format',
     'charts/base',
+    'utils/html',
     'charts/bar'
-], function($, d3, b, format, k) {
+], function($, d3, format, k, html) {
     'use strict';
     var statsbar = {};
 
@@ -44,14 +44,12 @@ define([
     function barGraph(element, data, diffs, color) {
         var chart,
             setup,
-            tElement,
             gElement;
 
-        if (color === null && color === undefined) {
+        if (!color || color === null || color === undefined) {
             color = '#564195';
         }
 
-        tElement = b.checkElement(element);
         if (data !== null) {
             chart = k.charts.bar();
             setup = {
@@ -60,8 +58,9 @@ define([
                 reverse: true,
                 color: color
             };
-            b.replaceById(tElement[0], '');
-            gElement = d3.select(tElement[1]);
+
+            html.removeChildren(document.getElementById(element));
+            gElement = d3.select('#' + element);
 
             gElement
                 .data([setup])
@@ -81,7 +80,7 @@ define([
                     return diffs[dataKey];
                 });
 
-            setupTooltips(tElement[1]);
+            setupTooltips('#' + element);
         }
     }
 

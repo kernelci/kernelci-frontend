@@ -2,10 +2,10 @@
 define([
     'jquery',
     'd3',
-    'utils/base',
     'charts/base',
+    'utils/html',
     'charts/matrix'
-], function($, d3, b, k) {
+], function($, d3, k, html) {
     'use strict';
     var diffmatrix,
         htmlColors,
@@ -124,7 +124,7 @@ define([
         });
     }
 
-    function complateBuildDiffMatrix(chart, data) {
+    function completeBuildDiffMatrix(chart, data) {
         chart.xTextGroup()
             .selectAll('text')
             .data(data.xdata)
@@ -135,7 +135,7 @@ define([
                 return chart.xScale(idx);
             })
             .text(function(datum) {
-                return b.sliceText(
+                return html.sliceText(
                     datum.job + ' - ' + datum.kernel, 25);
             })
             .attr('data-job', function(datum) {
@@ -161,7 +161,7 @@ define([
             })
             .text(function(datum) {
                 var localData = datum[0];
-                return b.sliceText(
+                return html.sliceText(
                     localData[1] + ' - ' + localData[2], 40);
             })
             .attr('dominant-baseline', 'middle')
@@ -325,8 +325,7 @@ define([
     }
 
     function createMatrix(element, data, type) {
-        var chart,
-            gElement;
+        var chart;
 
         chart = k.charts.matrix();
         // Inject the chart.
@@ -336,23 +335,21 @@ define([
             return data.ydata[idx][1];
         });
 
-        b.replaceById(element[0], '');
-        gElement = d3.select(element[1]);
+        html.removeChildren(document.getElementById(element));
 
-        gElement
+        d3.select('#' + element)
             .data([data])
             .each(function(datum) {
                 d3.select(this).call(datum.chart);
             });
 
         if (type === 'build') {
-            complateBuildDiffMatrix(chart, data);
+            completeBuildDiffMatrix(chart, data);
         }
     }
 
     diffmatrix.builds = function(element, data) {
-        var cElement = b.checkElement(element);
-        createMatrix(cElement, data, 'build');
+        createMatrix(element, data, 'build');
     };
 
     return diffmatrix;

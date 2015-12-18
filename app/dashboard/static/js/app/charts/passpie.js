@@ -1,10 +1,10 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'd3',
-    'utils/base',
     'charts/base',
+    'utils/html',
     'charts/pie'
-], function(d3, b, k) {
+], function(d3, k, html) {
     'use strict';
     var passpie = {};
 
@@ -46,14 +46,12 @@ define([
     function passGraph(element, response, chartText, countFunc) {
         var chart,
             setup,
-            tElement,
             tData;
 
         if (countFunc === undefined || countFunc === null) {
             countFunc = countStatus;
         }
 
-        tElement = b.checkElement(element);
         tData = countFunc(response);
 
         if (tData !== null) {
@@ -66,8 +64,9 @@ define([
                 total: tData[0],
                 chart: chart
             };
-            b.replaceById(tElement[0], '');
-            d3.select(tElement[1])
+
+            html.removeChildren(document.getElementById(element));
+            d3.select('#' + element)
                 .data([setup])
                 .each(function(datum) {
                     d3.select(this).call(datum.chart);
