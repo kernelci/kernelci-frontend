@@ -9,8 +9,7 @@ require([
     'charts/passpie',
     'charts/diffmatrix',
     'utils/html',
-    'tables/job',
-    'utils/date'
+    'tables/job'
 ], function($, init, e, r, table, urls, pie, matrix, html, jobt) {
     'use strict';
     var gCompareId,
