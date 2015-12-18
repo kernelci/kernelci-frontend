@@ -18,10 +18,16 @@ require([
     document.getElementById('li-build').setAttribute('class', 'active');
 
     function getBuildLogsFail() {
+        var node;
+
+        node = html.nonavail();
         html.removeElement(document.getElementById('build-logs-loading'));
         html.replaceContent(
             document.getElementById('build-logs'),
-            html.errorDiv('Error loading build logs'));
+            html.errorDiv('Error loading build logs data.'));
+        html.replaceByClassHTML('logs-loading-content', node.outerHTML);
+
+        node.remove();
     }
 
     function getBuildLogsDone(response) {
@@ -116,6 +122,7 @@ require([
             html.replaceContent(
                 document.getElementById('build-logs'),
                 html.errorDiv('No data available.'));
+            html.replaceByClassTxt('logs-loading-content', '?');
         } else {
             if (gBuildId && gBuildId !== 'None' && gBuildId !== null) {
                 deferred = r.get(
@@ -303,6 +310,7 @@ require([
             html.replaceContent(
                 document.getElementById('build-defconfig'), spanNode);
 
+            // Git URL/commit.
             if (gitURLs[0] !== null) {
                 aNode = document.createElement('a');
                 aNode.setAttribute('href', gitURLs[0]);
@@ -423,7 +431,18 @@ require([
     }
 
     function getBuildFail() {
-        html.replaceByClassNode('loading-content', html.nonavail());
+        var node;
+
+        node = html.nonavail();
+
+        html.removeElement(document.getElementById('build-logs-loading'));
+        html.replaceContent(
+            document.getElementById('build-logs'),
+            html.errorDiv('Error loading data'));
+        html.replaceByClassHTML('loading-content', node.outerHTML);
+        html.replaceByClassHTML('logs-loading-content', node.outerHTML);
+
+        node.remove();
     }
 
     function getBuild() {
