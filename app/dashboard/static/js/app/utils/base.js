@@ -40,28 +40,5 @@ define(function() {
         return [tElement, dElement];
     };
 
-    base.addContent = function(id, content) {
-        var el = document.getElementById(id);
-        if (el !== null) {
-            el.innerHTML += content;
-        }
-    };
-
-    base.removeClass = function(id, className) {
-        var el = document.getElementById(id),
-            regEx;
-        if (el !== null) {
-            regEx = new RegExp('(?:^|\\s)' + className + '(?!\\S)', 'g');
-            el.className = el.className.replace(regEx, '');
-        }
-    };
-
-    base.removeElement = function(id) {
-        var el = document.getElementById(id);
-        if (el !== null) {
-            el.remove();
-        }
-    };
-
     return base;
 });
