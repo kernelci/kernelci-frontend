@@ -1,11 +1,10 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'jquery',
     'd3',
     'charts/base',
     'utils/html',
     'charts/matrix'
-], function($, d3, k, html) {
+], function(d3, k, html) {
     'use strict';
     var diffmatrix,
         htmlColors,
@@ -80,48 +79,6 @@ define([
             }
             window.location = destUrl;
         }
-    }
-
-    function setupBuildTooltips(element) {
-        $(element + ' .matrix-cell-group').tooltip({
-            html: true,
-            trigger: 'hover',
-            container: 'body',
-            placement: 'top',
-            title: function() {
-                var el,
-                    job,
-                    kernel,
-                    status,
-                    titleTxt;
-
-                el = $(this);
-                job = el.data('job') || null;
-                kernel = el.data('kernel') || null;
-                status = el.data('status') || null;
-
-                if (status === null) {
-                    titleTxt = 'Build not available for &#171;' + job +
-                        ' &dash; ' + kernel + '&#187;';
-                } else {
-                    switch (status) {
-                        case 'pass':
-                            titleTxt = 'Build successful &dash; ' +
-                                'Click to see build details';
-                            break;
-                        case 'fail':
-                            titleTxt = 'Build failed &dash; ' +
-                                'Click to see build details';
-                            break;
-                        default:
-                            titleTxt = 'Build status unknown &dash; ' +
-                                'Click to see build details';
-                            break;
-                    }
-                }
-                return titleTxt;
-            }
-        });
     }
 
     function completeBuildDiffMatrix(chart, data) {
