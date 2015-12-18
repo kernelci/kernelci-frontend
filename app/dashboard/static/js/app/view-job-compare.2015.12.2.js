@@ -2,36 +2,28 @@
 require([
     'jquery',
     'utils/init',
-    'utils/base',
     'utils/error',
     'utils/request',
     'utils/table',
     'utils/urls',
     'charts/passpie',
     'charts/diffmatrix',
+    'utils/html',
+    'tables/job',
     'utils/date'
-], function($, init, b, e, r, table, u, pie, matrix) {
+], function($, init, e, r, table, urls, pie, matrix, html, jobt) {
     'use strict';
-    var compareId = null,
-        comparedTable,
-        nonAvail,
-        tableDom;
+    var gCompareId,
+        gComparedTable;
 
     document.getElementById('li-compare').setAttribute('class', 'active');
-
-    nonAvail = '<span rel="tooltip" data-toggle="tooltip" ' +
-        'title="Not available"><i class="fa fa-ban"></i>' +
-        '</span>';
-
-    tableDom = '<"row"' +
-        '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
 
     // Calculate total diff between the baseline and what is being compared
     // against.
     // Return a string with the total from the compared one and a diff number.
     function calculateTotalDiff(baseline, compared) {
-        var totalDiff = 0,
-            display;
+        var display,
+            totalDiff;
 
         totalDiff = compared - baseline;
         if (totalDiff === 0) {
@@ -46,227 +38,294 @@ require([
     }
 
     function setupCompareToTable(comparedData, baseline) {
-        var columns;
+        var columns,
+            dom;
+
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderDetails(data, type, object) {
+            return jobt.renderDetails(
+                '/build/' + data + '/kernel/' + object.kernel + '/', type);
+        }
+
+        function _renderTotal(data, type) {
+            var rendered;
+
+            rendered = data;
+            if (type === 'display' || type === 'filter') {
+                rendered = calculateTotalDiff(baseline.total_builds, data);
+            }
+            return rendered;
+        }
+
+        function _renderCommit(data, type, object) {
+            var aNode,
+                rendered,
+                textNode,
+                tooltipNode,
+                gitURL;
+
+            rendered = data;
+            if (type === 'display') {
+                gitURL = urls.translateCommit(object.git_url, data);
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', data);
+
+                if (gitURL[1] !== null) {
+                    aNode = document.createElement('a');
+                    aNode.setAttribute('href', gitURL[1]);
+
+                    textNode = document.createTextNode(data);
+                    aNode.appendChild(textNode);
+
+                    tooltipNode.appendChild(aNode);
+                } else {
+                    textNode = document.createTextNode(data);
+                    tooltipNode.appendChild(textNode);
+                }
+
+                rendered = tooltipNode.outerHTML;
+                // Remove the nodes.
+                textNode.remove();
+                if (aNode) {
+                    aNode.remove();
+                }
+                tooltipNode.remove();
+            }
+
+            return rendered;
+        }
+
+        dom = '<"row"' +
+            '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
+
         columns = [
             {
                 data: 'job',
-                title: 'Tree &dash; Branch',
+                title: 'Tree',
+                type: 'string',
                 className: 'tree-column',
-                render: function(data, type, object) {
-                    var rend;
-                    if (type === 'display') {
-                        rend = '<a class="table-link" href="/job/' +
-                            data + '/">' + data;
-
-                        if (object.git_branch !== null) {
-                            rend += '&nbsp;&dash;&nbsp;<small>' +
-                                object.git_branch + '</small>';
-                        }
-                        rend += '</a>';
-                    } else {
-                        rend = data;
-                        if (object.git_branch !== null) {
-                            rend += ' ' + object.git_branch;
-                        }
-                    }
-                    return rend;
-                }
+                render: jobt.renderTree
+            },
+            {
+                data: 'git_branch',
+                title: 'Branch',
+                type: 'string',
+                className: 'branch-column'
             },
             {
                 data: 'kernel',
                 title: 'Kernel',
                 type: 'string',
                 className: 'kernel-column',
-                render: function(data, type) {
-                    var rend = data;
-                    if (type === 'display') {
-                        rend = '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">' + data + '</span>';
-                    }
-                    return rend;
-                }
+                render: jobt.renderKernel
             },
             {
                 data: 'git_commit',
                 title: 'Commit',
                 type: 'string',
-                render: function(data, type, object) {
-                    var rend = data,
-                        cUrl;
-                    if (type === 'display') {
-                        cUrl = u.translateCommit(object.git_url, data);
-                        rend = '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="' + data + '">';
-                        if (cUrl[1] !== null) {
-                            rend += '<a class="table-link" href="' + cUrl[1] +
-                                '">' + data + '</a>';
-                        } else {
-                            rend += data;
-                        }
-
-                        rend += '</span>';
-                    }
-                    return rend;
-                }
+                render: _renderCommit
             },
             {
                 data: 'total_builds',
                 title: 'Total Builds',
+                type: 'string',
                 className: 'pull-center',
-                render: function(data, type) {
-                    var rend = data;
-                    if (type === 'display' || type === 'filter') {
-                        rend = calculateTotalDiff(baseline.total_builds, data);
-                    }
-                    return rend;
-                }
+                render: _renderTotal
             },
             {
                 data: 'created_on',
                 title: 'Date',
                 type: 'date',
                 className: 'date-column pull-center',
-                render: function(data, type) {
-                    var created = new Date(data.$date);
-                    if (type === 'display' || type === 'filter') {
-                        created = created.toCustomISODate();
-                    }
-                    return created;
-                }
+                render: jobt.renderDate
             },
             {
                 data: 'job',
                 title: '',
+                type: 'string',
                 orderable: false,
                 searchable: false,
                 className: 'pull-center',
-                render: function(data, type, object) {
-                    var rend = '';
-                    if (type === 'display') {
-                        rend = '<span rel="tooltip" data-toggle="tooltip"' +
-                            'title="Details for&nbsp;' + data +
-                            '&nbsp;&dash;&nbsp;' + object.kernel + '">' +
-                            '<a href="/build/' + data +
-                            '/kernel/' + object.kernel + '/">' +
-                            '<i class="fa fa-search"></i></a></span>';
-                    }
-                    return rend;
-                }
+                render: _renderDetails
             }
         ];
 
-        comparedTable
-            .dom(tableDom)
+        gComparedTable
+            .dom(dom)
             .data(comparedData)
             .columns(columns)
-            .order([4, 'desc'])
+            .order([5, 'desc'])
             .noIdURL(true)
             .rowURLElements(['job', 'kernel'])
             .draw();
     }
 
     function setupBaselineData(baseline) {
-        var baseCreatedOn,
+        var aNode,
             baseGitCommit,
             baseGitUrl,
             baseJob,
             baseKernel,
             baseTotalBuilds,
-            translatedGitUrl;
+            gitURLs,
+            spanNode,
+            tooltipNode;
 
         baseGitCommit = baseline.git_commit;
         baseGitUrl = baseline.git_url;
-        baseTotalBuilds = baseline.total_builds;
+        baseTotalBuilds = parseInt(baseline.total_builds, 10);
         baseJob = baseline.job;
         baseKernel = baseline.kernel;
 
-        translatedGitUrl = u.translateCommit(baseGitUrl, baseGitCommit);
+        gitURLs = urls.translateCommit(baseGitUrl, baseGitCommit);
 
-        b.replaceById(
-            'dd-tree',
-            '<span rel="tooltip" data-toggle="tooltip"' +
-            'title="Details for tree ' + baseJob + '">' +
-            '<a href="/job/' + baseJob + '/">' + baseJob + '</a>' +
-            '</span>&nbsp;&mdash;&nbsp;' +
-            '<span rel="tooltip" data-toggle="tooltip" ' +
-            'title="Boot reports details for ' + baseJob + '">' +
-            '<a href="/boot/all/job/' + baseJob + '/">' +
-            '<i class="fa fa-hdd-o"></i>' +
-            '</a></span>'
-        );
-        b.replaceById('dd-branch', baseline.git_branch);
-        b.replaceById(
-            'dd-kernel',
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="Details for build ' + baseJob + '&nbsp;&dash;&nbsp;' +
-                baseKernel + '">' +
-                '<a href="/build/' + baseJob + '/kernel/' +
-                baseKernel + '/">' + baseKernel + '</a>' +
-                '</span>&nbsp;&mdash;&nbsp;' +
-                '<span rel="tooltip" data-toggle="tooltip" ' +
-                'title="All boot reports for ' + baseJob +
-                '&nbsp;&dash;&nbsp;' + baseKernel + '">' +
-                '<a href="/boot/all/job/' + baseJob + '/kernel/' +
-                baseKernel + '/">' + '<i class="fa fa-hdd-o"></i></a></span>'
+        // Tree.
+        spanNode = document.createElement('span');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + baseJob);
+
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/job/' + baseJob + '/');
+        aNode.appendChild(document.createTextNode(baseJob));
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title', 'Boot reports for tree&nbsp;' + baseJob);
+
+        aNode = document.createElement('a');
+        aNode.setAttribute('href', '/boot/all/job/' + baseJob + '/');
+        aNode.appendChild(html.boot());
+
+        tooltipNode.appendChild(aNode);
+
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(document.getElementById('dd-tree'), spanNode);
+
+        // Git branch.
+        html.replaceContent(
+            document.getElementById('dd-branch'),
+            document.createTextNode(baseline.git_branch));
+
+        // Kernel.
+        spanNode = document.createElement('span');
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Build details for&nbsp;' + baseJob +
+            '&nbsp;&dash;&nbsp;' + baseKernel
         );
 
-        if (translatedGitUrl[0] !== null) {
-            b.replaceById(
-                'dd-url',
-                '<a href="' + translatedGitUrl[0] + '">' + baseGitUrl +
-                '&nbsp;<i class="fa fa-external-link"></i></a>'
-            );
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href', '/build/' + baseJob + '/kernel/' + baseKernel + '/');
+        aNode.appendChild(document.createTextNode(baseKernel));
+
+        tooltipNode.appendChild(aNode);
+        spanNode.appendChild(tooltipNode);
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute(
+            'title',
+            'Boot reports for&nbsp;' + baseJob +
+            '&nbsp;&dash;&nbsp;' + baseKernel
+        );
+
+        aNode = document.createElement('a');
+        aNode.setAttribute(
+            'href',
+            '/boot/all/job/' + baseJob + '/kernel/' + baseKernel + '/');
+        aNode.appendChild(html.boot());
+
+        tooltipNode.appendChild(aNode);
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        spanNode.appendChild(tooltipNode);
+
+        html.replaceContent(document.getElementById('dd-kernel'), spanNode);
+
+        // Git URL/commit.
+        if (gitURLs[0] !== null) {
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', gitURLs[0]);
+            aNode.appendChild(document.createTextNode(baseGitUrl));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+
+            html.replaceContent(
+                document.getElementById('dd-url'), aNode);
         } else {
             if (baseGitUrl !== null) {
-                b.replaceById('dd-url', baseGitUrl);
+                html.replaceContent(
+                    document.getElementById('dd-url'),
+                    document.createTextNode(baseGitUrl));
             } else {
-                b.replaceById('dd-url', nonAvail);
+                html.replaceContent(
+                    document.getElementById('dd-url'), html.nonavail());
             }
         }
 
-        if (translatedGitUrl[1] !== null) {
-            b.replaceById(
-                'dd-commit',
-                '<a href="' + translatedGitUrl[1] + '">' + baseGitCommit +
-                '&nbsp;<i class="fa fa-external-link"></i></a>'
-            );
+        if (gitURLs[1] !== null) {
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', gitURLs[1]);
+            aNode.appendChild(document.createTextNode(baseGitCommit));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+
+            html.replaceContent(
+                document.getElementById('dd-commit'), aNode);
         } else {
             if (baseGitCommit !== null) {
-                b.replaceById('dd-commit', baseGitCommit);
+                html.replaceContent(
+                    document.getElementById('dd-commit'),
+                    document.createTextNode(baseGitCommit));
             } else {
-                b.replaceById('dd-commit', nonAvail);
+                html.replaceContent(
+                    document.getElementById('dd-commit'),
+                    html.nonavail());
             }
         }
 
-        b.replaceById('dd-total', baseTotalBuilds);
-        baseCreatedOn = new Date(baseline.created_on.$date);
-        b.replaceById('dd-date', baseCreatedOn.toCustomISODate());
+        html.replaceContent(
+            document.getElementById('dd-total'),
+            document.createTextNode(baseTotalBuilds));
+
+        html.replaceContent(
+            document.getElementById('dd-date'),
+            html.time(baseline.created_on));
     }
 
     function getJobCompareFail() {
-        b.replaceByClass('loading-content', nonAvail);
-        b.replaceByClass(
-            'no-data',
-            '<div class="pull-center">' +
-            '<strong>Error loading data.</strong></div>'
-        );
+        html.replaceByClassNode('loading-content', html.nonavail().outerHTML);
+        html.replaceContent(
+            document.getElementById('summary-table-div'),
+            html.errorDiv('Error loading data.'));
     }
 
     function getJobCompareDone(response) {
-        var result = response.result,
-            resLen = result.length,
-            baseline,
+        var baseline,
             comparedData,
+            deltaResult,
             matrixData,
-            deltaResult;
+            results,
+            titleNode;
 
-        if (resLen > 0) {
-            baseline = result[0].baseline;
-            comparedData = result[0].compare_to;
-            deltaResult = result[0].delta_result;
+        results = response.result;
+        if (results.length > 0) {
+            baseline = results[0].baseline;
+            comparedData = results[0].compare_to;
+            deltaResult = results[0].delta_result;
 
-            b.replaceById(
-                'body-title',
+            titleNode = document.getElementById('body-title');
+            titleNode.insertAdjacentHTML(
+                'beforeend',
                 'for &#171;' + baseline.job +
                 '&#187;&nbsp;&dash;&nbsp;' + baseline.kernel
             );
@@ -291,47 +350,50 @@ require([
                 Array.prototype.push.apply(matrixData.xdata, comparedData);
                 matrix.builds('builds-matrix', matrixData);
             } else {
-                b.replaceById(
-                    'builds-matrix',
-                    '<div class="pull-center">' +
-                    '<strong>No differences to show.</strong></div>'
-                );
+                html.replaceContent(
+                    document.getElementById('builds-matrix'),
+                    html.errorDiv('No differences to show.'));
             }
         } else {
-            b.replaceByClass('loading-content', nonAvail);
-            b.replaceByClass(
-                'no-data',
-                '<div class="pull-center">' +
-                '<strong>No data available.</strong></div>'
-            );
+            html.replaceByClassHTML(
+                'loading-content', html.nonavail().outerHTML);
+            html.replaceContent(
+                document.getElementById('summary-table-div'),
+                html.errorDiv('No data available.'));
+            html.replaceContent(
+                document.getElementById('builds-matrix'),
+                html.errorDiv('No data available.'));
         }
     }
 
     function getJobCompare() {
         var deferred;
 
-        if (compareId !== null) {
-            comparedTable = table({
+        if (gCompareId !== null) {
+            gComparedTable = table({
                 tableId: 'compared-against'
             });
-            deferred = r.get('/_ajax/job/compare/' + compareId, {});
+
+            deferred = r.get('/_ajax/job/compare/' + gCompareId, {});
             $.when(deferred)
                 .fail(e.error, getJobCompareFail)
                 .done(getJobCompareDone);
         } else {
-            b.replaceByClass('loading-content', nonAvail);
-            b.replaceByClass(
-                'no-data',
-                '<div class="pull-center">' +
-                '<strong>No data available.</strong></div>'
-            );
+            html.replaceByClassHTML(
+                'loading-content', html.nonavail().outerHTML);
+            html.replaceContent(
+                document.getElementById('summary-table-div'),
+                html.errorDiv('Error loading data.'));
+            html.replaceContent(
+                document.getElementById('builds-matrix'),
+                html.errorDiv('Error loading data.'));
             e.customError(
                 400, 'Missing job comparison ID value: please specify one.');
         }
     }
 
     if (document.getElementById('compare-id') !== null) {
-        compareId = document.getElementById('compare-id').value;
+        gCompareId = document.getElementById('compare-id').value;
     }
 
     getJobCompare();
