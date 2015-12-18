@@ -14,7 +14,7 @@ require.config({
         'jquery.hotkeymap': 'lib/jquery.hotkeymap-1.0.min',
         'bootstrap': 'lib/bootstrap-3.3.5',
         'sprintf': 'lib/sprintf-1.0.3',
-        'd3': 'lib/d3-3.5.10',
+        'd3': 'lib/d3-3.5.12',
         'datatables.net': 'lib/jquery.dataTables-1.10.10',
         'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.10',
         'URI': 'lib/URI-1.16.0',
