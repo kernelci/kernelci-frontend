@@ -202,6 +202,7 @@ require([
 
         results = response.result;
         if (results.length === 0) {
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No jobs data available.'));
