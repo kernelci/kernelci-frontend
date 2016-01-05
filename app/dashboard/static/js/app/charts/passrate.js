@@ -58,68 +58,60 @@ define([
         }
 
         return dataObj;
-     }
+    }
 
-    passrate.bootpassrate = function(element, response) {
-        var chart,
-            setup,
-            datat = null;
+    function createGraph(data, settings) {
+        if (data) {
+            settings.values = data;
+            settings.chart = k.charts.rate();
 
-        datat = countBDReports(response);
+            html.removeChildren(document.getElementById(settings.element));
 
-        if (datat !== null) {
-            chart = k.charts.rate();
-            setup = {
-                'values': datat,
-                'chart': chart,
-                'graphType': 'boot',
-                'dataAttributes': ['job', 'kernel', 'pass', 'total'],
-                'clickFunction': k.toBootLinkClick
-            };
-
-            html.removeChildren(document.getElementById(element));
-
-            d3.select('#' + element)
-                .data([setup])
+            d3.select('#' + settings.element)
+                .data([settings])
                 .each(function(datum) {
                     d3.select(this).call(datum.chart);
                 });
         } else {
             html.replaceContent(
-                document.getElementById(element),
+                document.getElementById(settings.element),
                 html.errorDiv('No data available to show.'));
         }
+    }
+
+    function countWorkerResponse(response) {
+        createGraph(response.data, this);
+    }
+
+    function prepareGraph(response, settings) {
+        var worker;
+
+        if (window.Worker) {
+            worker = new Worker('/static/js/worker/count-status-rate.js');
+
+            worker.onmessage = countWorkerResponse.bind(settings);
+            worker.postMessage(response);
+        } else {
+            createGraph(countBDReports(response), settings);
+        }
+    }
+
+    passrate.bootpassrate = function(element, response) {
+        prepareGraph(response, {
+            element: element,
+            graphType: 'boot',
+            dataAttributes: ['job', 'kernel', 'pass', 'total'],
+            clickFunction: k.toBootLinkClick
+        });
     };
 
     passrate.buildpassrate = function(element, response) {
-        var chart,
-            setup,
-            datat = null;
-
-        datat = countBDReports(response);
-
-        if (datat !== null) {
-            chart = k.charts.rate();
-            setup = {
-                'values': datat,
-                'chart': chart,
-                'graphType': 'build',
-                'dataAttributes': ['job', 'kernel', 'pass', 'total'],
-                'clickFunction': k.toBuildLinkClick
-            };
-
-            html.removeChildren(document.getElementById(element));
-
-            d3.select('#' + element)
-                .data([setup])
-                .each(function(datum) {
-                    d3.select(this).call(datum.chart);
-                });
-        } else {
-            html.replaceContent(
-                document.getElementById(element),
-                html.errorDiv('No data available to show.'));
-        }
+        prepareGraph(response, {
+            element: element,
+            graphType: 'build',
+            dataAttributes: ['job', 'kernel', 'pass', 'total'],
+            clickFunction: k.toBuildLinkClick
+        });
     };
 
     return passrate;
