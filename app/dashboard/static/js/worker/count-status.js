@@ -28,6 +28,7 @@ onmessage = function(message) {
                 other = other + 1;
                 break;
         }
+        total = total + 1;
     }
 
     counted = null;
@@ -41,7 +42,6 @@ onmessage = function(message) {
 
         if (results.length > 0) {
             results.forEach(_count);
-            total = passed + failed + other;
             counted = [total, [passed, failed, other]];
         }
     }
