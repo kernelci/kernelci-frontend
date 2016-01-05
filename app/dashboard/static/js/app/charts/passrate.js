@@ -11,50 +11,47 @@ define([
     passrate = {};
 
     function countBDReports(response) {
-        var dataObj = null,
-            i = 0,
-            count,
-            tData,
-            dataLength,
-            lData,
+        var count,
+            dataObj,
             kernel,
+            results,
             status;
 
+        function _count(result) {
+            kernel = result.kernel;
+            status = result.status;
+
+            if (!dataObj.hasOwnProperty(kernel)) {
+                dataObj[kernel] = {};
+                dataObj[kernel].job = result.job;
+                dataObj[kernel].kernel = kernel;
+                dataObj[kernel].pass = 0;
+                dataObj[kernel].fail = 0;
+                dataObj[kernel].other = 0;
+            }
+
+            switch (status) {
+                case 'PASS':
+                    dataObj[kernel].pass = (dataObj[kernel].pass || 0) + 1;
+                    break;
+                case 'FAIL':
+                    dataObj[kernel].fail = (dataObj[kernel].fail || 0) + 1;
+                    break;
+                default:
+                    dataObj[kernel].other = (dataObj[kernel].other || 0) + 1;
+                    break;
+            }
+
+            dataObj[kernel].total = (dataObj[kernel].total || 0) + 1;
+        }
+
+        dataObj = null;
         count = response.count;
+
         if (count > 0) {
             dataObj = {};
-            tData = response.result;
-            dataLength = tData.length;
-
-            for (i; i < dataLength; i = i + 1) {
-                lData = tData[i];
-                kernel = lData.kernel;
-                status = lData.status;
-
-                if (!dataObj.hasOwnProperty(kernel)) {
-                    dataObj[kernel] = {};
-                    dataObj[kernel].job = lData.job;
-                    dataObj[kernel].kernel = kernel;
-                    dataObj[kernel].pass = 0;
-                    dataObj[kernel].fail = 0;
-                    dataObj[kernel].other = 0;
-                }
-
-                switch (status) {
-                    case 'PASS':
-                        dataObj[kernel].pass = (dataObj[kernel].pass || 0) + 1;
-                        break;
-                    case 'FAIL':
-                        dataObj[kernel].fail = (dataObj[kernel].fail || 0) + 1;
-                        break;
-                    default:
-                        dataObj[kernel].other =
-                            (dataObj[kernel].other || 0) + 1;
-                        break;
-                }
-
-                dataObj[kernel].total = (dataObj[kernel].total || 0) + 1;
-            }
+            results = response.result;
+            results.forEach(_count);
         }
 
         return dataObj;
