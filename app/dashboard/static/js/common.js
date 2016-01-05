@@ -17,10 +17,10 @@ require.config({
         'd3': 'lib/d3-3.5.12',
         'datatables.net': 'lib/jquery.dataTables-1.10.10',
         'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.10',
-        'URI': 'lib/URI-1.16.0',
-        'punycode': 'lib/punycode-1.16.0',
-        'IPv6': 'lib/IPv6-1.16.0',
-        'SecondLevelDomains': 'lib/SecondLevelDomains-1.16.0'
+        'URI': 'lib/URI-1.17.0',
+        'punycode': 'lib/punycode-1.17.0',
+        'IPv6': 'lib/IPv6-1.17.0',
+        'SecondLevelDomains': 'lib/SecondLevelDomains-1.17.0'
     },
     map: {
         '*': {

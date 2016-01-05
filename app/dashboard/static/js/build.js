@@ -12,16 +12,16 @@
         'tables': './app/tables',
         'buttons': './app/buttons',
         'components': './app/components',
-        'jquery': 'lib/jquery-2.1.4',
-        'bootstrap': 'lib/bootstrap-3.3.6',
         'sprintf': 'lib/sprintf-1.0.3',
-        'd3': 'lib/d3-3.5.12',
-        'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.10',
-        'datatables.net': 'lib/jquery.dataTables-1.10.10',
-        'URI': 'lib/URI-1.16.0',
-        'punycode': 'lib/punycode-1.16.0',
-        'IPv6': 'lib/IPv6-1.16.0',
-        'SecondLevelDomains': 'lib/SecondLevelDomains-1.16.0',
+        'URI': 'lib/URI-1.17.0',
+        'punycode': 'lib/punycode-1.17.0',
+        'IPv6': 'lib/IPv6-1.17.0',
+        'SecondLevelDomains': 'lib/SecondLevelDomains-1.17.0',
+        'datatables.bootstrap': 'empty:',
+        'datatables.net': 'empty:',
+        'jquery': 'empty:',
+        'bootstrap': 'empty:',
+        'd3': 'empty:',
         'jquery.hotkeys': 'empty:',
         'jquery.hotkeymap': 'empty:'
     },
@@ -57,9 +57,6 @@
         }
     },
     shim: {
-        'bootstrap': {
-            deps: ['jquery']
-        },
         'datatables.bootstrap': {
             deps: ['datatables.net']
         },
