@@ -13,7 +13,7 @@
         'buttons': './app/buttons',
         'components': './app/components',
         'jquery': 'lib/jquery-2.1.4',
-        'bootstrap': 'lib/bootstrap-3.3.5',
+        'bootstrap': 'lib/bootstrap-3.3.6',
         'sprintf': 'lib/sprintf-1.0.3',
         'd3': 'lib/d3-3.5.12',
         'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.10',
