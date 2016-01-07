@@ -1,9 +1,8 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'jquery',
-    'utils/html',
     'bootstrap'
-], function($, html) {
+], function($) {
     'use strict';
     var err;
 
