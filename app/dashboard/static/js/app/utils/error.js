@@ -41,7 +41,7 @@ define([
             divNode.appendChild(document.createTextNode(' '));
             divNode.appendChild(
                 document.createTextNode(
-                    'Please contanct the website administrator'));
+                    'Please contact the website administrator'));
         }
 
         return divNode;
