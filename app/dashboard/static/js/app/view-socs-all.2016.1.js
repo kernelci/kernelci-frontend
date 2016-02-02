@@ -346,11 +346,13 @@ require([
                 {
                     data: 'mach',
                     title: 'SoC',
+                    type: 'string',
                     render: tsoc.renderSoc
                 },
                 {
                     data: 'mach',
                     title: 'Total Unique Labs',
+                    type: 'string',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderLabsCount
@@ -358,6 +360,7 @@ require([
                 {
                     data: 'mach',
                     title: 'Total Unique Boards',
+                    type: 'string',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderBoardsCount
@@ -365,6 +368,7 @@ require([
                 {
                     data: 'mach',
                     title: 'Total Boot Reports',
+                    type: 'string',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderBootsCount
@@ -372,6 +376,7 @@ require([
                 {
                     data: 'mach',
                     title: '',
+                    type: 'string',
                     searchable: false,
                     orderable: false,
                     className: 'select-column pull-center',
@@ -402,15 +407,21 @@ require([
 
         // Internal filter function to check valid SoC values.
         function _isValidMach(data) {
-            if (data.hasOwnProperty('mach') && data.mach) {
+            if (data && data !== null && data !== undefined) {
                 return true;
             }
             return false;
         }
 
+        // Convert a value into an object.
+        function _toObject(data) {
+            return {mach: data};
+        }
+
         results = response.result;
         if (results) {
             results = results.filter(_isValidMach);
+            results = results.map(_toObject);
         }
 
         getSocsDone(results);
@@ -431,19 +442,7 @@ require([
     function getSocs() {
         var deferred;
 
-        deferred = request.get(
-            '/_ajax/boot',
-            {
-                aggregate: 'mach',
-                date_range: gDateRange,
-                field: [
-                    'mach'
-                ],
-                sort: 'mach',
-                sort_order: 1
-            }
-        );
-
+        deferred = request.get('/_ajax/boot/distinct/mach/', {});
         $.when(deferred)
             .fail(error.error, getSocsFail)
             .done(getSocsParse);
