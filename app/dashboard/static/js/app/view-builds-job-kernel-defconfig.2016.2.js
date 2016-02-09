@@ -529,8 +529,12 @@ require([
             buildModulesSize,
             buildPlatform,
             buildTime,
+            compiler,
+            compilerVersion,
+            compilerVersionFull,
             configFragments,
             createdOn,
+            crossCompile,
             defconfig,
             defconfigNode,
             detailNode,
@@ -549,7 +553,6 @@ require([
             kernelImage,
             kernelImageSize,
             lDefconfigFull,
-            metadata,
             modulesDirectory,
             pathURI,
             resLen,
@@ -591,7 +594,6 @@ require([
             arch = results.arch;
             defconfig = results.defconfig;
             lDefconfigFull = results.defconfig_full;
-            metadata = results.metadata;
             buildTime = results.build_time;
             dtb = results.dtb_dir;
             buildModules = results.modules;
@@ -606,6 +608,10 @@ require([
             buildPlatform = results.build_platform;
             fileServerURL = results.file_server_url;
             fileServerResource = results.file_server_resource;
+            compiler = results.compiler;
+            compilerVersion = results.compiler_version;
+            compilerVersionFull = results.compiler_version_full;
+            crossCompile = results.cross_compile;
 
             if (fileServerURL === null || fileServerURL === undefined) {
                 fileServerURL = fileServer;
@@ -738,27 +744,46 @@ require([
                 }
             }
 
-            if (metadata.hasOwnProperty('cross_compile')) {
+            if (crossCompile) {
                 html.replaceContent(
-                    document.getElementById('build-cross-compile'),
-                    document.createTextNode(metadata.cross_compile));
+                    document.getElementById('cross-compile'),
+                    document.createTextNode(crossCompile));
             } else {
                 html.replaceContent(
-                    document.getElementById('build-cross-compile'),
+                    document.getElementById('cross-compile'),
                     html.nonavail());
             }
 
-            if (metadata.hasOwnProperty('compiler_version')) {
+            if (compiler) {
                 html.replaceContent(
-                    document.getElementById('build-compiler'),
-                    document.createTextNode(metadata.compiler_version));
+                    document.getElementById('compiler'),
+                    document.createTextNode(compiler));
             } else {
                 html.replaceContent(
-                    document.getElementById('build-compiler'),
+                    document.getElementById('compiler'), html.nonavail());
+            }
+
+            if (compilerVersion) {
+                html.replaceContent(
+                    document.getElementById('compiler-version'),
+                    document.createTextNode(compilerVersion));
+            } else {
+                html.replaceContent(
+                    document.getElementById('compiler-version'),
                     html.nonavail());
             }
 
-            if (arch !== null) {
+            if (compilerVersionFull) {
+                html.replaceContent(
+                    document.getElementById('compiler-version-full'),
+                    document.createTextNode(compilerVersionFull));
+            } else {
+                html.replaceContent(
+                    document.getElementById('compiler-version-full'),
+                    html.nonavail());
+            }
+
+            if (arch) {
                 html.replaceContent(
                     document.getElementById('build-arch'),
                     document.createTextNode(arch));
@@ -1077,13 +1102,15 @@ require([
 
         if (buildId !== 'None') {
             data = {
-             id: buildId
+                id: buildId,
+                nfield: ['dtb_dir_data']
             };
         } else {
             data = {
                 job: jobName,
                 kernel: kernelName,
-                defconfig_full: defconfigFull
+                defconfig_full: defconfigFull,
+                nfield: ['dtb_dir_data']
             };
         }
 
