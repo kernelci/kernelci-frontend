@@ -51,7 +51,8 @@ require([
             sort_order: 1,
             created_on: startDate,
             date_range: dateRange,
-            field: ['status', 'kernel', 'created_on', 'job']
+            field: ['status', 'kernel', 'created_on', 'job'],
+            nfield: ['_id']
         };
 
         deferred = r.get('/_ajax/boot', data);
@@ -80,7 +81,8 @@ require([
             sort_order: 1,
             created_on: startDate,
             date_range: dateRange,
-            field: ['status', 'kernel', 'created_on', 'job']
+            field: ['status', 'kernel', 'created_on', 'job'],
+            nfield: ['_id']
         };
 
         deferred = r.get('/_ajax/build', data);
@@ -430,7 +432,8 @@ require([
             field: [
                 'job',
                 'kernel', 'created_on', 'git_branch', 'git_commit', 'git_url'
-            ]
+            ],
+            nfield: ['_id']
         };
 
         deferred = r.get('/_ajax/build', data);
