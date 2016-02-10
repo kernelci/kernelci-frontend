@@ -230,7 +230,19 @@ require([
         date_range: gDateRange,
         limit: appconst.MAX_QUERY_LIMIT,
         sort: 'created_on',
-        sort_order: -1
+        sort_order: -1,
+        fields: [
+            '_id',
+            'arch',
+            'board',
+            'created_on',
+            'defconfig_full',
+            'git_branch',
+            'job',
+            'kernel',
+            'lab_name',
+            'status'
+        ]
     };
 
     gBootsTable = table({
