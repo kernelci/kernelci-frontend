@@ -352,7 +352,7 @@ require([
                 {
                     data: 'mach',
                     title: 'Total Unique Labs',
-                    type: 'string',
+                    type: 'num',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderLabsCount
@@ -360,7 +360,7 @@ require([
                 {
                     data: 'mach',
                     title: 'Total Unique Boards',
-                    type: 'string',
+                    type: 'num',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderBoardsCount
@@ -368,7 +368,7 @@ require([
                 {
                     data: 'mach',
                     title: 'Total Boot Reports',
-                    type: 'string',
+                    type: 'num',
                     searchable: false,
                     className: 'pull-center',
                     render: _renderBootsCount
