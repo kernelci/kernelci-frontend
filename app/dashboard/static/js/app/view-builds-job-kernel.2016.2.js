@@ -95,7 +95,6 @@ require([
             infoNode,
             job,
             kernel,
-            metadata,
             panelNode,
             pathURI,
             results,
@@ -142,20 +141,13 @@ require([
                 dataIndex += result.status.toLowerCase();
             }
 
-            if (result.metadata) {
-                if (result.metadata.hasOwnProperty('cross_compile')) {
-                    if (result.metadata.cross_compile) {
-                        dataIndex +=
-                            result.metadata.cross_compile.toLowerCase();
-                    }
-                }
+            if (result.cross_compile) {
+                dataIndex +=
+                    result.cross_compile.toLowerCase();
+            }
 
-                if (result.metadata.hasOwnProperty('compiler_version')) {
-                    if (result.metadata.compiler_version) {
-                        dataIndex +=
-                            result.metadata.compiler_version.toLowerCase();
-                    }
-                }
+            if (result.compiler_version_full) {
+                dataIndex += result.compiler_version_full.toLowerCase();
             }
 
             return dataIndex;
@@ -171,7 +163,6 @@ require([
             fileServerResource = result.file_server_resource;
             errorsCount = result.errors;
             warningsCount = result.warnings;
-            metadata = result.metadata;
             status = result.status;
 
             if (fileServerURL === null || fileServerURL === undefined) {
@@ -541,43 +532,61 @@ require([
             colNode.appendChild(dlNode);
             rowNode.appendChild(colNode);
 
-            if (metadata) {
-                if (metadata.hasOwnProperty('cross_compile') ||
-                        metadata.hasOwnProperty('compiler_version')) {
+            if (result.compiler || result.compiler_version_full ||
+                    result.cross_compile) {
 
-                    colNode = document.createElement('div');
-                    colNode.className = 'col-xs-12 col-sm-12 ' +
-                        'col-md-12 col-lg-12';
-                    dlNode = document.createElement('dl');
-                    dlNode.className = 'dl-horizontal';
+                colNode = document.createElement('div');
+                colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+                dlNode = document.createElement('dl');
+                dlNode.className = 'dl-horizontal';
 
-                    if (metadata.hasOwnProperty('cross_compile')) {
-                        dtNode = document.createElement('dt');
-                        dtNode.appendChild(
-                            document.createTextNode('Cross-compile'));
-                        ddNode = document.createElement('dd');
-                        ddNode.appendChild(
-                            document.createTextNode(
-                                metadata.cross_compile));
-                        dlNode.appendChild(dtNode);
-                        dlNode.appendChild(ddNode);
-                    }
-
-                    if (metadata.hasOwnProperty('compiler_version')) {
-                        dtNode = document.createElement('dt');
-                        dtNode.appendChild(
-                            document.createTextNode('Compiler'));
-                        ddNode = document.createElement('dd');
-                        ddNode.appendChild(
-                            document.createTextNode(
-                                metadata.compiler_version));
-                        dlNode.appendChild(dtNode);
-                        dlNode.appendChild(ddNode);
-                    }
-
-                    colNode.appendChild(dlNode);
-                    rowNode.appendChild(colNode);
+                if (result.compiler) {
+                    dtNode = document.createElement('dt');
+                    dtNode.appendChild(
+                        document.createTextNode('Compiler'));
+                    ddNode = document.createElement('dd');
+                    ddNode.appendChild(
+                        document.createTextNode(result.compiler));
+                    dlNode.appendChild(dtNode);
+                    dlNode.appendChild(ddNode);
                 }
+
+                if (result.compiler_version) {
+                    dtNode = document.createElement('dt');
+                    dtNode.appendChild(
+                        document.createTextNode('Compiler version'));
+                    ddNode = document.createElement('dd');
+                    ddNode.appendChild(
+                        document.createTextNode(result.compiler_version));
+                    dlNode.appendChild(dtNode);
+                    dlNode.appendChild(ddNode);
+                }
+
+                if (result.compiler_version_full) {
+                    dtNode = document.createElement('dt');
+                    dtNode.appendChild(
+                        document.createTextNode('Compiler string'));
+                    ddNode = document.createElement('dd');
+                    ddNode.appendChild(
+                        document.createTextNode(
+                            result.compiler_version_full));
+                    dlNode.appendChild(dtNode);
+                    dlNode.appendChild(ddNode);
+                }
+
+                if (result.cross_compile) {
+                    dtNode = document.createElement('dt');
+                    dtNode.appendChild(
+                        document.createTextNode('Cross-compile'));
+                    ddNode = document.createElement('dd');
+                    ddNode.appendChild(
+                        document.createTextNode(result.cross_compile));
+                    dlNode.appendChild(dtNode);
+                    dlNode.appendChild(ddNode);
+                }
+
+                colNode.appendChild(dlNode);
+                rowNode.appendChild(colNode);
             }
 
             colNode = document.createElement('div');
@@ -701,7 +710,8 @@ require([
                     job_id: results[0]._id.$oid,
                     kernel: gKernelName,
                     sort: ['defconfig_full', 'arch'],
-                    sort_order: 1
+                    sort_order: 1,
+                    nfield: ['dtb_dir_data']
                 }
             );
 
