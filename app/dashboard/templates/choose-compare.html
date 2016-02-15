@@ -9,7 +9,8 @@
         padding-left: 0.5em;
     }
     .input-group-addon {
-        min-width: 70px;
+        max-width: 80px;
+        min-width: 80px;
         text-align: left;
     }
     .comparison-choice {
@@ -22,7 +23,7 @@
         width: 100%;
         overflow: hidden;
     }
-    .choice-group > div:first-child {
+    .choice-group > div:not(:last-child) {
         padding-bottom: 0.5em;
     }
     div.choice-group {
@@ -34,10 +35,15 @@
         font-size: smaller;
         overflow: hidden;
         padding-right: 0.2em;
-        padding-top: 2em;
         text-align: center;
         vertical-align: middle;
         width: 5%;
+    }
+    div.choice-group-number.job {
+        padding-top: 2em;
+    }
+    div.choice-group-number.build {
+        padding-top: 6em;
     }
     div.choice-group > div.choice-wrapper:last-child > div.input-choice {
         padding-bottom: 0.25em;

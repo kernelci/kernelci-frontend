@@ -5,20 +5,53 @@ define([
     'compare/const'
 ], function(html, cevents, constants) {
     'use strict';
-    var commonCompare;
+    var gCommonCompare;
+    var gJobData;
+    var gKernelData;
+    var gDefconfigData;
+    var gArchData;
 
-    commonCompare = {};
+    gCommonCompare = {};
 
-    function createKernelChoice(kernelId, treeId, required, bucketId) {
-        var wrapperNode,
-            divNode,
-            inputNode,
-            labelNode;
+    gJobData = {
+        label: 'Tree',
+        title: 'Choose a tree name',
+        pattern: '[A-Za-z0-9_.-]*',
+        list: 'trees',
+        focusEvent: null
+    };
 
-        if (required === undefined || required === null) {
-            required = false;
+    gKernelData = {
+        label: 'Kernel',
+        title: 'Choose a kernel value',
+        pattern: '[A-Za-z0-9_.-]*',
+        focusEvent: cevents.kernelInputFocus
+    };
+
+    gArchData = {
+        label: 'Architecture',
+        title: 'Choose an architecture',
+        pattern: '[xarm468-_]*',
+        focusEvent: cevents.archInputFocus
+    };
+
+    gDefconfigData = {
+        label: 'Defconfig',
+        title: 'Choose a defconfig',
+        pattern: '[A-Za-z0-9_.-+]*',
+        focusEvent: cevents.defconfigInputFocus
+    };
+
+    function createInputControl(options) {
+        var wrapperNode;
+        var divNode;
+        var inputNode;
+        var labelNode;
+
+        if (!options.hasOwnProperty('required')) {
+            options.required = false;
         } else {
-            required = Boolean(required);
+            options.required = Boolean(options.required);
         }
 
         wrapperNode = document.createElement('div');
@@ -29,91 +62,57 @@ define([
 
         labelNode = document.createElement('label');
         labelNode.className = 'input-group-addon';
-        labelNode.id = kernelId + '-label';
-        labelNode.for = kernelId;
-        labelNode.appendChild(document.createTextNode('Kernel'));
+        labelNode.id = options.elementId + '-label';
+        labelNode.for = options.elementId;
+        labelNode.appendChild(document.createTextNode(options.label));
 
         divNode.appendChild(labelNode);
 
         inputNode = document.createElement('input');
-        inputNode.id = kernelId;
-        inputNode.name = kernelId;
-        inputNode.className = 'form-control kernel';
-        inputNode.required = required;
+        inputNode.id = options.elementId;
+        inputNode.name = options.elementId;
+
+        if (options.hasOwnProperty('className') && options.className) {
+            inputNode.className = 'form-control ' + options.className;
+        } else {
+            inputNode.className = 'form-control';
+        }
+
+        inputNode.required = options.required;
         inputNode.type = 'text';
         inputNode.inputmode = 'verbatim';
-        inputNode.pattern = '[A-Za-z0-9_.-]*';
-        inputNode.title = 'Choose a kernel name';
-        inputNode.setAttribute('data-tree', treeId);
-        inputNode.setAttribute('aria-describedby', kernelId + '-label');
+        inputNode.pattern = options.pattern;
+        inputNode.title = options.title;
 
-        if (bucketId !== undefined && bucketId !== null && bucketId !== '') {
-            inputNode.setAttribute('data-bucket', bucketId);
+        inputNode.setAttribute('data-type', options.type);
+        Object.keys(options.data).forEach(function(key) {
+            inputNode.setAttribute('data-' + key, options.data[key]);
+        });
+
+        if (options.hasOwnProperty('list') && options.list) {
+            inputNode.setAttribute('list', options.list);
+        }
+
+        inputNode.setAttribute(
+            'aria-describedby', options.elementId + '-label');
+
+        if (options.hasOwnProperty('bucketId') && options.bucketId) {
+            inputNode.setAttribute('data-bucket', options.bucketId);
         } else {
             inputNode.setAttribute('data-bucket', constants.DATA_BUCKET_ID);
         }
 
         inputNode.addEventListener('focus', cevents.removeInvalid, true);
-        inputNode.addEventListener('focus', cevents.kernelInputFocus, true);
 
-        divNode.appendChild(inputNode);
-        wrapperNode.appendChild(divNode);
-
-        divNode = document.createElement('div');
-        divNode.id = kernelId + '-notify';
-        divNode.className = 'input-notify';
-
-        wrapperNode.appendChild(divNode);
-
-        return wrapperNode;
-    }
-
-    function createTreeChoice(treeId, kernelId, required) {
-        var wrapperNode,
-            divNode,
-            inputNode,
-            labelNode;
-
-        if (required === undefined || required === null) {
-            required = false;
-        } else {
-            required = Boolean(required);
+        if (options.hasOwnProperty('focusEvent') && options.focusEvent) {
+            inputNode.addEventListener('focus', options.focusEvent, true);
         }
 
-        wrapperNode = document.createElement('div');
-        wrapperNode.className = 'choice-wrapper';
-
-        divNode = document.createElement('div');
-        divNode.className = 'input-group input-group-sm input-choice';
-
-        labelNode = document.createElement('label');
-        labelNode.className = 'input-group-addon';
-        labelNode.id = treeId + '-label';
-        labelNode.for = treeId;
-        labelNode.appendChild(document.createTextNode('Tree'));
-
-        divNode.appendChild(labelNode);
-
-        inputNode = document.createElement('input');
-        inputNode.id = treeId;
-        inputNode.name = treeId;
-        inputNode.className = 'form-control tree';
-        inputNode.required = required;
-        inputNode.type = 'text';
-        inputNode.inputmode = 'verbatim';
-        inputNode.pattern = '[A-Za-z0-9_.-]*';
-        inputNode.title = 'Choose a tree name';
-        inputNode.setAttribute('list', 'trees');
-        inputNode.setAttribute('data-kernel', kernelId);
-        inputNode.setAttribute('aria-describedby', treeId + '-label');
-
-        inputNode.addEventListener('focus', cevents.removeInvalid, true);
-
         divNode.appendChild(inputNode);
         wrapperNode.appendChild(divNode);
 
         divNode = document.createElement('div');
-        divNode.id = treeId + '-notify';
+        divNode.id = options.elementId + '-notify';
         divNode.className = 'input-notify';
 
         wrapperNode.appendChild(divNode);
@@ -121,75 +120,191 @@ define([
         return wrapperNode;
     }
 
-    function createJobMultiChoice(idx, required, bucketId) {
-        var divNode,
-            inputChoiceNode,
-            kernelId,
-            treeId;
-
-        treeId = 'compare-tree' + idx;
-        kernelId = 'compare-kernel' + idx;
-
-        divNode = document.createElement('div');
-        divNode.className = 'choice-group';
-
-        // The tree choice.
-        inputChoiceNode = createTreeChoice(treeId, kernelId, required);
-        divNode.appendChild(inputChoiceNode);
-
-        // The kernel choice.
-        inputChoiceNode = createKernelChoice(
-            kernelId, treeId, required, bucketId);
-        divNode.appendChild(inputChoiceNode);
-
-        return divNode;
-    }
-
-    function createJobChoice(bucketId) {
+    function createJobMultiChoice(options) {
         var divNode;
 
         divNode = document.createElement('div');
         divNode.className = 'choice-group';
 
+        options.treeId = 'compare-tree' + options.idx;
+        options.kernelId = 'compare-kernel' + options.idx;
+
+        options.data.tree = options.treeId;
+        options.data.kernel = options.kernelId;
+
         // The tree choice.
-        divNode.appendChild(
-            createTreeChoice('baseline-tree', 'baseline-kernel', true));
+        options.elementId = options.treeId;
+        options.className = 'tree';
+        Object.keys(gJobData).forEach(function(key) {
+            options[key] = gJobData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+        // Force the 'list' value to null to not pollute other input fields.
+        options.list = null;
+        options.className = null;
 
         // The kernel choice.
-        divNode.appendChild(createKernelChoice(
-            'baseline-kernel', 'baseline-tree', true, bucketId));
+        options.elementId = options.kernelId;
+        Object.keys(gKernelData).forEach(function(key) {
+            options[key] = gKernelData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
 
         return divNode;
     }
 
-    function createMultiChoice(type, idx, required, bucketId) {
-        var choiceNode,
-            divNode,
-            numberDivNode,
-            tooltipNode;
+    function createJobChoice(options) {
+        var divNode;
 
         divNode = document.createElement('div');
-        divNode.id = 'compare-choice' + idx;
+        divNode.className = 'choice-group';
 
-        if (required === undefined || required === null) {
-            required = false;
+        if (!options.hasOwnProperty('treeId')) {
+            options.treeId = 'baseline-tree';
+        }
+
+        if (!options.hasOwnProperty('kernelId')) {
+            options.kernelId = 'baseline-kernel';
+        }
+
+        if (!options.hasOwnProperty('data')) {
+            options.data = {};
+        }
+
+        options.data.tree = options.treeId;
+        options.data.kernel = options.kernelId;
+
+        // The tree choice.
+        options.elementId = options.treeId;
+        Object.keys(gJobData).forEach(function(key) {
+            options[key] = gJobData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+        // Force the 'list' value to null to not pollute other input fields.
+        options.list = null;
+
+        // The kernel choice.
+        options.elementId = options.kernelId;
+        Object.keys(gKernelData).forEach(function(key) {
+            options[key] = gKernelData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        return divNode;
+    }
+
+    /**
+     * Create the compare targets multi-choice elements.
+     *
+     * @param {Object} options: The configuration parameters.
+    **/
+    function createBuildMultiChoice(options) {
+        var divNode;
+
+        options.defconfigId = 'compare-defconfig' + options.idx;
+        options.archId = 'compare-arch' + options.idx;
+        options.data.defconfig = options.defconfigId;
+        options.data.arch = options.archId;
+
+        // Start from the base of tree-kernel.
+        divNode = createJobMultiChoice(options);
+
+        // Then defconfig choice.
+        options.elementId = options.defconfigId;
+        Object.keys(gDefconfigData).forEach(function(key) {
+            options[key] = gDefconfigData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // The architecture choice.
+        options.elementId = options.archId;
+        Object.keys(gArchData).forEach(function(key) {
+            options[key] = gArchData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        return divNode;
+    }
+
+    /**
+     * Create the baseline choice for build comparisons.
+     *
+     * @param {String} bucketId: The ID of the data-list bucket.
+    **/
+    function createBuildChoice(options) {
+        var divNode;
+
+        options.defconfigId = 'baseline-defconfig';
+        options.archId = 'baseline-arch';
+        options.data.defconfig = options.defconfigId;
+        options.data.arch = options.archId;
+
+        // Start from the base of tree-kernel.
+        divNode = createJobChoice(options);
+
+        // The defconfig choice.
+        options.elementId = options.defconfigId;
+        Object.keys(gDefconfigData).forEach(function(key) {
+            options[key] = gDefconfigData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // The architecture choice.
+        options.elementId = options.archId;
+        Object.keys(gArchData).forEach(function(key) {
+            options[key] = gArchData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        return divNode;
+    }
+
+    /**
+     *
+    **/
+    function createMultiChoice(options) {
+        var choiceNode;
+        var divNode;
+        var numberDivNode;
+        var tooltipNode;
+
+        divNode = document.createElement('div');
+        divNode.id = 'compare-choice' + options.idx;
+
+        if (!options.hasOwnProperty('required')) {
+            options.required = false;
         } else {
-            required = Boolean(required);
+            options.required = Boolean(options.required);
         }
 
         numberDivNode = document.createElement('div');
-        numberDivNode.className = 'choice-group-number';
+        numberDivNode.className = 'choice-group-number ' + options.type;
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Compare target ' + idx);
-        tooltipNode.appendChild(document.createTextNode(idx));
+        tooltipNode.setAttribute('title', 'Compare target ' + options.idx);
+        tooltipNode.appendChild(document.createTextNode(options.idx));
 
         numberDivNode.appendChild(tooltipNode);
         divNode.appendChild(numberDivNode);
 
-        switch (type) {
+        // Set up the data structure to hold HTML data-* attributes.
+        // The key will be used for the data-* name.
+        options.data = {};
+
+        switch (options.type) {
             case 'job':
-                choiceNode = createJobMultiChoice(idx, required, bucketId);
+                choiceNode = createJobMultiChoice(options);
+                break;
+            case 'build':
+                choiceNode = createBuildMultiChoice(options);
                 break;
             default:
                 choiceNode = document.createElement('div');
@@ -204,19 +319,24 @@ define([
     /**
      * Create the multiple comparison targets choice.
      *
-     * @param {string} type: The type of the target choice.
-     * @param {number} idx: The number of the choice.
-     * @param {boolean} required: If the input fields are required.
-     * @param {string} bucketId: The ID of the datalist container bucket.
+     * Accepts a configuration object consisting of the following attributes:
+     *
+     * type {String}: The type of the target choice [job, build, boot].
+     * idx {Number}: The index number of the choice.
+     * required {Boolean}: If the input fields are required.
+     * bucketId {String}: The ID of the datalist container bucket.
+     *
+     * @param {Object} options: The configuration object.
+     *
     **/
-    commonCompare.multiChoice = function(type, idx, required, bucketId) {
-        return createMultiChoice(type, idx, required, bucketId);
+    gCommonCompare.multiChoice = function(options) {
+        return createMultiChoice(options);
     };
 
     /**
      * Create an HTML form element.
     **/
-    commonCompare.form = function() {
+    gCommonCompare.form = function() {
         var formNode;
 
         formNode = document.createElement('form');
@@ -231,10 +351,10 @@ define([
     /**
      * Create a div element that should contain datalist data.
      *
-     * @param {string} bucketId: The id the new element should have. If not
+     * @param {String} bucketId: The id the new element should have. If not
      * specified it will default to 'data-bucket'.
     **/
-    commonCompare.dataBucket = function(bucketId) {
+    gCommonCompare.dataBucket = function(bucketId) {
         var divNode;
 
         divNode = document.createElement('div');
@@ -249,73 +369,35 @@ define([
     };
 
     /**
-     * Create the tree input selection.
-     * The returned HTML structure is an HTML div node that wraps the tree
-     * input selection:
+     * Create the basic build choice target.
      *
-     * <div>
-     *   <div>
-     *     <label for="treeId" id="treeId-label">Tree</label>
-     *     <input id="treeId">
-     *   </div>
-     *   <div id="treeId-notify"></div>
-     * </div>
-     *
-     * @param {string} treeId: The ID the input element should have.
-     * @param {string} kernelId: The ID the kernel element bound to this.
-     * @param {boolean} required: If the input is required for validation.
-     * Default to false.
+     * @param {String} bucketId: The ID of the datalist bucket element.
     **/
-    commonCompare.treeChoice = function(treeId, kernelId, required) {
-        return createTreeChoice(treeId, kernelId, required);
-    };
-
-    /**
-     * Create the kernel input selection.
-     * The returned HTML structure is an HTML div node that wraps the kernel
-     * input selection:
-     *
-     * <div>
-     *   <div>
-     *     <label for="kernelId" id="kernelId-label">Kernel</label>
-     *     <input id="kernelId">
-     *   </div>
-     *   <div id="kernelId-notify"></div>
-     * </div>
-     *
-     * @param {string} kernelId: The ID the input element should have.
-     * @param {string} treeId: The ID of the tree element bound to this.
-     * @param {boolean} required: If the input is required for validation.
-     * @param {string} bucketId: The ID of the data bucket element where to add
-     * data-list elements.
-     * Default to false.
-    **/
-    commonCompare.kernelChoice = function(
-            kernelId, treeId, required, bucketId) {
-        return createKernelChoice(kernelId, treeId, required, bucketId);
+    gCommonCompare.buildChoice = function(options) {
+        return createBuildChoice(options);
     };
 
     /**
      * Create the basic job choice target.
      *
-     * @param {string} bucketId: The ID of the datalist bucket element.
+     * @param {String} bucketId: The ID of the datalist bucket element.
     **/
-    commonCompare.jobChoice = function(bucketId) {
-        return createJobChoice(bucketId);
+    gCommonCompare.jobChoice = function(options) {
+        return createJobChoice(options);
     };
 
     /**
      * Create a div element with +/- buttons to add/remove compare targets.
      *
-     * @param {string} containerId: The ID of the container element that will
+     * @param {String} containerId: The ID of the container element that will
      * hold new compare target selections.
-     * @param {string} type: The type of the compare choice.
+     * @param {String} type: The type of the compare choice.
     **/
-    commonCompare.addRemoveButtons = function(containerId, type, bucketId) {
-        var buttonGroupNode,
-            buttonNode,
-            container,
-            divNode;
+    gCommonCompare.addRemoveButtons = function(containerId, type, bucketId) {
+        var buttonGroupNode;
+        var buttonNode;
+        var container;
+        var divNode;
 
         container = document.createElement('div');
         container.id = 'choice-add-buttons';
@@ -372,9 +454,9 @@ define([
     /**
      * Create the DOM structure to hold the baseline selection.
     **/
-    commonCompare.baseline = function() {
-        var divNode,
-            numberDivNode;
+    gCommonCompare.baseline = function() {
+        var divNode;
+        var numberDivNode;
 
         divNode = document.createElement('div');
         divNode.id = 'baseline-choice';
@@ -389,12 +471,12 @@ define([
     /**
      * Create the compare button for the submit action.
      *
-     * @param {string} type: The type of comparison to submit.
+     * @param {String} type: The type of comparison to submit.
     **/
-    commonCompare.submitButton = function(type) {
-        var buttonDivNode,
-            buttonNode,
-            divNode;
+    gCommonCompare.submitButton = function(type) {
+        var buttonDivNode;
+        var buttonNode;
+        var divNode;
 
         divNode = document.createElement('div');
         divNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
@@ -418,5 +500,5 @@ define([
         return divNode;
     };
 
-    return commonCompare;
+    return gCommonCompare;
 });

@@ -7,88 +7,218 @@ define([
     'compare/const'
 ], function($, e, r, html, constants) {
     'use strict';
-    var compareEvents,
-        dataCache;
+    var gArchitectureStatus;
+    var gCompareEvents;
+    var gDataCache;
+    var gDefconfigStatus;
+    var gKernelStatus;
 
-    compareEvents = {};
+    gCompareEvents = {};
+
     // TODO: convert to localStorage API.
-    dataCache = {};
+    // Local cache to hold retrieved values from the backend.
+    gDataCache = {};
+    gDataCache.trees = [];
 
-    function getKernelValuesFail(element, status) {
-        var notifyNode,
-            failNode;
+    // Data structures to hold messages based on backend status code.
+    gKernelStatus = {
+        '400': {
+            content: 'Wrong data provided looking for kernel values'
+        },
+        '404': {
+            content: 'No kernel values found for chosen tree'
+        }
+    };
 
-        notifyNode = document.getElementById(element.id + '-notify');
-        html.removeChild(notifyNode);
+    gDefconfigStatus = {
+        '400': {
+            content: 'Wrong data provided looking for defconfig values'
+        },
+        '404': {
+            content: 'No defconfig values found'
+        }
+    };
 
-        failNode = html.fail();
-        failNode.setAttribute('data-toggle', 'popover');
-        failNode.setAttribute('data-container', 'body');
+    gArchitectureStatus = {
+        '400': {
+            content: 'Wrong data provided looking for architecture values'
+        },
+        '404': {
+            content: 'No architecture values found'
+        }
+    };
 
-        switch (status) {
-            case 400:
-                failNode.setAttribute('data-title', 'Wrong data');
-                failNode.setAttribute(
-                    'data-content',
-                    'Wrong data passed looking for kernel values');
-                break;
-            case 404:
-                failNode.setAttribute('data-title', 'Tree not found');
-                failNode.setAttribute(
-                    'data-content', 'No kernel values found for chosen tree');
-                break;
-            default:
-                failNode.setAttribute(
-                    'data-content', 'Error retrieving kernel values');
-                break;
+    /**
+     * Check if the tree input value is valid.
+     * If we cannot check against the backend if the tree name exists, it will
+     * be considered not valid.
+     *
+     * @return {Boolean} If the tree value is valid or not.
+    **/
+    function isValidTree(element) {
+        var isValid;
+        var treeName;
+
+        isValid = element.checkValidity();
+
+        if (isValid) {
+            treeName = html.escape(element.value);
+
+            isValid = isValid && (treeName === element.value);
+            isValid = isValid && (gDataCache.trees.indexOf(treeName) !== -1);
         }
 
-        notifyNode.appendChild(failNode);
-
-        $(notifyNode).popover({
-            selector: '[data-toggle="popover"]',
-            trigger: 'hover',
-            html: false
-        });
+        return isValid;
     }
 
-    function getKernelValuesDone(response, element, bucketId, treeName) {
-        var bucketContainer,
-            bucketContainerId,
-            dataBucket,
-            notifyNode,
-            option,
-            results,
-            treeCache,
-            warningNode;
+    /**
+     * Check if a kernel input value is valid.
+     * To be valid, the tree input value and the kernel one must be all valid.
+     *
+     * If we cannot check against the backend data, the kernel value will be
+     * considered invalid.
+     *
+     * @param {Object} elements: An object containing the tree and kernel input
+     * elements:
+     * {
+     *   tree: treeInputElement,
+     *   kernel: kernelInputElement
+     * }
+     *
+     * @return {Array} A 2-boolean elements array with the tree and kernel
+     * fields validity, in that order.
+    **/
+    function isValidKernel(elements) {
+        var isValid;
+        var kernelTxt;
+        var treeTxt;
+        var validTree;
+
+        validTree = isValidTree(elements.tree);
+        isValid = elements.kernel.checkValidity();
+
+        if (isValid) {
+            treeTxt = html.escape(elements.tree.value);
+            kernelTxt = html.escape(elements.kernel.value);
+
+            isValid = isValid && (kernelTxt === elements.kernel.value);
+
+            if (gDataCache.hasOwnProperty(treeTxt)) {
+                isValid = isValid &&
+                    (gDataCache[treeTxt].indexOf(kernelTxt) !== -1);
+            } else {
+                isValid = false;
+            }
+        }
+
+        return [validTree, isValid];
+    }
+
+    // function isValidDefconfig(treeElement, kernelElement, defconfigElement) {
+    /**
+     * Check if a defconfig input value is valid.
+     * To be valid, the tree input value and the kernel one must also be valid.
+     *
+     * If we cannot check against the backend data, the defconfig value will be
+     * considered invalid.
+     *
+     * @param {Object} elements: An object containing the tree, kernel and
+     * defconfig input elements:
+     * {
+     *   tree: treeInputElement,
+     *   kernel: kernelInputElement,
+     *   defconfig: defconfigInputElement
+     * }
+     *
+     * @return {Array} A 3-boolean elements array with the tree, kernel and
+     * defconfig fields validity, in that order.
+    **/
+    function isValidDefconfig(elements) {
+        var cacheKey;
+        var defconfigTxt;
+        var isValid;
+        var kernelTxt;
+        var treeTxt;
+        var validKernel;
+        var validTree;
+
+        validTree = isValidTree(elements.tree);
+        validKernel = isValidKernel(elements);
+
+        isValid = elements.defconfig.checkValidity();
+        if (isValid) {
+            treeTxt = html.escape(elements.tree.value);
+            kernelTxt = html.escape(elements.kernel.value);
+            defconfigTxt = html.escape(elements.defconfig.value);
+
+            isValid = isValid && (defconfigTxt === elements.defconfig.value);
+
+            cacheKey = treeTxt + kernelTxt;
+            if (gDataCache.hasOwnProperty(cacheKey)) {
+                isValid = isValid &&
+                    (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
+            } else {
+                isValid = false;
+            }
+        }
+
+        return [validTree, validKernel, isValid];
+    }
+
+    /**
+     * Handle the response from the API.
+     *
+     * @param {Object} response: The response object from the API.
+     * @param {Object} options: The object containing the necessary parameters.
+    **/
+    function getValuesDone(response, options) {
+        var bucketContainer;
+        var dataBucket;
+        var dataCache;
+        var notifyNode;
+        var option;
+        var results;
+        var warningNode;
+
+        /**
+         * Create the option element for the datalist and append it.
+         *
+         * @param {string} value: The option value.
+        **/
+        function _createAndAddOption(value) {
+            option = document.createElement('option');
+            option.value = value;
+            dataCache.push(value);
+            dataBucket.appendChild(option);
+        }
 
         results = response.result;
         if (results.length > 0) {
-            bucketContainerId = element.getAttribute('data-bucket');
-            bucketContainer = document.getElementById(bucketContainerId);
+            bucketContainer = document.getElementById(
+                options.element.getAttribute('data-bucket'));
 
             dataBucket = document.createElement('datalist');
-            dataBucket.id = bucketId;
+            dataBucket.id = options.bucketId;
 
-            treeCache = dataCache[treeName];
-            results.forEach(function(value) {
-                option = document.createElement('option');
-                option.value = value;
-                treeCache.push(value);
-                dataBucket.appendChild(option);
-            });
+            dataCache = gDataCache[options.cacheKey];
+            results.forEach(_createAndAddOption);
 
             bucketContainer.appendChild(dataBucket);
-            element.setAttribute('list', bucketId);
+            options.element.setAttribute('list', options.bucketId);
+
+            if (results.length === 1) {
+                options.element.value = results[0];
+            }
         } else {
-            notifyNode = document.getElementById(element.id + '-notify');
+            notifyNode = document.getElementById(
+                options.element.id + '-notify');
             html.removeChildren(notifyNode);
 
             warningNode = html.unknown();
             warningNode.setAttribute('data-toggle', 'popover');
             warningNode.setAttribute('data-container', 'body');
-            warningNode.setAttribute('data-title', 'No kernel values');
-            warningNode.setAttribute('data-content', 'No kernel values found');
+            warningNode.setAttribute('data-title', options.dataTitle);
+            warningNode.setAttribute('data-content', options.dataContent);
 
             notifyNode.appendChild(warningNode);
 
@@ -100,55 +230,39 @@ define([
         }
     }
 
-    function getKernelValues(treeName, element, bucketId) {
-        var deferred;
-
-        deferred = r.get('/_ajax/job/distinct/kernel?job=' + treeName);
-
-        if (!dataCache.hasOwnProperty(treeName)) {
-            dataCache[treeName] = [];
-        }
-
-        $.when(deferred)
-            .fail(function(jqXHR) {
-                getKernelValuesFail(element, jqXHR.status);
-            })
-            .done(function(response) {
-                getKernelValuesDone(response, element, bucketId, treeName);
-            });
-    }
-
-    function getTreesDone(response, bucket) {
-        var dataBucket,
-            option,
-            results;
-
-        results = response.result;
-        if (results.length > 0) {
-            dataBucket = document.createElement('datalist');
-            dataBucket.id = constants.TREES_DATA_LIST;
-
-            dataCache.trees = [];
-            results.forEach(function(value) {
-                option = document.createElement('option');
-                option.value = value;
-                dataCache.trees.push(value);
-                dataBucket.appendChild(option);
-            });
-
-            bucket.appendChild(dataBucket);
-        }
-    }
-
-    function wrongTreeValue(notifyNode, title, errorTxt) {
+    /**
+     * Handle the failed response from the API.
+     *
+     * @param {Number} status: The HTTP status code.
+     * @param {Object} options: The object containing the necessary parameters.
+    **/
+    function getValuesFail(status, options) {
         var failNode;
+        var notifyNode;
 
-        html.removeChildren(notifyNode);
+        notifyNode = document.getElementById(options.element.id + '-notify');
+        html.removeChild(notifyNode);
+
         failNode = html.fail();
         failNode.setAttribute('data-toggle', 'popover');
         failNode.setAttribute('data-container', 'body');
-        failNode.setAttribute('data-title', title);
-        failNode.setAttribute('data-content', errorTxt);
+
+        switch (status) {
+            case 400:
+                failNode.setAttribute('data-title', 'Wrong data');
+                failNode.setAttribute(
+                    'data-content', options.status['400'].content);
+                break;
+            case 404:
+                failNode.setAttribute('data-title', 'Value not found');
+                failNode.setAttribute(
+                    'data-content', options.status['404'].content);
+                break;
+            default:
+                failNode.setAttribute(
+                    'data-content', 'Error retrieving values');
+                break;
+        }
 
         notifyNode.appendChild(failNode);
 
@@ -159,15 +273,102 @@ define([
         });
     }
 
-    function correctTreeValue(element, treeName) {
-        var bucketId;
+    /**
+     * Get the values from the backend, or use the one from the cache.
+     *
+     * Needed parameters are:
+     * {
+     *   bucketId,
+     *   element,
+     *   cacheKey,
+     *   url,
+     *   query,
+     *   dataTitle,
+     *   dataContent,
+     *   status
+     * }
+     *
+     * @param {Object} options: The object containing the necessary parameters.
+    **/
+    function getValues(options) {
+        var deferred;
 
-        bucketId = 'datalist-' + treeName;
-        if (document.getElementById(bucketId) === null) {
-            getKernelValues(treeName, element, bucketId);
+        if (document.getElementById(options.bucketId)) {
+            options.element.setAttribute('list', options.bucketId);
+
+            if (gDataCache.hasOwnProperty(options.cacheKey)) {
+                if (gDataCache[options.cacheKey].length === 1) {
+                    options.element.value = gDataCache[options.cacheKey][0];
+                }
+            }
         } else {
-            element.setAttribute('list', bucketId);
+            if (!gDataCache.hasOwnProperty(options.cacheKey)) {
+                gDataCache[options.cacheKey] = [];
+            }
+
+            deferred = r.get(options.url + options.query);
+
+            $.when(deferred)
+                .fail(function(jqXHR) {
+                    getValuesFail(jqXHR.status, options);
+                })
+                .done(function(response) {
+                    getValuesDone(response, options);
+                });
         }
+    }
+
+    /**
+     * Handle backend data for the trees.
+     *
+     * @param {Object} response: The response object from the backend.
+     * @param {Element} bucket: The data-list bucket element to add the values.
+    **/
+    function getTreesDone(response, bucket) {
+        var dataBucket;
+        var option;
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            dataBucket = document.createElement('datalist');
+            dataBucket.id = constants.TREES_DATA_LIST;
+
+            results.forEach(function(value) {
+                option = document.createElement('option');
+                option.value = value;
+                gDataCache.trees.push(value);
+                dataBucket.appendChild(option);
+            });
+
+            bucket.appendChild(dataBucket);
+        }
+    }
+
+    /**
+     * Handle "notifications" for a node.
+     *
+     * @param {Element} element: The node that will hold the notification.
+     * @param {String} title: The title of the notification.
+     * @param {String} content: The content of the notification.
+    **/
+    function wrongValue(element, title, content) {
+        var failNode;
+
+        html.removeChildren(element);
+        failNode = html.fail();
+        failNode.setAttribute('data-toggle', 'popover');
+        failNode.setAttribute('data-container', 'body');
+        failNode.setAttribute('data-title', title);
+        failNode.setAttribute('data-content', content);
+
+        element.appendChild(failNode);
+
+        $(element).popover({
+            selector: '[data-toggle="popover"]',
+            trigger: 'hover',
+            html: false
+        });
     }
 
     /**
@@ -194,13 +395,13 @@ define([
      * @param {HTMLFormElement} form: The form element.
     **/
     function submitJobCompare(form) {
-        var data,
-            choiceContainer,
-            treeValue,
-            kernelId,
-            kernelValue,
-            compareTo,
-            deferred;
+        var choiceContainer;
+        var compareTo;
+        var data;
+        var deferred;
+        var kernelId;
+        var kernelValue;
+        var treeValue;
 
         choiceContainer = form
             .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
@@ -251,9 +452,9 @@ define([
      * validity checks.
     **/
     function customValidity(element) {
-        var isInvalid,
-            notifyNode,
-            failNode;
+        var failNode;
+        var isInvalid;
+        var notifyNode;
 
         isInvalid = false;
         if (element.required && !element.validity.valid) {
@@ -297,7 +498,7 @@ define([
      * @param {HTMLElement} bucket: The element where the retrieved data will
      * be appended as a datalist structure.
     **/
-    compareEvents.getTrees = function(bucket) {
+    gCompareEvents.getTrees = function(bucket) {
         var deferred;
 
         deferred = r.get('/_ajax/job/distinct/job');
@@ -318,52 +519,187 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    compareEvents.kernelInputFocus = function(event) {
-        var notifyNode,
-            target,
-            treeId,
-            treeInput,
-            treeName;
+    gCompareEvents.kernelInputFocus = function(event) {
+        var options;
+        var target;
+        var treeId;
+        var treeInput;
 
         target = event.target || event.srcElement;
         treeId = target.getAttribute('data-tree');
         treeInput = document.getElementById(treeId);
-        notifyNode = document.getElementById(treeId + '-notify');
 
-        if (treeInput.checkValidity()) {
-            treeName = html.escape(treeInput.value);
+        if (isValidTree(treeInput)) {
+            options = {
+                element: target,
+                cacheKey: treeInput.value,
+                bucketId: 'datalist-' + treeInput.value,
+                url: '/_ajax/job/distinct/kernel/',
+                query: '?job=' + treeInput.value,
+                dataTitle: 'No kernel values',
+                dataContent: 'No kernel values found',
+                status: gKernelStatus
+            };
 
-            if (dataCache.hasOwnProperty('trees')) {
-                if (dataCache.trees.indexOf(treeName) !== -1) {
-                    correctTreeValue(target, treeName);
-                } else {
-                    target.removeAttribute('list');
-                    html.addClass(treeInput, 'invalid');
-                    wrongTreeValue(
-                        notifyNode,
-                        'Invalid value', 'Specified tree value is not known'
-                    );
-                }
-            } else {
-                if (treeName === treeInput.value) {
-                    correctTreeValue(target, treeName);
-                } else {
-                    target.removeAttribute('list');
-                    html.addClass(treeInput, 'invalid');
-                    wrongTreeValue(
-                        notifyNode,
-                        'Invalid value', 'Specified tree value is not valid'
-                    );
-                }
-            }
+            getValues(options);
         } else {
             target.removeAttribute('list');
             html.addClass(treeInput, 'invalid');
-            wrongTreeValue(
-                notifyNode,
-                'Invalid value',
-                'Specified tree value is not valid and/or empty'
+            wrongValue(
+                document.getElementById(treeId + '-notify'),
+                'Invalid value', 'Specified tree value is not valid or empty'
             );
+        }
+    };
+
+    /**
+     * When the defconfig field gets the focus, trigger a search for the valid
+     * values based on the tree and kernel inputs.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.defconfigInputFocus = function(event) {
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var kernelName;
+        var options;
+        var target;
+        var treeId;
+        var treeInput;
+        var treeName;
+
+        target = event.target || event.srcElement;
+
+        treeId = target.getAttribute('data-tree');
+        kernelId = target.getAttribute('data-kernel');
+        treeInput = document.getElementById(treeId);
+        kernelInput = document.getElementById(kernelId);
+
+        isValid = isValidKernel({tree: treeInput, kernel: kernelInput});
+
+        if (isValid[0] && isValid[1]) {
+            treeName = treeInput.value;
+            kernelName = kernelInput.value;
+
+            options = {
+                bucketId: 'datalist-' + treeName + kernelName,
+                cacheKey: treeName + kernelName,
+                element: target,
+                url: '/_ajax/build/distinct/defconfig_full/',
+                query: '?job=' + treeName + '&kernel=' + kernelName,
+                dataTitle: 'No defconfig values',
+                dataContent: 'No defconfig values found',
+                status: gDefconfigStatus
+            };
+
+            getValues(options);
+        } else {
+            target.removeAttribute('list');
+
+            if (!isValid[0]) {
+                html.addClass(treeInput, 'invalid');
+                wrongValue(
+                    document.getElementById(treeId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
+
+            if (!isValid[1]) {
+                html.addClass(kernelInput, 'invalid');
+                wrongValue(
+                    document.getElementById(kernelId + '-notify'),
+                    'Invalid value',
+                    'Specified kernel value is not valid or empty'
+                );
+            }
+        }
+    };
+
+
+    /**
+     * When the arch field gets the focus, trigger a search for the valid
+     * values based on the tree, kernel and defconfig inputs.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.archInputFocus = function(event) {
+        var defconfigId;
+        var defconfigInput;
+        var defconfigTxt;
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var kernelTxt;
+        var options;
+        var target;
+        var treeId;
+        var treeInput;
+        var treeTxt;
+
+        target = event.target || event.srcElement;
+
+        treeId = target.getAttribute('data-tree');
+        kernelId = target.getAttribute('data-kernel');
+        defconfigId = target.getAttribute('data-defconfig');
+        treeInput = document.getElementById(treeId);
+        kernelInput = document.getElementById(kernelId);
+        defconfigInput = document.getElementById(defconfigId);
+
+        isValid = isValidDefconfig({
+            tree: treeInput,
+            kernel: kernelInput,
+            defconfig: defconfigInput
+        });
+
+        if (isValid[0] && isValid[1] && isValid[2]) {
+            treeTxt = html.escape(treeInput.value);
+            kernelTxt = html.escape(kernelInput.value);
+            defconfigTxt = html.escape(defconfigInput.value);
+
+            options = {
+                bucketId: 'datalist-' + treeTxt + kernelTxt + defconfigTxt,
+                cacheKey: treeTxt + kernelTxt + defconfigTxt,
+                element: target,
+                url: '/_ajax/build/distinct/arch/',
+                query: '?job=' + treeTxt + '&kernel=' + kernelTxt +
+                    '&defconfig_full=' + defconfigTxt,
+                dataTitle: 'No architecture values',
+                dataContent: 'No architecture values found',
+                status: gArchitectureStatus
+            };
+
+            getValues(options);
+        } else {
+            target.removeAttribute('list');
+
+            if (!isValid[0]) {
+                html.addClass(treeInput, 'invalid');
+                wrongValue(
+                    document.getElementById(treeId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
+
+            if (!isValid[1]) {
+                html.addClass(kernelInput, 'invalid');
+                wrongValue(
+                    document.getElementById(kernelId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
+
+            if (!isValid[2]) {
+                html.addClass(defconfigInput, 'invalid');
+                wrongValue(
+                    document.getElementById(defconfigId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
         }
     };
 
@@ -374,12 +710,12 @@ define([
      * @param {function} addCallback: Function that gets called to add a new
      * compare target selection.
     **/
-    compareEvents.addTarget = function(event, addCallback) {
-        var target,
-            oldIndex,
-            newIndex,
-            compareContainer,
-            removeButton;
+    gCompareEvents.addTarget = function(event, addCallback) {
+        var compareContainer;
+        var newIndex;
+        var oldIndex;
+        var removeButton;
+        var target;
 
         target = event.target || event.srcElement;
 
@@ -394,12 +730,13 @@ define([
                 target.getAttribute('data-container'));
 
             compareContainer.appendChild(
-                addCallback(
-                    target.getAttribute('data-type'),
-                    newIndex,
-                    false,
-                    target.getAttribute('data-bucket')
-                )
+                addCallback({
+                    bucketId: target.getAttribute('data-bucket'),
+                    data: {},
+                    idx: newIndex,
+                    required: false,
+                    type: target.getAttribute('data-type')
+                })
             );
 
             removeButton.setAttribute('data-index', newIndex);
@@ -421,13 +758,13 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    compareEvents.removeTarget = function(event) {
-        var addButton,
-            compareContainer,
-            newIndex,
-            oldIndex,
-            target,
-            toRemove;
+    gCompareEvents.removeTarget = function(event) {
+        var addButton;
+        var compareContainer;
+        var newIndex;
+        var oldIndex;
+        var target;
+        var toRemove;
 
         target = event.target || event.srcElement;
 
@@ -465,10 +802,10 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    compareEvents.submitCompare = function(event) {
-        var compareType,
-            formNode,
-            target;
+    gCompareEvents.submitCompare = function(event) {
+        var compareType;
+        var formNode;
+        var target;
 
         target = event.target || event.srcElement;
         compareType = target.getAttribute('data-type');
@@ -492,7 +829,8 @@ define([
         } else {
             // Peform custom validity on the elements, stopping at the first
             // not valid one.
-            [].some.call(formNode.querySelectorAll('input'), customValidity);
+            Array.prototype.some.call(
+                formNode.querySelectorAll('input'), customValidity);
         }
     };
 
@@ -502,7 +840,7 @@ define([
      *
      * @param {Event} event: The triggering event.
     **/
-    compareEvents.removeInvalid = function(event) {
+    gCompareEvents.removeInvalid = function(event) {
         var element;
 
         element = event.target || event.srcElement;
@@ -510,5 +848,5 @@ define([
         html.removeChildren(document.getElementById(element.id + '-notify'));
     };
 
-    return compareEvents;
+    return gCompareEvents;
 });

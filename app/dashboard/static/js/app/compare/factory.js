@@ -16,12 +16,12 @@ define([
      * @param {boolean} required: If the choice should be required or not.
     **/
     compareFactory.multiCompare = function(type, required, bucketId) {
-        var choiceContainer,
-            compareNode,
-            compareToContainer,
-            groupNode,
-            headingNode,
-            labelNode;
+        var choiceContainer;
+        var compareNode;
+        var compareToContainer;
+        var groupNode;
+        var headingNode;
+        var labelNode;
 
         compareToContainer = document.createElement('div');
         compareToContainer.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
@@ -55,7 +55,13 @@ define([
 
         // Create the starting choice group.
         choiceContainer.appendChild(
-            common.multiChoice(type, 1, required, bucketId));
+            common.multiChoice({
+                idx: 1,
+                type: type,
+                required: required,
+                bucketId: bucketId
+            })
+        );
 
         compareNode.appendChild(choiceContainer);
 
@@ -76,12 +82,13 @@ define([
      * job, build, boot.
     **/
     compareFactory.baseline = function(type, bucketId) {
-        var baselineContainer,
-            baselineGroupNode,
-            choiceNode,
-            divNode,
-            headingNode,
-            labelNode;
+        var baselineContainer;
+        var baselineGroupNode;
+        var choiceNode;
+        var divNode;
+        var headingNode;
+        var labelNode;
+        var options;
 
         baselineContainer = document.createElement('div');
         baselineContainer.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
@@ -108,9 +115,19 @@ define([
 
         divNode = common.baseline();
 
+        options = {
+            bucketId: bucketId,
+            data: {},
+            required: true,
+            type: type
+        };
+
         switch (type) {
             case 'job':
-                choiceNode = common.jobChoice(bucketId);
+                choiceNode = common.jobChoice(options);
+                break;
+            case 'build':
+                choiceNode = common.buildChoice(options);
                 break;
             default:
                 choiceNode = document.createElement('div');

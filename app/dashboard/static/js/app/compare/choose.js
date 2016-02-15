@@ -1,9 +1,10 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
     'compare/job',
+    'compare/build',
     'compare/common',
     'compare/const'
-], function(job, common, constants) {
+], function(job, build, common, constants) {
     'use strict';
     var chooseCompare,
         compareContainer,
@@ -24,7 +25,8 @@ define([
                 job(compareTypeContainer, dataBucket).create();
                 break;
             case 'build':
-                throw 'Not implemented yet';
+                build(compareTypeContainer, dataBucket).create();
+                break;
             case 'boot':
                 throw 'Not implemented yet';
             default:
@@ -127,7 +129,6 @@ define([
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-build-input';
         inputNode.value = 'build';
-        inputNode.disabled = true;
         inputNode.setAttribute('data-type', 'build');
 
         inputNode.addEventListener('click', function() {
