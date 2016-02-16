@@ -165,6 +165,42 @@ define([
         return [validTree, validKernel, isValid];
     }
 
+    function isValidArch(elements) {
+        var archTxt;
+        var cacheKey;
+        var defconfigTxt;
+        var isValid;
+        var kernelTxt;
+        var treeTxt;
+        var validDefconfig;
+        var validKernel;
+        var validTree;
+
+        validTree = isValidTree(elements.tree);
+        validKernel = isValidKernel(elements);
+        validDefconfig = isValidDefconfig(elements);
+
+        isValid = elements.arch.checkValidity();
+        if (isValid) {
+            treeTxt = html.escape(elements.tree.value);
+            kernelTxt = html.escape(elements.kernel.value);
+            defconfigTxt = html.escape(elements.defconfig.value);
+            archTxt = html.escape(elements.arch.value);
+
+            isValid = isValid && (archTxt === elements.arch.value);
+
+            cacheKey = treeTxt + kernelTxt + defconfigTxt;
+            if (gDataCache.hasOwnProperty(cacheKey)) {
+                isValid = isValid &&
+                    (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
+            } else {
+                isValid = false;
+            }
+        }
+
+        return [validTree, validKernel, validDefconfig, isValid];
+    }
+
     /**
      * Handle the response from the API.
      *
@@ -372,12 +408,84 @@ define([
     }
 
     /**
+     * Extract from the form, all the comparison targers.
+     *
+     * @param {HTMLForm} form: The form.
+     * @param {Array} attributes: The name of the data attributes to extract
+     * the values of. This is a list of the key names that will be appended to
+     * 'data-' to look for the values. The same keys will be used to create the
+     * data structure for the POST request.
+    **/
+    function getCompareTargets(form, attributes) {
+        var compareTo;
+        var data;
+        var elementId;
+        var value;
+
+        compareTo = [];
+
+        function _getValues(element) {
+            data = {};
+
+            attributes.forEach(function(attribute) {
+                elementId = element.getAttribute('data-' + attribute);
+                value = form.querySelector('#' + elementId).value;
+
+                // Map the defconfig key to defconfig_full, since that is what
+                // we actually need to look in the backend.
+                if (attribute === 'defconfig') {
+                    data.defconfig_full =
+                        form.querySelector('#' + elementId).value;
+                } else {
+                    data[attribute] =
+                        form.querySelector('#' + elementId).value;
+                }
+            });
+
+            compareTo.push(data);
+        }
+
+        Array.prototype.forEach.call(
+            form.querySelectorAll('input.tree'), _getValues
+        );
+
+        return compareTo;
+    }
+
+    /**
      * Parse the compare form, create the data structure and send the request.
      *
      * @param {HTMLFormElement} form: The form element.
     **/
     function submitBuildCompare(form) {
-        throw 'Not implemented yet';
+        var container;
+        var data;
+        var deferred;
+
+        container = form
+            .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
+
+        // Get the baseline data.
+        data = {
+            job: form.querySelector('#baseline-tree').value,
+            kernel: form.querySelector('#baseline-kernel').value,
+            defconfing_full: form.querySelector('#baseline-defconfig').value,
+            arch: form.querySelector('#baseline-arch').value
+        };
+
+        // Get the compare data.
+        data.compare_to = getCompareTargets(
+            container, ['tree', 'kernel', 'defconfig', 'arch']);
+
+        deferred = r.post('/_ajax/build/compare', JSON.stringify(data));
+        // TODO: handle errors.
+        $.when(deferred)
+            .fail(e.error)
+            .done(function(response, ignore, jqXHR) {
+                var compId = jqXHR
+                    .getResponseHeader(constants.KERNEL_CI_COMPARE_ID_HEADER);
+                window.location = '/compare/build/' + compId;
+            });
     }
 
     /**
@@ -395,15 +503,11 @@ define([
      * @param {HTMLFormElement} form: The form element.
     **/
     function submitJobCompare(form) {
-        var choiceContainer;
-        var compareTo;
+        var container;
         var data;
         var deferred;
-        var kernelId;
-        var kernelValue;
-        var treeValue;
 
-        choiceContainer = form
+        container = form
             .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
 
         // Get the baseline data.
@@ -412,30 +516,10 @@ define([
             kernel: form.querySelector('#baseline-kernel').value
         };
 
-        compareTo = [];
+        data.compare_to = getCompareTargets(container, ['tree', 'kernel']);
 
-        [].forEach.call(
-            choiceContainer.querySelectorAll('input.tree'),
-            function(element) {
-                treeValue = element.value;
-                kernelId = element.getAttribute('data-kernel');
-
-                kernelValue = choiceContainer
-                    .querySelector('#' + kernelId).value;
-
-                if (treeValue !== '' && kernelValue !== '') {
-                    compareTo.push({
-                        job: treeValue,
-                        kernel: kernelValue
-                    });
-                }
-            }
-        );
-
-        data.compare_to = compareTo;
-
-        // TODO: handle errors.
         deferred = r.post('/_ajax/job/compare', JSON.stringify(data));
+        // TODO: handle errors.
         $.when(deferred)
             .fail(e.error)
             .done(function(response, ignore, jqXHR) {
@@ -815,6 +899,9 @@ define([
         event.preventDefault();
 
         if (formNode.checkValidity()) {
+            // TODO: need to perform double checks here!
+            // form.checkValidity() only checks the basic "logic", like the
+            // pattern matching. Need more tests.
             switch (compareType) {
                 case 'job':
                     submitJobCompare(formNode);
