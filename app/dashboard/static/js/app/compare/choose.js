@@ -17,10 +17,10 @@ define([
      * @param {Element} element: The element triggering the action.
     **/
     function compareTypeChoose(element) {
-        var type;
+        // Force the radio button to be checked.
+        element.querySelector('input').checked = true;
 
-        type = element.getAttribute('data-type');
-        switch (type) {
+        switch (element.getAttribute('data-type')) {
             case 'job':
                 job(compareTypeContainer, dataBucket).create();
                 break;
@@ -34,14 +34,37 @@ define([
         }
     }
 
-    function createRadioLabel(forElementId, dataContainer) {
+    function createListNode(disabled) {
+        var liNode;
+
+        liNode = document.createElement('li');
+
+        liNode.setAttribute('data-toggle', 'popover');
+        liNode.setAttribute('data-trigger', 'hover');
+        liNode.setAttribute('data-container', '#comparison-type');
+
+        if (disabled) {
+            liNode.className = 'disabled';
+        } else {
+            liNode.addEventListener('click', function() {
+                compareTypeChoose(this);
+            });
+        }
+
+        return liNode;
+    }
+
+    function createRadioLabel(forElementId, disabled) {
         var labelNode;
 
         labelNode = document.createElement('label');
-        labelNode.className = 'radio-description';
-        labelNode.setAttribute('data-toggle', 'popover');
-        labelNode.setAttribute('data-trigger', 'hover');
-        labelNode.setAttribute('data-container', dataContainer);
+
+        if (disabled) {
+            labelNode.className = 'radio-description disabled';
+        } else {
+            labelNode.className = 'radio-description';
+        }
+
         labelNode.for = forElementId;
 
         return labelNode;
@@ -100,75 +123,61 @@ define([
         ulNode = document.createElement('ul');
         ulNode.className = 'list-unstyled';
 
-        liNode = document.createElement('li');
+        liNode = createListNode();
+        liNode.setAttribute('data-type', 'job');
+        liNode.setAttribute(
+            'data-content', 'Compare on a job basis choosing tree and kernel');
 
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-tree-input';
         inputNode.value = 'job';
-        inputNode.setAttribute('data-type', 'job');
-
-        inputNode.addEventListener('click', function() {
-            compareTypeChoose(this);
-        });
 
         liNode.appendChild(inputNode);
 
-        labelNode = createRadioLabel('radio-tree-input', '#comparison-type');
+        labelNode = createRadioLabel('radio-tree-input');
         labelNode.appendChild(document.createTextNode('job'));
-        labelNode.setAttribute(
-            'data-content',
-            'Compare on a job basis choosing tree, kernel and ' +
-            'branch'
-        );
 
         liNode.appendChild(labelNode);
         ulNode.appendChild(liNode);
 
-        liNode = document.createElement('li');
+        liNode = createListNode();
+        liNode.setAttribute('data-type', 'build');
+        liNode.setAttribute(
+            'data-content',
+            'Compare on a build basis choosing tree, kernel, defconfig ' +
+            'and architecture'
+        );
 
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-build-input';
         inputNode.value = 'build';
-        inputNode.setAttribute('data-type', 'build');
-
-        inputNode.addEventListener('click', function() {
-            compareTypeChoose(this);
-        });
 
         liNode.appendChild(inputNode);
 
-        labelNode = createRadioLabel('radio-build-input', '#comparison-type');
+        labelNode = createRadioLabel('radio-build-input');
         labelNode.appendChild(document.createTextNode('build'));
-        labelNode.setAttribute(
-            'data-content',
-            'Compare on a build basis choosing tree, kernel and ' +
-            'branch, and defconfig'
-        );
 
         liNode.appendChild(labelNode);
         ulNode.appendChild(liNode);
 
-        liNode = document.createElement('li');
+        // Boot comparison still disabled.
+        liNode = createListNode(true);
+        liNode.setAttribute('data-type', 'boot');
+        liNode.setAttribute(
+            'data-content',
+            'Compare on a boot basis choosing tree, kernel, defconfig, ' +
+            'architecture and board'
+        );
 
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-boot-input';
         inputNode.value = 'boot';
         inputNode.disabled = true;
-        inputNode.setAttribute('data-type', 'boot');
-
-        inputNode.addEventListener('click', function() {
-            compareTypeChoose(this);
-        });
 
         liNode.appendChild(inputNode);
 
-        labelNode = createRadioLabel('radio-boot-input', '#comparison-type');
+        labelNode = createRadioLabel('radio-boot-input', true);
         labelNode.appendChild(document.createTextNode('boot'));
-        labelNode.setAttribute(
-            'data-content',
-            'Compare on a boot basis choosing tree, kernel and ' +
-            'branch, defconfig and board'
-        );
 
         liNode.appendChild(labelNode);
         ulNode.appendChild(liNode);

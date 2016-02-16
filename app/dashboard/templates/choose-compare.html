@@ -5,6 +5,9 @@
 {%- block head %}
 {{ super() }}
 <style type="text/css">
+    .disabled:hover {
+        cursor: not-allowed;
+    }
     label.radio-description {
         padding-left: 0.5em;
     }
@@ -15,6 +18,9 @@
     }
     .comparison-choice {
         padding-left: 0.7em;
+    }
+    .comparison-choice > ul {
+        width: 4.5em;
     }
     .form-submit {
         margin-bottom: 1em;
@@ -103,7 +109,7 @@
             This feature is in <strong>beta</strong>: its functions and appearances can change in the future. Expect it to be unstable.
             <br>
             <br>
-            At the moment only the job comparison type is supported: the other comparison types are in development.
+            At the moment the job and build comparison types are supported: the boot comparison type is in development.
         </p>
     </div>
 </div>
