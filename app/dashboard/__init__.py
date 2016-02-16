@@ -250,11 +250,31 @@ def ajax_statistics():
         abort(403)
 
 
-@app.route("/_ajax/job/compare/<string:doc_id>", methods=["GET"])
+@app.route("/_ajax/job/compare/<string:doc_id>/", methods=["GET"])
 @app.route("/_ajax/job/compare", methods=["POST", "OPTIONS"])
-def ajax_compare(doc_id=None):
+def ajax_job_compare(doc_id=None):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         api_path = app_conf_get("JOB_COMPARE_API_ENDPOINT")
+        if request.method == "GET":
+            return backend.ajax_get(
+                request, api_path, doc_id=doc_id, timeout=60*60*2)
+        elif any([request.method == "POST", request.method == "OPTIONS"]):
+            if request.data:
+                return backend.ajax_batch_post(
+                    request, api_path, timeout=60*60*2)
+            else:
+                abort(400)
+        else:
+            abort(405)
+    else:
+        abort(403)
+
+
+@app.route("/_ajax/build/compare/<string:doc_id>/", methods=["GET"])
+@app.route("/_ajax/build/compare", methods=["POST", "OPTIONS"])
+def ajax_build_compare(doc_id=None):
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        api_path = app_conf_get("BUILD_COMPARE_API_ENDPOINT")
         if request.method == "GET":
             return backend.ajax_get(
                 request, api_path, doc_id=doc_id, timeout=60*60*2)
