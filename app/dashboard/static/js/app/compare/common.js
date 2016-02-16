@@ -38,7 +38,7 @@ define([
     gDefconfigData = {
         label: 'Defconfig',
         title: 'Choose a defconfig',
-        pattern: '[A-Za-z0-9_.-+]*',
+        pattern: '[A-Za-z0-9_.-+=]*',
         focusEvent: cevents.defconfigInputFocus
     };
 
