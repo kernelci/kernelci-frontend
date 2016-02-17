@@ -433,9 +433,12 @@ define([
 
                 // Map the defconfig key to defconfig_full, since that is what
                 // we actually need to look in the backend.
+                // Also map tree to the job key.
                 if (attribute === 'defconfig') {
                     data.defconfig_full =
                         form.querySelector('#' + elementId).value;
+                } else if (attribute === 'tree') {
+                    data.job = form.querySelector('#' + elementId).value;
                 } else {
                     data[attribute] =
                         form.querySelector('#' + elementId).value;
@@ -469,7 +472,7 @@ define([
         data = {
             job: form.querySelector('#baseline-tree').value,
             kernel: form.querySelector('#baseline-kernel').value,
-            defconfing_full: form.querySelector('#baseline-defconfig').value,
+            defconfig_full: form.querySelector('#baseline-defconfig').value,
             arch: form.querySelector('#baseline-arch').value
         };
 
