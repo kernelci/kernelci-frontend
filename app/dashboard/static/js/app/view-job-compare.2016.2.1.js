@@ -373,7 +373,7 @@ require([
                 tableId: 'compared-against'
             });
 
-            deferred = r.get('/_ajax/job/compare/' + gCompareId, {});
+            deferred = r.get('/_ajax/job/compare/' + gCompareId + '/', {});
             $.when(deferred)
                 .fail(e.error, getJobCompareFail)
                 .done(getJobCompareDone);
