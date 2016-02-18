@@ -432,16 +432,14 @@ define([
                 value = form.querySelector('#' + elementId).value;
 
                 // Map the defconfig key to defconfig_full, since that is what
-                // we actually need to look in the backend.
-                // Also map tree to the job key.
+                // we actually need to look in the backend. Also map tree to
+                // the job key.
                 if (attribute === 'defconfig') {
-                    data.defconfig_full =
-                        form.querySelector('#' + elementId).value;
+                    data.defconfig_full = value;
                 } else if (attribute === 'tree') {
-                    data.job = form.querySelector('#' + elementId).value;
+                    data.job = value;
                 } else {
-                    data[attribute] =
-                        form.querySelector('#' + elementId).value;
+                    data[attribute] = value;
                 }
             });
 
@@ -456,6 +454,34 @@ define([
     }
 
     /**
+     * POST the data to perform the comparison.
+     *
+     * @param {String} url: The URL where to POST the data.
+     * @param {String} location: The location to redirect to when the response
+     * arrives.
+     * @param {Object} data: The JSON data object to send.
+    **/
+    function postComparison(url, location, data) {
+        var deferred;
+
+        deferred = r.post(url, JSON.stringify(data));
+
+        if (location[location.length - 1] !== '/') {
+            location = location + '/';
+        }
+
+        // TODO: handle errors.
+        $.when(deferred)
+            .fail(e.error)
+            .done(function(response, ignore, jqXHR) {
+                // TODO: use local storage to store the response.
+                var compId = jqXHR
+                    .getResponseHeader(constants.KERNEL_CI_COMPARE_ID_HEADER);
+                window.location = location + compId + '/';
+            });
+    }
+
+    /**
      * Parse the compare form, create the data structure and send the request.
      *
      * @param {HTMLFormElement} form: The form element.
@@ -463,7 +489,6 @@ define([
     function submitBuildCompare(form) {
         var container;
         var data;
-        var deferred;
 
         container = form
             .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
@@ -475,20 +500,11 @@ define([
             defconfig_full: form.querySelector('#baseline-defconfig').value,
             arch: form.querySelector('#baseline-arch').value
         };
-
-        // Get the compare data.
+        // Get the comparison data.
         data.compare_to = getCompareTargets(
             container, ['tree', 'kernel', 'defconfig', 'arch']);
 
-        deferred = r.post('/_ajax/build/compare', JSON.stringify(data));
-        // TODO: handle errors.
-        $.when(deferred)
-            .fail(e.error)
-            .done(function(response, ignore, jqXHR) {
-                var compId = jqXHR
-                    .getResponseHeader(constants.KERNEL_CI_COMPARE_ID_HEADER);
-                window.location = '/compare/build/' + compId;
-            });
+        postComparison('/_ajax/build/compare', '/compare/build/', data);
     }
 
     /**
@@ -508,7 +524,6 @@ define([
     function submitJobCompare(form) {
         var container;
         var data;
-        var deferred;
 
         container = form
             .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
@@ -518,18 +533,10 @@ define([
             job: form.querySelector('#baseline-tree').value,
             kernel: form.querySelector('#baseline-kernel').value
         };
-
+        // Get the comparison data.
         data.compare_to = getCompareTargets(container, ['tree', 'kernel']);
 
-        deferred = r.post('/_ajax/job/compare', JSON.stringify(data));
-        // TODO: handle errors.
-        $.when(deferred)
-            .fail(e.error)
-            .done(function(response, ignore, jqXHR) {
-                var compId = jqXHR
-                    .getResponseHeader(constants.KERNEL_CI_COMPARE_ID_HEADER);
-                window.location = '/compare/job/' + compId;
-            });
+        postComparison('/_ajax/job/compare', '/compare/job/', data);
     }
 
     /**
