@@ -34,6 +34,7 @@ require.config({
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.2016.2.1',
             'app/view-boots-id': 'app/view-boots-id.2016.2.1',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2016.2.1',
+            'app/view-build-compare': 'app/view-build-compare.2016.2.1',
             'app/view-builds-all': 'app/view-builds-all.2016.2.1',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2016.2.1',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2016.2.1',

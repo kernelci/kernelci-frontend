@@ -231,6 +231,11 @@ def init():
         view_func=vcompare.JobCompareView.as_view("job-compare"),
         methods=["GET"]
     )
+    add_rule(
+        "/compare/build/<string:compare_id>/",
+        view_func=vcompare.BuildCompareView.as_view("build-compare"),
+        methods=["GET"]
+    )
 
     # SoCs views.
     add_rule(

@@ -1,0 +1,21 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.10.css">
+<link rel="stylesheet" type="text/css" href="/static/css/kci-graphs-compare-2015.9.1.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3>Build Comparison&nbsp;<span id="body-title"></span></h3>
+    </div>
+</div>
+<input type="hidden" id="compare-id" value="{{ compare_id }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-build-compare" src="/static/js/lib/require.js"></script>
+{%- endblock %}

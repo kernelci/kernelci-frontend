@@ -41,3 +41,14 @@ class JobCompareView(GenericCompareView):
             page_title=page_title,
             compare_id=compare_id
         )
+
+
+class BuildCompareView(GenericCompareView):
+
+    def dispatch_request(self, compare_id):
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, "Build comparison")
+        return render_template(
+            "build-compare.html",
+            page_title=page_title,
+            compare_id=compare_id
+        )
