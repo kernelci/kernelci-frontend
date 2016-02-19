@@ -13,6 +13,65 @@
     <div class="page-header">
         <h3>Build Comparison&nbsp;<span id="body-title"></span></h3>
     </div>
+    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+        <div class="summary-baseline">
+            <div>
+                <dl class="dl-horizontal">
+                    <dt>Tree</dt>
+                    <dd id="dd-tree" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                    <dt>Git branch</dt>
+                    <dd id="dd-branch" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                    <dt>Git describe</dt>
+                    <dd id="dd-kernel" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                    <dt>Git URL</dt>
+                    <dd id="dd-url" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                    <dt>Git commit</dt>
+                    <dd id="dd-commit" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                    <dt>Date</dt>
+                    <dd id="dd-date" class="loading-content">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="summary-against">
+            <div>
+                <h4>Compared Builds</h4>
+            </div>
+            <div>
+{%- if is_mobile %}
+                <div class="table-responsive no-data" id="summary-table-div">
+{%- else %}
+                <div class="table no-data" id="summary-table-div">
+{%- endif %}
+                    <table class="table table-hover table-striped table-condensed clickable-table big-table" id="compared-against">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div>
+            <h4>Differences</h4>
+        </div>
+        <div id="diff-matrix"></div>
+    </div>
 </div>
 <input type="hidden" id="compare-id" value="{{ compare_id }}">
 {%- endblock %}
