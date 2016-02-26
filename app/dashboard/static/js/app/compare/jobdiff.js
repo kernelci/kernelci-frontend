@@ -3,6 +3,7 @@ define([
     'charts/diffmatrix',
     'utils/html'
 ], function(diffmatrix, html) {
+    'use strict';
     var gJobDiff = {};
 
     function buildMouseInOut(element, chart, style) {
