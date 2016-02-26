@@ -163,11 +163,13 @@ define([
         // Boot comparison still disabled.
         liNode = createListNode(true);
         liNode.setAttribute('data-type', 'boot');
-        liNode.setAttribute(
-            'data-content',
-            'Compare on a boot basis choosing tree, kernel, defconfig, ' +
-            'architecture and board'
-        );
+        // TODO
+        // liNode.setAttribute(
+        //     'data-content',
+        //     'Compare on a boot basis choosing tree, kernel, defconfig, ' +
+        //     'architecture and board'
+        // );
+        liNode.setAttribute('data-content', 'Not available at the moment');
 
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-boot-input';
