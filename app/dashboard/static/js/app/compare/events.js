@@ -140,9 +140,7 @@ define([
         var kernelTxt;
         var treeTxt;
         var validKernel;
-        var validTree;
 
-        validTree = isValidTree(elements.tree);
         validKernel = isValidKernel(elements);
 
         isValid = elements.defconfig.checkValidity();
@@ -162,7 +160,7 @@ define([
             }
         }
 
-        return [validTree, validKernel, isValid];
+        return [validKernel[0], validKernel[1], isValid];
     }
 
     function isValidArch(elements) {
@@ -173,11 +171,7 @@ define([
         var kernelTxt;
         var treeTxt;
         var validDefconfig;
-        var validKernel;
-        var validTree;
 
-        validTree = isValidTree(elements.tree);
-        validKernel = isValidKernel(elements);
         validDefconfig = isValidDefconfig(elements);
 
         isValid = elements.arch.checkValidity();
@@ -198,7 +192,9 @@ define([
             }
         }
 
-        return [validTree, validKernel, validDefconfig, isValid];
+        return [
+            validDefconfig[0], validDefconfig[1], validDefconfig[2], isValid
+        ];
     }
 
     /**
