@@ -54,7 +54,7 @@ define([
                 return xscale(i);
             })
             .y0(h)
-            .y1(function(d, i) {
+            .y1(function(d) {
                 return yscale(k.rateNumber(d[1], d[0]));
             });
 
