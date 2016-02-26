@@ -17,9 +17,7 @@ define([
         '\'': '&#39;',
         '/': '&#47;',
         '<': '&#60;',
-        '=': '&#61;',
-        '>': '&#62;',
-        '?': '&#63;'
+        '>': '&#62;'
     };
 
     /**
@@ -48,7 +46,7 @@ define([
      * @param {string} toEscape: The string to parse and HTML-escape.
     **/
     html.escape = function(toEscape) {
-        return String(toEscape).replace(/[$#%&<>"'\/=]/g, _getHTMLFromMap);
+        return String(toEscape).replace(/[$#%&<>"'\/]/g, _getHTMLFromMap);
     };
 
     html.boot = function() {
