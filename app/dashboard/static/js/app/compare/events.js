@@ -615,18 +615,20 @@ define([
         var target;
         var treeId;
         var treeInput;
+        var treeName;
 
         target = event.target || event.srcElement;
         treeId = target.getAttribute('data-tree');
         treeInput = document.getElementById(treeId);
 
         if (isValidTree(treeInput)) {
+            treeName = treeInput.value;
             options = {
                 element: target,
-                cacheKey: treeInput.value,
-                bucketId: 'datalist-' + treeInput.value,
+                cacheKey: treeName,
+                bucketId: 'datalist-' + treeName,
                 url: '/_ajax/job/distinct/kernel/',
-                query: '?job=' + treeInput.value,
+                query: '?job=' + encodeURIComponent(treeName),
                 dataTitle: 'No kernel values',
                 dataContent: 'No kernel values found',
                 status: gKernelStatus
@@ -678,7 +680,8 @@ define([
                 cacheKey: treeName + kernelName,
                 element: target,
                 url: '/_ajax/build/distinct/defconfig_full/',
-                query: '?job=' + treeName + '&kernel=' + kernelName,
+                query: '?job=' + encodeURIComponent(treeName) +
+                    '&kernel=' + encodeURIComponent(kernelName),
                 dataTitle: 'No defconfig values',
                 dataContent: 'No defconfig values found',
                 status: gDefconfigStatus
@@ -754,8 +757,9 @@ define([
                 cacheKey: treeTxt + kernelTxt + defconfigTxt,
                 element: target,
                 url: '/_ajax/build/distinct/arch/',
-                query: '?job=' + treeTxt + '&kernel=' + kernelTxt +
-                    '&defconfig_full=' + defconfigTxt,
+                query: '?job=' + encodeURIComponent(treeTxt) +
+                    '&kernel=' + encodeURIComponent(kernelTxt) +
+                    '&defconfig_full=' + encodeURIComponent(defconfigTxt),
                 dataTitle: 'No architecture values',
                 dataContent: 'No architecture values found',
                 status: gArchitectureStatus
