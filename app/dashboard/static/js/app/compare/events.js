@@ -233,6 +233,7 @@ define([
             dataBucket.id = options.bucketId;
 
             dataCache = gDataCache[options.cacheKey];
+            results = results.sort();
             results.forEach(_createAndAddOption);
 
             bucketContainer.appendChild(dataBucket);
