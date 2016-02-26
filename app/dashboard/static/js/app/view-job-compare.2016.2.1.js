@@ -7,7 +7,7 @@ require([
     'utils/table',
     'utils/urls',
     'charts/passpie',
-    'charts/diffmatrix',
+    'compare/jobdiff',
     'utils/html',
     'tables/job'
 ], function($, init, e, r, table, urls, pie, matrix, html, jobt) {
@@ -21,8 +21,8 @@ require([
     // against.
     // Return a string with the total from the compared one and a diff number.
     function calculateTotalDiff(baseline, compared) {
-        var display,
-            totalDiff;
+        var display;
+        var totalDiff;
 
         totalDiff = compared - baseline;
         if (totalDiff === 0) {
@@ -37,8 +37,8 @@ require([
     }
 
     function setupCompareToTable(comparedData, baseline) {
-        var columns,
-            dom;
+        var columns;
+        var dom;
 
         /**
          * Wrapper to provide the href.
@@ -59,11 +59,11 @@ require([
         }
 
         function _renderCommit(data, type, object) {
-            var aNode,
-                rendered,
-                textNode,
-                tooltipNode,
-                gitURL;
+            var aNode;
+            var rendered;
+            var textNode;
+            var tooltipNode;
+            var gitURL;
 
             rendered = data;
             if (type === 'display') {
@@ -162,15 +162,15 @@ require([
     }
 
     function setupBaselineData(baseline) {
-        var aNode,
-            baseGitCommit,
-            baseGitUrl,
-            baseJob,
-            baseKernel,
-            baseTotalBuilds,
-            gitURLs,
-            spanNode,
-            tooltipNode;
+        var aNode;
+        var baseGitCommit;
+        var baseGitUrl;
+        var baseJob;
+        var baseKernel;
+        var baseTotalBuilds;
+        var gitURLs;
+        var spanNode;
+        var tooltipNode;
 
         baseGitCommit = baseline.git_commit;
         baseGitUrl = baseline.git_url;
@@ -309,12 +309,12 @@ require([
     }
 
     function getJobCompareDone(response) {
-        var baseline,
-            comparedData,
-            deltaResult,
-            matrixData,
-            results,
-            titleNode;
+        var baseline;
+        var comparedData;
+        var deltaResult;
+        var matrixData;
+        var results;
+        var titleNode;
 
         results = response.result;
         if (results.length > 0) {
@@ -347,7 +347,7 @@ require([
                 };
 
                 Array.prototype.push.apply(matrixData.xdata, comparedData);
-                matrix.builds('builds-matrix', matrixData);
+                matrix.create('builds-matrix', matrixData);
             } else {
                 html.replaceContent(
                     document.getElementById('builds-matrix'),
