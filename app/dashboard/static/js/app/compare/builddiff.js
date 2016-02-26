@@ -263,6 +263,7 @@ define([
         ['build_log_size', 'Build log size', renderBytes],
         ['kernel_config_size', 'Config file size', renderBytes],
         ['dtb_dir_data', 'Number of dtb files', renderNumber],
+        ['kernel_image_size', 'Kernel image size', renderBytes],
         ['modules_size', 'Modules file size', renderBytes],
         ['system_map_size', 'System.map file size', renderBytes]
     ];
