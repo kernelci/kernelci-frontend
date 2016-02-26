@@ -274,7 +274,7 @@ define([
         var notifyNode;
 
         notifyNode = document.getElementById(options.element.id + '-notify');
-        html.removeChild(notifyNode);
+        html.removeChildren(notifyNode);
 
         failNode = html.fail();
         failNode.setAttribute('data-toggle', 'popover');
