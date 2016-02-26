@@ -7,26 +7,26 @@ define([
     var matrixchart;
 
     k.charts.matrix = function() {
-        var div,
-            groupPosition,
-            height,
-            margin,
-            matrixGroup,
-            matrixCells,
-            square,
-            svg,
-            width,
-            xData,
-            xDataLen,
-            xScale,
-            xTextGroup,
-            yData,
-            yDataLen,
-            yScale,
-            yTextGroup,
-            matrixLines,
-            legendGroup,
-            cellData;
+        var cellData;
+        var div;
+        var groupPosition;
+        var height;
+        var legendGroup;
+        var margin;
+        var matrixCells;
+        var matrixGroup;
+        var matrixLines;
+        var square;
+        var svg;
+        var width;
+        var xData;
+        var xDataLen;
+        var xScale;
+        var xTextGroup;
+        var yData;
+        var yDataLen;
+        var yScale;
+        var yTextGroup;
 
         // Size in pixels of the rect element that will be drawn in the matrix.
         // By default is a square.
@@ -44,9 +44,9 @@ define([
 
         matrixchart = function(selection) {
             selection.each(function(data) {
-                var sHeight,
-                    sWidth,
-                    sRx;
+                var sHeight;
+                var sRx;
+                var sWidth;
 
                 sHeight = matrixchart.square().height;
                 sWidth = matrixchart.square().width;
@@ -126,15 +126,6 @@ define([
                     .enter()
                     .append('g')
                     .attr('class', 'matrix-cell-group');
-
-                matrixCells
-                    .append('rect')
-                    .attr('x', function(ignore, idx) {
-                        return xScale(idx) - (sWidth / 2);
-                    })
-                    .attr('width', sWidth)
-                    .attr('height', sHeight)
-                    .attr('rx', sRx);
             });
         };
 
