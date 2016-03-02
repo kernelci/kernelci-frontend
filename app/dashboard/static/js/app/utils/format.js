@@ -65,7 +65,6 @@ define([
     };
 
 
-    // Parse a byte number and return its human-readable form.
     /**
      * Format a bytes number into a human-readable form.
      *
@@ -73,9 +72,10 @@ define([
      * @return {String} The formatted number as a string.
     **/
     format.bytes = function(bytes) {
-        var calcBase,
-            idx,
-            retVal;
+        var calcBase;
+        var idx;
+        var retVal;
+
         calcBase = 1024;
         if (bytes === 0 || isNaN(bytes)) {
             retVal = '0 bytes';
@@ -85,7 +85,29 @@ define([
                 roundToTwo(
                     bytes / Math.pow(calcBase, idx))) + ' ' + sizes[idx];
         }
+
         return retVal;
+    };
+
+    /**
+     * Parse a byte number into a number-formatted human-readable form.
+     * This will keep the byte value as is, it will not be converted.
+     *
+     * @param {Number} bytes: The number to format.
+     * @return {String} The formatted string.
+    **/
+    format.bytesToBytes = function(bytes) {
+        var toBytes;
+
+        if (bytes === 0 || isNaN(bytes)) {
+            toBytes = '0 bytes';
+        } else if (bytes === 1) {
+            toBytes = '1 byte';
+        } else {
+            toBytes = numFormat.format(bytes) + ' bytes';
+        }
+
+        return toBytes;
     };
 
     /**

@@ -195,6 +195,7 @@ define([
     }
 
     function renderBytes(args) {
+        var title;
         args.value = parseInt(args.value, 10);
 
         if (args.baseline.hasOwnProperty(args.key)) {
@@ -204,6 +205,19 @@ define([
         }
 
         args.format = format.bytes;
+        if (args.valueIdx === 0) {
+            title = format.bytesToBytes(args.baseNumber);
+        } else {
+            title = format.bytesToBytes(args.value);
+        }
+
+        $(args.parent).tooltip({
+            html: true,
+            trigger: 'hover',
+            container: 'body',
+            placement: 'top',
+            title: title
+        });
 
         return renderFormat(args);
     }
