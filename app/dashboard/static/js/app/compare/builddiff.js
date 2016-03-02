@@ -286,6 +286,7 @@ define([
         var yDataIdx = {};
 
         function matrixHead(datum, idx) {
+            var defconfig;
             var text;
             var tspan;
 
@@ -298,9 +299,33 @@ define([
             text.appendChild(tspan);
 
             if (datum.defconfig !== datum.defconfig_full) {
+                if (datum.defconfig_full.indexOf(datum.defconfig) !== -1) {
+                    defconfig =
+                        datum.defconfig_full.slice(datum.defconfig.length);
+
+                    if (defconfig[0] === '+') {
+                        defconfig = defconfig.slice(1);
+                    }
+                } else {
+                    defconfig = datum.defconfig_full;
+                }
+
                 tspan = document.createElement('tspan');
-                tspan.appendChild(
-                    document.createTextNode(datum.defconfig_full));
+                if (defconfig.length > 24) {
+                    $(this).tooltip({
+                        html: true,
+                        trigger: 'hover',
+                        container: 'body',
+                        placement: 'bottom',
+                        title: defconfig
+                    });
+
+                    tspan.appendChild(
+                        document.createTextNode(html.sliceText(defconfig, 24)));
+                } else {
+                    tspan.appendChild(
+                        document.createTextNode(defconfig));
+                }
                 tspan.setAttribute('y', chart.xScale(idx));
                 tspan.setAttribute('x', '0');
                 tspan.setAttribute('dy', '1.2em');
@@ -456,7 +481,7 @@ define([
             cellDataFunc: _cellDataFunc,
             options: {
                 square: {width: 95, height: 45, rx: 0},
-                groupPosition: {top: 180, right: 0, bottom: 2, left: 150}
+                groupPosition: {top: 175, right: 0, bottom: 2, left: 150}
             }
         };
 
