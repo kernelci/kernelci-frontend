@@ -9,7 +9,7 @@ require.config({
         'tables': './app/tables',
         'buttons': './app/buttons',
         'components': './app/components',
-        'jquery': 'lib/jquery-2.1.4',
+        'jquery': 'lib/jquery-2.2.1',
         'jquery.hotkeys': 'lib/jquery.hotkeys-1.0.min',
         'jquery.hotkeymap': 'lib/jquery.hotkeymap-1.0.min',
         'bootstrap': 'lib/bootstrap-3.3.6',
