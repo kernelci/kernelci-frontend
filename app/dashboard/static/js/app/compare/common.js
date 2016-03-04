@@ -5,14 +5,24 @@ define([
     'compare/const'
 ], function(html, cevents, constants) {
     'use strict';
+    var gArchData;
+    var gBoardData;
     var gCommonCompare;
+    var gDefconfigData;
     var gJobData;
     var gKernelData;
-    var gDefconfigData;
-    var gArchData;
+    var gLabData;
 
     gCommonCompare = {};
 
+    // These data structures hold configuration parameters for the various
+    // input types.
+    // label {String}: The label that will be used for the input field.
+    // title {String}: A title for the input field, a tooltip.
+    // pattern {String}: The accepted pattern to validate the values.
+    // list {String}: (Optional) The data list ID to use for the valid values.
+    // focusEvent {Function}: The function that will be triggered when the
+    // input element receives focus.
     gJobData = {
         label: 'Tree',
         title: 'Choose a tree name',
@@ -42,6 +52,26 @@ define([
         focusEvent: cevents.defconfigInputFocus
     };
 
+    gBoardData = {
+        label: 'Board',
+        title: 'Choose a board',
+        pattern: '[A-Za-z-0-9_.-+]*',
+        focusEvent: cevents.boardInputFocus
+    };
+
+    gLabData = {
+        label: 'Lab',
+        title: 'Choose a lab',
+        pattern: '[A-Za-z-0-9-]*',
+        focusEvent: cevents.labInputFocus
+    };
+
+    /**
+     * Create an input control.
+     *
+     * @param {Object} options: The configuration parameters.
+     * @return {HTMLElement} A div node.
+    **/
     function createInputControl(options) {
         var wrapperNode;
         var divNode;
@@ -120,6 +150,12 @@ define([
         return wrapperNode;
     }
 
+    /**
+     * Create the job targets choice.
+     *
+     * @param {Object} options: The configuration parameters.
+     * @return {HTMLElement} A div node.
+    **/
     function createJobMultiChoice(options) {
         var divNode;
 
@@ -155,6 +191,12 @@ define([
         return divNode;
     }
 
+    /**
+     * Create the baseline choice for job comparison.
+     *
+     * @param {Object} options: The configuration parameters.
+     * @return {HTMLElement} A div node.
+    **/
     function createJobChoice(options) {
         var divNode;
 
@@ -201,6 +243,7 @@ define([
      * Create the compare targets multi-choice elements.
      *
      * @param {Object} options: The configuration parameters.
+     * @return {HTMLElement} A div node.
     **/
     function createBuildMultiChoice(options) {
         var divNode;
@@ -235,7 +278,7 @@ define([
     /**
      * Create the baseline choice for build comparisons.
      *
-     * @param {String} bucketId: The ID of the data-list bucket.
+     * @param {Object} options: The configuration parameters.
     **/
     function createBuildChoice(options) {
         var divNode;
@@ -267,8 +310,99 @@ define([
         return divNode;
     }
 
+    function createBootMultiChoice(options) {
+        var divNode;
+        var oldArchFunc;
+        var oldDefconfigFunc;
+
+        options.boardId = 'compare-board' + options.idx;
+        options.labId = 'compare-lab' + options.idx;
+        options.data.board = options.boardId;
+        options.data.lab = options.labId;
+
+        // Keep a reference of the default focus events for defconfig and arch
+        // since we need to override them.
+        oldArchFunc = gArchData.focusEvent;
+        oldDefconfigFunc = gDefconfigData.focusEvent;
+
+        gDefconfigData.focusEvent = cevents.defconfigBootInputFocus;
+        gArchData.focusEvent = cevents.archBootInputFocus;
+
+        divNode = createBuildMultiChoice(options);
+
+        // The board choice.
+        options.elementId = options.boardId;
+        Object.keys(gBoardData).forEach(function(key) {
+            options[key] = gBoardData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // The lab choice.
+        options.elementId = options.labId;
+        Object.keys(gLabData).forEach(function(key) {
+            options[key] = gLabData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // Restore the old focus events.
+        gDefconfigData.focusEvent = oldDefconfigFunc;
+        gArchData.focusEvent = oldArchFunc;
+
+        return divNode;
+    }
+
+    function createBootChoice(options) {
+        var divNode;
+        var oldArchFunc;
+        var oldDefconfigFunc;
+
+        options.boardId = 'baseline-board';
+        options.labId = 'baseline-lab';
+        options.data.board = options.boardId;
+        options.data.lab = options.labId;
+
+        // Keep a reference of the default focus events for defconfig and arch
+        // since we need to override them.
+        oldArchFunc = gArchData.focusEvent;
+        oldDefconfigFunc = gDefconfigData.focusEvent;
+
+        gDefconfigData.focusEvent = cevents.defconfigBootInputFocus;
+        gArchData.focusEvent = cevents.archBootInputFocus;
+
+        // Start from the base defconfing selection.
+        divNode = createBuildChoice(options);
+
+        // The board choice.
+        options.elementId = options.boardId;
+        Object.keys(gBoardData).forEach(function(key) {
+            options[key] = gBoardData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // The lab choice.
+        options.elementId = options.labId;
+        Object.keys(gLabData).forEach(function(key) {
+            options[key] = gLabData[key];
+        });
+
+        divNode.appendChild(createInputControl(options));
+
+        // Restore the old focus events.
+        gDefconfigData.focusEvent = oldDefconfigFunc;
+        gArchData.focusEvent = oldArchFunc;
+
+        return divNode;
+    }
+
     /**
+     * Wrapper aroung the multi-choice targets creation.
      *
+     * @param {Object} options: The necessary options to setup the selection
+     * targets.
+     * @return {HTMLElement} A div node containing all the necessary targets.
     **/
     function createMultiChoice(options) {
         var choiceNode;
@@ -307,7 +441,7 @@ define([
                 choiceNode = createBuildMultiChoice(options);
                 break;
             default:
-                choiceNode = document.createElement('div');
+                choiceNode = createBootMultiChoice(options);
                 break;
         }
 
@@ -325,6 +459,7 @@ define([
      * idx {Number}: The index number of the choice.
      * required {Boolean}: If the input fields are required.
      * bucketId {String}: The ID of the datalist container bucket.
+     * data {Object}: A data structure to hold data-* attributes.
      *
      * @param {Object} options: The configuration object.
      *
@@ -335,6 +470,8 @@ define([
 
     /**
      * Create an HTML form element.
+     *
+     * @return {HTMLForm} An HTML form element.
     **/
     gCommonCompare.form = function() {
         var formNode;
@@ -368,10 +505,14 @@ define([
         return divNode;
     };
 
+    gCommonCompare.bootChoice = function(options) {
+        return createBootChoice(options);
+    };
+
     /**
      * Create the basic build choice target.
      *
-     * @param {String} bucketId: The ID of the datalist bucket element.
+     * @param {Object} options: The configuration parameters.
     **/
     gCommonCompare.buildChoice = function(options) {
         return createBuildChoice(options);
@@ -380,7 +521,7 @@ define([
     /**
      * Create the basic job choice target.
      *
-     * @param {String} bucketId: The ID of the datalist bucket element.
+     * @param {Object} options: The configuration parameters.
     **/
     gCommonCompare.jobChoice = function(options) {
         return createJobChoice(options);

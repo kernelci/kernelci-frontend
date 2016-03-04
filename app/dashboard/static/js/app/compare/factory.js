@@ -130,7 +130,7 @@ define([
                 choiceNode = common.buildChoice(options);
                 break;
             default:
-                choiceNode = document.createElement('div');
+                choiceNode = common.bootChoice(options);
                 break;
         }
 

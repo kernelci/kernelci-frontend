@@ -5,19 +5,19 @@ define([
     'utils/html'
 ], function(cevents, factory, html) {
     'use strict';
+    var bootCompare;
     var containerElement;
     var dataBucket;
-    var buildCompare;
 
     /**
-     * Initialize a build comparison.
+     * Initialize a boot comparison.
      *
      * @param {HTMLDivElement} container: The element that should contain the
      * comparison.
      * @param {HTMLDivElement} bucket: The element where the data list
      * options should be added. If it is not passed, a new one will be created.
     **/
-    buildCompare = function(container, bucket) {
+    bootCompare = function(container, bucket) {
         containerElement = container;
 
         if (bucket !== undefined && bucket !== null) {
@@ -27,30 +27,30 @@ define([
             containerElement.appendChild(dataBucket);
         }
 
-        return buildCompare;
+        return bootCompare;
     };
 
     /**
      * Return the associated bucket element.
     **/
-    buildCompare.bucket = function() {
+    bootCompare.bucket = function() {
         return dataBucket;
     };
 
     /**
-     * Create the build comparison selection.
+     * Create the boot comparison selection.
      * Create the baseline choice and the multiple compare targets one.
     **/
-    buildCompare.create = function() {
+    bootCompare.create = function() {
         html.removeChildren(containerElement);
-        containerElement.appendChild(factory.baseline('build', dataBucket.id));
+        containerElement.appendChild(factory.baseline('boot', dataBucket.id));
         containerElement.appendChild(
-            factory.multiCompare('build', true, dataBucket.id));
-        containerElement.appendChild(factory.submitButton('build'));
+            factory.multiCompare('boot', true, dataBucket.id));
+        containerElement.appendChild(factory.submitButton('boot'));
         cevents.getTrees(dataBucket);
 
-        return buildCompare;
+        return bootCompare;
     };
 
-    return buildCompare;
+    return bootCompare;
 });

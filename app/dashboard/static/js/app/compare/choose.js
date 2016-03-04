@@ -2,14 +2,15 @@
 define([
     'compare/job',
     'compare/build',
+    'compare/boot',
     'compare/common',
     'compare/const'
-], function(job, build, common, constants) {
+], function(job, build, boot, common, constants) {
     'use strict';
-    var chooseCompare,
-        compareContainer,
-        compareTypeContainer,
-        dataBucket;
+    var chooseCompare;
+    var compareContainer;
+    var compareTypeContainer;
+    var dataBucket;
 
     /**
      * Launch the function to setup the correct comparison type.
@@ -27,14 +28,13 @@ define([
             case 'build':
                 build(compareTypeContainer, dataBucket).create();
                 break;
-            case 'boot':
-                throw 'Not implemented yet';
             default:
-                throw 'Wrong comparison type';
+                boot(compareTypeContainer, dataBucket).create();
+                break;
         }
     }
 
-    function createListNode(disabled) {
+    function createListNode() {
         var liNode;
 
         liNode = document.createElement('li');
@@ -43,28 +43,18 @@ define([
         liNode.setAttribute('data-trigger', 'hover');
         liNode.setAttribute('data-container', '#comparison-type');
 
-        if (disabled) {
-            liNode.className = 'disabled';
-        } else {
-            liNode.addEventListener('click', function() {
-                compareTypeChoose(this);
-            });
-        }
+        liNode.addEventListener('click', function() {
+            compareTypeChoose(this);
+        });
 
         return liNode;
     }
 
-    function createRadioLabel(forElementId, disabled) {
+    function createRadioLabel(forElementId) {
         var labelNode;
 
         labelNode = document.createElement('label');
-
-        if (disabled) {
-            labelNode.className = 'radio-description disabled';
-        } else {
-            labelNode.className = 'radio-description';
-        }
-
+        labelNode.className = 'radio-description';
         labelNode.for = forElementId;
 
         return labelNode;
@@ -88,14 +78,14 @@ define([
      * @param {string} formId: The ID of the form.
     **/
     function createTypeWidget(formId) {
-        var compareDivNode,
-            contentNode,
-            divNode,
-            headingNode,
-            inputNode,
-            labelNode,
-            liNode,
-            ulNode;
+        var compareDivNode;
+        var contentNode;
+        var divNode;
+        var headingNode;
+        var inputNode;
+        var labelNode;
+        var liNode;
+        var ulNode;
 
         divNode = document.createElement('div');
         divNode.id = 'compare-type-choose';
@@ -161,24 +151,21 @@ define([
         ulNode.appendChild(liNode);
 
         // Boot comparison still disabled.
-        liNode = createListNode(true);
+        liNode = createListNode();
         liNode.setAttribute('data-type', 'boot');
-        // TODO
-        // liNode.setAttribute(
-        //     'data-content',
-        //     'Compare on a boot basis choosing tree, kernel, defconfig, ' +
-        //     'architecture and board'
-        // );
-        liNode.setAttribute('data-content', 'Not available at the moment');
+        liNode.setAttribute(
+            'data-content',
+            'Compare on a boot basis choosing tree, kernel, defconfig, ' +
+            'architecture, board and lab'
+        );
 
         inputNode = createRadioElement(formId);
         inputNode.id = 'radio-boot-input';
         inputNode.value = 'boot';
-        inputNode.disabled = true;
 
         liNode.appendChild(inputNode);
 
-        labelNode = createRadioLabel('radio-boot-input', true);
+        labelNode = createRadioLabel('radio-boot-input');
         labelNode.appendChild(document.createTextNode('boot'));
 
         liNode.appendChild(labelNode);
@@ -220,8 +207,8 @@ define([
      * Create the compare form DOM structure.
     **/
     chooseCompare.create = function() {
-        var formNode,
-            typeNode;
+        var formNode;
+        var typeNode;
 
         formNode = common.form();
         formNode.id = constants.FORM_ID;

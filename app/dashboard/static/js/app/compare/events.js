@@ -12,6 +12,7 @@ define([
     var gDataCache;
     var gDefconfigStatus;
     var gKernelStatus;
+    var gBoardStatus;
 
     gCompareEvents = {};
 
@@ -45,6 +46,15 @@ define([
         },
         '404': {
             content: 'No architecture values found'
+        }
+    };
+
+    gBoardStatus = {
+        '400': {
+            content: 'Wrong data provided looking for board values'
+        },
+        '404': {
+            content: 'No board values found'
         }
     };
 
@@ -152,6 +162,11 @@ define([
             isValid = isValid && (defconfigTxt === elements.defconfig.value);
 
             cacheKey = treeTxt + kernelTxt;
+            if (elements.hasOwnProperty('cachePrefix') &&
+                    elements.cachePrefix) {
+                cacheKey = elements.cachePrefix + cacheKey;
+            }
+
             if (gDataCache.hasOwnProperty(cacheKey)) {
                 isValid = isValid &&
                     (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
@@ -184,9 +199,14 @@ define([
             isValid = isValid && (archTxt === elements.arch.value);
 
             cacheKey = treeTxt + kernelTxt + defconfigTxt;
+            if (elements.hasOwnProperty('cachePrefix') &&
+                    elements.cachePrefix) {
+                cacheKey = elements.cachePrefix + cacheKey;
+            }
+
             if (gDataCache.hasOwnProperty(cacheKey)) {
                 isValid = isValid &&
-                    (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
+                    (gDataCache[cacheKey].indexOf(archTxt) !== -1);
             } else {
                 isValid = false;
             }
@@ -194,6 +214,47 @@ define([
 
         return [
             validDefconfig[0], validDefconfig[1], validDefconfig[2], isValid
+        ];
+    }
+
+    function isValidBoard(elements) {
+        var archTxt;
+        var boardTxt;
+        var cacheKey;
+        var defconfigTxt;
+        var isValid;
+        var kernelTxt;
+        var treeTxt;
+        var validArch;
+
+        validArch = isValidArch(elements);
+
+        isValid = elements.board.checkValidity();
+        if (isValid) {
+            treeTxt = html.escape(elements.tree.value);
+            kernelTxt = html.escape(elements.kernel.value);
+            defconfigTxt = html.escape(elements.defconfig.value);
+            archTxt = html.escape(elements.arch.value);
+            boardTxt = html.escape(elements.board.value);
+
+            isValid = isValid && (boardTxt === elements.board.value);
+
+            cacheKey = treeTxt + kernelTxt + defconfigTxt + archTxt;
+            if (elements.hasOwnProperty('cachePrefix') &&
+                    elements.cachePrefix) {
+                cacheKey = elements.cachePrefix + cacheKey;
+            }
+
+            if (gDataCache.hasOwnProperty(cacheKey)) {
+                isValid = isValid &&
+                    (gDataCache[cacheKey].indexOf(boardTxt) !== -1);
+            } else {
+                isValid = false;
+            }
+        }
+
+        return [
+            validArch[0], validArch[1], validArch[2], validArch[3], isValid
         ];
     }
 
@@ -650,8 +711,10 @@ define([
      * values based on the tree and kernel inputs.
      *
      * @param {Event} event: The triggering event.
+     * @param {String} qURL: The URL to use for the query.
+     * @param {String} cachePrefix: The prefix for the cache key.
     **/
-    gCompareEvents.defconfigInputFocus = function(event) {
+    function defconfigFocus(event, qURL, cachePrefix) {
         var isValid;
         var kernelId;
         var kernelInput;
@@ -678,14 +741,23 @@ define([
             options = {
                 bucketId: 'datalist-' + treeName + kernelName,
                 cacheKey: treeName + kernelName,
-                element: target,
                 url: '/_ajax/build/distinct/defconfig_full/',
+                element: target,
                 query: '?job=' + encodeURIComponent(treeName) +
                     '&kernel=' + encodeURIComponent(kernelName),
                 dataTitle: 'No defconfig values',
                 dataContent: 'No defconfig values found',
                 status: gDefconfigStatus
             };
+
+            if (cachePrefix) {
+                options.cacheKey = cachePrefix + options.cacheKey;
+                options.bucketId = cachePrefix + options.bucketId;
+            }
+
+            if (qURL) {
+                options.url = qURL;
+            }
 
             getValues(options);
         } else {
@@ -709,16 +781,142 @@ define([
                 );
             }
         }
-    };
-
+    }
 
     /**
-     * When the arch field gets the focus, trigger a search for the valid
-     * values based on the tree, kernel and defconfig inputs.
+     * When the defconfig field gets the focus, trigger a search for the valid
+     * values based on the tree and kernel inputs.
      *
      * @param {Event} event: The triggering event.
     **/
-    gCompareEvents.archInputFocus = function(event) {
+    gCompareEvents.defconfigInputFocus = function(event) {
+        defconfigFocus(event);
+    };
+
+    /**
+     * When the defconfig field gets the focus, trigger a search for the valid
+     * values based on the tree and kernel inputs.
+     *
+     * This is a special case for the boot comparison type: we cannot search
+     * defconfig field in the build collection, since we are not testing all
+     * the defconfigs.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.defconfigBootInputFocus = function(event) {
+        defconfigFocus(event, '/_ajax/boot/distinct/defconfig_full/', 'boot-');
+    };
+
+    /**
+     * When the board field gets the focus, trigger a search for the valid
+     * values based on the tree, kernel, defconfig and arch inputs.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.boardInputFocus = function(event) {
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var kernelName;
+        var options;
+        var target;
+        var treeId;
+        var defconfigId;
+        var treeInput;
+        var treeName;
+        var archId;
+        var archInput;
+        var defconfigInput;
+        var defconfigName;
+        var archName;
+        var cachePrefix;
+        var dataKey;
+
+        cachePrefix = 'boot-';
+        target = event.target || event.srcElement;
+
+        treeId = target.getAttribute('data-tree');
+        kernelId = target.getAttribute('data-kernel');
+        defconfigId = target.getAttribute('data-defconfig');
+        archId = target.getAttribute('data-arch');
+        treeInput = document.getElementById(treeId);
+        kernelInput = document.getElementById(kernelId);
+        defconfigInput = document.getElementById(defconfigId);
+        archInput = document.getElementById(archId);
+
+        isValid = isValidArch({
+            tree: treeInput,
+            kernel: kernelInput,
+            defconfig: defconfigInput,
+            arch: archInput,
+            cachePrefix: cachePrefix
+        });
+
+        if (isValid[0] && isValid[1] && isValid[2] && isValid[3]) {
+            treeName = treeInput.value;
+            kernelName = kernelInput.value;
+            defconfigName = defconfigInput.value;
+            archName = archInput.value;
+
+            dataKey = treeName + kernelName + defconfigName + archName;
+
+            options = {
+                bucketId: cachePrefix + 'datalist-' + dataKey,
+                cacheKey: cachePrefix + dataKey,
+                element: target,
+                url: '/_ajax/boot/distinct/board/',
+                query: '?job=' + encodeURIComponent(treeName) +
+                    '&kernel=' + encodeURIComponent(kernelName) +
+                    '&defconfig_full=' + encodeURIComponent(defconfigName) +
+                    '&arch=' + encodeURIComponent(archName),
+                dataTitle: 'No board values',
+                dataContent: 'No board values found',
+                status: gBoardStatus
+            };
+
+            getValues(options);
+        } else {
+            target.removeAttribute('list');
+
+            if (!isValid[0]) {
+                html.addClass(treeInput, 'invalid');
+                wrongValue(
+                    document.getElementById(treeId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
+
+            if (!isValid[1]) {
+                html.addClass(kernelInput, 'invalid');
+                wrongValue(
+                    document.getElementById(kernelId + '-notify'),
+                    'Invalid value',
+                    'Specified kernel value is not valid or empty'
+                );
+            }
+
+            if (!isValid[2]) {
+                html.addClass(defconfigInput, 'invalid');
+                wrongValue(
+                    document.getElementById(defconfigId + '-notify'),
+                    'Invalid value',
+                    'Specified defconfig value is not valid or empty'
+                );
+            }
+
+            if (!isValid[3]) {
+                html.addClass(archInput, 'invalid');
+                wrongValue(
+                    document.getElementById(archId + '-notify'),
+                    'Invalid value',
+                    'Specified architecture value is not valid or empty'
+                );
+            }
+        }
+    };
+
+    function archFocus(event, qURL, cachePrefix) {
         var defconfigId;
         var defconfigInput;
         var defconfigTxt;
@@ -744,7 +942,8 @@ define([
         isValid = isValidDefconfig({
             tree: treeInput,
             kernel: kernelInput,
-            defconfig: defconfigInput
+            defconfig: defconfigInput,
+            cachePrefix: cachePrefix
         });
 
         if (isValid[0] && isValid[1] && isValid[2]) {
@@ -764,6 +963,15 @@ define([
                 dataContent: 'No architecture values found',
                 status: gArchitectureStatus
             };
+
+            if (cachePrefix) {
+                options.cacheKey = cachePrefix + options.cacheKey;
+                options.bucketId = cachePrefix + options.bucketId;
+            }
+
+            if (qURL) {
+                options.url = qURL;
+            }
 
             getValues(options);
         } else {
@@ -793,6 +1001,156 @@ define([
                     document.getElementById(defconfigId + '-notify'),
                     'Invalid value',
                     'Specified tree value is not valid or empty'
+                );
+            }
+        }
+    }
+
+    /**
+     * When the arch field gets the focus, trigger a search for the valid
+     * values based on the tree, kernel and defconfig inputs.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.archInputFocus = function(event) {
+        archFocus(event);
+    };
+
+    /**
+     * When the arch field gets the focus, trigger a search for the valid
+     * values based on the tree, kernel and defconfig inputs.
+     *
+     * This is a special case for the boot comparison type: we cannot search
+     * arch field in the build collection, since we are not testing all
+     * the defconfigs and might only have a subset of architectures.
+     *
+     * @param {Event} event: The triggering event.
+    **/
+    gCompareEvents.archBootInputFocus = function(event) {
+        archFocus(event, '/_ajax/boot/distinct/arch/', 'boot-');
+    };
+
+    /**
+     *
+    **/
+    gCompareEvents.labInputFocus = function(event) {
+        var archId;
+        var archInput;
+        var archName;
+        var boardId;
+        var boardInput;
+        var boardName;
+        var cachePrefix;
+        var dataKey;
+        var defconfigId;
+        var defconfigInput;
+        var defconfigName;
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var kernelName;
+        var options;
+        var target;
+        var treeId;
+        var treeInput;
+        var treeName;
+
+        cachePrefix = 'boot-';
+        target = event.target || event.srcElement;
+
+        treeId = target.getAttribute('data-tree');
+        kernelId = target.getAttribute('data-kernel');
+        defconfigId = target.getAttribute('data-defconfig');
+        archId = target.getAttribute('data-arch');
+        boardId = target.getAttribute('data-board');
+        treeInput = document.getElementById(treeId);
+        kernelInput = document.getElementById(kernelId);
+        defconfigInput = document.getElementById(defconfigId);
+        archInput = document.getElementById(archId);
+        boardInput = document.getElementById(boardId);
+
+        isValid = isValidBoard({
+            tree: treeInput,
+            kernel: kernelInput,
+            defconfig: defconfigInput,
+            arch: archInput,
+            board: boardInput,
+            cachePrefix: cachePrefix
+        });
+
+        if (isValid[0] &&
+                isValid[1] && isValid[2] && isValid[3] && isValid[4]) {
+            treeName = treeInput.value;
+            kernelName = kernelInput.value;
+            defconfigName = defconfigInput.value;
+            archName = archInput.value;
+            boardName = boardInput.value;
+
+            dataKey = treeName +
+                kernelName + defconfigName + archName + boardName;
+
+            options = {
+                bucketId: cachePrefix + 'datalist-' + dataKey,
+                cacheKey: cachePrefix + dataKey,
+                element: target,
+                url: '/_ajax/boot/distinct/lab_name/',
+                query: '?job=' + encodeURIComponent(treeName) +
+                    '&kernel=' + encodeURIComponent(kernelName) +
+                    '&defconfig_full=' + encodeURIComponent(defconfigName) +
+                    '&arch=' + encodeURIComponent(archName) +
+                    '&board=' + encodeURIComponent(boardName),
+                dataTitle: 'No lab values',
+                dataContent: 'No lab values found',
+                status: gBoardStatus
+            };
+
+            // TODO: need a placeholder for "all".
+            getValues(options);
+        } else {
+            target.removeAttribute('list');
+
+            if (!isValid[0]) {
+                html.addClass(treeInput, 'invalid');
+                wrongValue(
+                    document.getElementById(treeId + '-notify'),
+                    'Invalid value',
+                    'Specified tree value is not valid or empty'
+                );
+            }
+
+            if (!isValid[1]) {
+                html.addClass(kernelInput, 'invalid');
+                wrongValue(
+                    document.getElementById(kernelId + '-notify'),
+                    'Invalid value',
+                    'Specified kernel value is not valid or empty'
+                );
+            }
+
+            if (!isValid[2]) {
+                html.addClass(defconfigInput, 'invalid');
+                wrongValue(
+                    document.getElementById(defconfigId + '-notify'),
+                    'Invalid value',
+                    'Specified defconfig value is not valid or empty'
+                );
+            }
+
+            if (!isValid[3]) {
+                html.addClass(archInput, 'invalid');
+                wrongValue(
+                    document.getElementById(archId + '-notify'),
+                    'Invalid value',
+                    'Specified architecture value is not valid or empty'
+                );
+            }
+
+            if (!isValid[4]) {
+                html.addClass(boardInput, 'invalid');
+                wrongValue(
+                    document.getElementById(boardId + '-notify'),
+                    'Invalid value',
+                    'Specified architecture value is not valid or empty'
                 );
             }
         }
