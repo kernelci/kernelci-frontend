@@ -836,6 +836,8 @@ define([
 
             removeButton.setAttribute('data-index', newIndex);
             target.setAttribute('data-index', newIndex);
+
+            compareContainer.querySelector('#compare-tree' + newIndex).focus();
         }
 
         if (newIndex === constants.MAX_COMPARE_TARGETS) {
