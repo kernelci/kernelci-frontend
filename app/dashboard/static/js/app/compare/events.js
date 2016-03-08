@@ -491,11 +491,13 @@ define([
 
                 // Map the defconfig key to defconfig_full, since that is what
                 // we actually need to look in the backend. Also map tree to
-                // the job key.
+                // the job key, and lab to lab_name.
                 if (attribute === 'defconfig') {
                     data.defconfig_full = value;
                 } else if (attribute === 'tree') {
                     data.job = value;
+                } else if (attribute === 'lab') {
+                    data.lab_name = value;
                 } else {
                     data[attribute] = value;
                 }
@@ -571,7 +573,26 @@ define([
      * @param {HTMLFormElement} form: The form element.
     **/
     function submitBootCompare(form) {
-        throw 'Not implemented yet';
+        var container;
+        var data;
+
+        container = form
+            .querySelector('#' + constants.COMPARE_TO_CONTAINER_ID);
+
+        data = {
+            job: form.querySelector('#baseline-tree').value,
+            kernel: form.querySelector('#baseline-kernel').value,
+            defconfig_full: form.querySelector('#baseline-defconfig').value,
+            arch: form.querySelector('#baseline-arch').value,
+            board: form.querySelector('#baseline-board').value,
+            lab_name: form.querySelector('#baseline-lab').value
+        };
+
+        data.compare_to = getCompareTargets(
+            container,
+            ['tree', 'kernel', 'defconfig', 'arch', 'board', 'lab']);
+
+        postComparison('/_ajax/boot/compare', '/compare/boot/', data);
     }
 
     /**
