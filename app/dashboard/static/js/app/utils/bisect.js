@@ -70,17 +70,14 @@ define([
     }
 
     function _bindShowLess(element) {
-        element.removeEventListener('click');
         element.addEventListener('click', btns.lessRowsEvent);
     }
 
     function _bindShowMore(element) {
-        element.removeEventListener('click');
         element.addEventListener('click', btns.moreRowsEvent);
     }
 
     function _bindBisect(element) {
-        element.removeEventListener('click');
         element.addEventListener('click', btns.showHideEvent);
     }
 
