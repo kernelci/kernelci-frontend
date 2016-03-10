@@ -52,3 +52,14 @@ class BuildCompareView(GenericCompareView):
             page_title=page_title,
             compare_id=compare_id
         )
+
+
+class BootCompareView(GenericCompareView):
+
+    def dispatch_request(self, compare_id):
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, "Boot comparison")
+        return render_template(
+            "boot-compare.html",
+            page_title=page_title,
+            compare_id=compare_id
+        )

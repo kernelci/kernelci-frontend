@@ -236,6 +236,11 @@ def init():
         view_func=vcompare.BuildCompareView.as_view("build-compare"),
         methods=["GET"]
     )
+    add_rule(
+        "/compare/boot/<string:compare_id>/",
+        view_func=vcompare.BootCompareView.as_view("boot-compare"),
+        methods=["GET"]
+    )
 
     # SoCs views.
     add_rule(

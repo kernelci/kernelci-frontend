@@ -250,31 +250,30 @@ def ajax_statistics():
         abort(403)
 
 
-@app.route("/_ajax/job/compare/<string:doc_id>/", methods=["GET"])
-@app.route("/_ajax/job/compare", methods=["POST", "OPTIONS"])
-def ajax_job_compare(doc_id=None):
+@app.route(
+    "/_ajax/job/compare/<string:doc_id>/",
+    methods=["GET"], defaults={"api": "JOB_COMPARE_API_ENDPOINT"})
+@app.route(
+    "/_ajax/job/compare",
+    methods=["POST", "OPTIONS"],
+    defaults={"api": "JOB_COMPARE_API_ENDPOINT", "doc_id": None})
+@app.route(
+    "/_ajax/build/compare/<string:doc_id>/",
+    methods=["GET"], defaults={"api": "BUILD_COMPARE_API_ENDPOINT"})
+@app.route(
+    "/_ajax/build/compare",
+    methods=["POST", "OPTIONS"],
+    defaults={"doc_id": None, "api": "BUILD_COMPARE_API_ENDPOINT"})
+@app.route(
+    "/_ajax/boot/compare/<string:doc_id>/",
+    methods=["GET"], defaults={"api": "BOOT_COMPARE_API_ENDPOINT"})
+@app.route(
+    "/_ajax/boot/compare",
+    methods=["POST", "OPTIONS"],
+    defaults={"api": "BOOT_COMPARE_API_ENDPOINT", "doc_id": None})
+def ajax_compare(doc_id, api):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
-        api_path = app_conf_get("JOB_COMPARE_API_ENDPOINT")
-        if request.method == "GET":
-            return backend.ajax_get(
-                request, api_path, doc_id=doc_id, timeout=60*60*2)
-        elif any([request.method == "POST", request.method == "OPTIONS"]):
-            if request.data:
-                return backend.ajax_batch_post(
-                    request, api_path, timeout=60*60*2)
-            else:
-                abort(400)
-        else:
-            abort(405)
-    else:
-        abort(403)
-
-
-@app.route("/_ajax/build/compare/<string:doc_id>/", methods=["GET"])
-@app.route("/_ajax/build/compare", methods=["POST", "OPTIONS"])
-def ajax_build_compare(doc_id=None):
-    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
-        api_path = app_conf_get("BUILD_COMPARE_API_ENDPOINT")
+        api_path = app_conf_get(api)
         if request.method == "GET":
             return backend.ajax_get(
                 request, api_path, doc_id=doc_id, timeout=60*60*2)
