@@ -24,6 +24,7 @@ require.config({
     },
     map: {
         '*': {
+            'app/view-boot-compare': 'app/view-boot-compare.2016.3',
             'app/view-boots-all': 'app/view-boots-all.2016.3',
             'app/view-boots-all-job': 'app/view-boots-all-job.2016.3',
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.2016.3',

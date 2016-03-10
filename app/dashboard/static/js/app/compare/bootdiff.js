@@ -7,10 +7,10 @@ define([
     'compare/utils'
 ], function($, html, diffmatrix, common, utils) {
     'use strict';
-    var gBuildDiff;
+    var gBootDiff;
     var yData;
 
-    gBuildDiff = {};
+    gBootDiff = {};
 
     // Contains mappings between JSON data keys, labels for display and
     // render function. If the render function is null the default text render
@@ -21,19 +21,21 @@ define([
         ['job', 'Tree', null],
         ['kernel', 'Kernel', utils.renderTextLong],
         ['arch', 'Architecture', null],
+        ['mach', 'SoC', null],
+        ['lab_name', 'Lab', null],
+        ['board_instance', 'Board instance', null],
+        ['endian', 'Endianness', null],
+        ['retries', 'Boot retries', utils.renderNumber],
         ['status', 'Status', utils.renderStatus],
-        ['errors', 'Errors', utils.renderNumber],
         ['warnings', 'Warnings', utils.renderNumber],
-        ['mismatches', 'Mistmatches', utils.renderNumber],
+        // TODO: check at boot import time if we are importing it.
         ['compiler_version_ext', 'Compiler / Version', utils.renderCompiler],
-        ['text_offset', 'Text offset', null],
-        ['build_time', 'Build time', utils.renderBuildTime],
-        ['build_log_size', 'Build log size', utils.renderBytes],
-        ['kernel_config_size', 'Config file size', utils.renderBytes],
-        ['dtb_dir_data', 'Number of dtb files', utils.renderNumber],
-        ['kernel_image_size', 'Kernel image size', utils.renderBytes],
-        ['modules_size', 'Modules file size', utils.renderBytes],
-        ['system_map_size', 'System.map file size', utils.renderBytes]
+        ['load_addr', 'Load address', null],
+        ['initrd_addr', 'initrd address', null],
+        ['dtb_addr', 'dtb address', null],
+        ['uimage_addr', 'uImage address', null],
+        ['time', 'Boot time (seconds)', utils.renderBootTime],
+        ['kernel_image_size', 'Kernel image size', utils.renderBytes]
     ];
 
     function setupMatrix(chart, data) {
@@ -46,11 +48,19 @@ define([
             var tspan;
 
             text = document.createElement('text');
-            tspan = document.createElement('tspan');
 
+            tspan = document.createElement('tspan');
+            tspan.appendChild(document.createTextNode(datum.board));
+            tspan.setAttribute('y', chart.xScale(idx));
+            tspan.setAttribute('x', '0');
+            text.appendChild(tspan);
+
+            tspan = document.createElement('tspan');
             tspan.appendChild(document.createTextNode(datum.defconfig));
             tspan.setAttribute('y', chart.xScale(idx));
             tspan.setAttribute('x', '0');
+            tspan.setAttribute('dy', '1.2em');
+            tspan.className = 'diff-text-head-other';
             text.appendChild(tspan);
 
             if (datum.defconfig !== datum.defconfig_full) {
@@ -199,7 +209,7 @@ define([
             .html(diffValues);
     }
 
-    gBuildDiff.create = function(element, data) {
+    gBootDiff.create = function(element, data) {
         var args;
         var i;
         var newData;
@@ -244,5 +254,5 @@ define([
         diffmatrix.create(args);
     };
 
-    return gBuildDiff;
+    return gBootDiff;
 });

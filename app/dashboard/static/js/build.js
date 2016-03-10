@@ -27,6 +27,7 @@
     },
     map: {
         '*': {
+            'app/view-boot-compare': 'app/view-boot-compare.2016.3',
             'app/view-boots-all': 'app/view-boots-all.2016.3',
             'app/view-boots-all-job': 'app/view-boots-all-job.2016.3',
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.2016.3',
@@ -70,6 +71,7 @@
         }
     },
     modules: [
+        {name: 'app/view-boot-compare.2016.3'},
         {name: 'app/view-boots-all-job-kernel-defconfig.2016.3'},
         {name: 'app/view-boots-all-job.2016.3'},
         {name: 'app/view-boots-all-lab.2016.3'},
@@ -98,6 +100,7 @@
         {name: 'app/view-socs-soc-job-kernel.2016.3'},
         {name: 'app/view-sponsors.2016.3'},
         {name: 'app/view-stats.2016.3'},
+        {name: 'kci-boot-compare'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
         {name: 'kci-boots-all-job-kernel-defconfig'},
@@ -108,6 +111,7 @@
         {name: 'kci-boots-board-job-kernel-defconfig'},
         {name: 'kci-boots-id'},
         {name: 'kci-boots-job-kernel'},
+        {name: 'kci-build-compare'},
         {name: 'kci-builds-all'},
         {name: 'kci-builds-job-kernel'},
         {name: 'kci-builds-job-kernel-defconfig'},

@@ -10,48 +10,6 @@ define([
 
     diffmatrix = {};
 
-    // Dimensions of the legend element.
-    diffmatrix.legend = {
-        width: 17.5,
-        height: 17.5,
-        rx: 1
-    };
-
-    // Dimensions of the rectangle to represent the 'status'.
-    diffmatrix.status = {
-        height: 35,
-        rx: 2.5,
-        ry: 2.5,
-        width: 35
-    };
-
-    diffmatrix.colors = {
-        fail: '#d9534f',
-        pass: '#5cb85c',
-        unavail: '#7f7e7e',
-        unknown: '#f0ad4e'
-    };
-
-    diffmatrix.icons = {
-        fail: '\uf071',
-        pass: '\uf00c',
-        unknown: '?',
-        default: '\uf05e'
-    };
-
-    diffmatrix.build_status = {
-        fail: 'Build failed',
-        pass: 'Build successful',
-        unavail: 'Build not available',
-        unknown: 'Build status unknown'
-    };
-
-    diffmatrix.symbols = {
-        minus: '\u2212',
-        plus: '\u002B',
-        plus_minus: '\u00B1'
-    };
-
     /**
      * Check if the passed argument is a function.
     **/

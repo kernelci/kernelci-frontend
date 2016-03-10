@@ -592,6 +592,9 @@ define([
             container,
             ['tree', 'kernel', 'defconfig', 'arch', 'board', 'lab']);
 
+        // TODO
+        console.log('posting boot comparison');
+        console.log(data);
         postComparison('/_ajax/boot/compare', '/compare/boot/', data);
     }
 
