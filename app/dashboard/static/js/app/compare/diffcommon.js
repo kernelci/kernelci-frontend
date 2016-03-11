@@ -24,17 +24,22 @@ define(function() {
         fail: '#d9534f',
         pass: '#5cb85c',
         unavail: '#7f7e7e',
-        // TODO
-        offline: '',
         unknown: '#f0ad4e'
+    };
+
+    gDiffCommon.boot_colors = {
+        fail: '#d9534f',
+        pass: '#5cb85c',
+        unavail: '#7f7e7e',
+        unknown: '#f0ad4e',
+        offline: '#5bc0de'
     };
 
     gDiffCommon.icons = {
         fail: '\uf071',
         pass: '\uf00c',
         unknown: '?',
-        // TODO
-        offline: '',
+        offline: '\uf011',
         default: '\uf05e'
     };
 
