@@ -1,8 +1,9 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
+    'utils/html',
     'charts/diffmatrix',
-    'utils/html'
-], function(diffmatrix, html) {
+    'compare/diffcommon'
+], function(html, diffmatrix, common) {
     'use strict';
     var gJobDiff = {};
 
@@ -182,12 +183,12 @@ define([
                 var fillColor;
                 var status;
 
-                fillColor = diffmatrix.colors.unavail;
+                fillColor = common.colors.unavail;
                 if (datum !== null && datum.length > 0) {
                     status = datum[0].toLowerCase();
 
-                    if (diffmatrix.colors.hasOwnProperty(status)) {
-                        fillColor = diffmatrix.colors[status];
+                    if (common.colors.hasOwnProperty(status)) {
+                        fillColor = common.colors[status];
                     }
                 }
                 return fillColor;
@@ -217,13 +218,13 @@ define([
         chart.legendGroup()
             .select('g.legend-descriptions')
             .selectAll('g')
-            .data(Object.keys(diffmatrix.colors))
+            .data(Object.keys(common.colors))
             .enter()
             .append('g')
                 .attr('class', 'legend-line')
                 .attr('transform', function(ignore, idx) {
                     return 'translate(5,' +
-                        (diffmatrix.legend.height + 2) * idx + ')';
+                        (common.legend.height + 2) * idx + ')';
                 })
                 .attr('data-status', function(datum) {
                     return datum;
@@ -235,18 +236,18 @@ define([
                 .attr('data-status', function(datum) {
                     return datum;
                 })
-                .attr('width', diffmatrix.legend.width)
-                .attr('height', diffmatrix.legend.height)
-                .attr('rx', diffmatrix.legend.rx)
+                .attr('width', common.legend.width)
+                .attr('height', common.legend.height)
+                .attr('rx', common.legend.rx)
                 .style('fill', function(datum) {
-                    return diffmatrix.colors[datum];
+                    return common.colors[datum];
                 });
 
         chart.legendGroup()
             .selectAll('g.legend-line')
             .append('text')
-                .attr('x', diffmatrix.legend.width + 5)
-                .attr('y', diffmatrix.legend.height / 2)
+                .attr('x', common.legend.width + 5)
+                .attr('y', common.legend.height / 2)
                 .text(function(datum) {
                     var descTxt;
                     switch (datum) {
