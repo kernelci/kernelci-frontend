@@ -26,7 +26,7 @@ define([
         ['board_instance', 'Board instance', null],
         ['endian', 'Endianness', null],
         ['retries', 'Boot retries', utils.renderNumber],
-        ['status', 'Status', utils.renderStatus],
+        ['status', 'Status', utils.renderBootStatus],
         ['warnings', 'Warnings', utils.renderNumber],
         // TODO: check at boot import time if we are importing it.
         ['compiler_version_ext', 'Compiler / Version', utils.renderCompiler],

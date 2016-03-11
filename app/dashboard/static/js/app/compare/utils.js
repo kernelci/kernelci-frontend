@@ -157,6 +157,48 @@ define([
         return rect;
     };
 
+    gDiffUtils.renderBootStatus = function(args) {
+        var rect;
+        var status;
+        var tooltip;
+
+        status = args.value.toLowerCase();
+
+        rect = document.createElement('rect');
+        rect.setAttribute(
+            'x',
+            (args.chart.square().width / 2) - (common.status.width / 2));
+        rect.setAttribute(
+            'y',
+            (args.chart.square().height / 2) - (common.status.height / 2));
+        rect.setAttribute('rx', 2.5);
+        rect.setAttribute('ry', 2.5);
+        rect.setAttribute('width', common.status.width);
+        rect.setAttribute('height', common.status.height);
+
+        if (common.boot_colors.hasOwnProperty(status)) {
+            rect.setAttribute('fill', common.boot_colors[status]);
+        } else {
+            rect.setAttribute('fill', common.boot_colors.unavail);
+        }
+
+        if (common.boot_status.hasOwnProperty(status)) {
+            tooltip = common.boot_status[status];
+        } else {
+            tooltip = common.boot_status.unavail;
+        }
+
+        $(args.parent).tooltip({
+            html: true,
+            trigger: 'hover',
+            container: 'body',
+            placement: 'top',
+            title: tooltip
+        });
+
+        return rect;
+    };
+
     gDiffUtils.renderFormat = function(args) {
         return renderFormat(args);
     };
