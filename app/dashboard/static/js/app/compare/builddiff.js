@@ -27,13 +27,17 @@ define([
         ['mismatches', 'Mistmatches', utils.renderNumber],
         ['compiler_version_ext', 'Compiler / Version', utils.renderCompiler],
         ['text_offset', 'Text offset', null],
-        ['build_time', 'Build time', utils.renderBuildTime],
+        ['build_time', 'Build time (seconds)', utils.renderBuildTime],
+        ['dtb_dir_data', 'Number of dtb files', utils.renderNumber],
         ['build_log_size', 'Build log size', utils.renderBytes],
         ['kernel_config_size', 'Config file size', utils.renderBytes],
-        ['dtb_dir_data', 'Number of dtb files', utils.renderNumber],
-        ['kernel_image_size', 'Kernel image size', utils.renderBytes],
         ['modules_size', 'Modules file size', utils.renderBytes],
-        ['system_map_size', 'System.map file size', utils.renderBytes]
+        ['system_map_size', 'System.map file size', utils.renderBytes],
+        ['kernel_image_size', 'Kernel image size', utils.renderBytes],
+        ['vmlinux_file_size', 'vmlinux file size', utils.renderBytes],
+        ['vmlinux_text_size', 'ELF .text section size', utils.renderBytes],
+        ['vmlinux_bss_size', 'ELF .bss section size', utils.renderBytes],
+        ['vmlinux_data_size', 'ELF .data section size', utils.renderBytes]
     ];
 
     function setupMatrix(chart, data) {
