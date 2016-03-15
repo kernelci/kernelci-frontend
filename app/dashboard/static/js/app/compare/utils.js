@@ -10,6 +10,23 @@ define([
 
     gDiffUtils = {};
 
+    /**
+     * Generic matrix cell rendering function that applies a formatting
+     * function to the value to be displayed.
+     *
+     * The args object with all the parmaters is composed as follows:
+     * attrIdx: The data attribute index.
+     * baseline: The baseline object.
+     * chart: The chart function.
+     * datum: The entire data we are working on.
+     * key: The name of the key we are wokring on.
+     * value: The value to be displayed (can be retrieved with datum[key]).
+     * valueIdx: The index of the data value.
+     * parent: The parent node where the rendered value will be appended.
+     *
+     * @param {Object} args: The object containing the paramenters.
+     * @return {HTMLElement} A detached HTML element node.
+    **/
     function renderFormat(args) {
         var diff;
         var diffNumber;
@@ -297,6 +314,41 @@ define([
         });
 
         rendered = renderText(args);
+
+        return rendered;
+    };
+
+    gDiffUtils.renderBoolean = function(args) {
+        args.value = String(args.value).toLowerCase();
+        return renderText(args);
+    };
+
+    gDiffUtils.renderFastBoot = function(args) {
+        args.value = String(args.value).toLowerCase();
+
+        if (args.value === 'true') {
+            $(args.parent.parentNode).tooltip({
+                html: true,
+                trigger: 'hover',
+                container: 'body',
+                placement: 'top',
+                title: 'Fastboot command: ' +
+                    html.escape(args.datum.fastboot_cmd)
+            });
+        }
+
+        return renderText(args);
+    };
+
+    gDiffUtils.renderBootLoader = function(args) {
+        var rendered;
+
+        rendered = renderText(args);
+
+        if (common.isValidData(args.datum.bootloader_version)) {
+            rendered.appendChild(
+                document.createTextNode(' ' + args.datum.bootloader_version));
+        }
 
         return rendered;
     };

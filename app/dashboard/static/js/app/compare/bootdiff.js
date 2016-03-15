@@ -25,17 +25,21 @@ define([
         ['lab_name', 'Lab', null],
         ['board_instance', 'Board instance', null],
         ['endian', 'Endianness', null],
-        ['retries', 'Boot retries', utils.renderNumber],
         ['status', 'Status', utils.renderBootStatus],
+        ['retries', 'Boot retries', utils.renderNumber],
         ['warnings', 'Warnings', utils.renderNumber],
-        // TODO: check at boot import time if we are importing it.
-        ['compiler_version_ext', 'Compiler / Version', utils.renderCompiler],
-        ['load_addr', 'Load address', null],
-        ['initrd_addr', 'initrd address', null],
-        ['dtb_addr', 'dtb address', null],
-        ['uimage_addr', 'uImage address', null],
         ['time', 'Boot time (seconds)', utils.renderBootTime],
-        ['kernel_image_size', 'Kernel image size', utils.renderBytes]
+        ['compiler_version_ext', 'Compiler / Version', utils.renderCompiler],
+        ['kernel_image_size', 'Kernel image size', utils.renderBytes],
+        ['fastboot', 'Fastboot', utils.renderFastBoot],
+        ['load_addr', 'Load address', null],
+        ['initrd_addr', 'Initrd address', null],
+        ['uimage_addr', 'Uimage address', null],
+        ['dtb_addr', 'Dtb address', null],
+        ['dtb_append', 'Dtb append', utils.renderBoolean],
+        ['bootloader', 'Bootloader / Version', utils.renderBootLoader],
+        ['chainloader', 'Chainloader', null],
+        ['filesystem', 'File system', null]
     ];
 
     function setupMatrix(chart, data) {
