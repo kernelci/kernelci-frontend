@@ -733,16 +733,18 @@ define([
     gCompareEvents.getTrees = function(bucket) {
         var deferred;
 
-        deferred = r.get('/_ajax/job/distinct/job/');
-        $.when(deferred)
-            .fail(function(jqXHR) {
-                e.customError(
-                    jqXHR.status,
-                    'Error retrieving tree values from server.');
-            })
-            .done(function(response) {
-                getTreesDone(response, bucket);
-            });
+        if (gDataCache.trees.length === 0) {
+            deferred = r.get('/_ajax/job/distinct/job/');
+            $.when(deferred)
+                .fail(function(jqXHR) {
+                    e.customError(
+                        jqXHR.status,
+                        'Error retrieving tree values from server.');
+                })
+                .done(function(response) {
+                    getTreesDone(response, bucket);
+                });
+        }
     };
 
     /**
