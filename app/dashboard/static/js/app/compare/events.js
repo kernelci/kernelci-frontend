@@ -733,7 +733,7 @@ define([
     gCompareEvents.getTrees = function(bucket) {
         var deferred;
 
-        deferred = r.get('/_ajax/job/distinct/job');
+        deferred = r.get('/_ajax/job/distinct/job/');
         $.when(deferred)
             .fail(function(jqXHR) {
                 e.customError(
