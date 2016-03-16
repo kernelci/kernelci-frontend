@@ -8,11 +8,13 @@ define([
 ], function($, e, r, html, constants) {
     'use strict';
     var gArchitectureStatus;
+    var gBoardStatus;
     var gCompareEvents;
     var gDataCache;
     var gDefconfigStatus;
     var gKernelStatus;
-    var gBoardStatus;
+    var gNonValidStrings;
+    var gNonValidValue;
 
     gCompareEvents = {};
 
@@ -20,6 +22,17 @@ define([
     // Local cache to hold retrieved values from the backend.
     gDataCache = {};
     gDataCache.trees = [];
+
+    gNonValidStrings = {
+        arch: 'Specified architecture value is not valid or empty',
+        board: 'Specified board value is not valid or empty',
+        defconfig: 'Specified defconfig value is not valid or empty',
+        kernel: 'Specified kernel value is not valid or empty',
+        lab: 'Specified lab value is not valid or empty',
+        tree: 'Specified tree value is not valid or empty'
+    };
+
+    gNonValidValue = 'Invalid value';
 
     // Data structures to hold messages based on backend status code.
     gKernelStatus = {
@@ -255,6 +268,50 @@ define([
 
         return [
             validArch[0], validArch[1], validArch[2], validArch[3], isValid
+        ];
+    }
+
+    function isValidLab(elements) {
+        var archTxt;
+        var boardTxt;
+        var cacheKey;
+        var defconfigTxt;
+        var isValid;
+        var kernelTxt;
+        var treeTxt;
+        var validBoard;
+        var labTxt;
+
+        validBoard = isValidBoard(elements);
+
+        isValid = elements.lab.checkValidity();
+        if (isValid) {
+            treeTxt = html.escape(elements.tree.value);
+            kernelTxt = html.escape(elements.kernel.value);
+            defconfigTxt = html.escape(elements.defconfig.value);
+            archTxt = html.escape(elements.arch.value);
+            boardTxt = html.escape(elements.board.value);
+            labTxt = html.escape(elements.lab.value);
+
+            isValid = isValid && (labTxt === elements.lab.value);
+
+            cacheKey = treeTxt + kernelTxt + defconfigTxt + archTxt + boardTxt;
+            if (elements.hasOwnProperty('cachePrefix') &&
+                    elements.cachePrefix) {
+                cacheKey = elements.cachePrefix + cacheKey;
+            }
+
+            if (gDataCache.hasOwnProperty(cacheKey)) {
+                isValid = isValid &&
+                    (gDataCache[cacheKey].indexOf(labTxt) !== -1);
+            } else {
+                isValid = false;
+            }
+        }
+
+        return [
+            validBoard[0],
+            validBoard[1], validBoard[2], validBoard[3], validBoard[4], isValid
         ];
     }
 
@@ -562,7 +619,8 @@ define([
         };
         // Get the comparison data.
         data.compare_to = getCompareTargets(
-            container, ['tree', 'kernel', 'defconfig', 'arch']);
+            container, ['tree', 'kernel', 'defconfig', 'arch']
+        );
 
         postComparison('/_ajax/build/compare', '/compare/build/', data);
     }
@@ -590,11 +648,9 @@ define([
 
         data.compare_to = getCompareTargets(
             container,
-            ['tree', 'kernel', 'defconfig', 'arch', 'board', 'lab']);
+            ['tree', 'kernel', 'defconfig', 'arch', 'board', 'lab']
+        );
 
-        // TODO
-        console.log('posting boot comparison');
-        console.log(data);
         postComparison('/_ajax/boot/compare', '/compare/boot/', data);
     }
 
@@ -629,10 +685,10 @@ define([
     **/
     function customValidity(element) {
         var failNode;
-        var isInvalid;
+        var isValid;
         var notifyNode;
 
-        isInvalid = false;
+        isValid = true;
         if (element.required && !element.validity.valid) {
             html.addClass(element, 'invalid');
             notifyNode = document.getElementById(element.id + '-notify');
@@ -647,7 +703,7 @@ define([
                 failNode.setAttribute(
                     'data-content', 'Please fill out this field');
             } else if (element.validity.patternMismatch) {
-                failNode.setAttribute('data-title', 'Invalid value');
+                failNode.setAttribute('data-title', gNonValidValue);
                 failNode.setAttribute(
                     'data-content', 'Please provide another value');
             } else {
@@ -662,10 +718,10 @@ define([
                 html: false
             });
 
-            isInvalid = true;
+            isValid = false;
         }
 
-        return isInvalid;
+        return isValid;
     }
 
     /**
@@ -725,7 +781,7 @@ define([
             html.addClass(treeInput, 'invalid');
             wrongValue(
                 document.getElementById(treeId + '-notify'),
-                'Invalid value', 'Specified tree value is not valid or empty'
+                gNonValidValue, gNonValidStrings.tree
             );
         }
     };
@@ -791,8 +847,7 @@ define([
                 html.addClass(treeInput, 'invalid');
                 wrongValue(
                     document.getElementById(treeId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.tree
                 );
             }
 
@@ -800,8 +855,7 @@ define([
                 html.addClass(kernelInput, 'invalid');
                 wrongValue(
                     document.getElementById(kernelId + '-notify'),
-                    'Invalid value',
-                    'Specified kernel value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.kernel
                 );
             }
         }
@@ -828,7 +882,11 @@ define([
      * @param {Event} event: The triggering event.
     **/
     gCompareEvents.defconfigBootInputFocus = function(event) {
-        defconfigFocus(event, '/_ajax/boot/distinct/defconfig_full/', 'boot-');
+        defconfigFocus(
+            event,
+            '/_ajax/boot/distinct/defconfig_full/',
+            constants.BOOT_CACHE_PREFIX
+        );
     };
 
     /**
@@ -856,7 +914,7 @@ define([
         var cachePrefix;
         var dataKey;
 
-        cachePrefix = 'boot-';
+        cachePrefix = constants.BOOT_CACHE_PREFIX;
         target = event.target || event.srcElement;
 
         treeId = target.getAttribute('data-tree');
@@ -906,8 +964,7 @@ define([
                 html.addClass(treeInput, 'invalid');
                 wrongValue(
                     document.getElementById(treeId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.tree
                 );
             }
 
@@ -915,8 +972,7 @@ define([
                 html.addClass(kernelInput, 'invalid');
                 wrongValue(
                     document.getElementById(kernelId + '-notify'),
-                    'Invalid value',
-                    'Specified kernel value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.kernel
                 );
             }
 
@@ -924,8 +980,7 @@ define([
                 html.addClass(defconfigInput, 'invalid');
                 wrongValue(
                     document.getElementById(defconfigId + '-notify'),
-                    'Invalid value',
-                    'Specified defconfig value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.defconfig
                 );
             }
 
@@ -933,8 +988,7 @@ define([
                 html.addClass(archInput, 'invalid');
                 wrongValue(
                     document.getElementById(archId + '-notify'),
-                    'Invalid value',
-                    'Specified architecture value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.arch
                 );
             }
         }
@@ -1005,8 +1059,7 @@ define([
                 html.addClass(treeInput, 'invalid');
                 wrongValue(
                     document.getElementById(treeId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.tree
                 );
             }
 
@@ -1014,8 +1067,7 @@ define([
                 html.addClass(kernelInput, 'invalid');
                 wrongValue(
                     document.getElementById(kernelId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.kernel
                 );
             }
 
@@ -1023,8 +1075,7 @@ define([
                 html.addClass(defconfigInput, 'invalid');
                 wrongValue(
                     document.getElementById(defconfigId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.defconfig
                 );
             }
         }
@@ -1051,7 +1102,8 @@ define([
      * @param {Event} event: The triggering event.
     **/
     gCompareEvents.archBootInputFocus = function(event) {
-        archFocus(event, '/_ajax/boot/distinct/arch/', 'boot-');
+        archFocus(
+            event, '/_ajax/boot/distinct/arch/', constants.BOOT_CACHE_PREFIX);
     };
 
     /**
@@ -1079,7 +1131,7 @@ define([
         var treeInput;
         var treeName;
 
-        cachePrefix = 'boot-';
+        cachePrefix = constants.BOOT_CACHE_PREFIX;
         target = event.target || event.srcElement;
 
         treeId = target.getAttribute('data-tree');
@@ -1137,8 +1189,7 @@ define([
                 html.addClass(treeInput, 'invalid');
                 wrongValue(
                     document.getElementById(treeId + '-notify'),
-                    'Invalid value',
-                    'Specified tree value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.tree
                 );
             }
 
@@ -1146,8 +1197,7 @@ define([
                 html.addClass(kernelInput, 'invalid');
                 wrongValue(
                     document.getElementById(kernelId + '-notify'),
-                    'Invalid value',
-                    'Specified kernel value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.kernel
                 );
             }
 
@@ -1155,8 +1205,7 @@ define([
                 html.addClass(defconfigInput, 'invalid');
                 wrongValue(
                     document.getElementById(defconfigId + '-notify'),
-                    'Invalid value',
-                    'Specified defconfig value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.defconfig
                 );
             }
 
@@ -1164,8 +1213,7 @@ define([
                 html.addClass(archInput, 'invalid');
                 wrongValue(
                     document.getElementById(archId + '-notify'),
-                    'Invalid value',
-                    'Specified architecture value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.arch
                 );
             }
 
@@ -1173,8 +1221,7 @@ define([
                 html.addClass(boardInput, 'invalid');
                 wrongValue(
                     document.getElementById(boardId + '-notify'),
-                    'Invalid value',
-                    'Specified architecture value is not valid or empty'
+                    gNonValidValue, gNonValidStrings.board
                 );
             }
         }
@@ -1276,6 +1323,268 @@ define([
         }
     };
 
+    function validateJobSubmit(container) {
+        var elements;
+        var isValid;
+        var treeId;
+        var treeInput;
+        var validSubmit;
+
+        function _validateKernel(element) {
+            validSubmit = true;
+
+            treeId = element.getAttribute('data-tree');
+            treeInput = container.querySelector('#' + treeId);
+
+            elements = {
+                tree: treeInput,
+                kernel: element
+            };
+
+            isValid = isValidKernel(elements);
+
+            if (!(isValid[0] && isValid[1])) {
+                if (!isValid[0]) {
+                    html.addClass(treeInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(treeId + '-notify'),
+                        gNonValidValue, gNonValidStrings.tree
+                    );
+                }
+
+                if (!isValid[1]) {
+                    html.addClass(element, 'invalid');
+                    wrongValue(
+                        document.getElementById(element.id + '-notify'),
+                        gNonValidValue, gNonValidStrings.kernel
+                    );
+                }
+
+                validSubmit = false;
+            }
+
+            return validSubmit;
+        }
+
+        return Array.prototype.every.call(
+            container.querySelectorAll('input[id*="-kernel"]'), _validateKernel
+        );
+    }
+
+    function validateBuildSubmit(container) {
+        var defconfigId;
+        var defconfigInput;
+        var elements;
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var treeId;
+        var treeInput;
+        var validSubmit;
+
+        function _validateArch(element) {
+            validSubmit = true;
+
+            treeId = element.getAttribute('data-tree');
+            kernelId = element.getAttribute('data-kernel');
+            defconfigId = element.getAttribute('data-defconfig');
+            treeInput = container.querySelector('#' + treeId);
+            kernelInput = container.querySelector('#' + kernelId);
+            defconfigInput = container.querySelector('#' + defconfigId);
+
+            elements = {
+                tree: treeInput,
+                kernel: kernelInput,
+                defconfig: defconfigInput,
+                arch: element
+            };
+
+            isValid = isValidArch(elements);
+
+            if (!(isValid[0] && isValid[1] && isValid[2] && isValid[3])) {
+                if (!isValid[0]) {
+                    html.addClass(treeInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(treeId + '-notify'),
+                        gNonValidValue, gNonValidStrings.tree
+                    );
+                }
+
+                if (!isValid[1]) {
+                    html.addClass(kernelInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(kernelId + '-notify'),
+                        gNonValidValue, gNonValidStrings.kernel
+                    );
+                }
+
+                if (!isValid[2]) {
+                    html.addClass(defconfigInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(defconfigId + '-notify'),
+                        gNonValidValue, gNonValidStrings.defconfig
+                    );
+                }
+
+                if (!isValid[3]) {
+                    html.addClass(element, 'invalid');
+                    wrongValue(
+                        document.getElementById(element.id + '-notify'),
+                        gNonValidValue, gNonValidStrings.arch
+                    );
+                }
+
+                validSubmit = false;
+            }
+
+            return validSubmit;
+        }
+
+        return Array.prototype.every.call(
+            container.querySelectorAll('input[id*="-arch"]'), _validateArch
+        );
+    }
+
+    function validateBootSubmit(container) {
+        var archId;
+        var archInput;
+        var boardId;
+        var boardInput;
+        var defconfigId;
+        var defconfigInput;
+        var elements;
+        var isValid;
+        var kernelId;
+        var kernelInput;
+        var treeId;
+        var treeInput;
+        var validSubmit;
+
+        function _validateLab(element) {
+            validSubmit = true;
+
+            treeId = element.getAttribute('data-tree');
+            kernelId = element.getAttribute('data-kernel');
+            defconfigId = element.getAttribute('data-defconfig');
+            archId = element.getAttribute('data-arch');
+            boardId = element.getAttribute('data-board');
+            treeInput = container.querySelector('#' + treeId);
+            kernelInput = container.querySelector('#' + kernelId);
+            defconfigInput = container.querySelector('#' + defconfigId);
+            archInput = container.querySelector('#' + archId);
+            boardInput = container.querySelector('#' + boardId);
+
+            elements = {
+                tree: treeInput,
+                kernel: kernelInput,
+                defconfig: defconfigInput,
+                arch: archInput,
+                board: boardInput,
+                lab: element,
+                cachePrefix: constants.BOOT_CACHE_PREFIX
+            };
+
+            isValid = isValidLab(elements);
+
+            if (!(isValid[0] && isValid[1] && isValid[2] && isValid[3] &&
+                    isValid[4] && isValid[5]))
+            {
+                if (!isValid[0]) {
+                    html.addClass(treeInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(treeId + '-notify'),
+                        gNonValidValue, gNonValidStrings.tree
+                    );
+                }
+
+                if (!isValid[1]) {
+                    html.addClass(kernelInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(kernelId + '-notify'),
+                        gNonValidValue, gNonValidStrings.kernel
+                    );
+                }
+
+                if (!isValid[2]) {
+                    html.addClass(defconfigInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(defconfigId + '-notify'),
+                        gNonValidValue, gNonValidStrings.defconfig
+                    );
+                }
+
+                if (!isValid[3]) {
+                    html.addClass(archInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(archId + '-notify'),
+                        gNonValidValue, gNonValidStrings.arch
+                    );
+                }
+
+                if (!isValid[4]) {
+                    html.addClass(boardInput, 'invalid');
+                    wrongValue(
+                        document.getElementById(boardId + '-notify'),
+                        gNonValidValue, gNonValidStrings.board
+                    );
+                }
+
+                if (!isValid[5]) {
+                    html.addClass(element, 'invalid');
+                    wrongValue(
+                        document.getElementById(element.id + '-notify'),
+                        gNonValidValue, gNonValidStrings.lab
+                    );
+                }
+
+                validSubmit = false;
+            }
+
+            return validSubmit;
+        }
+
+        return Array.prototype.every.call(
+            container.querySelectorAll('input[id*="-lab"]'), _validateLab
+        );
+    }
+
+    /**
+     * Perform an extra form validation before sending it.
+     *
+     * @param {HTMLFormElement} form: The form element from the DOM.
+     * @param {Function} callback: Function that will be called to perform
+     * validation on the form input elements. This will be a special function
+     * based on the type of the form submission.
+     * @return {Boolean} True or false.
+    **/
+    function validateForm(form, callback) {
+        var container;
+        var inputElements;
+        var validForm;
+
+        validForm = false;
+
+        container = form
+            .querySelector('#' + constants.COMPARE_CONTAINER_ID);
+        inputElements = container.querySelectorAll('input');
+
+        Array.prototype.forEach.call(inputElements, function(element) {
+            element.disabled = true;
+        });
+
+        // Perform fist a normal check on the fields.
+        if (Array.prototype.every.call(inputElements, customValidity)) {
+            // Then check that the values in each field are valid.
+            validForm = callback(container);
+        }
+
+        Array.prototype.forEach.call(inputElements, function(element) {
+            element.disabled = false;
+        });
+
+        return validForm;
+    }
+
     /**
      * Event for the compare submit button.
      *
@@ -1283,36 +1592,41 @@ define([
     **/
     gCompareEvents.submitCompare = function(event) {
         var compareType;
-        var formNode;
+        var form;
         var target;
 
+        form = document.getElementById(constants.FORM_ID);
         target = event.target || event.srcElement;
         compareType = target.getAttribute('data-type');
-        formNode = document.getElementById(constants.FORM_ID);
 
         // Make sure the form does not submit anything.
         event.preventDefault();
 
-        if (formNode.checkValidity()) {
-            // TODO: need to perform double checks here!
-            // form.checkValidity() only checks the basic "logic", like the
-            // pattern matching. Need more tests.
+        if (form.checkValidity()) {
+            // form.checkValidity() only checks the basic "logic".
+            // Do a more robust check on the inserted values.
             switch (compareType) {
                 case 'job':
-                    submitJobCompare(formNode);
+                    if (validateForm(form, validateJobSubmit)) {
+                        submitJobCompare(form);
+                    }
                     break;
                 case 'build':
-                    submitBuildCompare(formNode);
+                    if (validateForm(form, validateBuildSubmit)) {
+                        submitBuildCompare(form);
+                    }
                     break;
                 case 'boot':
-                    submitBootCompare(formNode);
+                    if (validateForm(form, validateBootSubmit)) {
+                        submitBootCompare(form);
+                    }
                     break;
             }
         } else {
             // Peform custom validity on the elements, stopping at the first
             // not valid one.
-            Array.prototype.some.call(
-                formNode.querySelectorAll('input'), customValidity);
+            Array.prototype.every.call(
+                form.querySelectorAll('input'), customValidity);
         }
     };
 
