@@ -15,8 +15,17 @@ define([
     var gKernelStatus;
     var gNonValidStrings;
     var gNonValidValue;
+    var gSupportDataList;
 
     gCompareEvents = {};
+
+    // Hack to check if the browser supports the datalist element, otherwise
+    // we don't even hit the server with requests to create the drop-down
+    // selection list.
+    gSupportDataList = (
+        Boolean(window.HTMLDataListElement) &&
+        'list' in document.createElement('input')
+    );
 
     // TODO: convert to localStorage API.
     // Local cache to hold retrieved values from the backend.
@@ -88,7 +97,10 @@ define([
             treeName = html.escape(element.value);
 
             isValid = isValid && (treeName === element.value);
-            isValid = isValid && (gDataCache.trees.indexOf(treeName) !== -1);
+            if (gSupportDataList) {
+                isValid = isValid &&
+                    (gDataCache.trees.indexOf(treeName) !== -1);
+            }
         }
 
         return isValid;
@@ -126,11 +138,13 @@ define([
 
             isValid = isValid && (kernelTxt === elements.kernel.value);
 
-            if (gDataCache.hasOwnProperty(treeTxt)) {
-                isValid = isValid &&
-                    (gDataCache[treeTxt].indexOf(kernelTxt) !== -1);
-            } else {
-                isValid = false;
+            if (gSupportDataList) {
+                if (gDataCache.hasOwnProperty(treeTxt)) {
+                    isValid = isValid &&
+                        (gDataCache[treeTxt].indexOf(kernelTxt) !== -1);
+                } else {
+                    isValid = false;
+                }
             }
         }
 
@@ -174,17 +188,19 @@ define([
 
             isValid = isValid && (defconfigTxt === elements.defconfig.value);
 
-            cacheKey = treeTxt + kernelTxt;
-            if (elements.hasOwnProperty('cachePrefix') &&
-                    elements.cachePrefix) {
-                cacheKey = elements.cachePrefix + cacheKey;
-            }
+            if (gSupportDataList) {
+                cacheKey = treeTxt + kernelTxt;
+                if (elements.hasOwnProperty('cachePrefix') &&
+                        elements.cachePrefix) {
+                    cacheKey = elements.cachePrefix + cacheKey;
+                }
 
-            if (gDataCache.hasOwnProperty(cacheKey)) {
-                isValid = isValid &&
-                    (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
-            } else {
-                isValid = false;
+                if (gDataCache.hasOwnProperty(cacheKey)) {
+                    isValid = isValid &&
+                        (gDataCache[cacheKey].indexOf(defconfigTxt) !== -1);
+                } else {
+                    isValid = false;
+                }
             }
         }
 
@@ -211,17 +227,19 @@ define([
 
             isValid = isValid && (archTxt === elements.arch.value);
 
-            cacheKey = treeTxt + kernelTxt + defconfigTxt;
-            if (elements.hasOwnProperty('cachePrefix') &&
-                    elements.cachePrefix) {
-                cacheKey = elements.cachePrefix + cacheKey;
-            }
+            if (gSupportDataList) {
+                cacheKey = treeTxt + kernelTxt + defconfigTxt;
+                if (elements.hasOwnProperty('cachePrefix') &&
+                        elements.cachePrefix) {
+                    cacheKey = elements.cachePrefix + cacheKey;
+                }
 
-            if (gDataCache.hasOwnProperty(cacheKey)) {
-                isValid = isValid &&
-                    (gDataCache[cacheKey].indexOf(archTxt) !== -1);
-            } else {
-                isValid = false;
+                if (gDataCache.hasOwnProperty(cacheKey)) {
+                    isValid = isValid &&
+                        (gDataCache[cacheKey].indexOf(archTxt) !== -1);
+                } else {
+                    isValid = false;
+                }
             }
         }
 
@@ -252,17 +270,19 @@ define([
 
             isValid = isValid && (boardTxt === elements.board.value);
 
-            cacheKey = treeTxt + kernelTxt + defconfigTxt + archTxt;
-            if (elements.hasOwnProperty('cachePrefix') &&
-                    elements.cachePrefix) {
-                cacheKey = elements.cachePrefix + cacheKey;
-            }
+            if (gSupportDataList) {
+                cacheKey = treeTxt + kernelTxt + defconfigTxt + archTxt;
+                if (elements.hasOwnProperty('cachePrefix') &&
+                        elements.cachePrefix) {
+                    cacheKey = elements.cachePrefix + cacheKey;
+                }
 
-            if (gDataCache.hasOwnProperty(cacheKey)) {
-                isValid = isValid &&
-                    (gDataCache[cacheKey].indexOf(boardTxt) !== -1);
-            } else {
-                isValid = false;
+                if (gDataCache.hasOwnProperty(cacheKey)) {
+                    isValid = isValid &&
+                        (gDataCache[cacheKey].indexOf(boardTxt) !== -1);
+                } else {
+                    isValid = false;
+                }
             }
         }
 
@@ -295,17 +315,20 @@ define([
 
             isValid = isValid && (labTxt === elements.lab.value);
 
-            cacheKey = treeTxt + kernelTxt + defconfigTxt + archTxt + boardTxt;
-            if (elements.hasOwnProperty('cachePrefix') &&
-                    elements.cachePrefix) {
-                cacheKey = elements.cachePrefix + cacheKey;
-            }
+            if (gSupportDataList) {
+                cacheKey = treeTxt +
+                    kernelTxt + defconfigTxt + archTxt + boardTxt;
+                if (elements.hasOwnProperty('cachePrefix') &&
+                        elements.cachePrefix) {
+                    cacheKey = elements.cachePrefix + cacheKey;
+                }
 
-            if (gDataCache.hasOwnProperty(cacheKey)) {
-                isValid = isValid &&
-                    (gDataCache[cacheKey].indexOf(labTxt) !== -1);
-            } else {
-                isValid = false;
+                if (gDataCache.hasOwnProperty(cacheKey)) {
+                    isValid = isValid &&
+                        (gDataCache[cacheKey].indexOf(labTxt) !== -1);
+                } else {
+                    isValid = false;
+                }
             }
         }
 
@@ -733,7 +756,7 @@ define([
     gCompareEvents.getTrees = function(bucket) {
         var deferred;
 
-        if (gDataCache.trees.length === 0) {
+        if (gSupportDataList && gDataCache.trees.length === 0) {
             deferred = r.get('/_ajax/job/distinct/job/');
             $.when(deferred)
                 .fail(function(jqXHR) {
@@ -765,19 +788,21 @@ define([
         treeInput = document.getElementById(treeId);
 
         if (isValidTree(treeInput)) {
-            treeName = treeInput.value;
-            options = {
-                element: target,
-                cacheKey: treeName,
-                bucketId: 'datalist-' + treeName,
-                url: '/_ajax/job/distinct/kernel/',
-                query: '?job=' + encodeURIComponent(treeName),
-                dataTitle: 'No kernel values',
-                dataContent: 'No kernel values found',
-                status: gKernelStatus
-            };
+            if (gSupportDataList) {
+                treeName = treeInput.value;
+                options = {
+                    element: target,
+                    cacheKey: treeName,
+                    bucketId: 'datalist-' + treeName,
+                    url: '/_ajax/job/distinct/kernel/',
+                    query: '?job=' + encodeURIComponent(treeName),
+                    dataTitle: 'No kernel values',
+                    dataContent: 'No kernel values found',
+                    status: gKernelStatus
+                };
 
-            getValues(options);
+                getValues(options);
+            }
         } else {
             target.removeAttribute('list');
             html.addClass(treeInput, 'invalid');
@@ -817,31 +842,33 @@ define([
         isValid = isValidKernel({tree: treeInput, kernel: kernelInput});
 
         if (isValid[0] && isValid[1]) {
-            treeName = treeInput.value;
-            kernelName = kernelInput.value;
+            if (gSupportDataList) {
+                treeName = treeInput.value;
+                kernelName = kernelInput.value;
 
-            options = {
-                bucketId: 'datalist-' + treeName + kernelName,
-                cacheKey: treeName + kernelName,
-                url: '/_ajax/build/distinct/defconfig_full/',
-                element: target,
-                query: '?job=' + encodeURIComponent(treeName) +
-                    '&kernel=' + encodeURIComponent(kernelName),
-                dataTitle: 'No defconfig values',
-                dataContent: 'No defconfig values found',
-                status: gDefconfigStatus
-            };
+                options = {
+                    bucketId: 'datalist-' + treeName + kernelName,
+                    cacheKey: treeName + kernelName,
+                    url: '/_ajax/build/distinct/defconfig_full/',
+                    element: target,
+                    query: '?job=' + encodeURIComponent(treeName) +
+                        '&kernel=' + encodeURIComponent(kernelName),
+                    dataTitle: 'No defconfig values',
+                    dataContent: 'No defconfig values found',
+                    status: gDefconfigStatus
+                };
 
-            if (cachePrefix) {
-                options.cacheKey = cachePrefix + options.cacheKey;
-                options.bucketId = cachePrefix + options.bucketId;
+                if (cachePrefix) {
+                    options.cacheKey = cachePrefix + options.cacheKey;
+                    options.bucketId = cachePrefix + options.bucketId;
+                }
+
+                if (qURL) {
+                    options.url = qURL;
+                }
+
+                getValues(options);
             }
-
-            if (qURL) {
-                options.url = qURL;
-            }
-
-            getValues(options);
         } else {
             target.removeAttribute('list');
 
@@ -937,28 +964,30 @@ define([
         });
 
         if (isValid[0] && isValid[1] && isValid[2] && isValid[3]) {
-            treeName = treeInput.value;
-            kernelName = kernelInput.value;
-            defconfigName = defconfigInput.value;
-            archName = archInput.value;
+            if (gSupportDataList) {
+                treeName = treeInput.value;
+                kernelName = kernelInput.value;
+                defconfigName = defconfigInput.value;
+                archName = archInput.value;
 
-            dataKey = treeName + kernelName + defconfigName + archName;
+                dataKey = treeName + kernelName + defconfigName + archName;
 
-            options = {
-                bucketId: cachePrefix + 'datalist-' + dataKey,
-                cacheKey: cachePrefix + dataKey,
-                element: target,
-                url: '/_ajax/boot/distinct/board/',
-                query: '?job=' + encodeURIComponent(treeName) +
-                    '&kernel=' + encodeURIComponent(kernelName) +
-                    '&defconfig_full=' + encodeURIComponent(defconfigName) +
-                    '&arch=' + encodeURIComponent(archName),
-                dataTitle: 'No board values',
-                dataContent: 'No board values found',
-                status: gBoardStatus
-            };
+                options = {
+                    bucketId: cachePrefix + 'datalist-' + dataKey,
+                    cacheKey: cachePrefix + dataKey,
+                    element: target,
+                    url: '/_ajax/boot/distinct/board/',
+                    query: '?job=' + encodeURIComponent(treeName) +
+                        '&kernel=' + encodeURIComponent(kernelName) +
+                        '&defconfig_full=' + encodeURIComponent(defconfigName) +
+                        '&arch=' + encodeURIComponent(archName),
+                    dataTitle: 'No board values',
+                    dataContent: 'No board values found',
+                    status: gBoardStatus
+                };
 
-            getValues(options);
+                getValues(options);
+            }
         } else {
             target.removeAttribute('list');
 
@@ -1027,33 +1056,35 @@ define([
         });
 
         if (isValid[0] && isValid[1] && isValid[2]) {
-            treeTxt = html.escape(treeInput.value);
-            kernelTxt = html.escape(kernelInput.value);
-            defconfigTxt = html.escape(defconfigInput.value);
+            if (gSupportDataList) {
+                treeTxt = html.escape(treeInput.value);
+                kernelTxt = html.escape(kernelInput.value);
+                defconfigTxt = html.escape(defconfigInput.value);
 
-            options = {
-                bucketId: 'datalist-' + treeTxt + kernelTxt + defconfigTxt,
-                cacheKey: treeTxt + kernelTxt + defconfigTxt,
-                element: target,
-                url: '/_ajax/build/distinct/arch/',
-                query: '?job=' + encodeURIComponent(treeTxt) +
-                    '&kernel=' + encodeURIComponent(kernelTxt) +
-                    '&defconfig_full=' + encodeURIComponent(defconfigTxt),
-                dataTitle: 'No architecture values',
-                dataContent: 'No architecture values found',
-                status: gArchitectureStatus
-            };
+                options = {
+                    bucketId: 'datalist-' + treeTxt + kernelTxt + defconfigTxt,
+                    cacheKey: treeTxt + kernelTxt + defconfigTxt,
+                    element: target,
+                    url: '/_ajax/build/distinct/arch/',
+                    query: '?job=' + encodeURIComponent(treeTxt) +
+                        '&kernel=' + encodeURIComponent(kernelTxt) +
+                        '&defconfig_full=' + encodeURIComponent(defconfigTxt),
+                    dataTitle: 'No architecture values',
+                    dataContent: 'No architecture values found',
+                    status: gArchitectureStatus
+                };
 
-            if (cachePrefix) {
-                options.cacheKey = cachePrefix + options.cacheKey;
-                options.bucketId = cachePrefix + options.bucketId;
+                if (cachePrefix) {
+                    options.cacheKey = cachePrefix + options.cacheKey;
+                    options.bucketId = cachePrefix + options.bucketId;
+                }
+
+                if (qURL) {
+                    options.url = qURL;
+                }
+
+                getValues(options);
             }
-
-            if (qURL) {
-                options.url = qURL;
-            }
-
-            getValues(options);
         } else {
             target.removeAttribute('list');
 
@@ -1158,32 +1189,34 @@ define([
 
         if (isValid[0] &&
                 isValid[1] && isValid[2] && isValid[3] && isValid[4]) {
-            treeName = treeInput.value;
-            kernelName = kernelInput.value;
-            defconfigName = defconfigInput.value;
-            archName = archInput.value;
-            boardName = boardInput.value;
+            if (gSupportDataList) {
+                treeName = treeInput.value;
+                kernelName = kernelInput.value;
+                defconfigName = defconfigInput.value;
+                archName = archInput.value;
+                boardName = boardInput.value;
 
-            dataKey = treeName +
-                kernelName + defconfigName + archName + boardName;
+                dataKey = treeName +
+                    kernelName + defconfigName + archName + boardName;
 
-            options = {
-                bucketId: cachePrefix + 'datalist-' + dataKey,
-                cacheKey: cachePrefix + dataKey,
-                element: target,
-                url: '/_ajax/boot/distinct/lab_name/',
-                query: '?job=' + encodeURIComponent(treeName) +
-                    '&kernel=' + encodeURIComponent(kernelName) +
-                    '&defconfig_full=' + encodeURIComponent(defconfigName) +
-                    '&arch=' + encodeURIComponent(archName) +
-                    '&board=' + encodeURIComponent(boardName),
-                dataTitle: 'No lab values',
-                dataContent: 'No lab values found',
-                status: gBoardStatus
-            };
+                options = {
+                    bucketId: cachePrefix + 'datalist-' + dataKey,
+                    cacheKey: cachePrefix + dataKey,
+                    element: target,
+                    url: '/_ajax/boot/distinct/lab_name/',
+                    query: '?job=' + encodeURIComponent(treeName) +
+                        '&kernel=' + encodeURIComponent(kernelName) +
+                        '&defconfig_full=' + encodeURIComponent(defconfigName) +
+                        '&arch=' + encodeURIComponent(archName) +
+                        '&board=' + encodeURIComponent(boardName),
+                    dataTitle: 'No lab values',
+                    dataContent: 'No lab values found',
+                    status: gBoardStatus
+                };
 
-            // TODO: need a placeholder for "all".
-            getValues(options);
+                // TODO: need a placeholder for "all".
+                getValues(options);
+            }
         } else {
             target.removeAttribute('list');
 
