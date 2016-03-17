@@ -64,6 +64,16 @@ define([
         return numFormat.format(value);
     };
 
+    /**
+     * Format a fload number rounding it to two decimals.
+     * Formatting is done through the Intl libray.
+     *
+     * @param {Number} value: The floating point number to format.
+     * @return {String} The formatted number as a string.
+    **/
+    format.float = function(value) {
+        return numFormat.format(roundToTwo(value));
+    };
 
     /**
      * Format a bytes number into a human-readable form.
