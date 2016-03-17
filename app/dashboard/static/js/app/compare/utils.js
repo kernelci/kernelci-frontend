@@ -271,7 +271,7 @@ define([
             args.baseNumber = Math.NaN;
         }
 
-        args.format = format.number;
+        args.format = format.float;
 
         return renderFormat(args);
     };
@@ -291,7 +291,7 @@ define([
             args.baseNumber = Math.NaN;
         }
 
-        args.format = format.number;
+        args.format = format.float;
 
         return renderFormat(args);
     };
