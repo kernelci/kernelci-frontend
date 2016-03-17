@@ -280,7 +280,10 @@ define([
             element: element,
             data: data,
             setupFunc: setupMatrix,
-            cellDataFunc: cellDataFunc
+            cellDataFunc: cellDataFunc,
+            options: {
+                square: {width: 33, height: 33, rx: 4}
+            }
         };
 
         diffmatrix.create(args);
