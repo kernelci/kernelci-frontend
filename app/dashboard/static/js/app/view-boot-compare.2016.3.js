@@ -18,6 +18,7 @@ require([
     function setupComparedTable(comparedData) {
         var columns;
         var dom;
+        var rowURL;
 
         /**
          * Wrapper to provide the href.
@@ -62,6 +63,9 @@ require([
 
         dom = '<"row"' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
+
+        rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s/' +
+            'defconfig/%(defconfig_full)s/lab/%(lab_name)s';
 
         columns = [
             {
@@ -114,13 +118,12 @@ require([
             }
         ];
 
-        // TODO: define the row URL.
         gComparedTable
             .dom(dom)
             .data(comparedData)
             .columns(columns)
             .order([5, 'desc'])
-            .noIdURL(true)
+            .rowURL(rowURL)
             .rowURLElements(
                 ['job', 'kernel', 'defconfig_full', 'board', 'lab_name'])
             .draw();
