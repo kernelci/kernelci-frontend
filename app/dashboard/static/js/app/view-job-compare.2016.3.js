@@ -39,6 +39,7 @@ require([
     function setupCompareToTable(comparedData, baseline) {
         var columns;
         var dom;
+        var rowURL;
 
         /**
          * Wrapper to provide the href.
@@ -98,6 +99,7 @@ require([
 
         dom = '<"row"' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
+        rowURL = '/build/%(job)s/kernel/%(kernel)s/';
 
         columns = [
             {
@@ -157,6 +159,7 @@ require([
             .columns(columns)
             .order([5, 'desc'])
             .noIdURL(true)
+            .rowURL(rowURL)
             .rowURLElements(['job', 'kernel'])
             .draw();
     }
