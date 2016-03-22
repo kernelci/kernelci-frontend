@@ -522,45 +522,49 @@ require([
     }
 
     function getBuildsDone(response) {
-        var aNode,
-            arch,
-            buildLog,
-            buildModules,
-            buildModulesSize,
-            buildPlatform,
-            buildTime,
-            compiler,
-            compilerVersion,
-            compilerVersionFull,
-            configFragments,
-            createdOn,
-            crossCompile,
-            defconfig,
-            defconfigNode,
-            detailNode,
-            divNode,
-            dtb,
-            fileServerData,
-            fileServerResource,
-            fileServerURI,
-            fileServerURL,
-            gitCommit,
-            gitURL,
-            gitURLs,
-            job,
-            kernel,
-            kernelConfig,
-            kernelImage,
-            kernelImageSize,
-            lDefconfigFull,
-            modulesDirectory,
-            pathURI,
-            resLen,
-            results,
-            spanNode,
-            textOffset,
-            tooltipNode,
-            translatedUri;
+        var aNode;
+        var arch;
+        var bssSize;
+        var buildLog;
+        var buildModules;
+        var buildModulesSize;
+        var buildPlatform;
+        var buildTime;
+        var compiler;
+        var compilerVersion;
+        var compilerVersionFull;
+        var configFragments;
+        var createdOn;
+        var crossCompile;
+        var dataSize;
+        var defconfig;
+        var defconfigNode;
+        var detailNode;
+        var divNode;
+        var dtb;
+        var fileServerData;
+        var fileServerResource;
+        var fileServerURI;
+        var fileServerURL;
+        var gitCommit;
+        var gitURL;
+        var gitURLs;
+        var job;
+        var kernel;
+        var kernelConfig;
+        var kernelImage;
+        var kernelImageSize;
+        var lDefconfigFull;
+        var pathURI;
+        var resLen;
+        var results;
+        var spanNode;
+        var textOffset;
+        var tooltipNode;
+        var translatedUri;
+        var txtSize;
+        var vmlinuxFile;
+        var vmlinuxFileSize;
 
         results = response.result;
         resLen = results.length;
@@ -598,7 +602,6 @@ require([
             dtb = results.dtb_dir;
             buildModules = results.modules;
             buildModulesSize = results.modules_size;
-            modulesDirectory = results.modules_dir;
             textOffset = results.text_offset;
             configFragments = results.kconfig_fragments;
             kernelImage = results.kernel_image;
@@ -612,6 +615,11 @@ require([
             compilerVersion = results.compiler_version;
             compilerVersionFull = results.compiler_version_full;
             crossCompile = results.cross_compile;
+            vmlinuxFile = results.vmlinux_file;
+            vmlinuxFileSize = results.vmlinux_file_size;
+            bssSize = results.vmlinux_bss_size;
+            dataSize = results.vmlinux_data_size;
+            txtSize = results.vmlinux_text_size;
 
             if (fileServerURL === null || fileServerURL === undefined) {
                 fileServerURL = fileServer;
@@ -905,26 +913,6 @@ require([
                     document.getElementById('build-modules'), html.nonavail());
             }
 
-            if (modulesDirectory !== null) {
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    fileServerURI
-                        .path(pathURI + '/' + modulesDirectory + '/')
-                        .normalizePath().href()
-                );
-                aNode.appendChild(document.createTextNode(modulesDirectory));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-
-                html.replaceContent(
-                    document.getElementById('modules-directory'), aNode);
-            } else {
-                html.replaceContent(
-                    document.getElementById('modules-directory'),
-                    html.nonavail());
-            }
-
             if (textOffset !== null) {
                 html.replaceContent(
                     document.getElementById('text-offset'),
@@ -947,6 +935,62 @@ require([
                 html.replaceContent(
                     document.getElementById('config-fragments'),
                     html.nonavail());
+            }
+
+            if (vmlinuxFile !== null) {
+                spanNode = document.createElement('span');
+
+                aNode = document.createElement('a');
+                aNode.setAttribute(
+                    'href',
+                    fileServerURI
+                        .path(pathURI + '/' + vmlinuxFile)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode(vmlinuxFile));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+
+                spanNode.appendChild(aNode);
+
+                if (vmlinuxFileSize !== null &&
+                        vmlinuxFileSize !== undefined) {
+                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                    spanNode.appendChild(_createSizeNode(vmlinuxFileSize));
+                }
+
+                html.replaceContent(
+                    document.getElementById('vmlinux-file'), spanNode);
+            } else {
+                html.replaceContent(
+                    document.getElementById('vmlinux-file'), html.nonavail());
+            }
+
+            if (bssSize !== null || bssSize !== undefined) {
+                html.replaceContent(
+                    document.getElementById('elf-bss-size'),
+                    document.createTextNode(format.bytes(bssSize)));
+            } else {
+                html.replaceContent(
+                    document.getElementById('elf-bss-size'), html.nonavail());
+            }
+
+            if (dataSize !== null || dataSize !== undefined) {
+                html.replaceContent(
+                    document.getElementById('elf-data-size'),
+                    document.createTextNode(format.bytes(dataSize)));
+            } else {
+                html.replaceContent(
+                    document.getElementById('elf-data-size'), html.nonavail());
+            }
+
+            if (txtSize !== null || txtSize !== undefined) {
+                html.replaceContent(
+                    document.getElementById('elf-txt-size'),
+                    document.createTextNode(format.bytes(txtSize)));
+            } else {
+                html.replaceContent(
+                    document.getElementById('elf-txt-size'), html.nonavail());
             }
 
             if (kernelImage !== null) {
