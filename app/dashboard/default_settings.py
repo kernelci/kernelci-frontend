@@ -51,6 +51,7 @@ DEFCONFIG_ID_LOGS_ENPOINT = "/build/%s/logs"
 STATISTICS_API_ENDPOINT = "/statistics"
 JOB_LOGS_ENPOINT = "/job/logs"
 JOB_ID_LOGS_ENPOINT = "/job/%s/logs"
+TEST_SUITE_API_ENDPOINT = "/test/suite"
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
