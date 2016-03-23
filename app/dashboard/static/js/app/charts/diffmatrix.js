@@ -6,9 +6,9 @@ define([
     'charts/matrix'
 ], function(d3, k, html) {
     'use strict';
-    var diffmatrix;
+    var gDiffmatrix;
 
-    diffmatrix = {};
+    gDiffmatrix = {};
 
     /**
      * Check if the passed argument is a function.
@@ -17,7 +17,7 @@ define([
         return toCheck && typeof(toCheck) === 'function';
     }
 
-    diffmatrix.create = function(args) {
+    gDiffmatrix.create = function(args) {
         var chart = k.charts.matrix();
 
         function _callFunc(key) {
@@ -47,5 +47,5 @@ define([
         args.setupFunc(chart, args.data);
     };
 
-    return diffmatrix;
+    return gDiffmatrix;
 });

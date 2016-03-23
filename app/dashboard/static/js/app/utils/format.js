@@ -3,12 +3,12 @@ define([
     'utils/date'
 ], function() {
     'use strict';
-    var dateFormat,
-        format,
-        numFormat,
-        sizes;
+    var dateFormat;
+    var gFormat;
+    var numFormat;
+    var sizes;
 
-    format = {};
+    gFormat = {};
 
     try {
         dateFormat = new Intl.DateTimeFormat(
@@ -60,18 +60,18 @@ define([
      * @param {Number} value: The number to format.
      * @return {String} The formatted number as a string.
     **/
-    format.number = function(value) {
+    gFormat.number = function(value) {
         return numFormat.format(value);
     };
 
     /**
-     * Format a fload number rounding it to two decimals.
-     * Formatting is done through the Intl libray.
+     * Format a float number rounding it to two decimals.
+     * Formatting is done through the Intl libray (if available).
      *
      * @param {Number} value: The floating point number to format.
      * @return {String} The formatted number as a string.
     **/
-    format.float = function(value) {
+    gFormat.float = function(value) {
         return numFormat.format(roundToTwo(value));
     };
 
@@ -81,7 +81,7 @@ define([
      * @param {Number} bytes: The bytes number to format.
      * @return {String} The formatted number as a string.
     **/
-    format.bytes = function(bytes) {
+    gFormat.bytes = function(bytes) {
         var calcBase;
         var idx;
         var retVal;
@@ -106,7 +106,7 @@ define([
      * @param {Number} bytes: The number to format.
      * @return {String} The formatted string.
     **/
-    format.bytesToBytes = function(bytes) {
+    gFormat.bytesToBytes = function(bytes) {
         var toBytes;
 
         if (bytes === 0 || isNaN(bytes)) {
@@ -127,9 +127,9 @@ define([
      * @param {Date} value: The date object to format.
      * @return {String} The formatted date.
     **/
-    format.date = function(value) {
+    gFormat.date = function(value) {
         return dateFormat.format(value);
     };
 
-    return format;
+    return gFormat;
 });
