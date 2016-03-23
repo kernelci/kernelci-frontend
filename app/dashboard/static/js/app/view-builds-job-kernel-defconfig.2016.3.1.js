@@ -526,6 +526,7 @@ require([
         var arch;
         var bssSize;
         var buildLog;
+        var buildLogSize;
         var buildModules;
         var buildModulesSize;
         var buildPlatform;
@@ -552,6 +553,7 @@ require([
         var job;
         var kernel;
         var kernelConfig;
+        var kernelConfigSize;
         var kernelImage;
         var kernelImageSize;
         var lDefconfigFull;
@@ -559,6 +561,8 @@ require([
         var resLen;
         var results;
         var spanNode;
+        var systemMap;
+        var systemMapSize;
         var textOffset;
         var tooltipNode;
         var translatedUri;
@@ -607,7 +611,9 @@ require([
             kernelImage = results.kernel_image;
             kernelImageSize = results.kernel_image_size;
             kernelConfig = results.kernel_config;
+            kernelConfigSize = results.kernel_config_size;
             buildLog = results.build_log;
+            buildLogSize = results.build_log_size;
             buildPlatform = results.build_platform;
             fileServerURL = results.file_server_url;
             fileServerResource = results.file_server_resource;
@@ -620,6 +626,8 @@ require([
             bssSize = results.vmlinux_bss_size;
             dataSize = results.vmlinux_data_size;
             txtSize = results.vmlinux_text_size;
+            systemMap = results.system_map;
+            systemMapSize = results.system_map_size;
 
             if (fileServerURL === null || fileServerURL === undefined) {
                 fileServerURL = fileServer;
@@ -741,7 +749,7 @@ require([
                 html.replaceContent(
                     document.getElementById('git-commit'), aNode);
             } else {
-                if (gitCommit !== null) {
+                if (gitCommit !== null && gitCommit !== undefined) {
                     html.replaceContent(
                         document.getElementById('git-commit'),
                         document.createTextNode(gitCommit));
@@ -752,7 +760,7 @@ require([
                 }
             }
 
-            if (crossCompile) {
+            if (crossCompile !== null && crossCompile !== undefined) {
                 html.replaceContent(
                     document.getElementById('cross-compile'),
                     document.createTextNode(crossCompile));
@@ -866,7 +874,7 @@ require([
             html.replaceContent(
                 document.getElementById('build-status'), tooltipNode);
 
-            if (dtb !== null) {
+            if (dtb !== null && dtb !== undefined) {
                 aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
@@ -884,7 +892,7 @@ require([
                     document.getElementById('dtb-dir'), html.nonavail());
             }
 
-            if (buildModules !== null) {
+            if (buildModules !== null && buildModules !== undefined) {
                 spanNode = document.createElement('span');
 
                 aNode = document.createElement('a');
@@ -913,7 +921,7 @@ require([
                     document.getElementById('build-modules'), html.nonavail());
             }
 
-            if (textOffset !== null) {
+            if (textOffset !== null && textOffset !== undefined) {
                 html.replaceContent(
                     document.getElementById('text-offset'),
                     document.createTextNode(textOffset));
@@ -922,12 +930,12 @@ require([
                     document.getElementById('text-offset'), html.nonavail());
             }
 
-            if (configFragments !== null) {
+            if (configFragments !== null && configFragments !== undefined) {
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', configFragments);
                 tooltipNode.appendChild(
                     document.createTextNode(
-                        html.sliceText(configFragments, 40)));
+                        html.sliceText(configFragments, 35)));
 
                 html.replaceContent(
                     document.getElementById('config-fragments'), tooltipNode);
@@ -937,7 +945,7 @@ require([
                     html.nonavail());
             }
 
-            if (vmlinuxFile !== null) {
+            if (vmlinuxFile !== null && vmlinuxFile !== undefined) {
                 spanNode = document.createElement('span');
 
                 aNode = document.createElement('a');
@@ -966,7 +974,7 @@ require([
                     document.getElementById('vmlinux-file'), html.nonavail());
             }
 
-            if (bssSize !== null || bssSize !== undefined) {
+            if (bssSize !== null && bssSize !== undefined) {
                 html.replaceContent(
                     document.getElementById('elf-bss-size'),
                     document.createTextNode(format.bytes(bssSize)));
@@ -975,7 +983,7 @@ require([
                     document.getElementById('elf-bss-size'), html.nonavail());
             }
 
-            if (dataSize !== null || dataSize !== undefined) {
+            if (dataSize !== null && dataSize !== undefined) {
                 html.replaceContent(
                     document.getElementById('elf-data-size'),
                     document.createTextNode(format.bytes(dataSize)));
@@ -984,7 +992,7 @@ require([
                     document.getElementById('elf-data-size'), html.nonavail());
             }
 
-            if (txtSize !== null || txtSize !== undefined) {
+            if (txtSize !== null && txtSize !== undefined) {
                 html.replaceContent(
                     document.getElementById('elf-txt-size'),
                     document.createTextNode(format.bytes(txtSize)));
@@ -993,7 +1001,7 @@ require([
                     document.getElementById('elf-txt-size'), html.nonavail());
             }
 
-            if (kernelImage !== null) {
+            if (kernelImage !== null && kernelImage !== undefined) {
                 spanNode = document.createElement('span');
 
                 aNode = document.createElement('a');
@@ -1022,7 +1030,7 @@ require([
                     document.getElementById('kernel-image'), html.nonavail());
             }
 
-            if (kernelConfig !== null) {
+            if (kernelConfig !== null && kernelConfig !== undefined) {
                 spanNode = document.createElement('span');
                 aNode = document.createElement('a');
                 aNode.setAttribute(
@@ -1037,11 +1045,10 @@ require([
 
                 spanNode.appendChild(aNode);
 
-                if (results.kernel_config_size !== null &&
-                        results.kernel_config_size !== undefined) {
+                if (kernelConfigSize !== null &&
+                        kernelConfigSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(
-                        _createSizeNode(results.kernel_config_size));
+                    spanNode.appendChild(_createSizeNode(kernelConfigSize));
                 }
 
                 html.replaceContent(
@@ -1051,26 +1058,24 @@ require([
                     document.getElementById('kernel-config'), html.nonavail());
             }
 
-            if (results.system_map) {
+            if (systemMap !== null && systemMap !== undefined) {
                 spanNode = document.createElement('span');
                 aNode = document.createElement('a');
                 aNode.setAttribute(
                     'href',
                     fileServerURI
-                        .path(pathURI + '/' + results.system_map)
+                        .path(pathURI + '/' + systemMap)
                         .normalizePath().href()
                 );
-                aNode.appendChild(document.createTextNode(results.system_map));
+                aNode.appendChild(document.createTextNode(systemMap));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
                 spanNode.appendChild(aNode);
 
-                if (results.system_map_size !== null &&
-                        results.system_map_size !== undefined) {
+                if (systemMapSize !== null && systemMapSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(
-                        _createSizeNode(results.system_map_size));
+                    spanNode.appendChild(_createSizeNode(systemMapSize));
                 }
 
                 html.replaceContent(
@@ -1080,7 +1085,7 @@ require([
                     document.getElementById('system-map'), html.nonavail());
             }
 
-            if (buildLog) {
+            if (buildLog !== null && buildLog !== undefined) {
                 spanNode = document.createElement('span');
 
                 aNode = document.createElement('a');
@@ -1096,11 +1101,9 @@ require([
 
                 spanNode.appendChild(aNode);
 
-                if (results.build_log_size !== null &&
-                        results.build_log_size !== undefined) {
+                if (buildLogSize !== null && buildLogSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(
-                        _createSizeNode(results.build_log_size));
+                    spanNode.appendChild(_createSizeNode(buildLogSize));
                 }
 
                 html.replaceContent(
