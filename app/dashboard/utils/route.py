@@ -21,6 +21,7 @@ import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 import dashboard.views.soc as vsoc
+import dashboard.views.test as vtest
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.boot as bootfeed
@@ -347,5 +348,12 @@ def init():
         "/soc/<string:soc>/job/<string:job>/kernel/<string:kernel>/",
         view_func=vsoc.SocsSocJobKernelView.as_view(
             "socs-soc-job-kernel-view"),
+        methods=["GET"]
+    )
+
+    # Tests views.
+    add_rule(
+        "/test/",
+        view_func=vtest.TestsAllView.as_view("tests-all-view"),
         methods=["GET"]
     )
