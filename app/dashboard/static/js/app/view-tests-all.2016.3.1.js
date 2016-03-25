@@ -180,6 +180,7 @@ require([
         gTestList.forEach(_createRequest);
     }
 
+    document.getElementById('li-test').setAttribute('class', 'active');
     gTestList = document.getElementById('test-suite-names');
     if (gTestList !== null) {
         gTestList = String(gTestList.value).split(',');
