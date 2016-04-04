@@ -2,6 +2,18 @@
 {%- block meta -%}
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
+{% block head %}
+{{ super() }}
+<style type="text/css">
+    table.tests-table {
+        font-size: 93%;
+    }
+
+    table.tests-table thead {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
 <div class="row">
