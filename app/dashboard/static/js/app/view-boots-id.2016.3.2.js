@@ -777,7 +777,7 @@ require([
         spanNode = document.createElement('time');
         spanNode.setAttribute('datetime', createdOn.toISOString());
         spanNode.appendChild(
-            document.createTextNode(createdOn.toCustomISODate()));
+            document.createTextNode(createdOn.toCustomISODateTime()));
         html.replaceContent(document.getElementById('dd-date'), spanNode);
 
         // Status.
