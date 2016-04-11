@@ -357,3 +357,8 @@ def init():
         view_func=vtest.TestsAllView.as_view("tests-all-view"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/test/<string:suite>/",
+        view_func=None, methods=["GET"]
+    )

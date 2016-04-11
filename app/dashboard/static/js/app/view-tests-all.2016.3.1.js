@@ -98,6 +98,11 @@ require([
             // TODO
             // Details link.
             tableCell = tableRow.insertCell();
+            var tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('data-title', 'More info');
+            var aNode = document.createElement('a');
+            aNode.setAttribute('href', '/test/' + suite + '/');
+            tooltipNode.appendChild()
             tableCell.innerHTML = '&nbsp;';
             tableCell.className = 'select-column pull-center';
         }
