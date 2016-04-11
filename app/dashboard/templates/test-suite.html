@@ -1,0 +1,71 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h3>{{ body_title|default('Latest Results')|safe }}</h3>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <ul class="list-group">
+            <li class="list-group-item">
+                Total test setsa
+                <span class="badge">
+                    <span id="count-test-sets" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total test cases
+                <span class="badge">
+                    <span id="count-test-cases" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total unique builds
+                <span class="badge">
+                    <span id="count-builds" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total unique boot reports
+                <span class="badge">
+                    <span id="count-boots" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total unique boards
+                <span class="badge">
+                    <span id="count-boards" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h3>Test Sets</h3>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="test-suite" value="{{ suite }}">
+{%- endblock %}{# content block #}
+{%- block scripts %}
+<script data-main="/static/js/kci-tests-suite" src="/static/js/lib/require.js"></script>
+{%- endblock %}

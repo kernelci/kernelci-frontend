@@ -44,8 +44,6 @@ class TestsAllView(TestGenericView):
         if status == 200:
             json_data = backend.extract_gzip_data(data, headers)
 
-            print json_data
-
             return render_template(
                 "tests-all.html",
                 page_title=self.TESTS_PAGE_TITLE,
@@ -54,3 +52,18 @@ class TestsAllView(TestGenericView):
             )
         else:
             abort(status)
+
+
+class TestSuiteView(TestGenericView):
+
+    def dispatch_request(self, **kwargs):
+        suite = kwargs["suite"]
+
+        page_title = "{:s} &mdash; {:s} Test Suite".format(PAGE_TITLE, suite)
+        body_title = "Test Suite &#171;{:s}&#187;".format(suite)
+        return render_template(
+            "test-suite.html",
+            page_title=page_title,
+            body_title=body_title,
+            suite=suite
+        )
