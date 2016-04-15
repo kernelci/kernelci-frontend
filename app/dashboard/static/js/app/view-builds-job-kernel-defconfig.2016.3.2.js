@@ -12,11 +12,11 @@ require([
     'utils/date'
 ], function($, init, format, e, r, urls, bisect, html, table) {
     'use strict';
-    var buildId,
-        defconfigFull,
-        fileServer,
-        jobName,
-        kernelName;
+    var buildId;
+    var defconfigFull;
+    var fileServer;
+    var jobName;
+    var kernelName;
 
     document.getElementById('li-build').setAttribute('class', 'active');
 
@@ -598,7 +598,7 @@ require([
             kernel = results.kernel;
             gitURL = results.git_url;
             gitCommit = results.git_commit;
-            createdOn = results.created_on;
+            createdOn = new Date(results.created_on.$date);
             arch = results.arch;
             defconfig = results.defconfig;
             lDefconfigFull = results.defconfig_full;
@@ -852,8 +852,13 @@ require([
             html.replaceContent(
                 document.getElementById('build-defconfig'), spanNode);
 
+            // Date.
+            spanNode = document.createElement('time');
+            spanNode.setAttribute('datetime', createdOn.toISOString());
+            spanNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODateTime()));
             html.replaceContent(
-                document.getElementById('build-date'), html.time(createdOn));
+                document.getElementById('build-date'), spanNode);
 
             tooltipNode = html.tooltip();
             switch (results.status) {
