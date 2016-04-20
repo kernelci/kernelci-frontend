@@ -16,7 +16,14 @@ require([
     }
 
     function getCountsDone(response) {
-        console.log(response);
+        var results;
+
+        results = response.result;
+        results.forEach(function(result) {
+            html.replaceContent(
+                document.getElementById(result.operation_id),
+                document.createTextNode(result.result[0].count));
+        });
     }
 
     function getCounts() {
@@ -45,24 +52,27 @@ require([
 
         batchOps.push({
             method: 'GET',
-            resource: 'test_suite',
+            resource: 'count',
             distinct: 'build_id',
+            document: 'test_suite',
             operation_id: 'count-builds',
             query: queryStr
         });
 
         batchOps.push({
             method: 'GET',
-            resource: 'test_suite',
+            resource: 'count',
             distinct: 'boot_id',
+            document: 'test_suite',
             operation_id: 'count-boots',
             query: queryStr
         });
 
         batchOps.push({
             method: 'GET',
-            resource: 'test_suite',
+            resource: 'count',
             distinct: 'board',
+            document: 'test_suite',
             operation_id: 'count-boards',
             query: queryStr
         });
