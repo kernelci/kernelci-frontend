@@ -51,6 +51,7 @@ require([
     }
 
     function getTestsDone(suite, response) {
+        var aNode;
         var batchOps;
         var deferred;
         var domElement;
@@ -59,9 +60,12 @@ require([
         var spanNode;
         var tableBody;
         var tableCell;
+        var tableFoot;
+        var tableFragment;
         var tableHead;
         var tableNode;
         var tableRow;
+        var tooltipNode;
 
         domElement = document.getElementById(gSuitePrefix + suite);
         if (!domElement) {
@@ -161,11 +165,13 @@ require([
         if (results.length > 0) {
             // Initialize the batch operations.
             batchOps = [];
-            tableNode = document.createElement('table');
 
+            tableFragment = document.createDocumentFragment();
             tableNode = document.createElement('table');
             tableNode.className =
                 'table table-condensed table-striped tests-table';
+
+            tableFragment.appendChild(tableNode);
 
             tableHead = tableNode.createTHead();
             tableRow = tableHead.insertRow();
@@ -201,12 +207,24 @@ require([
             tableRow.insertCell();
 
             tableBody = document.createElement('tbody');
+            tableNode.appendChild(tableBody);
 
             // Loop through the data to create the rows.
             results.forEach(_createTableRows);
 
-            tableNode.appendChild(tableBody);
-            html.replaceContent(domElement, tableNode);
+            tableFoot = tableNode.createTFoot();
+            tableRow = tableFoot.insertRow();
+
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/test/' + suite + '/');
+            aNode.appendChild(document.createTextNode('More info'));
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('data-title', 'More info on ' + suite);
+            tooltipNode.appendChild(aNode);
+
+            tableRow.appendChild(tooltipNode);
+            html.replaceContent(domElement, tableFragment);
 
             // If we have some batch operations, perform them now.
             if (batchOps.length > 0) {
