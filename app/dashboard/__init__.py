@@ -178,7 +178,7 @@ def static_html_proxy(path):
     defaults={"api": "TEST_SUITE_API_ENDPOINT"}, methods=["GET"])
 def ajax_get(api):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
-        return backend.ajax_get(request, app_conf_get(api), timeout=60*20)
+        return backend.ajax_get(request, app_conf_get(api), timeout=60 * 20)
     else:
         abort(403)
 
@@ -210,7 +210,7 @@ def ajax_batch():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         if request.data:
             return backend.ajax_batch_post(
-                request, app_conf_get("BATCH_API_ENDPOINT"), timeout=60*20)
+                request, app_conf_get("BATCH_API_ENDPOINT"), timeout=60 * 20)
         else:
             abort(400)
     else:
