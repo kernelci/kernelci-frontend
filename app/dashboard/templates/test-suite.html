@@ -2,6 +2,10 @@
 {%- block meta -%}
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+{%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
 <div class="row">
@@ -60,16 +64,28 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Test Sets Ran</h3>
+            <h3>Test Sets</h3>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="test-sets">
+        <div id="test-sets-table-div">
+            <table id="test-sets-table"
+                class="table table-hover table-striped table-condensed clickable-table big-table">
+            </table>
         </div>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Test Cases Ran</h3>
+            <h3>Test Cases</h3>
         </div>
     </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="test-cases"></div>
 </div>
 <input type="hidden" id="test-suite" value="{{ suite }}">
 {%- endblock %}{# content block #}
