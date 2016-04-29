@@ -176,6 +176,9 @@ def static_html_proxy(path):
 @app.route(
     "/_ajax/test/suite",
     defaults={"api": "TEST_SUITE_API_ENDPOINT"}, methods=["GET"])
+@app.route(
+    "/_ajax/test/set",
+    defaults={"api": "TEST_SET_API_ENDPOINT"}, methods=["GET"])
 def ajax_get(api):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get(api), timeout=60 * 20)
