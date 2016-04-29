@@ -21,9 +21,9 @@
         <h3>{{ body_title|safe }}</h3>
     </div>
 </div>
-{%- if test_suites|length() > 0 %}
-<input type="hidden" id="test-suite-names" value="{{ test_suites|join(',') }}">
-    {%- for suite in test_suites %}
+{%- if test_suites|length > 0 %}
+<input type="hidden" id="test-suite-names" value="{{ test_suites|sort|join(',') }}">
+    {%- for suite in test_suites|sort %}
     {% if suite %}
 <div class="row">
     <div class="page-header">

@@ -275,6 +275,7 @@ require([
         gTestsList = String(gTestsList.value).split(',');
 
         if (gTestsList.length > 0) {
+            gTestsList = gTestsList.sort();
             getTests();
         }
     }
