@@ -4,12 +4,109 @@ require([
     'utils/init',
     'utils/html',
     'utils/error',
-    'utils/request'
-], function($, init, html, err, request) {
+    'utils/request',
+    'utils/table',
+    'tables/test-set'
+], function($, init, html, err, request, table, ttestset) {
     'use strict';
     var gTestSuite;
+    var gTestSetsTable;
 
     document.getElementById('li-test').setAttribute('class', 'active');
+
+    function getTestSetsFail() {
+        // TODO
+    }
+
+    function getTestSetsDone(response) {
+        var results;
+        var columns;
+
+        function _renderDetails(data, type, object) {
+            var href;
+
+            href = '/test/suite/' +
+                object.test_suite_name + '/set/' + object.name + '/' +
+                data.$oid + '/';
+            return ttestset.renderDetails(href, type);
+        }
+
+        function _renderTestCasesCount(data, type) {
+            if (type === 'sort') {
+                return data.length;
+            } else if (type === 'display') {
+                // TODO
+            }
+        }
+
+        results = response.result;
+        if (results.length > 0) {
+            // TODO
+            console.log(results);
+
+            gTestSetsTable = table({
+                tableId: 'test-sets-table',
+                tableDivId: 'test-sets-table-div'
+            });
+
+            columns = [
+                {
+                    data: 'name',
+                    title: 'Name',
+                    type: 'string'
+                },
+                {
+                    data: 'test_case',
+                    title: 'Total Test Cases',
+                    type: 'num',
+                    className: 'pull-center',
+                    render: _renderTestCasesCount
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'pull-center',
+                    render: ttestset.renderDate
+                },
+                {
+                    data: '_id',
+                    title: '',
+                    type: 'string',
+                    searchable: false,
+                    orderable: false,
+                    className: 'select-column pull-center',
+                    render: _renderDetails
+                }
+            ];
+
+            gTestSetsTable
+                .data(results)
+                .columns(columns)
+                .lengthMenu([10, 25, 50, 75, 100])
+                .order([2, 'asc'])
+                .languageLengthMenu('Test sets per page')
+                .draw();
+        } else {
+            html.replaceContent(
+                document.getElementById('test-sets'),
+                html.errorDiv('No test sets available.'));
+        }
+    }
+
+    function getTestSets() {
+        var data;
+        var deferred;
+
+        data = {
+            test_suite_name: gTestSuite
+        };
+
+        deferred = request.get('/_ajax/test/set', data);
+        $.when(deferred)
+            .done(getTestSetsDone)
+            .fail(err.error, getTestSetsFail);
+    }
 
     function getCountsFail() {
         html.replaceByClass('count-list-badge', '&infin;');
@@ -28,8 +125,8 @@ require([
 
     function getCounts() {
         var batchOps;
-        var queryStr;
         var deferred;
+        var queryStr;
 
         batchOps = [];
         queryStr = 'test_suite_name=' + gTestSuite;
@@ -90,6 +187,7 @@ require([
         gTestSuite = gTestSuite.value;
 
         getCounts();
+        getTestSets();
     }
 
     init.hotkeys();
