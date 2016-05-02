@@ -1,3 +1,0 @@
-hostname: kernelci.org
-role: production
-uwsgi_processes: 6
