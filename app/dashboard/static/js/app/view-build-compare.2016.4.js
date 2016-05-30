@@ -141,7 +141,7 @@ require([
     }
 
     function getCompareFail() {
-        html.replaceByClassNode('loading-content', html.nonavail().outerHTML);
+        html.replaceByClassNode('loading-content', html.nonavail());
     }
 
     function setupBaselineData(baseline) {
@@ -345,8 +345,7 @@ require([
             Array.prototype.push.apply(matrixData.xdata, comparedData);
             matrix.create('diff-matrix', matrixData);
         } else {
-            html.replaceByClassNode(
-                'loading-content', html.nonavail().outerHTML);
+            html.replaceByClassNode('loading-content', html.nonavail());
         }
     }
 

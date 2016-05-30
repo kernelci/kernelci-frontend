@@ -18,16 +18,11 @@ require([
     document.getElementById('li-build').setAttribute('class', 'active');
 
     function getBuildLogsFail() {
-        var node;
-
-        node = html.nonavail();
         html.removeElement(document.getElementById('build-logs-loading'));
         html.replaceContent(
             document.getElementById('build-logs'),
             html.errorDiv('Error loading build logs data.'));
-        html.replaceByClassHTML('logs-loading-content', node.outerHTML);
-
-        node.remove();
+        html.replaceByClassNode('logs-loading-content', html.nonavail());
     }
 
     function getBuildLogsDone(response) {
@@ -431,18 +426,12 @@ require([
     }
 
     function getBuildFail() {
-        var node;
-
-        node = html.nonavail();
-
         html.removeElement(document.getElementById('build-logs-loading'));
         html.replaceContent(
             document.getElementById('build-logs'),
             html.errorDiv('Error loading data'));
-        html.replaceByClassHTML('loading-content', node.outerHTML);
-        html.replaceByClassHTML('logs-loading-content', node.outerHTML);
-
-        node.remove();
+        html.replaceByClassNode('loading-content', html.nonavail());
+        html.replaceByClassNode('logs-loading-content', html.nonavail());
     }
 
     function getBuild() {

@@ -305,7 +305,7 @@ require([
     }
 
     function getJobCompareFail() {
-        html.replaceByClassNode('loading-content', html.nonavail().outerHTML);
+        html.replaceByClassNode('loading-content', html.nonavail());
         html.replaceContent(
             document.getElementById('summary-table-div'),
             html.errorDiv('Error loading data.'));
@@ -357,8 +357,7 @@ require([
                     html.errorDiv('No differences to show.'));
             }
         } else {
-            html.replaceByClassHTML(
-                'loading-content', html.nonavail().outerHTML);
+            html.replaceByClassNode('loading-content', html.nonavail());
             html.replaceContent(
                 document.getElementById('summary-table-div'),
                 html.errorDiv('No data available.'));
@@ -381,8 +380,7 @@ require([
                 .fail(e.error, getJobCompareFail)
                 .done(getJobCompareDone);
         } else {
-            html.replaceByClassHTML(
-                'loading-content', html.nonavail().outerHTML);
+            html.replaceByClassNode('loading-content', html.nonavail());
             html.replaceContent(
                 document.getElementById('summary-table-div'),
                 html.errorDiv('Error loading data.'));
