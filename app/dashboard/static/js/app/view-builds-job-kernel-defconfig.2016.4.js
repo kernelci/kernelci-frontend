@@ -38,8 +38,8 @@ require([
     }
 
     function getBisectToMainline(bisectData, build) {
-        var deferred,
-            settings;
+        var deferred;
+        var settings;
 
         settings = {
             showHideID: 'buildb-compare-showhide',
@@ -75,10 +75,10 @@ require([
     }
 
     function getBisectCompareTo(response) {
-        var bisectData,
-            lBuildId,
-            resLen,
-            result;
+        var bisectData;
+        var lBuildId;
+        var resLen;
+        var result;
 
         result = response.result;
         resLen = result.length;
@@ -124,9 +124,9 @@ require([
     }
 
     function getBisect(response) {
-        var deferred,
-            resLen,
-            results;
+        var deferred;
+        var resLen;
+        var results;
 
         results = response.result;
         resLen = results.length;
@@ -163,21 +163,21 @@ require([
     }
 
     function createBootLogLinks(object) {
-        var aNode,
-            arch,
-            bootLogHtml,
-            bootLogTxt,
-            defconfig,
-            divNode,
-            fileServerData,
-            job,
-            kernel,
-            labName,
-            logPath,
-            serverResource,
-            serverUrl,
-            tooltipNode,
-            translatedUri;
+        var aNode;
+        var arch;
+        var bootLogHtml;
+        var bootLogTxt;
+        var defconfig;
+        var divNode;
+        var fileServerData;
+        var job;
+        var kernel;
+        var labName;
+        var logPath;
+        var serverResource;
+        var serverUrl;
+        var tooltipNode;
+        var translatedUri;
 
         arch = object.arch;
         bootLogHtml = object.boot_log_html;
@@ -257,11 +257,11 @@ require([
     }
 
     function getBootsDone(response) {
-        var bootsTable,
-            columns,
-            resLen,
-            results,
-            rowURL;
+        var bootsTable;
+        var columns;
+        var resLen;
+        var results;
+        var rowURL;
 
         results = response.result;
         resLen = results.length;
@@ -344,8 +344,8 @@ require([
                     type: 'string',
                     className: 'pull-center',
                     render: function(data, type) {
-                        var rendered,
-                            tooltipNode;
+                        var rendered;
+                        var tooltipNode;
 
                         rendered = data;
                         if (type === 'display') {
@@ -387,11 +387,11 @@ require([
                     searchable: false,
                     className: 'select-column pull-center',
                     render: function(data, type, object) {
-                        var aNode,
-                            iNode,
-                            rendered,
-                            tooltipNode,
-                            lab;
+                        var aNode;
+                        var iNode;
+                        var lab;
+                        var rendered;
+                        var tooltipNode;
 
                         rendered = null;
                         if (type === 'display') {
@@ -441,10 +441,10 @@ require([
     }
 
     function getBoots(response) {
-        var data,
-            deferred,
-            results,
-            resLen;
+        var data;
+        var deferred;
+        var results;
+        var resLen;
 
         results = response.result;
         resLen = results.length;
@@ -500,8 +500,8 @@ require([
     }
 
     function getBuildsFail() {
-        var tooltipNode,
-            iNode;
+        var iNode;
+        var tooltipNode;
 
         tooltipNode = document.createElement('span');
         tooltipNode.setAttribute('title', 'Not available');
@@ -567,21 +567,23 @@ require([
         var tooltipNode;
         var translatedUri;
         var txtSize;
-        var vmlinuxFile;
         var vmlinuxFileSize;
 
         results = response.result;
         resLen = results.length;
 
         function _createSizeNode(size) {
+            var frag;
             var sizeNode;
-            sizeNode = document.createElement('small');
+
+            frag = document.createDocumentFragment();
+            sizeNode = frag.appendChild(document.createElement('small'));
 
             sizeNode.appendChild(document.createTextNode('('));
             sizeNode.appendChild(document.createTextNode(format.bytes(size)));
             sizeNode.appendChild(document.createTextNode(')'));
 
-            return sizeNode;
+            return frag;
         }
 
         if (resLen === 0) {
@@ -621,7 +623,6 @@ require([
             compilerVersion = results.compiler_version;
             compilerVersionFull = results.compiler_version_full;
             crossCompile = results.cross_compile;
-            vmlinuxFile = results.vmlinux_file;
             vmlinuxFileSize = results.vmlinux_file_size;
             bssSize = results.vmlinux_bss_size;
             dataSize = results.vmlinux_data_size;
@@ -726,8 +727,7 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
-                html.replaceContent(
-                    document.getElementById('git-url'), aNode);
+                html.replaceContent(document.getElementById('git-url'), aNode);
             } else {
                 if (gitURL !== null) {
                     html.replaceContent(
@@ -826,7 +826,6 @@ require([
             }
 
             spanNode = document.createElement('span');
-
             spanNode.appendChild(document.createTextNode(lDefconfigFull));
 
             tooltipNode = html.tooltip();
@@ -857,6 +856,7 @@ require([
             spanNode.setAttribute('datetime', createdOn.toISOString());
             spanNode.appendChild(
                 document.createTextNode(createdOn.toCustomISODateTime()));
+
             html.replaceContent(
                 document.getElementById('build-date'), spanNode);
 
@@ -948,35 +948,6 @@ require([
                 html.replaceContent(
                     document.getElementById('config-fragments'),
                     html.nonavail());
-            }
-
-            if (vmlinuxFile !== null && vmlinuxFile !== undefined) {
-                spanNode = document.createElement('span');
-
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    fileServerURI
-                        .path(pathURI + '/' + vmlinuxFile)
-                        .normalizePath().href()
-                );
-                aNode.appendChild(document.createTextNode(vmlinuxFile));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-
-                spanNode.appendChild(aNode);
-
-                if (vmlinuxFileSize !== null &&
-                        vmlinuxFileSize !== undefined) {
-                    spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                    spanNode.appendChild(_createSizeNode(vmlinuxFileSize));
-                }
-
-                html.replaceContent(
-                    document.getElementById('vmlinux-file'), spanNode);
-            } else {
-                html.replaceContent(
-                    document.getElementById('vmlinux-file'), html.nonavail());
             }
 
             if (bssSize !== null && bssSize !== undefined) {
@@ -1149,8 +1120,8 @@ require([
     }
 
     function getBuilds() {
-        var data,
-            deferred;
+        var data;
+        var deferred;
 
         if (buildId !== 'None') {
             data = {
@@ -1188,7 +1159,7 @@ require([
         buildId = document.getElementById('build-id').value;
     }
 
-    getBuilds();
+    setTimeout(getBuilds, 0);
 
     init.hotkeys();
     init.tooltip();
