@@ -135,9 +135,8 @@ require([
     }
 
     function getCompareToLskFail() {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         html.replaceContent(
             document.getElementById('compare-to-lsk-div'),
@@ -145,17 +144,15 @@ require([
     }
 
     function getCompareToLskDone(response) {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         generalCompareToTable(response, 'compare-to-lsk-table');
     }
 
     function getCompareToNextFail() {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         html.replaceContent(
             document.getElementById('compare-to-next-div'),
@@ -163,17 +160,15 @@ require([
     }
 
     function getCompareToNextDone(response) {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         generalCompareToTable(response, 'compare-to-next-table');
     }
 
     function getCompareToMainlineFail() {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         html.replaceContent(
             document.getElementById('compare-to-mainline-div'),
@@ -181,9 +176,8 @@ require([
     }
 
     function getCompareToMainlineDone(response) {
-        setTimeout(
-            html.removeElement(
-                document.getElementById('boot-reports-compared-to-load')), 0);
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
 
         generalCompareToTable(response, 'compare-to-mainline-table');
     }
@@ -244,8 +238,7 @@ require([
     }
 
     function getBootDataFail() {
-        setTimeout(
-            html.replaceByClassNode('loading-content', html.nonavail()), 0);
+        html.replaceByClassNode('loading-content', html.nonavail());
     }
 
     function getCompareData(response) {
@@ -278,8 +271,8 @@ require([
             document.createTextNode('searching similar boot reports'));
         childNode.insertAdjacentHTML('beforeend', '&hellip;');
 
-        setTimeout(html.removeChildren(loadingNode), 0);
-        setTimeout(html.replaceContent(loadingNode, docFrag), 0);
+        html.removeChildren(loadingNode);
+        html.replaceContent(loadingNode, docFrag);
 
         requestData = {
             board: gBoardName,
@@ -297,10 +290,8 @@ require([
 
         // Compare to LSK, if it is not LSK.
         if (gJobName !== 'lsk') {
-            setTimeout(
-                html.removeClass(
-                    document.getElementById('compare-to-lsk-div'), 'hidden'),
-                0);
+            html.removeClass(
+                document.getElementById('compare-to-lsk-div'), 'hidden');
 
             requestData.job = 'lsk';
             deferred = r.get('/_ajax/boot', requestData);
@@ -309,18 +300,14 @@ require([
                 .fail(e.error, getCompareToLskFail)
                 .done(getCompareToLskDone);
         } else {
-            setTimeout(
-                html.removeElement(
-                    document.getElementById('compare-to-lsk-div')), 0);
+            html.removeElement(
+                document.getElementById('compare-to-lsk-div'));
         }
 
         // Compare to mainline, if it is not mainline.
         if (gJobName !== 'mainline') {
-            setTimeout(
-                html.removeClass(
-                    document
-                        .getElementById('compare-to-mainline-div'), 'hidden'),
-                0);
+            html.removeClass(
+                document.getElementById('compare-to-mainline-div'), 'hidden');
 
             requestData.job = 'mainline';
             deferred = r.get('/_ajax/boot', requestData);
@@ -329,17 +316,14 @@ require([
                 .fail(e.error, getCompareToMainlineFail)
                 .done(getCompareToMainlineDone);
         } else {
-            setTimeout(
-                html.removeElement(
-                    document.getElementById('compare-to-mainline-div')), 0);
+            html.removeElement(
+                document.getElementById('compare-to-mainline-div'));
         }
 
         // Compare to next, if it is not next.
         if (gJobName !== 'next') {
-            setTimeout(
-                html.removeClass(
-                    document.getElementById('compare-to-next-div'), 'hidden'),
-                0);
+            html.removeClass(
+                document.getElementById('compare-to-next-div'), 'hidden');
 
             requestData.job = 'next';
             deferred = r.get('/_ajax/boot', requestData);
@@ -348,9 +332,8 @@ require([
                 .fail(e.error, getCompareToNextFail)
                 .done(getCompareToNextDone);
         } else {
-            setTimeout(
-                html.removeElement(
-                    document.getElementById('compare-to-next-div')), 0);
+            html.removeElement(
+                document.getElementById('compare-to-next-div'));
         }
     }
 
@@ -1064,8 +1047,8 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    setTimeout(getBootData(), 0);
-    setTimeout(getMultiLabData(), 0);
+    setTimeout(getBootData, 0);
+    setTimeout(getMultiLabData, 0);
 
     init.hotkeys();
     init.tooltip();
