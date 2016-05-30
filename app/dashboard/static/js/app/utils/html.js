@@ -3,8 +3,8 @@ define([
     'utils/date'
 ], function() {
     'use strict';
-    var html,
-        htmlEntities;
+    var html;
+    var htmlEntities;
 
     html = {};
     // Characters that should be HTML-escaped.
@@ -156,68 +156,78 @@ define([
     };
 
     html.building = function() {
-        var spanNode,
-            iNode;
+        var frag;
+        var iNode;
+        var spanNode;
 
-        spanNode = document.createElement('span');
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
         spanNode.className = 'label label-info';
-        iNode = document.createElement('i');
+        iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-cogs';
-        spanNode.appendChild(iNode);
 
-        return spanNode;
+        return frag;
     };
 
     html.fail = function() {
-        var spanNode,
-            iNode;
+        var frag;
+        var iNode;
+        var spanNode;
 
-        spanNode = document.createElement('span');
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
         spanNode.className = 'label label-danger';
-        iNode = document.createElement('i');
+        iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-exclamation-triangle';
-        spanNode.appendChild(iNode);
 
-        return spanNode;
+        return frag;
     };
 
     html.success = function() {
-        var spanNode,
-            iNode;
+        var frag;
+        var iNode;
+        var spanNode;
 
-        spanNode = document.createElement('span');
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
         spanNode.className = 'label label-success';
-        iNode = document.createElement('i');
+        iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-check';
-        spanNode.appendChild(iNode);
 
-        return spanNode;
+        return frag;
     };
 
     html.unknown = function() {
-        var spanNode,
-            iNode;
+        var frag;
+        var iNode;
+        var spanNode;
 
-        spanNode = document.createElement('span');
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
         spanNode.className = 'label label-warning';
-        iNode = document.createElement('i');
+        iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-question';
-        spanNode.appendChild(iNode);
 
-        return spanNode;
+        return frag;
     };
 
     html.offline = function() {
-        var spanNode,
-            iNode;
+        var frag;
+        var iNode;
+        var spanNode;
 
-        spanNode = document.createElement('span');
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
         spanNode.className = 'label label-info';
-        iNode = document.createElement('i');
+        iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-power-off';
-        spanNode.appendChild(iNode);
 
-        return spanNode;
+        return frag;
     };
 
     html.tooltip = function() {
@@ -231,86 +241,97 @@ define([
     };
 
     html.replaceAllBySelectorHTML = function(selector, replacement) {
-        [].forEach.call(
-            document.querySelectorAll(selector),
-            function(element) {
-                _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', replacement);
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.querySelectorAll(selector),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.insertAdjacentHTML('beforeend', replacement);
+                });
+        }, 0);
     };
 
     html.replaceAllBySelectorTxt = function(selector, txt) {
-        [].forEach.call(
-            document.querySelectorAll(selector),
-            function(element) {
-                _cleanElementChildren(element);
-                element.appendChild(document.createTextNode(txt));
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.querySelectorAll(selector),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.appendChild(document.createTextNode(txt));
+                });
+        }, 0);
     };
 
     html.replaceAllBySelector = function(selector, content) {
-        [].forEach.call(
-            document.querySelectorAll(selector),
-            function(element) {
-                _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', content);
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.querySelectorAll(selector),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.insertAdjacentHTML('beforeend', content);
+                });
+        }, 0);
     };
 
     html.replaceByClassHTML = function(className, replacement) {
-        [].forEach.call(
-            document.getElementsByClassName(className),
-            function(element) {
-                _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', replacement);
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.getElementsByClassName(className),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.insertAdjacentHTML('beforeend', replacement);
+                });
+        }, 0);
     };
 
     html.replaceByClassTxt = function(className, txt) {
-        [].forEach.call(
-            document.getElementsByClassName(className),
-            function(element) {
-                _cleanElementChildren(element);
-                element.appendChild(document.createTextNode(txt));
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.getElementsByClassName(className),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.appendChild(document.createTextNode(txt));
+                });
+        }, 0);
     };
 
     html.replaceByClass = function(className, content) {
-        [].forEach.call(
-            document.getElementsByClassName(className),
-            function(element) {
-                _cleanElementChildren(element);
-                element.insertAdjacentHTML('beforeend', content);
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.getElementsByClassName(className),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.insertAdjacentHTML('beforeend', content);
+                });
+        }, 0);
     };
 
     html.replaceByClassNode = function(className, child) {
-        [].forEach.call(
-            document.getElementsByClassName(className),
-            function(element) {
-                _cleanElementChildren(element);
-                element.appendChild(child);
-            }
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.getElementsByClassName(className),
+                function(element) {
+                    _cleanElementChildren(element);
+                    element.appendChild(child);
+                });
+        }, 0);
     };
 
     html.replaceContent = function(element, child) {
         if (element) {
-            _cleanElementChildren(element);
-            element.appendChild(child);
+            setTimeout(function() {
+                _cleanElementChildren(element);
+                element.appendChild(child);
+            }, 0);
         }
     };
 
     html.replaceContentHTML = function(element, replacement) {
         if (element) {
-            _cleanElementChildren(element);
-            element.insertAdjacentHTML('beforeend', replacement);
+            setTimeout(function() {
+                _cleanElementChildren(element);
+                element.insertAdjacentHTML('beforeend', replacement);
+            }, 0);
         }
     };
 
@@ -361,7 +382,9 @@ define([
     **/
     html.addClass = function(element, className) {
         if (element) {
-            _addClass(element, className);
+            setTimeout(function() {
+                _addClass(element, className);
+            }, 0);
         }
     };
 
@@ -374,15 +397,17 @@ define([
     **/
     html.addClasses = function(element, classes) {
         if (element) {
-            classes.forEach(function(className) {
-                _addClass(element, className);
-            });
+            setTimeout(function() {
+                classes.forEach(function(className) {
+                    _addClass(element, className);
+                });
+            }, 0);
         }
     };
 
     function _removeClass(element, className) {
-        var classIdx,
-            classes;
+        var classIdx;
+        var classes;
 
         classes = element.className.split(' ');
         classIdx = classes.indexOf(className);
@@ -401,15 +426,19 @@ define([
     **/
     html.removeClass = function(element, className) {
         if (element) {
-            _removeClass(element, className);
+            setTimeout(function() {
+                _removeClass(element, className);
+            }, 0);
         }
     };
 
     html.removeClasses = function(element, classes) {
         if (element) {
-            classes.forEach(function(className) {
-                _removeClass(element, className);
-            });
+            setTimeout(function() {
+                classes.forEach(function(className) {
+                    _removeClass(element, className);
+                });
+            }, 0);
         }
     };
 
@@ -422,8 +451,8 @@ define([
      * @param {string} attribute: The name of the attribute to retrieve.
     **/
     html.attrBySelector = function(selector, attribute) {
-        var element,
-            value;
+        var element;
+        var value;
 
         element = document.querySelector(selector);
         value = null;
@@ -435,8 +464,8 @@ define([
     };
 
     html.attrById = function(elementId, attribute) {
-        var element,
-            value;
+        var element;
+        var value;
 
         element = document.getElementById(elementId);
         value = null;
@@ -449,7 +478,9 @@ define([
 
     html.removeElement = function(element) {
         if (element) {
-            element.parentElement.removeChild(element);
+            setTimeout(function() {
+                element.parentElement.removeChild(element);
+            }, 0);
         }
     };
 
@@ -471,8 +502,8 @@ define([
      * @return {Boolean} True or false.
     **/
     html.classed = function(element, className) {
-        var classes,
-            hasClass;
+        var classes;
+        var hasClass;
 
         hasClass = false;
         if (element) {
@@ -485,16 +516,19 @@ define([
     };
 
     html.time = function(date) {
-        var created,
-            timeNode;
+        var created;
+        var frag;
+        var timeNode;
+
+        frag = document.createDocumentFragment();
 
         created = new Date(date.$date);
-        timeNode = document.createElement('time');
+        timeNode = frag.appendChild(document.createElement('time'));
         timeNode.setAttribute('datetime', created.toISOString());
         timeNode.appendChild(
             document.createTextNode(created.toCustomISODate()));
 
-        return timeNode;
+        return frag;
     };
 
     return html;
