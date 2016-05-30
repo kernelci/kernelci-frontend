@@ -12,23 +12,23 @@ require([
     'utils/date'
 ], function($, init, e, r, u, bisect, tboot, html, appconst) {
     'use strict';
-    var gBoardName,
-        gBootId,
-        gDateRange,
-        gDefconfig,
-        gFileServer,
-        gJobName,
-        gKernelName,
-        gLabName;
+    var gBoardName;
+    var gBootId;
+    var gDateRange;
+    var gDefconfig;
+    var gFileServer;
+    var gJobName;
+    var gKernelName;
+    var gLabName;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
     gDateRange = appconst.MAX_DATE_RANGE;
     gFileServer = null;
 
     function _tableMessage(table, text) {
-        var cellNode,
-            rowNode,
-            strongNode;
+        var cellNode;
+        var rowNode;
+        var strongNode;
 
         rowNode = table.insertRow(-1);
         cellNode = rowNode.insertCell(-1);
@@ -40,20 +40,20 @@ require([
     }
 
     function addBootTableRow(data, table) {
-        var arch,
-            cellNode,
-            defconfigFull,
-            job,
-            kernel,
-            lab,
-            logsNode,
-            pathURI,
-            resultDescription,
-            rowNode,
-            serverResource,
-            serverURI,
-            serverURL,
-            translatedURI;
+        var arch;
+        var cellNode;
+        var defconfigFull;
+        var job;
+        var kernel;
+        var lab;
+        var logsNode;
+        var pathURI;
+        var resultDescription;
+        var rowNode;
+        var serverResource;
+        var serverURI;
+        var serverURL;
+        var translatedURI;
 
         arch = data.arch;
         defconfigFull = data.defconfig_full;
@@ -117,8 +117,8 @@ require([
     }
 
     function generalCompareToTable(response, tableId) {
-        var results,
-            table;
+        var results;
+        var table;
 
         table = document.getElementById(tableId);
         results = response.result;
@@ -134,31 +134,57 @@ require([
         html.removeClass(table, 'hidden');
     }
 
+    function getCompareToLskFail() {
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
+        html.replaceContent(
+            document.getElementById('compare-to-lsk-div'),
+            html.errorDiv('Error retrieving data compared to lsk.'));
+    }
+
+    function getCompareToLskDone(response) {
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
+        generalCompareToTable(response, 'compare-to-lsk-table');
+    }
+
     function getCompareToNextFail() {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
         html.replaceContent(
             document.getElementById('compare-to-next-div'),
             html.errorDiv('Error retrieving data compared to next.'));
     }
 
     function getCompareToNextDone(response) {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
         generalCompareToTable(response, 'compare-to-next-table');
     }
 
     function getCompareToMainlineFail() {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
         html.replaceContent(
             document.getElementById('compare-to-mainline-div'),
             html.errorDiv('Error retrieving data compared to mainline.'));
     }
 
     function getCompareToMainlineDone(response) {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
+        setTimeout(
+            html.removeElement(
+                document.getElementById('boot-reports-compared-to-load')), 0);
+
         generalCompareToTable(response, 'compare-to-mainline-table');
     }
 
@@ -171,12 +197,13 @@ require([
     }
 
     function getMultiLabDataDone(response) {
-        var results,
-            table,
-            validReports;
+        var results;
+        var table;
+        var validReports;
 
         table = document.getElementById('multiple-labs-table');
         results = response.result;
+
         if (results.length > 0) {
             validReports = 0;
 
@@ -217,34 +244,42 @@ require([
     }
 
     function getBootDataFail() {
-        html.replaceByClassNode('loading-content', html.nonavail());
+        setTimeout(
+            html.replaceByClassNode('loading-content', html.nonavail()), 0);
     }
 
     function getCompareData(response) {
-        var childNode,
-            createdOn,
-            deferred,
-            loadingNode,
-            requestData,
-            result;
+        var childNode;
+        var createdOn;
+        var deferred;
+        var docFrag;
+        var loadingNode;
+        var requestData;
+        var result;
+        var templateNode;
 
         result = response.result;
         loadingNode = document.getElementById('boot-reports-compared-to-load');
 
-        childNode = document.createElement('i');
+        docFrag = document.createDocumentFragment();
+
+        childNode = docFrag.appendChild(document.createElement('i'));
         childNode.className = 'fa fa-cog fa-spin';
 
-        html.removeChildren(loadingNode);
-        loadingNode.appendChild(childNode);
-        loadingNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        // Needed to insert HTML text.
+        templateNode = document.createElement('template');
+        templateNode.innerHTML = 'nbsp;';
 
-        childNode = document.createElement('small');
+        docFrag.appendChild(templateNode.content);
+
+        childNode = docFrag.appendChild(document.createElement('small'));
         childNode.id = 'boot-reports-loading-content';
         childNode.appendChild(
             document.createTextNode('searching similar boot reports'));
         childNode.insertAdjacentHTML('beforeend', '&hellip;');
 
-        loadingNode.appendChild(childNode);
+        setTimeout(html.removeChildren(loadingNode), 0);
+        setTimeout(html.replaceContent(loadingNode, docFrag), 0);
 
         requestData = {
             board: gBoardName,
@@ -260,8 +295,33 @@ require([
             requestData.created_on = createdOn.toCustomISODate();
         }
 
+        // Compare to LSK, if it is not LSK.
+        if (gJobName !== 'lsk') {
+            setTimeout(
+                html.removeClass(
+                    document.getElementById('compare-to-lsk-div'), 'hidden'),
+                0);
+
+            requestData.job = 'lsk';
+            deferred = r.get('/_ajax/boot', requestData);
+
+            $.when(deferred)
+                .fail(e.error, getCompareToLskFail)
+                .done(getCompareToLskDone);
+        } else {
+            setTimeout(
+                html.removeElement(
+                    document.getElementById('compare-to-lsk-div')), 0);
+        }
+
         // Compare to mainline, if it is not mainline.
         if (gJobName !== 'mainline') {
+            setTimeout(
+                html.removeClass(
+                    document
+                        .getElementById('compare-to-mainline-div'), 'hidden'),
+                0);
+
             requestData.job = 'mainline';
             deferred = r.get('/_ajax/boot', requestData);
 
@@ -269,12 +329,18 @@ require([
                 .fail(e.error, getCompareToMainlineFail)
                 .done(getCompareToMainlineDone);
         } else {
-            html.removeElement(
-                document.getElementById('compare-to-mainline-div'));
+            setTimeout(
+                html.removeElement(
+                    document.getElementById('compare-to-mainline-div')), 0);
         }
 
         // Compare to next, if it is not next.
         if (gJobName !== 'next') {
+            setTimeout(
+                html.removeClass(
+                    document.getElementById('compare-to-next-div'), 'hidden'),
+                0);
+
             requestData.job = 'next';
             deferred = r.get('/_ajax/boot', requestData);
 
@@ -282,8 +348,9 @@ require([
                 .fail(e.error, getCompareToNextFail)
                 .done(getCompareToNextDone);
         } else {
-            html.removeElement(
-                document.getElementById('compare-to-next-div'));
+            setTimeout(
+                html.removeElement(
+                    document.getElementById('compare-to-next-div')), 0);
         }
     }
 
@@ -296,8 +363,8 @@ require([
     }
 
     function getBisectToMainline(bisectData, bBootId) {
-        var deferred,
-            settings;
+        var deferred;
+        var settings;
 
         settings = {
             showHideID: 'bootb-compare-showhide',
@@ -332,9 +399,9 @@ require([
     }
 
     function getBisectCompareTo(response) {
-        var bisectData,
-            bBootId,
-            result;
+        var bisectData;
+        var bBootId;
+        var result;
 
         result = response.result;
         if (result.length > 0) {
@@ -364,10 +431,10 @@ require([
     }
 
     function getBisectData(response) {
-        var deferred,
-            lBootId,
-            result,
-            settings;
+        var deferred;
+        var lBootId;
+        var result;
+        var settings;
 
         lBootId = gBootId;
         result = response.result[0];
@@ -412,13 +479,13 @@ require([
     }
 
     function _createModal(data) {
-        var buttonNode,
-            divNode,
-            hNode,
-            modalBody,
-            modalContent,
-            modalDivNode,
-            modalHeader;
+        var buttonNode;
+        var divNode;
+        var hNode;
+        var modalBody;
+        var modalContent;
+        var modalDivNode;
+        var modalHeader;
 
         divNode = document.createElement('div');
         divNode.className = 'modal fade';
@@ -468,18 +535,18 @@ require([
     }
 
     function _createQemuCommand(data, command) {
-        var bodyNode,
-            ddNode,
-            divNode,
-            dlNode,
-            dtNode,
-            hNode,
-            headerNode,
-            iNode,
-            rowNode,
-            spanNode,
-            textareaNode,
-            tooltipNode;
+        var bodyNode;
+        var ddNode;
+        var divNode;
+        var dlNode;
+        var dtNode;
+        var hNode;
+        var headerNode;
+        var iNode;
+        var rowNode;
+        var spanNode;
+        var textareaNode;
+        var tooltipNode;
 
         divNode = document.createElement('div');
         divNode.id = 'qemu-details';
@@ -564,39 +631,39 @@ require([
     }
 
     function getBootDataDone(response) {
-        var aNode,
-            arch,
-            board,
-            boardInstance,
-            bootLog,
-            bootTime,
-            buildId,
-            createdOn,
-            defconfigFull,
-            dtb,
-            dtbAddr,
-            endianness,
-            initrdAddr,
-            job,
-            kernel,
-            kernelImage,
-            lab,
-            loadAddr,
-            pathURI,
-            qemuCommand,
-            qemuData,
-            result,
-            resultDescription,
-            serverResource,
-            serverURI,
-            serverURL,
-            smallNode,
-            soc,
-            spanNode,
-            statusNode,
-            tooltipNode,
-            translatedURI,
-            warnings;
+        var aNode;
+        var arch;
+        var board;
+        var boardInstance;
+        var bootLog;
+        var bootTime;
+        var buildId;
+        var createdOn;
+        var defconfigFull;
+        var dtb;
+        var dtbAddr;
+        var endianness;
+        var initrdAddr;
+        var job;
+        var kernel;
+        var kernelImage;
+        var lab;
+        var loadAddr;
+        var pathURI;
+        var qemuCommand;
+        var qemuData;
+        var result;
+        var resultDescription;
+        var serverResource;
+        var serverURI;
+        var serverURL;
+        var smallNode;
+        var soc;
+        var spanNode;
+        var statusNode;
+        var tooltipNode;
+        var translatedURI;
+        var warnings;
 
         result = response.result[0];
         bootTime = new Date(result.time.$date);
@@ -949,8 +1016,8 @@ require([
     }
 
     function getBootData() {
-        var data,
-            deferred;
+        var data;
+        var deferred;
 
         if (gBootId) {
             data = {
@@ -997,8 +1064,8 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    getBootData();
-    getMultiLabData();
+    setTimeout(getBootData(), 0);
+    setTimeout(getMultiLabData(), 0);
 
     init.hotkeys();
     init.tooltip();
