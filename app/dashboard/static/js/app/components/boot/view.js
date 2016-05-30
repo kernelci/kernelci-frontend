@@ -239,7 +239,7 @@ define([
                 filterClass = 'df-unknown';
                 break;
         }
-        html.addClass(statusNode, 'pull-right');
+        html.addClass(statusNode.firstElementChild, 'pull-right');
 
         panelNode = document.createElement('div');
         panelNode.className = 'panel panel-default searchable ' +

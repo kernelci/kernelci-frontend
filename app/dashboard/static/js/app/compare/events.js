@@ -348,6 +348,7 @@ define([
         var bucketContainer;
         var dataBucket;
         var dataCache;
+        var node;
         var notifyNode;
         var option;
         var results;
@@ -389,10 +390,11 @@ define([
             html.removeChildren(notifyNode);
 
             warningNode = html.unknown();
-            warningNode.setAttribute('data-toggle', 'popover');
-            warningNode.setAttribute('data-container', 'body');
-            warningNode.setAttribute('data-title', options.dataTitle);
-            warningNode.setAttribute('data-content', options.dataContent);
+            node = warningNode.firstElementChild;
+            node.setAttribute('data-toggle', 'popover');
+            node.setAttribute('data-container', 'body');
+            node.setAttribute('data-title', options.dataTitle);
+            node.setAttribute('data-content', options.dataContent);
 
             notifyNode.appendChild(warningNode);
 
@@ -413,27 +415,29 @@ define([
     function getValuesFail(status, options) {
         var failNode;
         var notifyNode;
+        var node;
 
         notifyNode = document.getElementById(options.element.id + '-notify');
         html.removeChildren(notifyNode);
 
         failNode = html.fail();
-        failNode.setAttribute('data-toggle', 'popover');
-        failNode.setAttribute('data-container', 'body');
+        node = failNode.firstElementChild;
+        node.setAttribute('data-toggle', 'popover');
+        node.setAttribute('data-container', 'body');
 
         switch (status) {
             case 400:
-                failNode.setAttribute('data-title', 'Wrong data');
-                failNode.setAttribute(
+                node.setAttribute('data-title', 'Wrong data');
+                node.setAttribute(
                     'data-content', options.status['400'].content);
                 break;
             case 404:
-                failNode.setAttribute('data-title', 'Value not found');
-                failNode.setAttribute(
+                node.setAttribute('data-title', 'Value not found');
+                node.setAttribute(
                     'data-content', options.status['404'].content);
                 break;
             default:
-                failNode.setAttribute(
+                node.setAttribute(
                     'data-content', 'Error retrieving values');
                 break;
         }
@@ -528,13 +532,16 @@ define([
     **/
     function wrongValue(element, title, content) {
         var failNode;
+        var node;
 
         html.removeChildren(element);
+
         failNode = html.fail();
-        failNode.setAttribute('data-toggle', 'popover');
-        failNode.setAttribute('data-container', 'body');
-        failNode.setAttribute('data-title', title);
-        failNode.setAttribute('data-content', content);
+        node = failNode.firstElementChild;
+        node.setAttribute('data-toggle', 'popover');
+        node.setAttribute('data-container', 'body');
+        node.setAttribute('data-title', title);
+        node.setAttribute('data-content', content);
 
         element.appendChild(failNode);
 
@@ -709,6 +716,7 @@ define([
     function customValidity(element) {
         var failNode;
         var isValid;
+        var node;
         var notifyNode;
 
         isValid = true;
@@ -718,19 +726,20 @@ define([
             html.removeChildren(notifyNode);
 
             failNode = html.fail();
-            failNode.setAttribute('data-toggle', 'popover');
-            failNode.setAttribute('data-container', 'body');
+            node = failNode.firstElementChild;
+            node.setAttribute('data-toggle', 'popover');
+            node.setAttribute('data-container', 'body');
 
             if (element.validity.valueMissing) {
-                failNode.setAttribute('data-title', 'Required field');
-                failNode.setAttribute(
+                node.setAttribute('data-title', 'Required field');
+                node.setAttribute(
                     'data-content', 'Please fill out this field');
             } else if (element.validity.patternMismatch) {
-                failNode.setAttribute('data-title', gNonValidValue);
-                failNode.setAttribute(
+                node.setAttribute('data-title', gNonValidValue);
+                node.setAttribute(
                     'data-content', 'Please provide another value');
             } else {
-                failNode.setAttribute('data-content', 'Wrong value');
+                node.setAttribute('data-content', 'Wrong value');
             }
 
             notifyNode.appendChild(failNode);

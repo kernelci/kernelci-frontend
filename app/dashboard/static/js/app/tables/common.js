@@ -254,10 +254,8 @@ define([
 
         if (date) {
             if (type === 'display') {
-                node = _dateNode(date);
+                node = _dateNode(date).firstElementChild;
                 rendered = node.outerHTML;
-                // Remove the node.
-                node.remove();
             } else {
                 created = new Date(date.$date);
                 rendered = created.toCustomISODate();
@@ -265,10 +263,8 @@ define([
         } else {
             rendered = date;
             if (type === 'display') {
-                node = html.nonavail();
+                node = html.nonavail().firstElementChild;
                 rendered = node.outerHTML;
-                // Remove the node.
-                node.remove();
             }
         }
 
