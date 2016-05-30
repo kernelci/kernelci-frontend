@@ -50,89 +50,109 @@ define([
     };
 
     html.boot = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-hdd-o';
 
-        return iNode;
+        return frag;
     };
 
     html.external = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-external-link';
 
-        return iNode;
+        return frag;
     };
 
     html.search = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-search';
 
-        return iNode;
+        return frag;
     };
 
     html.tree = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-sitemap';
 
-        return iNode;
+        return frag;
     };
 
     html.build = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-cube';
 
-        return iNode;
+        return frag;
     };
 
     html.soc = function() {
+        var frag;
         var iNode;
 
-        iNode = document.createElement('i');
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-server';
 
-        return iNode;
+        return frag;
     };
 
     html.nonavail = function() {
-        var tooltipNode,
-            iNode;
+        var child;
+        var frag;
+        var tooltip;
 
-        tooltipNode = document.createElement('span');
-        tooltipNode.setAttribute('title', 'Not available');
-        tooltipNode.setAttribute('rel', 'tooltip');
-        tooltipNode.setAttribute('data-toggle', 'tooltip');
+        frag = document.createDocumentFragment();
 
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-ban';
+        tooltip = frag.appendChild(document.createElement('span'));
+        tooltip.setAttribute('title', 'Not available');
+        tooltip.setAttribute('rel', 'tooltip');
+        tooltip.setAttribute('data-toggle', 'tooltip');
 
-        tooltipNode.appendChild(iNode);
+        child = tooltip.appendChild(document.createElement('i'));
+        child.className = 'fa fa-ban';
 
-        return tooltipNode;
+        return frag;
     };
 
     html.errorDiv = function(text) {
-        var divNode,
-            strongNode;
+        var divNode;
+        var frag;
+        var strongNode;
 
-        divNode = document.createElement('div');
+        frag = document.createDocumentFragment();
+
+        divNode = frag.appendChild(document.createElement('div'));
         divNode.className = 'pull-center';
 
-        strongNode = document.createElement('strong');
+        strongNode = divNode.appendChild(document.createElement('strong'));
         strongNode.appendChild(document.createTextNode(text));
 
-        divNode.appendChild(strongNode);
-
-        return divNode;
+        return frag;
     };
 
     html.building = function() {
