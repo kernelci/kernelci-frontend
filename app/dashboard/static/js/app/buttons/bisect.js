@@ -5,10 +5,10 @@ define([
     'sprintf'
 ], function($, html) {
     'use strict';
-    var gBisectButtons,
-        gDom,
-        gStrings,
-        gTableColSpan;
+    var gBisectButtons;
+    var gDom;
+    var gStrings;
+    var gTableColSpan;
 
     // The number of columns in the bisect table.
     gTableColSpan = 4;
@@ -82,12 +82,13 @@ define([
      * @param {Event} event: The event that triggers the function.
     **/
     gBisectButtons.showHideEvent = function(event) {
-        var compared,
-            element,
-            elementId,
-            parent,
-            smallNode,
-            title;
+        var compared;
+        var element;
+        var elementId;
+        var frag;
+        var parent;
+        var smallNode;
+        var title;
 
         element = event.target || event.srcElement;
         parent = element.parentNode;
@@ -102,7 +103,8 @@ define([
             html.addClass(document.getElementById(
                 element.getAttribute('data-sh')), 'hidden');
 
-            smallNode = document.createElement('small');
+            frag = document.createDocumentFragment();
+            smallNode = frag.appendChild(document.createElement('small'));
             if (compared === 'null') {
                 smallNode.insertAdjacentHTML(
                     'beforeend', gStrings.bisect_hidden_text);
@@ -116,8 +118,7 @@ define([
             }
 
             html.replaceContent(
-                document.getElementById('view-' + elementId),
-                smallNode);
+                document.getElementById('view-' + elementId), frag);
         } else {
             if (compared === 'null') {
                 title = gStrings.bisect_hide_tooltip;
@@ -150,11 +151,14 @@ define([
      * @return {string} The HTML of the buttons.
     **/
     gBisectButtons.plusMinButton = function(rows, tableId, compared) {
-        var buttonNode,
-            dataType,
-            divNode,
-            minusId,
-            plusId;
+        var buttonNode;
+        var dataType;
+        var divNode;
+        var frag;
+        var minusId;
+        var plusId;
+
+        frag = document.createDocumentFragment();
 
         plusId = gDom.plus_id;
         minusId = gDom.minus_id;
@@ -166,11 +170,11 @@ define([
             minusId = gDom.minus_c_id;
         }
 
-        divNode = document.createElement('div');
+        divNode = frag.appendChild(document.createElement('div'));
         divNode.className = 'btn-group btn-group-sm';
         divNode.setAttribute('role', 'group');
 
-        buttonNode = document.createElement('button');
+        buttonNode = divNode.appendChild(document.createElement('button'));
         buttonNode.id = minusId;
         buttonNode.type = 'button';
         buttonNode.title = 'Show less bisect results';
@@ -182,9 +186,7 @@ define([
         // The - sign.
         buttonNode.insertAdjacentHTML('beforeend', '&#8722;');
 
-        divNode.appendChild(buttonNode);
-
-        buttonNode = document.createElement('button');
+        buttonNode = divNode.appendChild(document.createElement('button'));
         buttonNode.id = plusId;
         buttonNode.type = 'button';
         buttonNode.title = 'Show more bisect results';
@@ -196,9 +198,7 @@ define([
         // The + sign.
         buttonNode.insertAdjacentHTML('beforeend', '&#43;');
 
-        divNode.appendChild(buttonNode);
-
-        return divNode;
+        return frag;
     };
 
     /**
@@ -212,18 +212,19 @@ define([
      * @param {Event} event: The triggering event.
     **/
     gBisectButtons.lessRowsEvent = function(event) {
-        var bisectType,
-            element,
-            hiddenClass,
-            minusId,
-            newCell,
-            newRow,
-            plusId,
-            rowId,
-            rows,
-            smallNode,
-            tableRef,
-            toShow;
+        var bisectType;
+        var element;
+        var frag;
+        var hiddenClass;
+        var minusId;
+        var newCell;
+        var newRow;
+        var plusId;
+        var rowId;
+        var rows;
+        var smallNode;
+        var tableRef;
+        var toShow;
 
         element = event.target || event.srcElement;
 
@@ -245,12 +246,11 @@ define([
             minusId = gDom.minus_c_id;
         }
 
-        [].forEach.call(
+        Array.prototype.forEach.call(
             tableRef.querySelectorAll('tbody > tr'),
             function(row) {
                 if (toShow.indexOf(row.rowIndex) === -1) {
-                    html.addClass(row, 'hidden');
-                    html.addClass(row, hiddenClass);
+                    html.addClasses(row, ['hidden', hiddenClass]);
                 }
             }
         );
@@ -258,18 +258,19 @@ define([
         document.getElementById(plusId).removeAttribute('disabled');
         document.getElementById(minusId).setAttribute('disabled', 'disable');
 
-        newRow = tableRef.insertRow(3);
-        newRow.id = rowId;
-        newCell = newRow.insertCell();
+        frag = document.createDocumentFragment();
+        newCell = frag.appendChild(document.createElement('td'));
         newCell.colSpan = gTableColSpan;
         newCell.className = 'pull-center';
 
-        smallNode = document.createElement('small');
+        smallNode = newCell.appendChild(document.createElement('small'));
         smallNode.insertAdjacentHTML(
             'beforeend',
             sprintf(gStrings.bisect_rows_hidden_text, (rows - 4), rows));
 
-        newCell.appendChild(smallNode);
+        newRow = tableRef.insertRow(3);
+        newRow.id = rowId;
+        newRow.appendChild(frag);
     };
 
     /**
@@ -280,11 +281,11 @@ define([
      * @param {Event} event: The triggering event.
     **/
     gBisectButtons.moreRowsEvent = function(event) {
-        var element,
-            minusId,
-            plusId,
-            rowClass,
-            rowId;
+        var element;
+        var minusId;
+        var plusId;
+        var rowClass;
+        var rowId;
 
         element = event.target || event.srcElement;
 
@@ -301,7 +302,7 @@ define([
         }
 
         html.removeElement(document.getElementById(rowId));
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName(rowClass), removeHidden);
         document.getElementById(minusId).removeAttribute('disabled');
         document.getElementById(plusId).setAttribute('disabled', 'disable');
@@ -319,13 +320,15 @@ define([
     **/
     gBisectButtons.showHideButton = function(
             elementId, targetId, action, compareTo) {
-        var classes,
-            iNode,
-            title,
-            tooltipNode;
+        var classes;
+        var frag;
+        var iNode;
+        var title;
+        var tooltipNode;
 
         classes = gStrings.show_class;
         title = gStrings.bisect_show_tooltip;
+        frag = document.createDocumentFragment();
 
         if (action === 'show' && compareTo) {
             title = sprintf(gStrings.bisect_c_show_tooltip, compareTo);
@@ -340,10 +343,10 @@ define([
             }
         }
 
-        tooltipNode = html.tooltip();
+        tooltipNode = frag.appendChild(html.tooltip());
         tooltipNode.setAttribute('title', title);
 
-        iNode = document.createElement('i');
+        iNode = tooltipNode.appendChild(document.createElement('i'));
         iNode.setAttribute('data-action', action);
         iNode.setAttribute('data-id', elementId);
         iNode.setAttribute('data-sh', targetId);
@@ -351,9 +354,7 @@ define([
         iNode.className = 'bisect-click-btn';
         html.addClasses(iNode, classes);
 
-        tooltipNode.appendChild(iNode);
-
-        return tooltipNode;
+        return frag;
     };
 
     return gBisectButtons;
