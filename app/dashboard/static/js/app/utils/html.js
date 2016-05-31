@@ -318,21 +318,21 @@ define([
     };
 
     html.replaceContent = function(element, child) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element) {
                 _cleanElementChildren(element);
                 element.appendChild(child);
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     html.replaceContentHTML = function(element, replacement) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element) {
                 _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', replacement);
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     /**
@@ -381,11 +381,11 @@ define([
      * @param {string} className: The name of the class to add.
     **/
     html.addClass = function(element, className) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element) {
                 _addClass(element, className);
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     /**
@@ -425,21 +425,21 @@ define([
      * @param {string} className: The name of the class to add.
     **/
     html.removeClass = function(element, className) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element) {
                 _removeClass(element, className);
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     html.removeClasses = function(element, classes) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element) {
                 classes.forEach(function(className) {
                     _removeClass(element, className);
                 });
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     /**
@@ -477,11 +477,11 @@ define([
     };
 
     html.removeElement = function(element) {
-        if (element) {
-            setTimeout(function() {
+        setTimeout(function() {
+            if (element && element.parentElement) {
                 element.parentElement.removeChild(element);
-            }, 0);
-        }
+            }
+        }, 0);
     };
 
     html.sliceText = function(text, max) {
