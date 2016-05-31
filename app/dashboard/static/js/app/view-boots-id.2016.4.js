@@ -27,19 +27,24 @@ require([
 
     function _tableMessage(table, text) {
         var cellNode;
+        var frag;
         var rowNode;
         var strongNode;
 
-        rowNode = table.insertRow(-1);
+        frag = document.createDocumentFragment();
+        rowNode = frag.appendChild(document.createElement('tr'));
+
         cellNode = rowNode.insertCell(-1);
         cellNode.colSpan = 6;
         cellNode.className = 'pull-center';
-        strongNode = document.createElement('strong');
+
+        strongNode = cellNode.appendChild(document.createElement('strong'));
         strongNode.appendChild(document.createTextNode(text));
-        cellNode.appendChild(strongNode);
+
+        table.tBodies[0].appendChild(frag);
     }
 
-    function addBootTableRow(data, table) {
+    function addBootTableRow(data, docFrag) {
         var arch;
         var cellNode;
         var defconfigFull;
@@ -76,8 +81,7 @@ require([
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
 
-        // TODO: use DocumentFragment.
-        rowNode = table.insertRow(-1);
+        rowNode = docFrag.appendChild(document.createElement('tr'));
 
         // Lab.
         cellNode = rowNode.insertCell(-1);
@@ -118,16 +122,20 @@ require([
     }
 
     function generalCompareToTable(response, tableId) {
+        var docFrag;
         var results;
         var table;
 
-        table = document.getElementById(tableId);
         results = response.result;
-
         if (results.length > 0) {
+            table = document.getElementById(tableId);
+            docFrag = document.createDocumentFragment();
+
             results.forEach(function(result) {
-                addBootTableRow(result, table);
+                addBootTableRow(result, docFrag);
             });
+
+            table.tBodies[0].appendChild(docFrag);
         } else {
             _tableMessage(table, 'No results found.');
         }
@@ -174,25 +182,29 @@ require([
     }
 
     function getMultiLabDataDone(response) {
+        var docFrag;
         var results;
         var table;
         var validReports;
 
-        table = document.getElementById('multiple-labs-table');
         results = response.result;
-
         if (results.length > 0) {
             validReports = 0;
+
+            table = document.getElementById('multiple-labs-table');
+            docFrag = document.createDocumentFragment();
 
             results.forEach(function(result) {
                 if (result.lab_name !== gLabName) {
                     validReports = validReports + 1;
-                    addBootTableRow(result, table);
+                    addBootTableRow(result, docFrag);
                 }
             });
 
             if (validReports === 0) {
                 _tableMessage(table, 'No similar boot reports found.');
+            } else {
+                table.tBodies[0].appendChild(docFrag);
             }
         } else {
             _tableMessage(table, 'No data available.');
@@ -450,57 +462,48 @@ require([
     function _createModal(data) {
         var buttonNode;
         var divNode;
+        var frag;
         var hNode;
         var modalBody;
         var modalContent;
         var modalDivNode;
         var modalHeader;
 
-        divNode = document.createElement('div');
+        frag = document.createDocumentFragment();
+
+        divNode = frag.appendChild(document.createElement('div'));
         divNode.className = 'modal fade';
         divNode.setAttribute('tabindex', '-1');
         divNode.setAttribute('role', 'dialog');
         divNode.setAttribute('aria-hidden', true);
         divNode.id = data.id;
 
-        modalDivNode = document.createElement('div');
-        // modalDivNode.className = 'modal-dialog modal-lg larger-modal';
+        modalDivNode = divNode.appendChild(document.createElement('div'));
         modalDivNode.className = 'modal-dialog modal-lg';
 
-        modalContent = document.createElement('div');
+        modalContent = modalDivNode.appendChild(document.createElement('div'));
         modalContent.className = 'modal-content';
 
-        modalHeader = document.createElement('div');
+        modalHeader = modalContent.appendChild(document.createElement('div'));
         modalHeader.className = 'modal-header';
 
-        buttonNode = document.createElement('button');
+        buttonNode = modalHeader.appendChild(document.createElement('button'));
         buttonNode.setAttribute('type', 'button');
         buttonNode.className = 'close';
         buttonNode.setAttribute('data-dismiss', 'modal');
         buttonNode.setAttribute('aria-hidden', true);
         buttonNode.insertAdjacentHTML('beforeend', '&times;');
 
-        modalHeader.appendChild(buttonNode);
-
-        hNode = document.createElement('h3');
+        hNode = modalHeader.appendChild(document.createElement('h3'));
         hNode.className = 'modal-title';
         hNode.id = data.id + '-title';
         hNode.insertAdjacentHTML('beforeend', data.title);
 
-        modalHeader.appendChild(hNode);
-        modalContent.appendChild(modalHeader);
-
-        modalBody = document.createElement('div');
+        modalBody = modalContent.appendChild(document.createElement('div'));
         modalBody.className = 'modal-body';
-
         modalBody.appendChild(data.body);
 
-        modalContent.appendChild(modalBody);
-
-        modalDivNode.appendChild(modalContent);
-        divNode.appendChild(modalDivNode);
-
-        return divNode;
+        return frag;
     }
 
     function _createQemuCommand(data, command) {
@@ -509,94 +512,83 @@ require([
         var divNode;
         var dlNode;
         var dtNode;
+        var fragNode;
         var hNode;
         var headerNode;
         var iNode;
+        var qemuFrag;
         var rowNode;
         var spanNode;
         var textareaNode;
         var tooltipNode;
 
-        divNode = document.createElement('div');
+        qemuFrag = document.createDocumentFragment();
+        divNode = qemuFrag.appendChild(document.createElement('div'));
         divNode.id = 'qemu-details';
         divNode.className = 'row';
 
-        headerNode = document.createElement('div');
+        headerNode = divNode.appendChild(document.createElement('div'));
         headerNode.className = 'page-header';
 
-        hNode = document.createElement('h4');
+        hNode = headerNode.appendChild(document.createElement('h4'));
         hNode.appendChild(document.createTextNode('Qemu details'));
-        headerNode.appendChild(hNode);
-        divNode.appendChild(headerNode);
 
-        rowNode = document.createElement('div');
+        rowNode = divNode.appendChild(document.createElement('div'));
         rowNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
 
-        dlNode = document.createElement('dl');
+        dlNode = rowNode.appendChild(document.createElement('dl'));
         dlNode.className = 'dl-horizontal';
 
-        dtNode = document.createElement('dt');
+        dtNode = dlNode.appendChild(document.createElement('dt'));
         dtNode.appendChild(document.createTextNode('Binary'));
-        ddNode = document.createElement('dd');
+        ddNode = dlNode.appendChild(document.createElement('dd'));
         ddNode.appendChild(document.createTextNode(data));
 
-        dlNode.appendChild(dtNode);
-        dlNode.appendChild(ddNode);
-
         if (command) {
-            dtNode = document.createElement('dt');
+            dtNode = dlNode.appendChild(document.createElement('dt'));
             dtNode.appendChild(document.createTextNode('Command'));
-            ddNode = document.createElement('dd');
+            ddNode = dlNode.appendChild(document.createElement('dd'));
 
-            spanNode = document.createElement('span');
+            spanNode = ddNode.appendChild(document.createElement('span'));
 
             if (command.length > 75) {
+                ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
                 spanNode.appendChild(
                     document.createTextNode(
                         command.slice(0, 75).trimRight()));
 
                 spanNode.insertAdjacentHTML('beforeend', '&hellip;');
 
-                tooltipNode = html.tooltip();
+                tooltipNode = ddNode.appendChild(html.tooltip());
                 tooltipNode.setAttribute('title', 'View qemu command');
                 tooltipNode.className = 'pointer details';
-                iNode = document.createElement('i');
+                iNode = tooltipNode.appendChild(document.createElement('i'));
                 iNode.className = 'fa fa-eye';
                 iNode.setAttribute('data-toggle', 'modal');
                 iNode.setAttribute('data-target', '#qemu-command');
 
-                tooltipNode.appendChild(iNode);
-
-                ddNode.appendChild(spanNode);
-                ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                ddNode.appendChild(tooltipNode);
-
-                bodyNode = document.createElement('div');
+                fragNode = document.createDocumentFragment();
+                bodyNode = fragNode.appendChild(document.createElement('div'));
                 bodyNode.className = 'qemu-command';
 
-                textareaNode = document.createElement('textarea');
+                textareaNode = bodyNode.appendChild(
+                    document.createElement('textarea'));
                 textareaNode.setAttribute('readonly', true);
                 textareaNode.className = 'form-control';
                 textareaNode.appendChild(document.createTextNode(command));
 
-                bodyNode.appendChild(textareaNode);
-
                 divNode.appendChild(_createModal({
                     id: 'qemu-command',
                     title: 'Qemu Command',
-                    body: bodyNode
+                    body: fragNode
                 }));
             } else {
                 spanNode.appendChild(document.createTextNode(command));
-                ddNode.appendChild(spanNode);
             }
-
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
         }
 
-        divNode.appendChild(dlNode);
-        return divNode;
+        return qemuFrag;
     }
 
     function getBootDataDone(response) {
