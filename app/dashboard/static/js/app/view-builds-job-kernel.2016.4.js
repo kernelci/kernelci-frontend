@@ -748,7 +748,7 @@ require([
             gitURL = localResult.git_url;
             gitCommit = localResult.git_commit;
             tURLs = u.translateCommit(gitURL, gitCommit);
-            createdOn = localResult.created_on;
+            createdOn = new Date(localResult.created_on.$date);
 
             spanNode = html.tooltip();
             spanNode.setAttribute('title', 'Details for tree ' + gJobName);
@@ -854,8 +854,13 @@ require([
                 }
             }
 
+            spanNode = document.createElement('time');
+            spanNode.setAttribute('datetime', createdOn.toISOString());
+            spanNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODateTime()));
+
             html.replaceContent(
-                document.getElementById('build-date'), html.time(createdOn));
+                document.getElementById('build-date'), spanNode);
         }
     }
 
