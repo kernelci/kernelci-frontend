@@ -76,6 +76,7 @@ require([
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
 
+        // TODO: use DocumentFragment.
         rowNode = table.insertRow(-1);
 
         // Lab.
@@ -135,50 +136,32 @@ require([
     }
 
     function getCompareToLskFail() {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         html.replaceContent(
             document.getElementById('compare-to-lsk-div'),
             html.errorDiv('Error retrieving data compared to lsk.'));
     }
 
     function getCompareToLskDone(response) {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         generalCompareToTable(response, 'compare-to-lsk-table');
     }
 
     function getCompareToNextFail() {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         html.replaceContent(
             document.getElementById('compare-to-next-div'),
             html.errorDiv('Error retrieving data compared to next.'));
     }
 
     function getCompareToNextDone(response) {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         generalCompareToTable(response, 'compare-to-next-table');
     }
 
     function getCompareToMainlineFail() {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         html.replaceContent(
             document.getElementById('compare-to-mainline-div'),
             html.errorDiv('Error retrieving data compared to mainline.'));
     }
 
     function getCompareToMainlineDone(response) {
-        html.removeElement(
-            document.getElementById('boot-reports-compared-to-load'));
-
         generalCompareToTable(response, 'compare-to-mainline-table');
     }
 
@@ -261,7 +244,7 @@ require([
 
         // Needed to insert HTML text.
         templateNode = document.createElement('template');
-        templateNode.innerHTML = 'nbsp;';
+        templateNode.innerHTML = '&nbsp;';
 
         docFrag.appendChild(templateNode.content);
 
@@ -335,6 +318,9 @@ require([
             html.removeElement(
                 document.getElementById('compare-to-next-div'));
         }
+
+        html.removeElement(
+            document.getElementById('boot-reports-compared-to-load'));
     }
 
     function getBisectCompareToMainlineFail() {
