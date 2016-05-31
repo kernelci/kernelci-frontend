@@ -644,8 +644,8 @@ require([
     gSessionStorage = storage('boot-' + gJob + '-' + gKernel);
     gResultFilter = filter('data-filter');
 
-    getJob();
-    registerEvents();
+    setTimeout(registerEvents, 0);
+    setTimeout(getJob, 0);
 
     init.hotkeys();
     init.tooltip();

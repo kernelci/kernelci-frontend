@@ -6,9 +6,9 @@ define([
     'sprintf'
 ], function(html, btns, urls) {
     'use strict';
-    var gMaxElements,
-        gStrings,
-        kciBisect;
+    var gMaxElements;
+    var gStrings;
+    var kciBisect;
 
     // How many rows are too many?
     gMaxElements = 6;
@@ -82,15 +82,15 @@ define([
     }
 
     function bindEvents() {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName('bisect-pm-btn-less'),
             _bindShowLess);
 
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName('bisect-pm-btn-more'),
             _bindShowMore);
 
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName('bisect-click-btn'), _bindBisect);
     }
 
@@ -106,9 +106,9 @@ define([
     };
 
     kciBisect.createDefaultSummary = function(bad, good, type) {
-        var aNode,
-            iNode,
-            spanNode;
+        var aNode;
+        var iNode;
+        var spanNode;
 
         // The bad commit.
         spanNode = document.createElement('span');
@@ -174,16 +174,16 @@ define([
     };
 
     kciBisect.createComparedSummary = function(type, commits) {
-        var aNode,
-            iNode,
-            otherCommitDate,
-            otherCommitsArray,
-            prevBadCommit,
-            prevCommitInserted,
-            prevData,
-            prevGoodCommit,
-            prevGoodCommitDate,
-            spanNode;
+        var aNode;
+        var iNode;
+        var otherCommitDate;
+        var otherCommitsArray;
+        var prevBadCommit;
+        var prevCommitInserted;
+        var prevData;
+        var prevGoodCommit;
+        var prevGoodCommitDate;
+        var spanNode;
 
         otherCommitsArray = [];
 
@@ -256,22 +256,23 @@ define([
         return this;
     };
 
+    // TODO: rework using DocumentFragment.
     kciBisect.parseData = function(data, type, job) {
-        var aNode,
-            bisectStatus,
-            board,
-            cellNode,
-            defconfigFull,
-            docId,
-            gitCommit,
-            gitDescribe,
-            gitURL,
-            gitURLs,
-            goodCommit,
-            lab,
-            rowNode,
-            spanNode,
-            tooltipNode;
+        var aNode;
+        var bisectStatus;
+        var board;
+        var cellNode;
+        var defconfigFull;
+        var docId;
+        var gitCommit;
+        var gitDescribe;
+        var gitURL;
+        var gitURLs;
+        var goodCommit;
+        var lab;
+        var rowNode;
+        var spanNode;
+        var tooltipNode;
 
         gitDescribe = data.git_describe;
         defconfigFull = data.defconfig_full;
@@ -388,19 +389,19 @@ define([
     };
 
     kciBisect.draw = function() {
-        var divNode,
-            spanNode,
-            result,
-            bisectData,
-            bisectLength,
-            bisectType,
-            job,
-            compareTo,
-            goodCommit,
-            aNode,
-            smallNode,
-            pNode,
-            compareGoodCommits;
+        var aNode;
+        var bisectData;
+        var bisectLength;
+        var bisectType;
+        var compareGoodCommits;
+        var compareTo;
+        var divNode;
+        var goodCommit;
+        var job;
+        var pNode;
+        var result;
+        var smallNode;
+        var spanNode;
 
         result = this.data.result[0];
         bisectType = result.type;
@@ -489,12 +490,14 @@ define([
 
                 document.getElementById(this.tableDivID)
                     .appendChild(divNode);
-
             }
 
-            bindEvents();
+            setTimeout(bindEvents, 0);
             if (bisectLength > gMaxElements) {
-                btns.minusClick(this.isCompared);
+                var self = this;
+                setTimeout(function() {
+                    btns.minusClick(self.isCompared);
+                }, 0);
             }
         }
 
@@ -506,8 +509,8 @@ define([
     };
 
     var gBisect = function(settings) {
-        var key,
-            newObject;
+        var key;
+        var newObject;
 
         newObject = Object.create(kciBisect);
         if (settings) {

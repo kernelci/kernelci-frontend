@@ -21,11 +21,11 @@ require([
         e,
         r, u, commonBtns, buildBtns, chart, html, storage, session, filter) {
     'use strict';
-    var gFileServer,
-        gJobName,
-        gKernelName,
-        gResultFilter,
-        gSessionStorage;
+    var gFileServer;
+    var gJobName;
+    var gKernelName;
+    var gResultFilter;
+    var gSessionStorage;
 
     document.getElementById('li-build').setAttribute('class', 'active');
 
@@ -64,51 +64,51 @@ require([
     }
 
     function getBuildsDone(response) {
-        var aNode,
-            accordionElement,
-            arch,
-            archLabelNode,
-            cls,
-            colNode,
-            collapseBodyNode,
-            collapseId,
-            collapseNode,
-            ddNode,
-            defconfigFull,
-            dlNode,
-            docId,
-            dtNode,
-            errNode,
-            errorString,
-            errorsCount,
-            failBtn,
-            fileServerData,
-            fileServerResource,
-            fileServerURI,
-            fileServerURL,
-            hNode,
-            hasFailed,
-            hasSuccess,
-            hasUnknown,
-            headingNode,
-            iNode,
-            infoNode,
-            job,
-            kernel,
-            panelNode,
-            pathURI,
-            results,
-            rowNode,
-            smallNode,
-            status,
-            statusNode,
-            tooltipNode,
-            translatedURI,
-            warnErrCount,
-            warnErrString,
-            warnErrTooltip,
-            warningString,
-            warningsCount;
+        var aNode;
+        var accordionElement;
+        var arch;
+        var archLabelNode;
+        var cls;
+        var colNode;
+        var collapseBodyNode;
+        var collapseId;
+        var collapseNode;
+        var ddNode;
+        var defconfigFull;
+        var dlNode;
+        var docId;
+        var dtNode;
+        var errNode;
+        var errorString;
+        var errorsCount;
+        var failBtn;
+        var fileServerData;
+        var fileServerResource;
+        var fileServerURI;
+        var fileServerURL;
+        var hNode;
+        var hasFailed;
+        var hasSuccess;
+        var hasUnknown;
+        var headingNode;
+        var iNode;
+        var infoNode;
+        var job;
+        var kernel;
+        var panelNode;
+        var pathURI;
+        var results;
+        var rowNode;
+        var smallNode;
+        var status;
+        var statusNode;
+        var tooltipNode;
+        var translatedURI;
+        var warnErrCount;
+        var warnErrString;
+        var warnErrTooltip;
+        var warningString;
+        var warningsCount;
 
         hasFailed = false;
         hasSuccess = false;
@@ -194,7 +194,7 @@ require([
                     cls = 'df-unknown';
                     break;
             }
-            html.addClass(statusNode, 'pull-right');
+            html.addClass(statusNode.firstElementChild, 'pull-right');
 
             if (errorsCount === undefined) {
                 errorsCount = 0;
@@ -694,8 +694,8 @@ require([
     }
 
     function getBuilds(response) {
-        var deferred,
-            results;
+        var deferred;
+        var results;
 
         results = response.result;
         if (results.length === 0) {
@@ -729,16 +729,16 @@ require([
     }
 
     function getJobDone(response) {
-        var aNode,
-            createdOn,
-            gitCommit,
-            gitURL,
-            iNode,
-            localResult,
-            results,
-            spanNode,
-            tURLs,
-            updateElement;
+        var aNode;
+        var createdOn;
+        var gitCommit;
+        var gitURL;
+        var iNode;
+        var localResult;
+        var results;
+        var spanNode;
+        var tURLs;
+        var updateElement;
 
         results = response.result;
         if (results.length === 0) {
@@ -871,17 +871,17 @@ require([
     }
 
     function getLogsDone(response) {
-        var errors,
-            mismatches,
-            result,
-            sectionDiv,
-            sectionDivTitle,
-            sectionTable,
-            sectionTitle,
-            summaryDiv,
-            tableCell,
-            tableRow,
-            warnings;
+        var errors;
+        var mismatches;
+        var result;
+        var sectionDiv;
+        var sectionDivTitle;
+        var sectionTable;
+        var sectionTitle;
+        var summaryDiv;
+        var tableCell;
+        var tableRow;
+        var warnings;
 
         result = response.result;
         if (result.length > 0) {
@@ -1108,10 +1108,9 @@ require([
     gSessionStorage = storage('build-' + gJobName + '-' + gKernelName);
     gResultFilter = filter('data-filter');
 
-    registerEvents();
-
-    getJob();
-    getLogs();
+    setTimeout(registerEvents, 0);
+    setTimeout(getJob, 0);
+    setTimeout(getLogs, 0);
 
     init.hotkeys();
     init.tooltip();
