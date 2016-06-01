@@ -29,6 +29,7 @@ from flask_wtf.csrf import (
     validate_csrf,
 )
 from flask.ext.cache import Cache
+from werkzeug.routing import BaseConverter
 
 __version__ = "2016.4.1"
 __versionfull__ = __version__
@@ -39,6 +40,13 @@ DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-frontend.cfg"
 # Name of the environment variable that will be lookep up for app
 # configuration parameters.
 APP_ENVVAR = "FLASK_SETTINGS"
+
+
+class RegexConverter(BaseConverter):
+    """A regular expression URL converter."""
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
 
 
 def generate_csrf_token():
@@ -72,6 +80,9 @@ app.csrf = CsrfProtect(app)
 
 # Use the custom CSRF token generation.
 app.jinja_env.globals["csrf_token_r"] = generate_csrf_token
+
+# Add the custom regular expression converter.
+app.url_map.converters["regex"] = RegexConverter
 
 # Initialize the app routes, config and other necessary stuff.
 # The app context here is needed since we are using variables defined in the
