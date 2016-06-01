@@ -100,6 +100,11 @@ def init():
         view_func=vjob.JobsJobView.as_view("build-job"),
         methods=["GET"]
     )
+    add_rule(
+        "/build/id/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
+        view_func=vbuild.BuildsIdView.as_view("build-id"),
+        methods=["GET"]
+    )
 
     # Jobs related URLs
     add_rule(

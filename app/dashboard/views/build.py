@@ -16,7 +16,10 @@
 from flask import (
     current_app as app,
     render_template,
-    request
+    request,
+    abort,
+    redirect,
+    url_for
 )
 from flask.views import View
 
@@ -29,6 +32,14 @@ class GeneralBuildsView(View):
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
     BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
     FEED_LINK = u"<a href=\"feed.xml\"><i class=\"fa fa-rss\"></i></a>"
+
+
+class BuildsIdView(GeneralBuildsView):
+
+    def dispatch_request(self, *args, **kwargs):
+        return render_template(
+            "builds-id.html",
+            build_id=kwargs["uid"], page_title=self.BUILD_PAGES_TITLE)
 
 
 class BuildsAllView(GeneralBuildsView):
@@ -72,27 +83,13 @@ class BuildsJobKernelView(GeneralBuildsView):
 
 class BuildsJobKernelDefconfigView(GeneralBuildsView):
 
-    # pylint: disable=unused-argument
-    def dispatch_request(self, *args, **kwargs):
-        job = kwargs["job"]
-        kernel = kwargs["kernel"]
-        defconfig = kwargs["defconfig"]
+    def dispatch_request(self, **kwargs):
         build_id = request.args.get("_id", None)
 
-        body_title = (
-            "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
-            (job, kernel)
-        )
-
-        return render_template(
-            "builds-job-kernel-defconfig.html",
-            body_title=body_title,
-            defconfig_full=defconfig,
-            build_id=build_id,
-            job_name=job,
-            kernel_name=kernel,
-            page_title=self.BUILD_PAGES_TITLE
-        )
+        if build_id:
+            return redirect("/build/id/{}/".format(build_id), code=301)
+        else:
+            abort(404)
 
 
 class BuildsLogsView(GeneralBuildsView):
