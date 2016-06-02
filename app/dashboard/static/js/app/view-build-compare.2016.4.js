@@ -33,11 +33,7 @@ require([
         **/
         function _renderDetails(data, type, object) {
             return buildt.renderDetails(
-                '/build/' + data + '/kernel/' + object.kernel +
-                '/defconfig/' + object.defconfig_full +
-                '/?_id=' + object._id.$oid,
-                type
-            );
+                '/build/id/' + object._id.$oid + '/', type);
         }
 
         /**
@@ -237,11 +233,7 @@ require([
         spanNode = document.createElement('span');
 
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href',
-            '/build/' + baseJob + '/kernel/' + baseKernel + '/defconfig/' +
-            baseDefconfig + '/?_id=' + baseline._id.$oid
-        );
+        aNode.setAttribute('href', '/build/id/' + baseline._id.$oid + '/');
         aNode.appendChild(document.createTextNode(baseDefconfig));
 
         spanNode.appendChild(aNode);

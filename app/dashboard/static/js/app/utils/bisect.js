@@ -315,12 +315,7 @@ define([
                     'title',
                     sprintf(gStrings.boot_tooltip, job, gitDescribe));
             } else {
-                aNode.setAttribute(
-                    'href',
-                    '/build/' + job + '/kernel/' +
-                    gitDescribe + '/defconfig/' + defconfigFull +
-                    '/?_id=' + docId
-                );
+                aNode.setAttribute('href', '/build/id/' + docId + '/');
 
                 tooltipNode.setAttribute(
                     'title',

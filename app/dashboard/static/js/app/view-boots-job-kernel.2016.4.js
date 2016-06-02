@@ -474,7 +474,7 @@ require([
                 'Build reports for &#171;' + gJob + '&#187; - ' + gKernel);
             aNode = document.createElement('a');
             aNode.setAttribute(
-                'href', '/build/' + gJob + '/kernel/' + gKernel);
+                'href', '/build/' + gJob + '/kernel/' + gKernel + '/');
             aNode.appendChild(html.build());
             tooltipNode.appendChild(aNode);
 

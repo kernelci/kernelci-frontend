@@ -779,24 +779,19 @@ require([
         tooltipNode.appendChild(aNode);
 
         spanNode.appendChild(tooltipNode);
-        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Build details');
-        aNode = document.createElement('a');
-
-        buildId = '';
         if (result.build_id) {
-            buildId = '?_id=' + result.build_id.$oid;
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Build details');
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/build/id/' + result.build_id.$oid + '/');
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.build());
+            tooltipNode.appendChild(aNode);
+            spanNode.appendChild(tooltipNode);
         }
-        aNode.setAttribute(
-            'href',
-            '/build/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfigFull + '/' + buildId);
-        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-        aNode.appendChild(html.build());
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
 
         html.replaceContent(
             document.getElementById('dd-board-defconfig'), spanNode);

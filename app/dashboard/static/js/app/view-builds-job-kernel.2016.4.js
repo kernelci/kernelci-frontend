@@ -598,10 +598,7 @@ require([
             iNode = document.createElement('i');
             iNode.className = 'fa fa-search';
             aNode = document.createElement('a');
-            aNode.setAttribute(
-                'href',
-                '/build/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfigFull + '/?_id=' + result._id.$oid);
+            aNode.setAttribute('href', '/build/id/' + result._id.$oid + '/');
             aNode.insertAdjacentHTML('beforeend', 'More info&nbsp;');
             aNode.appendChild(iNode);
             tooltipNode.appendChild(aNode);
