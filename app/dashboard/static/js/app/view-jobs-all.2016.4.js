@@ -11,10 +11,10 @@ require([
     'utils/date'
 ], function($, init, e, r, table, html, appconst, jobt) {
     'use strict';
-    var gDateRange,
-        gJobsTable,
-        gPageLen,
-        gSearchFilter;
+    var gDateRange;
+    var gJobsTable;
+    var gPageLen;
+    var gSearchFilter;
 
     document.getElementById('li-job').setAttribute('class', 'active');
     gDateRange = appconst.MAX_DATE_RANGE;
@@ -26,8 +26,8 @@ require([
     }
 
     function getBatchCountDone(response) {
-        var bResult,
-            results;
+        var bResult;
+        var results;
 
         results = response[0].result;
         if (results.length > 0) {
@@ -46,12 +46,12 @@ require([
     }
 
     function getBatchCount(response) {
-        var batchOps,
-            deferred,
-            job,
-            kernel,
-            queryStr,
-            results;
+        var batchOps;
+        var deferred;
+        var job;
+        var kernel;
+        var queryStr;
+        var results;
 
         function _createOp(result) {
             job = result.job;
@@ -150,8 +150,8 @@ require([
     }
 
     function getJobsDone(response) {
-        var columns,
-            results;
+        var columns;
+        var results;
 
         /**
          * Create the table column title for the builds count.
@@ -292,8 +292,8 @@ require([
     }
 
     function getJobs() {
-        var data,
-            deferred;
+        var data;
+        var deferred;
 
         data = {
             aggregate: 'job',
@@ -326,7 +326,7 @@ require([
         tableDivId: 'table-div',
         tableLoadingDivId: 'table-loading'
     });
-    getJobs();
+    setTimeout(getJobs, 0);
 
     init.hotkeys();
     init.tooltip();

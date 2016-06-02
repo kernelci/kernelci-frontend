@@ -10,11 +10,11 @@ require([
     'tables/boot'
 ], function($, init, e, r, table, html, appconst, tboot) {
     'use strict';
-    var gBootReqData,
-        gBootsTable,
-        gDateRange,
-        gPageLen,
-        gSearchFilter;
+    var gBootReqData;
+    var gBootsTable;
+    var gDateRange;
+    var gPageLen;
+    var gSearchFilter;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
 
@@ -32,7 +32,9 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            gBootsTable.addRows(results);
+            setTimeout(function() {
+                gBootsTable.addRows(results);
+            }, 0);
         }
 
         // Remove the loading banner when we get the last response.
@@ -50,28 +52,29 @@ require([
      * @param {object} response: The response from the previous request.
     **/
     function getMoreBoots(response) {
-        var deferred,
-            iNode,
-            idx,
-            resTotal,
-            spanNode,
-            totalReq;
+        var deferred;
+        var docFrag;
+        var iNode;
+        var idx;
+        var resTotal;
+        var spanNode;
+        var totalReq;
 
         resTotal = response.count;
         if (response.result.length < resTotal) {
             // Add a small loading banner while we load more results.
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            iNode = document.createElement('i');
+            iNode = spanNode.appendChild(document.createElement('i'));
             iNode.className = 'fa fa-cog fa-spin';
 
-            spanNode.appendChild(iNode);
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
             spanNode.appendChild(
                 document.createTextNode('loading more results'));
             spanNode.insertAdjacentHTML('beforeend', '&#8230;');
 
-            html.replaceByClassNode('table-process', spanNode);
+            html.replaceByClassNode('table-process', docFrag);
 
             totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
 
@@ -79,8 +82,7 @@ require([
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
                 gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
                 deferred = r.get('/_ajax/boot', gBootReqData);
-                $.when(deferred)
-                    .done(getMoreBootsDone);
+                $.when(deferred).done(getMoreBootsDone);
             }
         }
     }
@@ -92,9 +94,9 @@ require([
     }
 
     function getBootsDone(response) {
-        var columns,
-            results,
-            rowURL;
+        var columns;
+        var results;
+        var rowURL;
 
         /**
          * Wrapper to provide the href.
@@ -250,7 +252,7 @@ require([
         tableDivId: 'table-div',
         tableLoadingDivId: 'table-loading'
     });
-    getBoots();
+    setTimeout(getBoots, 0);
 
     init.hotkeys();
     init.tooltip();

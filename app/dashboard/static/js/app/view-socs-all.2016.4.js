@@ -14,16 +14,16 @@ require([
         $,
         init, format, error, request, table, html, appconst, tsoc, storage) {
     'use strict';
-    var gBatchCountMissing,
-        gBoardsCount,
-        gBootsCount,
-        gDateRange,
-        gDrawEventBound,
-        gLabsCount,
-        gPageLen,
-        gSearchFilter,
-        gSessionStorage,
-        gSocsTable;
+    var gBatchCountMissing;
+    var gBoardsCount;
+    var gBootsCount;
+    var gDateRange;
+    var gDrawEventBound;
+    var gLabsCount;
+    var gPageLen;
+    var gSearchFilter;
+    var gSessionStorage;
+    var gSocsTable;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
     gDateRange = appconst.MAX_DATE_RANGE;
@@ -31,7 +31,7 @@ require([
     gBoardsCount = {};
     gLabsCount = {};
     gBatchCountMissing = {};
-    // Used to check if the table draw event function has already been boud.
+    // Used to check if the table draw event function has already been bound.
     // In order not to bind it multiple times.
     gDrawEventBound = false;
     gSessionStorage = storage('views-socs-all');
@@ -85,8 +85,8 @@ require([
 
         // Internally used to parse the results.
         function _updateBootsCount(result) {
-            var count,
-                opId;
+            var count;
+            var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
@@ -108,10 +108,10 @@ require([
     }
 
     function getBootsCount(response) {
-        var batchOps,
-            deferred,
-            soc,
-            queryStr;
+        var batchOps;
+        var deferred;
+        var soc;
+        var queryStr;
 
         if (response.length > 0) {
             batchOps = [];
@@ -146,8 +146,8 @@ require([
 
         // Internally used to parse the results.
         function _updateLabsCount(result) {
-            var count,
-                opId;
+            var count;
+            var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
@@ -169,10 +169,10 @@ require([
     }
 
     function getLabsCount(response) {
-        var batchOps,
-            deferred,
-            soc,
-            queryStr;
+        var batchOps;
+        var deferred;
+        var soc;
+        var queryStr;
 
         if (response.length > 0) {
             batchOps = [];
@@ -207,8 +207,8 @@ require([
 
         // Internally used to parse the results.
         function _updateBoardsCount(result) {
-            var count,
-                opId;
+            var count;
+            var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
@@ -230,10 +230,10 @@ require([
     }
 
     function getBoardsCount(response) {
-        var batchOps,
-            deferred,
-            soc,
-            queryStr;
+        var batchOps;
+        var deferred;
+        var soc;
+        var queryStr;
 
         if (response.length > 0) {
             batchOps = [];
@@ -424,12 +424,11 @@ require([
             results = results.map(_toObject);
         }
 
-        getSocsDone(results);
-        getBoardsCount(results);
-        getBootsCount(results);
-        getLabsCount(results);
-
-        enableSearch();
+        setTimeout(getSocsDone.bind(null, results), 0);
+        setTimeout(getBoardsCount.bind(null, results), 0);
+        setTimeout(getBootsCount.bind(null, results), 0);
+        setTimeout(getLabsCount.bind(null, results), 0);
+        setTimeout(enableSearch, 0);
     }
 
     function getSocsFail() {
@@ -489,7 +488,7 @@ require([
         tableDivId: 'table-div',
         tableLoadingDivId: 'table-loading'
     });
-    getSocs();
+    setTimeout(getSocs, 0);
 
     init.hotkeys();
     init.tooltip();

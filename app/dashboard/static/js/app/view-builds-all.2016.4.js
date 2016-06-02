@@ -11,11 +11,11 @@ require([
     'utils/date'
 ], function($, init, e, r, table, html, appconst, buildt) {
     'use strict';
-    var gBuildsTable,
-        gBuildReqData,
-        gDateRange,
-        gPageLen,
-        gSearchFilter;
+    var gBuildsTable;
+    var gBuildReqData;
+    var gDateRange;
+    var gPageLen;
+    var gSearchFilter;
 
     document.getElementById('li-build').setAttribute('class', 'active');
 
@@ -53,31 +53,29 @@ require([
      * @param {object} response: The response from the previous request.
     **/
     function getMoreBuilds(response) {
-        var deferred,
-            iNode,
-            idx,
-            resLen,
-            resTotal,
-            spanNode,
-            totalReq;
+        var deferred;
+        var docFrag;
+        var iNode;
+        var idx;
+        var resTotal;
+        var spanNode;
+        var totalReq;
 
         resTotal = response.count;
-        resLen = response.result.length;
-
-        if (resLen < resTotal) {
+        if (response.result.length < resTotal) {
             // Add a small loading banner while we load more results.
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            iNode = document.createElement('i');
+            iNode = spanNode.appendChild(document.createElement('i'));
             iNode.className = 'fa fa-cog fa-spin';
 
-            spanNode.appendChild(iNode);
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
             spanNode.appendChild(
                 document.createTextNode('loading more results'));
             spanNode.insertAdjacentHTML('beforeend', '&#8230;');
 
-            html.replaceByClassNode('table-process', spanNode);
+            html.replaceByClassNode('table-process', docFrag);
 
             totalReq = Math.floor(resTotal / appconst.MAX_QUERY_LIMIT);
 
@@ -85,8 +83,7 @@ require([
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
                 gBuildReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
                 deferred = r.get('/_ajax/build', gBuildReqData);
-                $.when(deferred)
-                    .done(getMoreBuildsDone);
+                $.when(deferred).done(getMoreBuildsDone);
             }
         }
     }
@@ -99,9 +96,9 @@ require([
     }
 
     function getBuildsDone(response) {
-        var columns,
-            results,
-            rowUrl;
+        var columns;
+        var results;
+        var rowUrl;
 
         function _renderKernel(data, type, object) {
             return buildt.renderKernel(

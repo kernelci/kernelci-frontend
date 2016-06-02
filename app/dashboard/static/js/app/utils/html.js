@@ -341,10 +341,12 @@ define([
      * @param {string} className: The name of the CSS class.
     **/
     html.removeChildrenByClass = function(className) {
-        [].forEach.call(
-            document.getElementsByClassName(className),
-            _cleanElementChildren
-        );
+        setTimeout(function() {
+            [].forEach.call(
+                document.getElementsByClassName(className),
+                _cleanElementChildren
+            );
+        }, 0);
     };
 
     /**
