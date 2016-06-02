@@ -362,17 +362,25 @@ define([
             that.table.on('click', 'tbody tr', that._clickFunction);
         } else {
             that.table.on('click', 'tbody tr', function() {
-                var location,
-                    rowData,
-                    substitutions;
+                var elementVal;
+                var location;
+                var rowData;
+                var substitutions;
 
                 rowData = that.table.row(this).data();
                 location = '#';
                 substitutions = {};
 
                 if (rowData) {
-                    that._rowURLElements.forEach(function(value) {
-                        substitutions[value] = rowData[value] || null;
+                    that._rowURLElements.forEach(function(element) {
+                        if (element === '_id') {
+                            elementVal = rowData[element].$oid || null;
+                        } else if (element === 'created_on') {
+                            elementVal = rowData[element].$date || null;
+                        } else {
+                            elementVal = rowData[element] || null;
+                        }
+                        substitutions[element] = elementVal;
                     });
 
                     location = sprintf(that._rowURL, substitutions);

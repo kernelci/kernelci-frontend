@@ -98,7 +98,6 @@ require([
 
     function getBuildsDone(response) {
         var columns,
-            href,
             results,
             rowUrl;
 
@@ -108,11 +107,8 @@ require([
         }
 
         function _renderDetails(data, type, object) {
-            href = '/build/' + data + '/kernel/' + object.kernel +
-                '/defconfig/' + object.defconfig_full +
-                '/?_id=' + object._id.$oid;
-
-            return buildt.renderDetails(href, type);
+            return buildt.renderDetails(
+                '/build/id/' + object._id.$oid + '/', type);
         }
 
         results = response.result;
@@ -122,8 +118,7 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data available'));
         } else {
-            rowUrl = '/build/%(job)s/kernel/%(kernel)s/' +
-                'defconfig/%(defconfig_full)s/';
+            rowUrl = '/build/id/%(_id)s/';
 
             columns = [
                 {
@@ -195,8 +190,9 @@ require([
                 .columns(columns)
                 .order([6, 'desc'])
                 .languageLengthMenu('build reports per page')
+                .noIdURL(true)
                 .rowURL(rowUrl)
-                .rowURLElements(['job', 'kernel', 'defconfig_full'])
+                .rowURLElements(['_id'])
                 .draw();
 
             gBuildsTable
