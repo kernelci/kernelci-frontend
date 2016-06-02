@@ -598,7 +598,6 @@ require([
         var boardInstance;
         var bootLog;
         var bootTime;
-        var buildId;
         var createdOn;
         var defconfigFull;
         var dtb;
@@ -625,6 +624,7 @@ require([
         var tooltipNode;
         var translatedURI;
         var warnings;
+        var docFrag;
 
         result = response.result[0];
         bootTime = new Date(result.time.$date);
@@ -665,32 +665,32 @@ require([
         pathURI = translatedURI[1];
 
         // Lab.
-        tooltipNode = html.tooltip();
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title', 'Boot reports for lab&nbsp' + lab);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute('href', '/boot/all/lab/' + lab + '/');
         aNode.appendChild(document.createTextNode(lab));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
-        tooltipNode.appendChild(aNode);
 
         html.replaceContent(
-            document.getElementById('dd-lab-name'), tooltipNode);
+            document.getElementById('dd-lab-name'), docFrag);
 
         // Board.
-        tooltipNode = html.tooltip();
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title', 'Boot reports for board&nbsp;' + board);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute('href', '/boot/' + board + '/');
         aNode.appendChild(document.createTextNode(board));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
-        tooltipNode.appendChild(aNode);
 
         html.replaceContent(
-            document.getElementById('dd-board-board'), tooltipNode);
+            document.getElementById('dd-board-board'), docFrag);
 
         // Board instance.
         if (boardInstance) {
@@ -704,30 +704,25 @@ require([
         }
 
         // Tree.
-        spanNode = document.createElement('span');
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + job);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute('href', '/boot/all/job/' + job + '/');
         aNode.appendChild(document.createTextNode(job));
 
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute('href', '/job/' + job + '/');
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.tree());
 
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
-
-        html.replaceContent(
-            document.getElementById('dd-board-tree'), spanNode);
+        html.replaceContent(document.getElementById('dd-board-tree'), docFrag);
 
         // Branch.
         html.replaceContent(
@@ -735,95 +730,92 @@ require([
             document.createTextNode(result.git_branch));
 
         // Kernel.
-        spanNode = document.createElement('span');
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title',
             'Boot reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
         aNode.appendChild(document.createTextNode(kernel));
-        tooltipNode.appendChild(aNode);
 
-        spanNode.appendChild(tooltipNode);
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title',
             'Build reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href', '/build/' + job + '/kernel/' + kernel + '/');
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.build());
-        tooltipNode.appendChild(aNode);
 
-        spanNode.appendChild(tooltipNode);
         html.replaceContent(
-            document.getElementById('dd-board-kernel'), spanNode);
+            document.getElementById('dd-board-kernel'), docFrag);
 
         // Defconfig
-        spanNode = document.createElement('span');
-        tooltipNode = html.tooltip();
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute('title', 'Boot reports');
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href',
             '/boot/' + gBoardName + '/job/' + job + '/kernel/' + kernel +
                 '/defconfig/' + defconfigFull + '/'
         );
         aNode.appendChild(document.createTextNode(defconfigFull));
-        tooltipNode.appendChild(aNode);
 
-        spanNode.appendChild(tooltipNode);
         if (result.build_id) {
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', 'Build details');
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href', '/build/id/' + result.build_id.$oid + '/');
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(html.build());
-            tooltipNode.appendChild(aNode);
-            spanNode.appendChild(tooltipNode);
         }
 
         html.replaceContent(
-            document.getElementById('dd-board-defconfig'), spanNode);
+            document.getElementById('dd-board-defconfig'), docFrag);
 
         // Date.
-        spanNode = document.createElement('time');
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('time'));
         spanNode.setAttribute('datetime', createdOn.toISOString());
         spanNode.appendChild(
             document.createTextNode(createdOn.toCustomISODateTime()));
-        html.replaceContent(document.getElementById('dd-date'), spanNode);
+        html.replaceContent(document.getElementById('dd-date'), docFrag);
 
         // Status.
-        statusNode = tboot.statusNode(result.status);
         if (resultDescription && result.status !== 'PASS') {
-            spanNode = document.createElement('span');
-            spanNode.appendChild(statusNode);
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            spanNode.appendChild(tboot.statusNode(result.status));
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
             resultDescription = html.escape(resultDescription);
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', resultDescription);
-            smallNode = document.createElement('small');
+            smallNode = tooltipNode
+                .appendChild(document.createElement('small'));
             smallNode.insertAdjacentHTML(
                 'beforeend', html.sliceText(resultDescription, 40));
-            tooltipNode.appendChild(smallNode);
 
-            spanNode.appendChild(tooltipNode);
-            statusNode = spanNode;
+            html.replaceContent(
+                document.getElementById('dd-board-status'), docFrag);
+        } else {
+            statusNode = tboot.statusNode(result.status);
+            html.replaceContent(
+                document.getElementById('dd-board-status'), statusNode);
         }
-        html.replaceContent(
-            document.getElementById('dd-board-status'), statusNode);
 
         // Arch.
         html.replaceContent(
@@ -832,22 +824,20 @@ require([
 
         // Soc.
         if (soc) {
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
             spanNode.appendChild(document.createTextNode(soc));
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'Boot reports for SoC &#171;' + soc + '&#187;');
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/soc/' + soc + '/');
             aNode.appendChild(html.soc());
 
-            tooltipNode.appendChild(aNode);
-            spanNode.appendChild(tooltipNode);
-
             html.replaceContent(
-                document.getElementById('dd-board-soc'), spanNode);
+                document.getElementById('dd-board-soc'), docFrag);
         } else {
             html.replaceContent(
                 document.getElementById('dd-board-soc'), html.nonavail());
@@ -890,7 +880,8 @@ require([
             document.getElementById('dd-board-boot-log'), bootLog);
 
         if (dtb) {
-            aNode = document.createElement('a');
+            docFrag = document.createDocumentFragment();
+            aNode = docFrag.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
                 serverURI
@@ -901,7 +892,7 @@ require([
             aNode.appendChild(html.external());
 
             html.replaceContent(
-                document.getElementById('dd-board-dtb'), aNode);
+                document.getElementById('dd-board-dtb'), docFrag);
         } else {
             html.replaceContent(
                 document.getElementById('dd-board-dtb'), html.nonavail());
@@ -937,8 +928,10 @@ require([
                 html.nonavail());
         }
 
+        // Kernel image.
         if (kernelImage) {
-            aNode = document.createElement('a');
+            docFrag = document.createDocumentFragment();
+            aNode = docFrag.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
                 serverURI
@@ -948,19 +941,21 @@ require([
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(html.external());
             html.replaceContent(
-                document.getElementById('dd-board-kernel-image'), aNode);
+                document.getElementById('dd-board-kernel-image'), docFrag);
         } else {
             html.replaceContent(
                 document.getElementById('dd-board-kernel-image'),
                 html.nonavail());
         }
 
-        tooltipNode = html.tooltip();
+        // Boot retries.
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title', 'How many times the boot has been attempted');
         tooltipNode.appendChild(document.createTextNode(result.retries));
         html.replaceContent(
-            document.getElementById('dd-retries'), tooltipNode);
+            document.getElementById('dd-retries'), docFrag);
 
         if (qemuData) {
             html.replaceContent(
