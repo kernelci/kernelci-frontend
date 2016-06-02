@@ -33,7 +33,9 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            gBuildsTable.addRows(results);
+            setTimeout(function() {
+                gBuildsTable.addRows(results);
+            }, 0);
         }
 
         // Remove the loading banner when we get the last response.
@@ -242,7 +244,7 @@ require([
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    getBuilds();
+    setTimeout(getBuilds, 0);
 
     init.hotkeys();
     init.tooltip();
