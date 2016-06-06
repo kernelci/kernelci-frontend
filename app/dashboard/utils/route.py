@@ -167,9 +167,12 @@ def init():
             "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
             "defconfig/<string:defconfig>/lab/<string:lab_name>/"
         ),
-        view_func=vboot.BootIdView.as_view("boot-id"),
+        view_func=vboot.BootLabView.as_view("boot-complete"),
         methods=["GET"]
     )
+    add_rule(
+        "/boot/id/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
+        view_func=vboot.BootIdView.as_view("boot-id"), methods=["GET"])
     add_rule(
         "/boot/all/job/<string:job>/kernel/<string:kernel>/",
         view_func=vboot.BootJobKernelView.as_view("boot-job-kernel"),

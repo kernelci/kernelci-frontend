@@ -14,8 +14,9 @@
 
 from flask import (
     current_app as app,
+    redirect,
     render_template,
-    request,
+    request
 )
 from flask.views import View
 
@@ -94,30 +95,41 @@ class BootDefconfigView(BootGeneralView):
         )
 
 
+class BootLabView(BootGeneralView):
+    def dispatch_request(self, *args, **kwargs):
+
+        boot_id = request.args.get("_id", None)
+        if boot_id:
+            return redirect("/boot/id/{}/".format(boot_id))
+        else:
+            # TODO: rework the view
+            # just a table with boot reports for that lab.
+            page_title = (
+                self.BOOT_PAGES_TITLE +
+                "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
+                kwargs)
+            body_title = (
+                "Boot details for board&nbsp;&#171;%(board)s&#187;&nbsp;"
+                "<small>(%(lab_name)s)</small>" % kwargs)
+            return render_template(
+                "boots-id.html",
+                page_title=page_title,
+                body_title=body_title,
+                board=kwargs["board"],
+                job=kwargs["job"],
+                kernel=kwargs["kernel"],
+                defconfig=kwargs["defconfig"],
+                lab_name=kwargs["lab_name"]
+            )
+
+
 class BootIdView(BootGeneralView):
 
     def dispatch_request(self, *args, **kwargs):
 
-        page_title = (
-            self.BOOT_PAGES_TITLE +
-            "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
-            kwargs)
-        body_title = (
-            "Boot details for board&nbsp;&#171;%(board)s&#187;&nbsp;"
-            "<small>(%(lab_name)s)</small>" % kwargs)
-        boot_id = request.args.get("_id", None)
-
         return render_template(
             "boots-id.html",
-            page_title=page_title,
-            body_title=body_title,
-            board=kwargs["board"],
-            job=kwargs["job"],
-            kernel=kwargs["kernel"],
-            defconfig=kwargs["defconfig"],
-            lab_name=kwargs["lab_name"],
-            boot_id=boot_id
-        )
+            page_title=self.BOOT_PAGES_TITLE, boot_id=kwargs["uid"])
 
 
 class BootJobKernelView(BootGeneralView):

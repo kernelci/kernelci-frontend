@@ -12,14 +12,9 @@ require([
     'utils/date'
 ], function($, init, e, r, u, bisect, tboot, html, appconst) {
     'use strict';
-    var gBoardName;
     var gBootId;
     var gDateRange;
-    var gDefconfig;
     var gFileServer;
-    var gJobName;
-    var gKernelName;
-    var gLabName;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
     gDateRange = appconst.MAX_DATE_RANGE;
@@ -137,7 +132,8 @@ require([
 
             table.tBodies[0].appendChild(docFrag);
         } else {
-            _tableMessage(table, 'No results found.');
+            setTimeout(
+                _tableMessage.bind(null, table, 'No results found.'), 0);
         }
 
         html.removeClass(table, 'hidden');
@@ -181,7 +177,7 @@ require([
             html.errorDiv('Error loading data.'));
     }
 
-    function getMultiLabDataDone(response) {
+    function getMultiLabDataDone(response, lab) {
         var docFrag;
         var results;
         var table;
@@ -195,19 +191,22 @@ require([
             docFrag = document.createDocumentFragment();
 
             results.forEach(function(result) {
-                if (result.lab_name !== gLabName) {
+                if (result.lab_name !== lab) {
                     validReports = validReports + 1;
                     addBootTableRow(result, docFrag);
                 }
             });
 
             if (validReports === 0) {
-                _tableMessage(table, 'No similar boot reports found.');
+                setTimeout(
+                    _tableMessage.bind(
+                        null, table, 'No similar boot reports found.'), 0);
             } else {
                 table.tBodies[0].appendChild(docFrag);
             }
         } else {
-            _tableMessage(table, 'No data available.');
+            setTimeout(
+                _tableMessage.bind(null, table, 'No data available.'), 0);
         }
 
         html.removeElement(
@@ -215,25 +214,33 @@ require([
         html.removeClass(table, 'hidden');
     }
 
-    function getMultiLabData() {
+    function getMultiLabData(response) {
         var deferred;
+        var result;
+
+        result = response.result[0];
 
         deferred = r.get(
             '/_ajax/boot',
             {
-                board: gBoardName,
-                defconfig_full: gDefconfig,
-                job: gJobName,
-                kernel: gKernelName
+                board: result.board,
+                defconfig_full: result.defconfig_full,
+                job: result.job,
+                kernel: result.kernel
             }
         );
         $.when(deferred)
             .fail(e.error, getMultiLabDataFail)
-            .done(getMultiLabDataDone);
+            .done(function(data) {
+                setTimeout(
+                    getMultiLabDataDone.bind(null, data, result.lab_name), 0);
+            });
     }
 
     function getBootDataFail() {
         html.replaceByClassNode('loading-content', html.nonavail());
+        document.getElementById('body-title')
+            .insertAdjacentHTML('beforeend', '&hellip;');
     }
 
     function getCompareData(response) {
@@ -241,12 +248,12 @@ require([
         var createdOn;
         var deferred;
         var docFrag;
+        var job;
         var loadingNode;
         var requestData;
         var result;
         var templateNode;
 
-        result = response.result;
         loadingNode = document.getElementById('boot-reports-compared-to-load');
 
         docFrag = document.createDocumentFragment();
@@ -269,22 +276,22 @@ require([
         html.removeChildren(loadingNode);
         html.replaceContent(loadingNode, docFrag);
 
+        result = response.result[0];
+        job = result.job;
+        createdOn = new Date(result.created_on.$date);
+
         requestData = {
-            board: gBoardName,
+            created_on: createdOn.toCustomISODate(),
+            board: result.board,
             date_range: gDateRange,
-            defconfig_full: gDefconfig,
+            defconfig_full: result.defconfig_full,
             limit: appconst.MAX_COMPARE_LIMIT,
             sort: 'created_on',
             sort_order: -1
         };
 
-        if (result.length > 0) {
-            createdOn = new Date(result[0].created_on.$date);
-            requestData.created_on = createdOn.toCustomISODate();
-        }
-
         // Compare to LSK, if it is not LSK.
-        if (gJobName !== 'lsk') {
+        if (job !== 'lsk') {
             html.removeClass(
                 document.getElementById('compare-to-lsk-div'), 'hidden');
 
@@ -300,7 +307,7 @@ require([
         }
 
         // Compare to mainline, if it is not mainline.
-        if (gJobName !== 'mainline') {
+        if (job !== 'mainline') {
             html.removeClass(
                 document.getElementById('compare-to-mainline-div'), 'hidden');
 
@@ -316,7 +323,7 @@ require([
         }
 
         // Compare to next, if it is not next.
-        if (gJobName !== 'next') {
+        if (job !== 'next') {
             html.removeClass(
                 document.getElementById('compare-to-next-div'), 'hidden');
 
@@ -380,8 +387,8 @@ require([
     }
 
     function getBisectCompareTo(response) {
-        var bisectData;
         var bBootId;
+        var bisectData;
         var result;
 
         result = response.result;
@@ -600,6 +607,7 @@ require([
         var bootTime;
         var createdOn;
         var defconfigFull;
+        var docFrag;
         var dtb;
         var dtbAddr;
         var endianness;
@@ -624,8 +632,8 @@ require([
         var tooltipNode;
         var translatedURI;
         var warnings;
-        var docFrag;
 
+        // We only have one result.
         result = response.result[0];
         bootTime = new Date(result.time.$date);
         createdOn = new Date(result.created_on.$date);
@@ -664,6 +672,20 @@ require([
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
 
+        // Body title.
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
+
+        spanNode.insertAdjacentHTML('beforeend', '&#171;');
+        spanNode.appendChild(document.createTextNode(board));
+        spanNode.insertAdjacentHTML('beforeend', '&#187;');
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+        smallNode = spanNode.appendChild(document.createElement('small'));
+        smallNode.appendChild(document.createTextNode('(' + lab + ')'));
+
+        document.getElementById('body-title').appendChild(docFrag);
+
         // Lab.
         docFrag = document.createDocumentFragment();
         tooltipNode = docFrag.appendChild(html.tooltip());
@@ -675,8 +697,7 @@ require([
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
 
-        html.replaceContent(
-            document.getElementById('dd-lab-name'), docFrag);
+        html.replaceContent(document.getElementById('dd-lab-name'), docFrag);
 
         // Board.
         docFrag = document.createDocumentFragment();
@@ -765,7 +786,7 @@ require([
         aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href',
-            '/boot/' + gBoardName + '/job/' + job + '/kernel/' + kernel +
+            '/boot/' + board + '/job/' + job + '/kernel/' + kernel +
                 '/defconfig/' + defconfigFull + '/'
         );
         aNode.appendChild(document.createTextNode(defconfigFull));
@@ -967,44 +988,16 @@ require([
     }
 
     function getBootData() {
-        var data;
         var deferred;
 
-        if (gBootId) {
-            data = {
-                id: gBootId
-            };
-        } else {
-            data = {
-                board: gBoardName,
-                defconfig_full: gDefconfig,
-                job: gJobName,
-                kernel: gKernelName,
-                lab_name: gLabName
-            };
-        }
-
-        deferred = r.get('/_ajax/boot', data);
+        deferred = r.get('/_ajax/boot', {id: gBootId});
         $.when(deferred)
-            .fail(e.error, getBootDataFail)
-            .done(getBootDataDone, getCompareData, getBisectData);
+            .fail(e.error, getBootDataFail, getMultiLabDataFail)
+            .done(
+                getBootDataDone,
+                getMultiLabData, getCompareData, getBisectData);
     }
 
-    if (document.getElementById('board-name') !== null) {
-        gBoardName = document.getElementById('board-name').value;
-    }
-    if (document.getElementById('job-name') !== null) {
-        gJobName = document.getElementById('job-name').value;
-    }
-    if (document.getElementById('kernel-name') !== null) {
-        gKernelName = document.getElementById('kernel-name').value;
-    }
-    if (document.getElementById('defconfig-name') !== null) {
-        gDefconfig = document.getElementById('defconfig-name').value;
-    }
-    if (document.getElementById('lab-name') !== null) {
-        gLabName = document.getElementById('lab-name').value;
-    }
     if (document.getElementById('boot-id') !== null) {
         gBootId = document.getElementById('boot-id').value;
     }
@@ -1016,7 +1009,6 @@ require([
     }
 
     setTimeout(getBootData, 0);
-    setTimeout(getMultiLabData, 0);
 
     init.hotkeys();
     init.tooltip();
