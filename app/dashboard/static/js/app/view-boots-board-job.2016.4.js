@@ -16,7 +16,6 @@ require([
         dateRange,
         jobName,
         pageLen,
-        rowURLFmt,
         searchFilter;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
@@ -24,8 +23,6 @@ require([
     dateRange = appconst.MAX_DATE_RANGE;
     pageLen = null;
     searchFilter = null;
-    rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-        '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
 
     /**
      * Update the table with the new data.
@@ -156,7 +153,7 @@ require([
                     render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     orderable: false,
                     searchable: false,
@@ -171,9 +168,9 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL(rowURLFmt)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
+                .rowURL('/boot/id/%(_id)s/')
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
 
             bootsTable

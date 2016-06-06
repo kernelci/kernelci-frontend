@@ -97,8 +97,7 @@ require([
 
     function getBootsDone(response) {
         var columns,
-            results,
-            rowURLFmt;
+            results;
 
         function _renderTree(data, type, object) {
             return tboot.renderTree(
@@ -112,9 +111,6 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
-            rowURLFmt = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
             columns = [
                 {
                     data: '_id',
@@ -171,7 +167,7 @@ require([
                     render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     orderable: false,
                     searchable: false,
@@ -185,9 +181,9 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([7, 'desc'])
-                .rowURL(rowURLFmt)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
+                .rowURL('/boot/id/%(_id)s/')
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
 
             bootsTable

@@ -47,8 +47,7 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
-            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
+            rowURL = '/boot/id/%(_id)s/';
 
             columns = [
                 {
@@ -95,7 +94,7 @@ require([
                     render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     orderable: false,
                     searchable: false,
@@ -111,8 +110,8 @@ require([
                 .order([5, 'desc'])
                 .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
 
             gBootsTable

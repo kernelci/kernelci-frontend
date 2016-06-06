@@ -7,7 +7,7 @@ require([
     'utils/table',
     'utils/html',
     'tables/boot'
-], function($, init, e, r, table, html, boot) {
+], function($, init, e, r, table, html, tboot) {
     'use strict';
     var gBootsTable,
         gDefconfigFull,
@@ -31,15 +31,14 @@ require([
 
     function getBootsDone(response) {
         var columns,
-            results,
-            rowURL;
+            results;
 
         /**
          * Wrapper to inject the server URL.
         **/
         function _renderBootLogs(data, type, object) {
             object.default_file_server = gFileServer;
-            return boot.renderBootLogs(data, type, object);
+            return tboot.renderBootLogs(data, type, object);
         }
 
         results = response.result;
@@ -49,9 +48,6 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No boot reports found.'));
         } else {
-            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
             columns = [
                 {
                     data: '_id',
@@ -64,21 +60,21 @@ require([
                     title: 'Board Model',
                     type: 'string',
                     className: 'board-column',
-                    render: boot.renderBoard
+                    render: tboot.renderBoard
                 },
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
                     type: 'string',
                     class: 'lab-column',
-                    render: boot.renderLab
+                    render: tboot.renderLab
                 },
                 {
                     data: 'boot_result_description',
                     title: 'Failure Reason',
                     type: 'string',
                     className: 'failure-column',
-                    render: boot.renderResultDescription
+                    render: tboot.renderResultDescription
                 },
                 {
                     data: 'file_server_url',
@@ -92,23 +88,23 @@ require([
                     title: 'Date',
                     type: 'date',
                     className: 'date-column pull-center',
-                    render: boot.renderDate
+                    render: tboot.renderDate
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: boot.renderStatus
+                    render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     type: 'string',
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
-                    render: boot.renderDetails
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -117,9 +113,9 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL(rowURL)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
+                .rowURL('/boot/id/%(_id)s/')
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
 
             gBootsTable

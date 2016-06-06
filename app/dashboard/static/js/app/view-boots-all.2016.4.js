@@ -96,7 +96,6 @@ require([
     function getBootsDone(response) {
         var columns;
         var results;
-        var rowURL;
 
         /**
          * Wrapper to provide the href.
@@ -111,9 +110,6 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No boots data available.'));
         } else {
-            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
             columns = [
                 {
                     data: '_id',
@@ -182,7 +178,7 @@ require([
                     render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     type: 'string',
                     orderable: false,
@@ -197,9 +193,9 @@ require([
                 .columns(columns)
                 .order([8, 'desc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL(rowURL)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name'])
+                .rowURL('/boot/id/%(_id)s/')
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
 
             gBootsTable

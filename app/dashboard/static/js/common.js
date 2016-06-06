@@ -32,6 +32,7 @@ require.config({
             'app/view-boots-board': 'app/view-boots-board.2016.4',
             'app/view-boots-board-job': 'app/view-boots-board-job.2016.4',
             'app/view-boots-board-job-kernel': 'app/view-boots-board-job-kernel.2016.4',
+            'app/view-boots-board-lab': 'app/view-boots-board-lab.2016.6',
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.2016.4',
             'app/view-boots-id': 'app/view-boots-id.2016.4',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2016.4',

@@ -95,24 +95,22 @@ class BootDefconfigView(BootGeneralView):
         )
 
 
-class BootLabView(BootGeneralView):
+class BootBoardLabView(BootGeneralView):
     def dispatch_request(self, *args, **kwargs):
 
         boot_id = request.args.get("_id", None)
         if boot_id:
             return redirect("/boot/id/{}/".format(boot_id))
         else:
-            # TODO: rework the view
-            # just a table with boot reports for that lab.
             page_title = (
                 self.BOOT_PAGES_TITLE +
                 "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
                 kwargs)
             body_title = (
-                "Boot details for board&nbsp;&#171;%(board)s&#187;&nbsp;"
+                "Boot reports for board&nbsp;&#171;%(board)s&#187;&nbsp;"
                 "<small>(%(lab_name)s)</small>" % kwargs)
             return render_template(
-                "boots-id.html",
+                "boots-board-lab.html",
                 page_title=page_title,
                 body_title=body_title,
                 board=kwargs["board"],

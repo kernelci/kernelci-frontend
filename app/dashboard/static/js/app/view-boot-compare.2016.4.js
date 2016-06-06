@@ -18,7 +18,6 @@ require([
     function setupComparedTable(comparedData) {
         var columns;
         var dom;
-        var rowURL;
 
         /**
          * Wrapper to provide the href.
@@ -64,9 +63,6 @@ require([
         dom = '<"row"' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
 
-        rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s/' +
-            'defconfig/%(defconfig_full)s/lab/%(lab_name)s';
-
         columns = [
             {
                 data: 'board',
@@ -108,7 +104,7 @@ require([
                 render: tboot.renderDate
             },
             {
-                data: 'board',
+                data: '_id',
                 title: '',
                 type: 'string',
                 orderable: false,
@@ -123,9 +119,9 @@ require([
             .data(comparedData)
             .columns(columns)
             .order([5, 'desc'])
-            .rowURL(rowURL)
-            .rowURLElements(
-                ['job', 'kernel', 'defconfig_full', 'board', 'lab_name'])
+            .rowURL('/boot/id/%(_id)s/')
+            .noIdURL(true)
+            .rowURLElements(['_id'])
             .draw();
     }
 

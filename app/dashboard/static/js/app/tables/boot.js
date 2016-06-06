@@ -44,9 +44,9 @@ define([
      * @return {string} The HTML string of the cell node.
     **/
     gBootUtils.renderLab = function(lab, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
+        var aNode;
+        var rendered;
+        var tooltipNode;
 
         rendered = lab;
         if (type === 'display') {
@@ -79,11 +79,11 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderBoard = function(board, type, object) {
-        var aNode,
-            job,
-            kernel,
-            tooltipNode,
-            rendered;
+        var aNode;
+        var job;
+        var kernel;
+        var tooltipNode;
+        var rendered;
 
         rendered = board;
         if (type === 'display') {
@@ -119,8 +119,8 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countSuccess = function(kernel, type) {
-        var node,
-            rendered;
+        var node;
+        var rendered;
 
         rendered = null;
         if (type === 'display') {
@@ -141,8 +141,8 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countFail = function(kernel, type) {
-        var node,
-            rendered;
+        var node;
+        var rendered;
 
         rendered = null;
         if (type === 'display') {
@@ -163,8 +163,8 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countTotal = function(data, type) {
-        var node,
-            rendered;
+        var node;
+        var rendered;
 
         rendered = null;
         if (type === 'display') {
@@ -185,8 +185,8 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.countUnknown = function(data, type) {
-        var node,
-            rendered;
+        var node;
+        var rendered;
 
         rendered = null;
         if (type === 'display') {
@@ -220,12 +220,12 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderDefconfig = function(defconfig, type, object) {
-        var aNode,
-            board,
-            job,
-            kernel,
-            rendered,
-            tooltipNode;
+        var aNode;
+        var board;
+        var job;
+        var kernel;
+        var rendered;
+        var tooltipNode;
 
         rendered = defconfig;
         if (type === 'display') {
@@ -268,10 +268,10 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderKernel = function(kernel, type, object) {
-        var aNode,
-            job,
-            tooltipNode,
-            rendered;
+        var aNode;
+        var job;
+        var tooltipNode;
+        var rendered;
 
         rendered = kernel;
         if (type === 'display') {
@@ -341,16 +341,16 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderBootLogs = function(data, type, object) {
-        var arch,
-            defconfig,
-            job,
-            kernel,
-            logNode,
-            pathURI,
-            rendered,
-            serverResource,
-            serverURI,
-            translatedURI;
+        var arch;
+        var defconfig;
+        var job;
+        var kernel;
+        var logNode;
+        var pathURI;
+        var rendered;
+        var serverResource;
+        var serverURI;
+        var translatedURI;
 
         rendered = null;
         if (type === 'display') {
@@ -439,8 +439,8 @@ define([
      * @return {Element} The DOM element.
     **/
     gBootUtils.detailsNode = function(board, object) {
-        var aNode,
-            tooltipNode;
+        var aNode;
+        var tooltipNode;
 
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute('title', 'More info');
@@ -469,15 +469,8 @@ define([
      * @param {object} object: The entire data set for the row.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.renderDetails = function(data, type, object) {
-        var href;
-
-        href = '/boot/' + data + '/job/' + object.job +
-            '/kernel/' + object.kernel +
-            '/defconfig/' + object.defconfig_full +
-            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid;
-
-        return tcommon.renderDetails(href, type);
+    gBootUtils.renderDetails = function(data, type) {
+        return tcommon.renderDetails('/boot/id/' + data.$oid + '/', type);
     };
 
     /**

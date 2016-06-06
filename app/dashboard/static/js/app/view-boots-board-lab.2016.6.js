@@ -9,12 +9,13 @@ require([
     'utils/table'
 ], function($, init, e, r, html, tboot, table) {
     'use strict';
-    var boardName,
-        bootsTable,
-        defconfigFull,
-        fileServer,
-        jobName,
-        kernelName;
+    var gBoardName;
+    var gBootsTable;
+    var gDefconfigFull;
+    var gFileServer;
+    var gJobName;
+    var gKernelName;
+    var gLabName;
 
     document.getElementById('li-boot').setAttribute('class', 'active');
 
@@ -27,15 +28,14 @@ require([
     }
 
     function getBootsDone(response) {
-        var columns,
-            results,
-            rowURLFmt;
+        var columns;
+        var results;
 
         /**
          * Wrapper to inject the server URL.
         **/
         function _renderBootLogs(data, type, object) {
-            object.default_file_server = fileServer;
+            object.default_file_server = gFileServer;
             return tboot.renderBootLogs(data, type, object);
         }
 
@@ -47,8 +47,6 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
-            rowURLFmt = '/boot/id/%(_id)s/';
-
             columns = [
                 {
                     data: '_id',
@@ -57,17 +55,15 @@ require([
                     orderable: false
                 },
                 {
-                    data: 'lab_name',
-                    title: 'Lab Name',
-                    type: 'string',
-                    className: 'lab-column',
-                    render: tboot.renderLab
-                },
-                {
                     data: 'arch',
                     title: 'Arch.',
                     type: 'string',
                     className: 'arch-column'
+                },
+                {
+                    data: 'compiler_version_ext',
+                    title: 'Compiler',
+                    type: 'string'
                 },
                 {
                     data: 'boot_result_description',
@@ -108,11 +104,11 @@ require([
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .rowURL(rowURLFmt)
+                .rowURL('/boot/id/%(_id)s/')
                 .noIdURL(true)
                 .rowURLElements(['_id'])
                 .draw();
@@ -125,10 +121,11 @@ require([
         deferred = r.get(
             '/_ajax/boot',
             {
-                board: boardName,
-                job: jobName,
-                kernel: kernelName,
-                defconfig_full: defconfigFull
+                board: gBoardName,
+                job: gJobName,
+                kernel: gKernelName,
+                defconfig_full: gDefconfigFull,
+                lab_name: gLabName
             }
         );
         $.when(deferred)
@@ -137,105 +134,128 @@ require([
     }
 
     function setUpData() {
-        var aNode,
-            spanNode,
-            tooltipNode;
+        var aNode;
+        var spanNode;
+        var tooltipNode;
+        var docFrag;
 
-        // Add the tree data.
-        spanNode = document.createElement('span');
+        // Lab.
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
+        tooltipNode.setAttribute(
+            'title', 'Boot reports for lab&nbsp' + gLabName);
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute('href', '/boot/all/lab/' + gLabName + '/');
+        aNode.appendChild(document.createTextNode(gLabName));
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.search());
 
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + jobName);
+        html.replaceContent(document.getElementById('dd-lab'), docFrag);
 
-        aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/all/job/' + jobName + '/');
-        aNode.appendChild(document.createTextNode(jobName));
+        // Board.
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
+        tooltipNode.setAttribute(
+            'title', 'Boot reports for board&nbsp;' + gBoardName);
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute('href', '/boot/' + gBoardName + '/');
+        aNode.appendChild(document.createTextNode(gBoardName));
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        aNode.appendChild(html.search());
 
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
+        html.replaceContent(document.getElementById('dd-board'), docFrag);
+
+        // Tree.
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
+
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + gJobName);
+
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
+        aNode.appendChild(document.createTextNode(gJobName));
 
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-        tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + jobName);
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + gJobName);
 
-        aNode = document.createElement('a');
-        aNode.setAttribute('href', '/job/' + jobName + '/');
-
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute('href', '/job/' + gJobName + '/');
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.tree());
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
 
-        html.replaceContent(document.getElementById('dd-tree'), spanNode);
+        html.replaceContent(document.getElementById('dd-tree'), docFrag);
 
-        // Add the kernel data.
-        spanNode = document.createElement('span');
+        // Git describe.
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title',
-            'Boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
+            'Boot reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
         );
 
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href',
-            '/boot/all/job/' + jobName + '/kernel/' + kernelName + '/');
-        aNode.appendChild(document.createTextNode(kernelName));
-
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
+            '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
+        aNode.appendChild(document.createTextNode(gKernelName));
 
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-        tooltipNode = html.tooltip();
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title',
-            'Build reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
+            'Build reports for&nbsp;' + gJobName +
+                '&nbsp;&dash;&nbsp;' + gKernelName
         );
 
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
-            'href', '/build/' + jobName + '/kernel/' + kernelName + '/');
-
+            'href', '/build/' + gJobName + '/kernel/' + gKernelName + '/');
+        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.build());
-        tooltipNode.appendChild(aNode);
-        spanNode.appendChild(tooltipNode);
 
         html.replaceContent(
             document.getElementById('dd-git-describe'), spanNode);
 
-        // Add the defconfig data.
+        // Defconfig.
         html.replaceContent(
             document.getElementById('dd-defconfig'),
-            document.createTextNode(defconfigFull));
+            document.createTextNode(gDefconfigFull));
     }
 
     if (document.getElementById('board-name') !== null) {
-        boardName = document.getElementById('board-name').value;
+        gBoardName = document.getElementById('board-name').value;
     }
     if (document.getElementById('defconfig-full') !== null) {
-        defconfigFull = document.getElementById('defconfig-full').value;
+        gDefconfigFull = document.getElementById('defconfig-full').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        kernelName = document.getElementById('kernel-name').value;
+        gKernelName = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('file-server') !== null) {
-        fileServer = document.getElementById('file-server').value;
+        gFileServer = document.getElementById('file-server').value;
+    }
+    if (document.getElementById('lab-name') !== null) {
+        gLabName = document.getElementById('lab-name').value;
     }
 
-    bootsTable = table({
+    gBootsTable = table({
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    setUpData();
-    getBoots();
+
+    setTimeout(setUpData, 0);
+    setTimeout(getBoots, 0);
 
     init.hotkeys();
     init.tooltip();
