@@ -14,12 +14,11 @@
 """All the build class based views."""
 
 from flask import (
-    current_app as app,
-    render_template,
-    request,
     abort,
+    current_app as app,
     redirect,
-    url_for
+    render_template,
+    request
 )
 from flask.views import View
 
