@@ -427,12 +427,7 @@ define([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute('title', 'Boot report details');
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href',
-            '/boot/' + board + '/job/' + job + '/kernel/' + kernel +
-            '/defconfig/' + defconfigFull + '/lab/' + labName +
-            '/?_id=' + docId
-        );
+        aNode.setAttribute('href', '/boot/id/' + docId + '/');
         aNode.appendChild(document.createTextNode('More info'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());

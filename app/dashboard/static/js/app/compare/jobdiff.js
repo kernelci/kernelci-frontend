@@ -36,24 +36,24 @@ define([
     }
 
     function createBuildUrl(element) {
+        var defconfig;
         var destUrl;
         var elId;
-        var defconfig;
         var job;
         var kernel;
 
-        destUrl = '/build/';
         if (element.hasAttribute('data-status')) {
-            defconfig = element.getAttribute('data-defconfig');
-            job = element.getAttribute('data-job');
-            kernel = element.getAttribute('data-kernel');
             elId = element.getAttribute('data-id') || null;
-
-            destUrl += job + '/kernel/' + kernel + '/defconfig/' +
-                defconfig + '/';
             if (elId !== null) {
-                destUrl += '?_id=' + elId;
+                destUrl = '/build/id/' + elId + '/';
+            } else {
+                defconfig = element.getAttribute('data-defconfig');
+                job = element.getAttribute('data-job');
+                kernel = element.getAttribute('data-kernel');
+                destUrl = '/build/' + job + '/kernel/' + kernel +
+                    '/defconfig/' + defconfig + '/';
             }
+
             window.location = destUrl;
         }
     }

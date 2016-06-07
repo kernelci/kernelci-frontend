@@ -446,13 +446,7 @@ define([
         tooltipNode.setAttribute('title', 'More info');
 
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href',
-            '/boot/' + board + '/job/' + object.job +
-            '/kernel/' + object.kernel +
-            '/defconfig/' + object.defconfig_full +
-            '/lab/' + object.lab_name + '/?_id=' + object._id.$oid
-        );
+        aNode.setAttribute('href', '/boot/id/' + object._id.$oid + '/');
 
         aNode.appendChild(html.search());
         tooltipNode.appendChild(aNode);

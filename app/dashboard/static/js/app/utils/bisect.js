@@ -303,13 +303,7 @@ define([
             html.addClass(tooltipNode, 'bisect-tooltip');
 
             if (type === 'boot') {
-                aNode.setAttribute(
-                    'href',
-                    '/boot/' + board + '/job/' + job +
-                    '/kernel/' + gitDescribe + '/defconfig/' +
-                    defconfigFull + '/lab/' + lab +
-                    '/?_id=' + docId
-                );
+                aNode.setAttribute('href', '/boot/id/' + docId + '/');
 
                 tooltipNode.setAttribute(
                     'title',
