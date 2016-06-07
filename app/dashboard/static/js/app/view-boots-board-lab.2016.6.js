@@ -17,7 +17,9 @@ require([
     var gKernelName;
     var gLabName;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 0);
 
     function getBootsFail() {
         html.removeElement(
@@ -48,12 +50,6 @@ require([
                 html.errorDiv('No data found.'));
         } else {
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'arch',
                     title: 'Arch.',
@@ -107,7 +103,7 @@ require([
             gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([4, 'desc'])
                 .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
