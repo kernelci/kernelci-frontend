@@ -90,7 +90,16 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
         if build_id:
             return redirect(url_for("build-id", **{"uid": build_id}), code=301)
         else:
-            abort(404)
+            body_title = (
+                u"Build reports for &#171;{job:s}&#187; &dash; {kernel:s}"
+            ).format(**kwargs)
+
+            return render_template(
+                "builds-job-kernel-defconfig.html",
+                page_title=self.BUILD_PAGES_TITLE,
+                body_title=body_title,
+                **kwargs
+            )
 
 
 class BuildsLogsView(GeneralBuildsView):

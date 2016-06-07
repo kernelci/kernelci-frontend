@@ -10,292 +10,52 @@
 {%- block content %}
 <div class="row">
     <div class="page-header">
-        <h3 id="details">{{ body_title|safe }}</h3>
+        <h3 id="body-title">{{ body_title|safe }}</h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
         <dl class="dl-horizontal">
             <dt>Tree</dt>
-            <dd class="loading-content" id="tree">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Git branch</dt>
-            <dd class="loading-content" id="git-branch">
+            <dd class="loading-content" id="dd-tree">
                 <small>
                     <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
                 </small>
             </dd>
             <dt>Git describe</dt>
-            <dd class="loading-content" id="git-describe">
+            <dd class="loading-content" id="dd-git-describe">
                 <small>
                     <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
                 </small>
             </dd>
             <dt>Defconfig</dt>
-            <dd class="loading-content" id="build-defconfig">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Git URL</dt>
-            <dd class="loading-content" id="git-url">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Git commit</dt>
-            <dd class="loading-content" id="git-commit">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Date</dt>
-            <dd class="loading-content" id="build-date">
+            <dd class="loading-content" id="dd-defconfig">
                 <small>
                     <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
                 </small>
             </dd>
         </dl>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <dl class="dl-horizontal">
-            <dt>Status</dt>
-            <dd class="loading-content" id="build-status">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Architecture</dt>
-            <dd class="loading-content" id="build-arch">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Build errors</dt>
-            <dd class="loading-content" id="build-errors">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Build warnings</dt>
-            <dd class="loading-content" id="build-warnings">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Build time</dt>
-            <dd class="loading-content" id="build-time">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
-    </div>
+</div>
+<div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <dl class="dl-horizontal">
-            <dt>Compiler</dt>
-            <dd class="loading-content" id="compiler">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Compiler version</dt>
-            <dd class="loading-content" id="compiler-version">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Compiler string</dt>
-            <dd class="loading-content" id="compiler-version-full">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Cross-compile</dt>
-            <dd class="loading-content" id="cross-compile">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <dl class="dl-horizontal">
-            <dt>Build log</dt>
-            <dd class="loading-content" id="build-log">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Kernel config</dt>
-            <dd class="loading-content" id="kernel-config">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Config fragments</dt>
-            <dd class="loading-content" id="config-fragments">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Text offset</dt>
-            <dd class="loading-content" id="text-offset">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <dl class="dl-horizontal">
-            <dt>Dtb</dt>
-            <dd class="loading-content" id="dtb-dir">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Modules</dt>
-            <dd class="loading-content" id="build-modules">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Kernel image</dt>
-            <dd class="loading-content" id="kernel-image">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>System map</dt>
-            <dd class="loading-content" id="system-map">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <dl class="dl-horizontal">
-            <dt>ELF .bss section size</dt>
-            <dd class="loading-content" id="elf-bss-size">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>ELF .data section size</dt>
-            <dd class="loading-content" id="elf-data-size">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>ELF .txt section size</dt>
-            <dd class="loading-content" id="elf-txt-size">
-                <small>
-                    <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
-    </div>
-</div>
-<div class="row hidden" id="bisect">
-    <div class="page-header"><h3>Build Bisect</h3></div>
-    <div class="hidden" id="bisect-div">
-        <div id="bisect-default" class="other-header">
-            <h4>Default bisect</h4>
-            {# Placeholder for the show/hide button created dynamically #}
-            <span class="pull-right" id="buildb-showhide"></span>
-            <hr class="blurred subheader" />
+        <div id="table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-cog fa-spin"></i>&nbsp;retrieving build data&hellip;
+            </small>
         </div>
-        <div id="view-buildb-showhide" class="pull-center"></div>
-        {%- include "other-bisect-content.html" %}
-    </div>
-    <div class="hidden" id="bisect-compare-div">
-        <div id="bisect-compared" class="other-header">
-            <h4>Compared to &#171;mainline&#187;</h4>
-            {# Placeholder for the show/hide button created dynamically #}
-            <span class="pull-right" id="buildb-compare-showhide"></span>
-            <hr class="blurred subheader" />
-        </div>
-        <div id="view-buildb-compare-showhide" class="pull-center"></div>
-        {%- include "other-bisect-compare-content.html" -%}
-    </div>
-</div>
-<div class="row">
-    <div class="page-header">
-        <h3 id="boot-reports">Boot Reports</h3>
-    </div>
-    <div id="table-loading" class="pull-center">
-        <small>
-            <i class="fa fa-cog fa-spin"></i>&nbsp;searching boot data&hellip;
-        </small>
-    </div>
-{%- if is_mobile %}
-    <div class="table-responsive" id="boots-table-div">
-{%- else %}
-    <div class="table" id="boots-table-div">
-{%- endif %}
-        <table class="table table-hover table-striped table-condensed clickable-table big-table" id="bootstable">
-        </table>
-    </div>
-</div>
-<div class="row">
-    <div class="page-header">
-        <h3 id="platform">Build Platform</h3>
-    </div>
-    <div id="build-platform">
-        <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
-            <dl class="dl-horizontal">
-                <dt>System</dt>
-                <dd class="loading-content" id="platform-system">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-                <dt>Node name</dt>
-                <dd class="loading-content" id="platform-node">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-                <dt>Release</dt>
-                <dd class="loading-content" id="platform-release">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-                <dt>Full release</dt>
-                <dd class="loading-content" id="platform-full-release">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-            </dl>
-        </div>
-        <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-            <dl class="dl-horizontal">
-                <dt>Machine type</dt>
-                <dd class="loading-content" id="platform-machine">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-                <dt>CPU</dt>
-                <dd class="loading-content" id="platform-cpu">
-                    <small>
-                        <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
-                    </small>
-                </dd>
-            </dl>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="builds-table">
+            </table>
         </div>
     </div>
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
-<input type="hidden" id="job-name" value="{{ job_name }}">
-<input type="hidden" id="kernel-name" value="{{ kernel_name }}">
-<input type="hidden" id="defconfig-full" value="{{ defconfig_full }}">
-<input type="hidden" id="build-id" value="{{ build_id }}">
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="defconfig-full" value="{{ defconfig }}">
 {%- endblock %}
 {%- block scripts %}
 <script data-main="/static/js/kci-builds-job-kernel-defconfig" src="/static/js/lib/require.js"></script>
