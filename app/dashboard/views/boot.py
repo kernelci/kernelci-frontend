@@ -16,7 +16,8 @@ from flask import (
     current_app as app,
     redirect,
     render_template,
-    request
+    request,
+    url_for
 )
 from flask.views import View
 
@@ -100,7 +101,7 @@ class BootBoardLabView(BootGeneralView):
 
         boot_id = request.args.get("_id", None)
         if boot_id:
-            return redirect("/boot/id/{:s}/".format(boot_id))
+            return redirect(url_for("boot-id", **{"uid": boot_id}), code=301)
         else:
             page_title = (
                 self.BOOT_PAGES_TITLE +
