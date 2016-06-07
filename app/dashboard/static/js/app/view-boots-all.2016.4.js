@@ -16,7 +16,9 @@ require([
     var gPageLen;
     var gSearchFilter;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 0);
 
     gSearchFilter = null;
     gPageLen = null;
@@ -32,9 +34,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            setTimeout(function() {
-                gBootsTable.addRows(results);
-            }, 0);
+            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 0);
         }
 
         // Remove the loading banner when we get the last response.
@@ -52,7 +52,6 @@ require([
      * @param {object} response: The response from the previous request.
     **/
     function getMoreBoots(response) {
-        var deferred;
         var docFrag;
         var iNode;
         var idx;
@@ -81,8 +80,8 @@ require([
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
                 gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                deferred = r.get('/_ajax/boot', gBootReqData);
-                $.when(deferred).done(getMoreBootsDone);
+                $.when(r.get('/_ajax/boot', gBootReqData))
+                    .done(getMoreBootsDone);
             }
         }
     }
@@ -205,10 +204,7 @@ require([
     }
 
     function getBoots() {
-        var deferred;
-
-        deferred = r.get('/_ajax/boot', gBootReqData);
-        $.when(deferred)
+        $.when(r.get('/_ajax/boot', gBootReqData))
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getMoreBoots);
     }
