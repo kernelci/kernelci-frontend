@@ -18,11 +18,14 @@ from flask import (
     current_app as app,
     redirect,
     render_template,
-    request
+    request,
+    url_for
 )
 from flask.views import View
 
 from dashboard.utils.backend import get_search_parameters
+
+# pylint: disable=unused-argument
 
 
 class GeneralBuildsView(View):
@@ -35,7 +38,7 @@ class GeneralBuildsView(View):
 
 class BuildsIdView(GeneralBuildsView):
 
-    def dispatch_request(self, *args, **kwargs):
+    def dispatch_request(self, **kwargs):
         return render_template(
             "builds-id.html",
             build_id=kwargs["uid"], page_title=self.BUILD_PAGES_TITLE)
@@ -43,7 +46,6 @@ class BuildsIdView(GeneralBuildsView):
 
 class BuildsAllView(GeneralBuildsView):
 
-    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
         body_title = u"Available Builds"
         search_filter, page_len = get_search_parameters(request)
@@ -86,31 +88,28 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
         build_id = request.args.get("_id", None)
 
         if build_id:
-            return redirect("/build/id/{}/".format(build_id), code=301)
+            return redirect(url_for("build-id", **{"uid": build_id}), code=301)
         else:
             abort(404)
 
 
 class BuildsLogsView(GeneralBuildsView):
 
-    # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
-        job = kwargs["job"]
-        kernel = kwargs["kernel"]
-        defconfig = kwargs["defconfig"]
         build_id = request.args.get("_id", None)
 
-        body_title = (
-            "Build logs for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
-            (job, kernel)
-        )
+        if build_id:
+            return redirect(
+                url_for("build-id-logs", **{"uid": build_id}), code=301)
+        else:
+            abort(404)
 
+
+class BuildsIdLogsView(GeneralBuildsView):
+
+    def dispatch_request(self, **kwargs):
         return render_template(
             "builds-job-kernel-defconfig-logs.html",
-            body_title=body_title,
-            defconfig_full=defconfig,
-            build_id=build_id,
-            job_name=job,
-            kernel_name=kernel,
+            build_id=kwargs["uid"],
             page_title=self.BUILD_PAGES_TITLE
         )

@@ -6,16 +6,16 @@ require([
     'utils/error',
     'utils/request',
     'utils/urls',
-    'utils/html'
+    'utils/html',
+    'utils/date'
 ], function($, init, format, e, r, urls, html) {
     'use strict';
-    var gBuildId,
-        gDefconfigFull,
-        gFileServer,
-        gJobName,
-        gKernelName;
+    var gBuildId;
+    var gFileServer;
 
-    document.getElementById('li-build').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-build').setAttribute('class', 'active');
+    }, 0);
 
     function getBuildLogsFail() {
         html.removeElement(document.getElementById('build-logs-loading'));
@@ -26,15 +26,15 @@ require([
     }
 
     function getBuildLogsDone(response) {
-        var divNode,
-            errorsCount,
-            hNode,
-            localResult,
-            logsNode,
-            mismatchesCount,
-            results,
-            textArea,
-            warningsCount;
+        var divNode;
+        var errorsCount;
+        var hNode;
+        var localResult;
+        var logsNode;
+        var mismatchesCount;
+        var results;
+        var textArea;
+        var warningsCount;
 
         /**
          * Create the div and textarea to contain the log strings.
@@ -108,66 +108,52 @@ require([
     }
 
     function getBuildLogs(response) {
-        var deferred,
-            results;
-
-        results = response.result;
-        if (results.length === 0) {
+        if (response.result.length === 0) {
             html.removeElement(document.getElementById('build-logs-loading'));
             html.replaceContent(
                 document.getElementById('build-logs'),
                 html.errorDiv('No data available.'));
             html.replaceByClassTxt('logs-loading-content', '?');
         } else {
-            if (gBuildId && gBuildId !== 'None' && gBuildId !== null) {
-                deferred = r.get(
-                    '/_ajax/build/' + gBuildId + '/logs', {});
-            } else {
-                deferred = r.get(
-                    '/_ajax/build/logs',
-                    {
-                        job: gJobName,
-                        kernel: gKernelName,
-                        defconfig_full: gDefconfigFull
-                    }
-                );
-            }
-
-            $.when(deferred)
+            $.when(r.get('/_ajax/build/' + gBuildId + '/logs', {}))
                 .fail(e.error, getBuildLogsFail)
                 .done(getBuildLogsDone);
             }
     }
 
     function getBuildDone(response) {
-        var aNode,
-            arch,
-            buildLog,
-            buildTime,
-            defconfig,
-            defconfigNode,
-            detailNode,
-            gitCommit,
-            gitURL,
-            gitURLs,
-            job,
-            kernel,
-            results,
-            serverResource,
-            serverURL,
-            spanNode,
-            tooltipNode,
-            translatedURI;
+        var aNode;
+        var arch;
+        var buildLog;
+        var buildTime;
+        var createdOn;
+        var defconfigFull;
+        var defconfigNode;
+        var docFrag;
+        var gitCommit;
+        var gitURL;
+        var gitURLs;
+        var job;
+        var kernel;
+        var results;
+        var serverResource;
+        var serverURL;
+        var spanNode;
+        var tooltipNode;
+        var translatedURI;
 
         function _createSizeNode(size) {
+            var frag;
             var sizeNode;
-            sizeNode = document.createElement('small');
+
+            frag = document.createDocumentFragment();
+            sizeNode = frag.appendChild(document.createElement('small'));
 
             sizeNode.appendChild(document.createTextNode('('));
             sizeNode.appendChild(document.createTextNode(format.bytes(size)));
             sizeNode.appendChild(document.createTextNode(')'));
 
-            return sizeNode;
+            return frag;
         }
 
         results = response.result;
@@ -181,11 +167,12 @@ require([
             gitURL = results.git_url;
             gitCommit = results.git_commit;
             arch = results.arch;
-            defconfig = results.defconfig_full;
+            defconfigFull = results.defconfig_full;
             buildTime = results.build_time;
             buildLog = results.build_log;
             serverURL = results.file_server_url;
             serverResource = results.file_server_resource;
+            createdOn = new Date(results.created_on.$date);
 
             if (serverURL === null || serverURL === undefined) {
                 serverURL = gFileServer;
@@ -193,47 +180,52 @@ require([
 
             translatedURI = urls.translateServerURL(
                 serverURL,
-                serverResource, [job, kernel, arch + '-' + defconfig]);
+                serverResource, [job, kernel, arch + '-' + defconfigFull]);
 
             gitURLs = urls.translateCommit(gitURL, gitCommit);
 
-            // Details.
-            detailNode = document.getElementById('details');
-            detailNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            // The body title.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            defconfigNode = document.createElement('small');
+            spanNode.insertAdjacentHTML('beforeend', '&#171;');
+            spanNode.appendChild(document.createTextNode(job));
+            spanNode.insertAdjacentHTML('beforeend', '&#187;');
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
+            spanNode.insertAdjacentHTML('beforeend', '&#171;');
+            spanNode.appendChild(document.createTextNode(kernel));
+            spanNode.insertAdjacentHTML('beforeend', '&#187;');
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+
+            defconfigNode = spanNode.appendChild(
+                document.createElement('small'));
             defconfigNode.appendChild(
                 document.createTextNode('(' + results.defconfig + ')'));
 
-            detailNode.appendChild(defconfigNode);
+            document.getElementById('body-title').appendChild(docFrag);
 
             // Tree.
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/job/' + job + '/');
             aNode.appendChild(document.createTextNode(job));
 
-            tooltipNode.appendChild(aNode);
-            spanNode.appendChild(tooltipNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'Boot reports for tree&nbsp;' + job);
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/boot/all/job/' + job + '/');
             aNode.appendChild(html.boot());
 
-            tooltipNode.appendChild(aNode);
-
-            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            spanNode.appendChild(tooltipNode);
-
-            html.replaceContent(document.getElementById('tree'), spanNode);
+            html.replaceContent(document.getElementById('tree'), docFrag);
 
             // Git branch.
             html.replaceContent(
@@ -241,80 +233,75 @@ require([
                 document.createTextNode(results.git_branch));
 
             // Kernel.
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
                 'Build details for&nbsp;' + job +
                 '&nbsp;&dash;&nbsp;' + kernel
             );
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href', '/build/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(document.createTextNode(kernel));
 
-            tooltipNode.appendChild(aNode);
-            spanNode.appendChild(tooltipNode);
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
                 'Boot reports for&nbsp;' + job +
                 '&nbsp;&dash;&nbsp;' + kernel
             );
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(html.boot());
 
-            tooltipNode.appendChild(aNode);
-            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            spanNode.appendChild(tooltipNode);
-
             html.replaceContent(
-                document.getElementById('git-describe'), spanNode);
+                document.getElementById('git-describe'), docFrag);
 
             // Defconfig.
-            spanNode = document.createElement('span');
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            spanNode.appendChild(document.createTextNode(defconfigFull));
 
-            spanNode.appendChild(document.createTextNode(defconfig));
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-            tooltipNode = html.tooltip();
+            tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
-                'Boot reports for&nbsp;' + gJobName +
-                    '&nbsp;&dash;&nbsp;' + gKernelName +
-                    '&nbsp;&dash;&nbsp;' + defconfig
+                'Boot reports for&nbsp;' + job +
+                    '&nbsp;&dash;&nbsp;' + kernel +
+                    '&nbsp;&dash;&nbsp;' + defconfigFull
                 );
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
-                '/boot/all/job/' + gJobName + '/kernel/' +
-                gKernelName + '/defconfig/' + defconfig + '/'
+                '/boot/all/job/' + job + '/kernel/' +
+                kernel + '/defconfig/' + defconfigFull + '/'
             );
             aNode.appendChild(html.boot());
 
-            tooltipNode.appendChild(aNode);
-            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            spanNode.appendChild(tooltipNode);
-
             html.replaceContent(
-                document.getElementById('build-defconfig'), spanNode);
+                document.getElementById('build-defconfig'), docFrag);
 
             // Git URL/commit.
             if (gitURLs[0] !== null) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', gitURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
                 html.replaceContent(
-                    document.getElementById('git-url'), aNode);
+                    document.getElementById('git-url'), docFrag);
             } else {
                 if (gitURL !== null) {
                     html.replaceContent(
@@ -327,14 +314,15 @@ require([
             }
 
             if (gitURLs[1] !== null) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', gitURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
                 html.replaceContent(
-                    document.getElementById('git-commit'), aNode);
+                    document.getElementById('git-commit'), docFrag);
             } else {
                 if (gitCommit !== null) {
                     html.replaceContent(
@@ -348,12 +336,18 @@ require([
             }
 
             // Date.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('time'));
+            spanNode.setAttribute('datetime', createdOn.toISOString());
+            spanNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODateTime()));
+
             html.replaceContent(
-                document.getElementById('build-date'),
-                html.time(results.created_on));
+                document.getElementById('build-date'), docFrag);
 
             // Status.
-            tooltipNode = html.tooltip();
+            docFrag = document.createDocumentFragment();
+            tooltipNode = docFrag.appendChild(html.tooltip());
             switch (results.status) {
                 case 'PASS':
                     tooltipNode.setAttribute('title', 'Build completed');
@@ -370,7 +364,7 @@ require([
             }
 
             html.replaceContent(
-                document.getElementById('build-status'), tooltipNode);
+                document.getElementById('build-status'), docFrag);
 
             // Arch.
             if (arch) {
@@ -394,20 +388,20 @@ require([
 
             // Build log.
             if (buildLog) {
-                spanNode = document.createElement('span');
+                docFrag = document.createDocumentFragment();
+                spanNode = docFrag.appendChild(document.createElement('span'));
 
-                aNode = document.createElement('a');
+                aNode = spanNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     translatedURI[0]
                         .path(translatedURI[1] + '/' + buildLog)
                         .normalizePath().href()
                 );
+
                 aNode.appendChild(document.createTextNode(buildLog));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
-
-                spanNode.appendChild(aNode);
 
                 if (results.build_log_size !== null &&
                         results.build_log_size !== undefined) {
@@ -417,7 +411,7 @@ require([
                 }
 
                 html.replaceContent(
-                    document.getElementById('build-log'), spanNode);
+                    document.getElementById('build-log'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('build-log'), html.nonavail());
@@ -435,22 +429,7 @@ require([
     }
 
     function getBuild() {
-        var deferred;
-
-        if (gBuildId && gBuildId !== 'None' && gBuildId !== null) {
-            deferred = r.get('/_ajax/build', {id: gBuildId});
-        } else {
-            deferred = r.get(
-                '/_ajax/build',
-                {
-                    job: gJobName,
-                    kernel: gKernelName,
-                    defconfig_full: gDefconfigFull
-                }
-            );
-        }
-
-        $.when(deferred)
+        $.when(r.get('/_ajax/build', {id: gBuildId}))
             .fail(e.error, getBuildFail)
             .done(getBuildDone, getBuildLogs);
     }
@@ -458,20 +437,11 @@ require([
     if (document.getElementById('file-server') !== null) {
         gFileServer = document.getElementById('file-server').value;
     }
-    if (document.getElementById('job-name') !== null) {
-        gJobName = document.getElementById('job-name').value;
-    }
-    if (document.getElementById('kernel-name') !== null) {
-        gKernelName = document.getElementById('kernel-name').value;
-    }
-    if (document.getElementById('defconfig-full') !== null) {
-        gDefconfigFull = document.getElementById('defconfig-full').value;
-    }
     if (document.getElementById('build-id') !== null) {
         gBuildId = document.getElementById('build-id').value;
     }
 
-    getBuild();
+    setTimeout(getBuild, 0);
 
     init.hotkeys();
     init.tooltip();

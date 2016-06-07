@@ -6,7 +6,7 @@
 {%- block content %}
 <div class="row">
     <div class="page-header">
-        <h3 id="details">{{ body_title|safe }}</h3>
+        <h3 id="body-title">Build logs for&nbsp;</h3>
     </div>
     <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
@@ -121,9 +121,6 @@
     <div id="build-logs"></div>
 </div>
 <input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
-<input type="hidden" id="job-name" value="{{ job_name }}">
-<input type="hidden" id="kernel-name" value="{{ kernel_name }}">
-<input type="hidden" id="defconfig-full" value="{{ defconfig_full }}">
 <input type="hidden" id="build-id" value="{{ build_id }}">
 {%- endblock %}
 {%- block scripts %}
