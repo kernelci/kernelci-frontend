@@ -266,10 +266,7 @@ require([
 
                 tooltipNode.setAttribute('title', warnErrTooltip);
                 aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    '/build/' + job + '/kernel/' + kernel +
-                    '/defconfig/' + defconfigFull + '/logs/?_id=' + docId);
+                aNode.setAttribute('href', '/build/id/' + docId + '/logs/');
                 aNode.insertAdjacentHTML('beforeend', warnErrCount);
 
                 tooltipNode.appendChild(aNode);
