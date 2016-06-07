@@ -242,7 +242,7 @@ define([
 
     html.replaceAllBySelectorHTML = function(selector, replacement) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll(selector),
                 function(element) {
                     _cleanElementChildren(element);
@@ -253,7 +253,7 @@ define([
 
     html.replaceAllBySelectorTxt = function(selector, txt) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll(selector),
                 function(element) {
                     _cleanElementChildren(element);
@@ -264,7 +264,7 @@ define([
 
     html.replaceAllBySelector = function(selector, content) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.querySelectorAll(selector),
                 function(element) {
                     _cleanElementChildren(element);
@@ -275,7 +275,7 @@ define([
 
     html.replaceByClassHTML = function(className, replacement) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.getElementsByClassName(className),
                 function(element) {
                     _cleanElementChildren(element);
@@ -286,7 +286,7 @@ define([
 
     html.replaceByClassTxt = function(className, txt) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.getElementsByClassName(className),
                 function(element) {
                     _cleanElementChildren(element);
@@ -297,7 +297,7 @@ define([
 
     html.replaceByClass = function(className, content) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.getElementsByClassName(className),
                 function(element) {
                     _cleanElementChildren(element);
@@ -308,11 +308,11 @@ define([
 
     html.replaceByClassNode = function(className, child) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.getElementsByClassName(className),
                 function(element) {
                     _cleanElementChildren(element);
-                    element.appendChild(child);
+                    element.appendChild(child.cloneNode(true));
                 });
         }, 0);
     };
@@ -342,7 +342,7 @@ define([
     **/
     html.removeChildrenByClass = function(className) {
         setTimeout(function() {
-            [].forEach.call(
+            Array.prototype.forEach.call(
                 document.getElementsByClassName(className),
                 _cleanElementChildren
             );
