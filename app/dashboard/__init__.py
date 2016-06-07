@@ -21,14 +21,14 @@ from flask import (
     Markup,
     abort,
     render_template,
-    request,
+    request
 )
 from flask_wtf.csrf import (
     CsrfProtect,
     generate_csrf,
     validate_csrf,
 )
-from flask.ext.cache import Cache
+from flask_cache import Cache
 from werkzeug.routing import BaseConverter
 
 __version__ = "2016.4.1"
