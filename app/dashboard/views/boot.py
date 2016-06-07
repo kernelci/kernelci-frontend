@@ -100,7 +100,7 @@ class BootBoardLabView(BootGeneralView):
 
         boot_id = request.args.get("_id", None)
         if boot_id:
-            return redirect("/boot/id/{}/".format(boot_id))
+            return redirect("/boot/id/{:s}/".format(boot_id))
         else:
             page_title = (
                 self.BOOT_PAGES_TITLE +
