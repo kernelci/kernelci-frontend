@@ -852,7 +852,8 @@ require([
             }
 
             if (buildLog !== null && buildLog !== undefined) {
-                spanNode = document.createElement('span');
+                docFrag = document.createDocumentFragment();
+                spanNode = docFrag.appendChild(document.createElement('span'));
 
                 aNode = document.createElement('a');
                 aNode.setAttribute(
@@ -865,15 +866,13 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
-                spanNode.appendChild(aNode);
-
                 if (buildLogSize !== null && buildLogSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     spanNode.appendChild(_createSizeNode(buildLogSize));
                 }
 
                 html.replaceContent(
-                    document.getElementById('build-log'), spanNode);
+                    document.getElementById('build-log'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('build-log'), html.nonavail());

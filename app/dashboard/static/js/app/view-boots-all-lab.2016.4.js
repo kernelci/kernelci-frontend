@@ -20,6 +20,7 @@ require([
     setTimeout(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
     }, 0);
+
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
