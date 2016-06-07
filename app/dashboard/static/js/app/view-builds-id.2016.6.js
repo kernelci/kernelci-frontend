@@ -9,13 +9,16 @@ require([
     'utils/bisect',
     'utils/html',
     'utils/table',
+    'tables/boot',
     'utils/date'
-], function($, init, format, e, r, urls, bisect, html, table) {
+], function($, init, format, e, r, urls, bisect, html, table, tboot) {
     'use strict';
-    var fileServer;
+    var gFileServer;
     var gBuildId;
 
-    document.getElementById('li-build').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-build').setAttribute('class', 'active');
+    }, 0);
 
     function getBisectFail() {
         html.removeElement('bisect-loading-div');
@@ -73,25 +76,21 @@ require([
 
     function getBisectCompareTo(response) {
         var bisectData;
-        var lBuildId;
-        var resLen;
         var result;
 
         result = response.result;
-        resLen = result.length;
-        if (resLen > 0) {
+        if (result.length === 0) {
+            html.removeElement(document.getElementById('bisect-compare-div'));
+        } else {
             bisectData = result[0];
-            lBuildId = bisectData.build_id.$oid;
             if (bisectData.job !== 'mainline') {
                 html.removeClass(
                     document.getElementById('bisect-compare-div'), 'hidden');
-                getBisectToMainline(bisectData, lBuildId);
+                getBisectToMainline(bisectData, bisectData.build_id.$oid);
             } else {
                 html.removeElement(
                     document.getElementById('bisect-compare-div'));
             }
-        } else {
-            html.removeElement(document.getElementById('bisect-compare-div'));
         }
     }
 
@@ -122,12 +121,12 @@ require([
 
     function getBisect(response) {
         var deferred;
-        var resLen;
         var results;
 
         results = response.result;
-        resLen = results.length;
-        if (resLen > 0) {
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('bisect-div'));
+        } else {
             results = response.result[0];
             if (results.status === 'FAIL') {
                 html.removeClass(document.getElementById('bisect'), 'hidden');
@@ -146,8 +145,6 @@ require([
             } else {
                 html.removeElement(document.getElementById('bisect-div'));
             }
-        } else {
-            html.removeElement(document.getElementById('bisect-div'));
         }
     }
 
@@ -159,114 +156,24 @@ require([
         );
     }
 
-    function createBootLogLinks(object) {
-        var aNode;
-        var arch;
-        var bootLogHtml;
-        var bootLogTxt;
-        var defconfig;
-        var divNode;
-        var fileServerData;
-        var job;
-        var kernel;
-        var labName;
-        var logPath;
-        var serverResource;
-        var serverUrl;
-        var tooltipNode;
-        var translatedUri;
-
-        arch = object.arch;
-        bootLogHtml = object.boot_log_html;
-        bootLogTxt = object.boot_log;
-        defconfig = object.defconfig_full;
-        job = object.job;
-        kernel = object.kernel;
-        labName = object.lab_name;
-        serverResource = object.file_server_resource;
-        serverUrl = object.file_server_url;
-
-        if (serverUrl === null || serverUrl === undefined) {
-            serverUrl = fileServer;
-        }
-
-        fileServerData = [job, kernel, arch + '-' + defconfig];
-        translatedUri = urls.translateServerURL(
-            serverUrl, serverResource, fileServerData);
-
-        divNode = null;
-        if (bootLogTxt !== null || bootLogHtml !== null) {
-            divNode = document.createElement('div');
-
-            if (bootLogTxt !== null) {
-                if (bootLogTxt.search(labName) === -1) {
-                    logPath = translatedUri[1] + '/' + labName +
-                        '/' + bootLogTxt;
-                } else {
-                    logPath = translatedUri[1] + '/' + bootLogTxt;
-                }
-
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', 'View raw text boot log');
-
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    translatedUri[0].path(logPath).normalizePath().href());
-
-                aNode.appendChild(document.createTextNode('txt'));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-                tooltipNode.appendChild(aNode);
-                divNode.appendChild(tooltipNode);
-            }
-
-            if (bootLogHtml !== null) {
-                if (bootLogTxt !== null) {
-                    divNode.insertAdjacentHTML(
-                        'beforeend', '&nbsp;&mdash;&nbsp;');
-                }
-
-                if (bootLogHtml.search(labName) === -1) {
-                    logPath = translatedUri[1] + '/' + labName +
-                        '/' + bootLogHtml;
-                } else {
-                    logPath = translatedUri[1] + '/' + bootLogHtml;
-                }
-
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute('title', 'View HTML boot log');
-
-                aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href',
-                    translatedUri[0].path(logPath).normalizePath().href());
-
-                aNode.appendChild(document.createTextNode('html'));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-                tooltipNode.appendChild(aNode);
-                divNode.appendChild(tooltipNode);
-            }
-        }
-
-        return divNode;
-    }
-
     function getBootsDone(response) {
         var bootsTable;
         var columns;
-        var resLen;
         var results;
-        var rowURL;
+
+        function _renderBootLog(data, type, object) {
+            object.default_file_server = gFileServer;
+            return tboot.renderBootLogs(data, type, object);
+        }
 
         results = response.result;
-        resLen = results.length;
 
-        if (resLen > 0) {
-            rowURL = '/boot/%(board)s/job/%(job)s/kernel/%(kernel)s' +
-                '/defconfig/%(defconfig_full)s/lab/%(lab_name)s/';
-
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('table-loading'));
+            html.replaceContent(
+                document.getElementById('boots-table-div'),
+                html.errorDiv('No boot reports available.'));
+        } else {
             bootsTable = table({
                 tableId: 'bootstable',
                 tableLoadingDivId: 'table-loading',
@@ -274,12 +181,6 @@ require([
             });
 
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'board',
                     title: 'Board Model',
@@ -295,28 +196,7 @@ require([
                     data: 'boot_result_description',
                     title: 'Failure Reason',
                     className: 'failure-column',
-                    render: function(data, type) {
-                        var rendered,
-                            tooltipNode;
-
-                        rendered = data;
-                        if (data !== null) {
-                            rendered = html.escape(data);
-
-                            if (type === 'display') {
-                                tooltipNode = html.tooltip();
-                                tooltipNode.setAttribute('title', rendered);
-                                tooltipNode.setAttribute(
-                                    'data-placement', 'left');
-                                tooltipNode.insertAdjacentHTML(
-                                    'beforeend', rendered);
-
-                                rendered = tooltipNode.outerHTML;
-                            }
-                        }
-
-                        return rendered;
-                    }
+                    render: tboot.renderResultDescription
                 },
                 {
                     data: 'boot_log',
@@ -324,97 +204,23 @@ require([
                     searchable: false,
                     orderable: false,
                     className: 'log-column pull-center',
-                    render: function(data, type, object) {
-                        var rendered;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            rendered = createBootLogLinks(object).outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: _renderBootLog
                 },
                 {
                     data: 'status',
                     title: 'Status',
                     type: 'string',
                     className: 'pull-center',
-                    render: function(data, type) {
-                        var rendered;
-                        var tooltipNode;
-
-                        rendered = data;
-                        if (type === 'display') {
-                            tooltipNode = html.tooltip();
-
-                            switch (data) {
-                                case 'PASS':
-                                    tooltipNode.setAttribute(
-                                        'title', 'Board booted successfully');
-                                    tooltipNode.appendChild(html.success());
-                                    break;
-                                case 'FAIL':
-                                    tooltipNode.setAttribute(
-                                        'title', 'Board boot failed');
-                                    tooltipNode.appendChild(html.fail());
-                                    break;
-                                case 'OFFLINE':
-                                    tooltipNode.setAttribute(
-                                        'title', 'Board offline');
-                                    tooltipNode.appendChild(html.offline());
-                                    break;
-                                default:
-                                    tooltipNode.setAttribute(
-                                        'href', 'Board boot status unknown');
-                                    tooltipNode.appendChild(html.unknown());
-                                    break;
-                            }
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
+                    type: 'string',
                     orderable: false,
                     searchable: false,
                     className: 'select-column pull-center',
-                    render: function(data, type, object) {
-                        var aNode;
-                        var iNode;
-                        var lab;
-                        var rendered;
-                        var tooltipNode;
-
-                        rendered = null;
-                        if (type === 'display') {
-                            lab = object.lab_name;
-
-                            tooltipNode = html.tooltip();
-                            tooltipNode.setAttribute('title', 'More details');
-                            aNode = document.createElement('a');
-                            aNode.setAttribute(
-                                'href',
-                                '/boot/' + data + '/job/' + object.job +
-                                '/kernel/' + object.kernel +
-                                '/defconfig/' + object.defconfig_full +
-                                '/lab/' + lab + '/?_id=' + object._id.$oid
-                            );
-                            iNode = document.createElement('i');
-                            iNode.className = 'fa fa-search';
-
-                            aNode.appendChild(iNode);
-                            tooltipNode.appendChild(aNode);
-
-                            rendered = tooltipNode.outerHTML;
-                        }
-
-                        return rendered;
-                    }
+                    render: tboot.renderDetails
                 }
             ];
 
@@ -422,31 +228,27 @@ require([
                 .data(results)
                 .columns(columns)
                 .lengthMenu([5, 10, 25, 50])
-                .order([1, 'asc'])
+                .order([0, 'asc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL(rowURL)
-                .rowURLElements(
-                    ['board', 'job', 'kernel', 'defconfig_full', 'lab_name']
-                )
+                .rowURL('/boot/id/%(_id)s/')
+                .noIdURL(true)
+                .rowURLElements(['_id'])
                 .draw();
-        } else {
-            html.removeElement(document.getElementById('table-loading'));
-            html.replaceContent(
-                document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reports available.'));
         }
     }
 
     function getBoots(response) {
         var data;
-        var deferred;
         var results;
-        var resLen;
 
         results = response.result;
-        resLen = results.length;
 
-        if (resLen > 0) {
+        if (results.length === 0) {
+            html.removeElement(document.getElementById('table-loading'));
+            html.replaceContent(
+                document.getElementById('boots-table-div'),
+                html.errorDiv('No boot reports found.'));
+        } else {
             results = response.result[0];
 
             if (results._id !== null) {
@@ -484,38 +286,19 @@ require([
                 };
             }
 
-            deferred = r.get('/_ajax/boot', data);
-            $.when(deferred)
+            $.when(r.get('/_ajax/boot', data))
                 .fail(e.error, getBootsFail)
                 .done(getBootsDone);
-        } else {
-            html.removeElement(document.getElementById('table-loading'));
-            html.replaceContent(
-                document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reports found.'));
         }
     }
 
     function getBuildsFail() {
-        var iNode;
-        var tooltipNode;
-
-        tooltipNode = document.createElement('span');
-        tooltipNode.setAttribute('title', 'Not available');
-        tooltipNode.setAttribute('rel', 'tooltip');
-        tooltipNode.setAttribute('data-toggle', 'tooltip');
-
-        iNode = document.createElement('i');
-        iNode.className = 'fa fa-ban';
-
-        tooltipNode.appendChild(iNode);
-
         html.removeElement(document.getElementById('bisect-div'));
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('boots-table-div'),
             html.errorDiv('Error loading data.'));
-        html.replaceByClassHTML('loading-content', tooltipNode.outerHTML);
+        html.replaceByClassNode('loading-content', html.nonavail());
     }
 
     function getBuildsDone(response) {
@@ -555,7 +338,6 @@ require([
         var kernelImage;
         var kernelImageSize;
         var pathURI;
-        var resLen;
         var results;
         var spanNode;
         var systemMap;
@@ -567,7 +349,6 @@ require([
         var vmlinuxFileSize;
 
         results = response.result;
-        resLen = results.length;
 
         function _createSizeNode(size) {
             var frag;
@@ -583,7 +364,7 @@ require([
             return frag;
         }
 
-        if (resLen === 0) {
+        if (results.length === 0) {
             document.getElementById('details')
                 .insertAdjacentHTML('beforeend', '&hellip;');
             html.removeElement('bisect-div');
@@ -650,7 +431,7 @@ require([
             document.getElementById('details').appendChild(docFrag);
 
             if (fileServerURL === null || fileServerURL === undefined) {
-                fileServerURL = fileServer;
+                fileServerURL = gFileServer;
             }
 
             fileServerData = [
@@ -1129,21 +910,14 @@ require([
     }
 
     function getBuilds() {
-        var deferred;
-
-        deferred = r.get(
-            '/_ajax/build',
-            {
-                id: gBuildId,
-                nfield: ['dtb_dir_data']
-            });
-        $.when(deferred)
-            .fail(e.error, getBuildsFail)
-            .done(getBuildsDone, getBoots, getBisect);
+        $.when(
+            r.get('/_ajax/build', {id: gBuildId, nfield: ['dtb_dir_data']}))
+                .fail(e.error, getBuildsFail)
+                .done(getBuildsDone, getBoots, getBisect);
     }
 
     if (document.getElementById('file-server') !== null) {
-        fileServer = document.getElementById('file-server').value;
+        gFileServer = document.getElementById('file-server').value;
     }
     if (document.getElementById('build-id') !== null) {
         gBuildId = document.getElementById('build-id').value;
