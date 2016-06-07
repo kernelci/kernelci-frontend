@@ -391,7 +391,6 @@ require([
                 .languageLengthMenu('SoCs per page')
                 .rowURL('/soc/%(mach)s/')
                 .rowURLElements(['mach'])
-                .noIdURL(true)
                 .draw();
         }
     }

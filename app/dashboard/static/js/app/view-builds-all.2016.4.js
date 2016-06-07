@@ -98,7 +98,6 @@ require([
     function getBuildsDone(response) {
         var columns;
         var results;
-        var rowUrl;
 
         function _renderKernel(data, type, object) {
             return buildt.renderKernel(
@@ -117,15 +116,7 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data available'));
         } else {
-            rowUrl = '/build/id/%(_id)s/';
-
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'job',
                     title: 'Tree',
@@ -187,10 +178,9 @@ require([
             gBuildsTable
                 .data(results)
                 .columns(columns)
-                .order([6, 'desc'])
+                .order([5, 'desc'])
                 .languageLengthMenu('build reports per page')
-                .noIdURL(true)
-                .rowURL(rowUrl)
+                .rowURL('/build/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
 

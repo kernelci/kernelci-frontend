@@ -51,7 +51,6 @@ define([
         table: null,
         inputNode: null,
         selectNode: null,
-        _noIdURL: false,
         _rowURL: '/build/%(job)s/kernel/%(kernel)s/',
         _rowURLElements: ['job', 'kernel'],
         _clickFunction: null,
@@ -188,20 +187,6 @@ define([
             return this;
         }
         return this._columns;
-    };
-
-    /**
-     * Control whetever the link for the row click event should have an
-     * '_id=' value appended.
-     *
-     * @param {Boolean} value: If the row link should have an ID or not.
-    **/
-    kciTable.noIdURL = function(value) {
-        if (value !== undefined) {
-            this._noIdURL = Boolean(value);
-            return this;
-        }
-        return this._noIdURL;
     };
 
     kciTable.dom = function(value) {
@@ -384,9 +369,6 @@ define([
                     });
 
                     location = sprintf(that._rowURL, substitutions);
-                    if (!that._noIdURL && rowData._id) {
-                        location += '?_id=' + rowData._id.$oid;
-                    }
                 }
                 window.location = location;
             });

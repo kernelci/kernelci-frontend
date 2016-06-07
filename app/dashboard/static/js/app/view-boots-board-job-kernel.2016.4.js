@@ -110,7 +110,6 @@ require([
                 .order([5, 'desc'])
                 .languageLengthMenu('boot reports per page')
                 .rowURL(rowURL)
-                .noIdURL(true)
                 .rowURLElements(['_id'])
                 .draw();
 

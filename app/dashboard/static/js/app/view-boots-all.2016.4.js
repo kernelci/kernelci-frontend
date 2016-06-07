@@ -111,12 +111,6 @@ require([
         } else {
             columns = [
                 {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
-                {
                     data: 'job',
                     title: 'Tree',
                     type: 'string',
@@ -190,10 +184,9 @@ require([
             gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([8, 'desc'])
+                .order([7, 'desc'])
                 .languageLengthMenu('boot reports per page')
                 .rowURL('/boot/id/%(_id)s/')
-                .noIdURL(true)
                 .rowURLElements(['_id'])
                 .draw();
 

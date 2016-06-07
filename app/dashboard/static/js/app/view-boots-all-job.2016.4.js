@@ -318,7 +318,6 @@ require([
                 .order([5, 'desc'])
                 .rowURL(rowURLFmt)
                 .rowURLElements(['job', 'kernel'])
-                .noIdURL(true)
                 .paging(false)
                 .info(false)
                 .draw();

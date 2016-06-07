@@ -366,7 +366,6 @@ require([
                 .order([5, 'desc'])
                 .languageLengthMenu('builds per page')
                 .rowURLElements(['job', 'kernel'])
-                .noIdURL(true)
                 .paging(false)
                 .info(false)
                 .draw();

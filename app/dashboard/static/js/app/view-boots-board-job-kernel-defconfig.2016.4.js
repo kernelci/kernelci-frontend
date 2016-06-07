@@ -113,7 +113,6 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .rowURL(rowURLFmt)
-                .noIdURL(true)
                 .rowURLElements(['_id'])
                 .draw();
         }

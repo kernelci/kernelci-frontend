@@ -404,7 +404,6 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .noIdURL(true)
                 .rowURLElements(['job', 'kernel'])
                 .paging(false)
                 .info(false)

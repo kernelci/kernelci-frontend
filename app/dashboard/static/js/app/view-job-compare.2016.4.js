@@ -158,7 +158,6 @@ require([
             .data(comparedData)
             .columns(columns)
             .order([5, 'desc'])
-            .noIdURL(true)
             .rowURL(rowURL)
             .rowURLElements(['job', 'kernel'])
             .draw();

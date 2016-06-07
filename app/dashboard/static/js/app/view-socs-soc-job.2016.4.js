@@ -311,7 +311,6 @@ require([
             gBootsTable
                 .columns(columns)
                 .data(results)
-                .noIdURL(true)
                 .paging(false)
                 .info(false)
                 .rowURL('/soc/%(mach)s/job/%(job)s/kernel/%(kernel)s/')

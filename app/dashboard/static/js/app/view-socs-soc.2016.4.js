@@ -73,7 +73,6 @@ require([
 
             gBoardsTable
                 .rowURL('/boot/%(board)s/')
-                .noIdURL(true)
                 .rowURLElements(['board'])
                 .data(tableResults)
                 .columns(columns)
@@ -392,7 +391,6 @@ require([
                 .order([3, 'desc'])
                 .rowURL('/soc/%(mach)s/job/%(job)s/')
                 .rowURLElements(['mach', 'job'])
-                .noIdURL(true)
                 .languageLengthMenu('trees per page')
                 .draw();
 

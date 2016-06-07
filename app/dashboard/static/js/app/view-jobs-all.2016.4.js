@@ -270,7 +270,6 @@ require([
                 .languageLengthMenu('jobs per page')
                 .rowURL('/job/%(job)s/')
                 .rowURLElements(['job'])
-                .noIdURL(true)
                 .draw();
         }
     }
