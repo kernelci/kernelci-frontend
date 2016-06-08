@@ -155,7 +155,7 @@ define([
         return frag;
     };
 
-    html.building = function() {
+    html.building = function(extraClass) {
         var frag;
         var iNode;
         var spanNode;
@@ -163,14 +163,17 @@ define([
         frag = document.createDocumentFragment();
 
         spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-info';
+        spanNode.className = 'label label-info label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-cogs';
 
         return frag;
     };
 
-    html.fail = function() {
+    html.fail = function(extraClass) {
         var frag;
         var iNode;
         var spanNode;
@@ -178,14 +181,17 @@ define([
         frag = document.createDocumentFragment();
 
         spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-danger';
+        spanNode.className = 'label label-danger label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-exclamation-triangle';
 
         return frag;
     };
 
-    html.success = function() {
+    html.success = function(extraClass) {
         var frag;
         var iNode;
         var spanNode;
@@ -193,14 +199,17 @@ define([
         frag = document.createDocumentFragment();
 
         spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-success';
+        spanNode.className = 'label label-success label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-check';
 
         return frag;
     };
 
-    html.unknown = function() {
+    html.unknown = function(extraClass) {
         var frag;
         var iNode;
         var spanNode;
@@ -208,14 +217,17 @@ define([
         frag = document.createDocumentFragment();
 
         spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-warning';
+        spanNode.className = 'label label-warning label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-question';
 
         return frag;
     };
 
-    html.offline = function() {
+    html.offline = function(extraClass) {
         var frag;
         var iNode;
         var spanNode;
@@ -223,7 +235,10 @@ define([
         frag = document.createDocumentFragment();
 
         spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-info';
+        spanNode.className = 'label label-info label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-power-off';
 
