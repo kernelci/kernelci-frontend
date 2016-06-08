@@ -33,7 +33,7 @@ define([
     }
 
     function showVisibleByClass(className) {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName(className), showElement);
     }
 
@@ -44,7 +44,7 @@ define([
      * @param {string} className: The name of the CSS class.
     **/
     function hideVisibleByClass(className) {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.getElementsByClassName(className), hideElement);
     }
 
@@ -57,9 +57,9 @@ define([
      * @private
     **/
     function checkButtonStatus() {
-        var failBtn,
-            successBtn,
-            unknownBtn;
+        var failBtn;
+        var successBtn;
+        var unknownBtn;
 
         successBtn = document.getElementById('success-btn');
         failBtn = document.getElementById('fail-btn');
@@ -84,8 +84,8 @@ define([
      * @param {Event} event: The event that triggers the function.
     **/
     gBuildButtons.showHideWarnErr = function(event) {
-        var element,
-            view;
+        var element;
+        var view;
 
         element = event.target || event.srcElement;
         view = element.getAttribute('data-view');

@@ -6,7 +6,7 @@ define(function() {
     gSession = {};
 
     function setClass(selector, value) {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.querySelectorAll(selector),
             function(element) {
                 element.className = value;
@@ -15,7 +15,7 @@ define(function() {
     }
 
     function setAttr(selector, attribute, value) {
-        [].forEach.call(
+        Array.prototype.forEach.call(
             document.querySelectorAll(selector),
             function(element) {
                 element.setAttribute(attribute, value);
@@ -31,11 +31,15 @@ define(function() {
             switch (data.type) {
                 case 'attr':
                     isLoaded = true;
-                    setAttr(key, data.name, data.value);
+                    if (data.value) {
+                        setAttr(key, data.name, data.value);
+                    }
                     break;
                 case 'class':
                     isLoaded = true;
-                    setClass(key, data.value);
+                    if (data.value) {
+                        setClass(key, data.value);
+                    }
                     break;
                 default:
                     isLoaded = false;
@@ -47,13 +51,13 @@ define(function() {
     }
 
     function parseSession(key, data) {
-        var eachLoaded,
-            isLoaded;
+        var eachLoaded;
+        var isLoaded;
 
         isLoaded = false;
         if (data.constructor === Array) {
             data.forEach(function(value) {
-                eachLoaded = loadSession(key, value);
+                eachLoaded = setTimeout(loadSession.bind(null, key, value), 0);
                 isLoaded = isLoaded || eachLoaded;
             });
         } else {
