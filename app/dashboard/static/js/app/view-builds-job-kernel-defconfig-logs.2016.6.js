@@ -36,32 +36,57 @@ require([
         var textArea;
         var warningsCount;
 
+        function _splicedLogsParse(spliced, nodeId) {
+            var domNode;
+
+            domNode = logsNode.querySelector('#' + nodeId);
+            spliced.forEach(function(str) {
+                setTimeout(function() {
+                    domNode.appendChild(document.createTextNode(str + '\n'));
+                }, 0);
+            });
+        }
+
         /**
          * Create the div and textarea to contain the log strings.
         **/
         function _parseLogStrings(title, strings) {
-            divNode = document.createElement('div');
+            var docFrag;
+            var len;
+            var parts;
+
+            docFrag = document.createDocumentFragment();
+            divNode = docFrag.appendChild(document.createElement('div'));
             divNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
 
-            hNode = document.createElement('h5');
+            hNode = divNode.appendChild(document.createElement('h5'));
             hNode.appendChild(document.createTextNode(title));
 
-            divNode.appendChild(hNode);
-
-            textArea = document.createElement('textarea');
+            textArea = divNode.appendChild(document.createElement('textarea'));
+            textArea.id = title.toLowerCase();
             textArea.className = 'build-logs form-control';
             textArea.setAttribute('readonly', true);
             textArea.setAttribute('cols', 100);
             textArea.setAttribute('rows', 15);
 
-            divNode.appendChild(textArea);
-            logsNode.appendChild(divNode);
+            len = strings.length;
+            if (len > 1024) {
+                parts = Math.ceil(len / 1024);
+                logsNode.appendChild(docFrag);
 
-            strings.forEach(function(value) {
-                textArea.appendChild(
-                    document.createTextNode(value.trimRight()));
-                textArea.appendChild(document.createTextNode('\n'));
-            });
+                while (parts > 0) {
+                    setTimeout(
+                        _splicedLogsParse.bind(
+                            null, strings.splice(0, 1024), textArea.id), 0);
+                    parts = parts - 1;
+                }
+            } else {
+                strings.forEach(function(str) {
+                    textArea.appendChild(document.createTextNode(str + '\n'));
+                });
+
+                logsNode.appendChild(docFrag);
+            }
         }
 
         results = response.result;
@@ -92,15 +117,21 @@ require([
                 document.createTextNode(mismatchesCount));
 
             if (errorsCount > 0) {
-                _parseLogStrings('Errors', localResult.errors);
+                setTimeout(function() {
+                    _parseLogStrings('Errors', localResult.errors);
+                }, 1);
             }
 
             if (warningsCount > 0) {
-                _parseLogStrings('Warnings', localResult.warnings);
+                setTimeout(function() {
+                    _parseLogStrings('Warnings', localResult.warnings);
+                }, 1);
             }
 
             if (mismatchesCount > 0) {
-                _parseLogStrings('Mismatched', localResult.mismatches);
+                setTimeout(function() {
+                    _parseLogStrings('Mismatched', localResult.mismatches);
+                }, 1);
             }
 
             html.removeElement(document.getElementById('build-logs-loading'));
