@@ -27,7 +27,9 @@ require([
     var gResultFilter;
     var gSessionStorage;
 
-    document.getElementById('li-build').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-build').setAttribute('class', 'active');
+    }, 0);
 
     function bindDetailButtons() {
         Array.prototype.forEach.call(
@@ -57,6 +59,40 @@ require([
         return isLoaded;
     }
 
+    function showFailedOnly() {
+        var failBtn;
+        // If there is no saved session, show only the failed ones.
+        Array.prototype.forEach.call(
+            document.getElementsByClassName('df-failed'),
+            function(element) {
+                element.style.setProperty('display', 'block');
+            }
+        );
+        Array.prototype.forEach.call(
+            document.getElementsByClassName('df-success'),
+            function(element) {
+                element.style.setProperty('display', 'none');
+            }
+        );
+        Array.prototype.forEach.call(
+            document.getElementsByClassName('df-unknown'),
+            function(element) {
+                element.style.setProperty('display', 'none');
+            }
+        );
+
+        failBtn = document.getElementById('fail-btn');
+        Array.prototype.forEach.call(
+            failBtn.parentElement.children, function(element) {
+                if (element === failBtn) {
+                    html.addClass(element, 'active');
+                } else {
+                    html.removeClass(element, 'active');
+                }
+            }
+        );
+    }
+
     function getBuildsFail() {
         html.replaceContent(
             document.getElementById('accordion-container'),
@@ -65,7 +101,6 @@ require([
 
     function getBuildsDone(response) {
         var aNode;
-        var accordionElement;
         var arch;
         var archLabelNode;
         var cls;
@@ -81,7 +116,6 @@ require([
         var errNode;
         var errorString;
         var errorsCount;
-        var failBtn;
         var fileServerData;
         var fileServerResource;
         var fileServerURI;
@@ -91,7 +125,6 @@ require([
         var hasSuccess;
         var hasUnknown;
         var headingNode;
-        var iNode;
         var infoNode;
         var job;
         var kernel;
@@ -109,6 +142,7 @@ require([
         var warnErrTooltip;
         var warningString;
         var warningsCount;
+        var docFrag;
 
         hasFailed = false;
         hasSuccess = false;
@@ -116,14 +150,16 @@ require([
         results = response.result;
 
         function _createSizeNode(size) {
+            var frag;
             var sizeNode;
-            sizeNode = document.createElement('small');
 
+            frag = document.createDocumentFragment();
+            sizeNode = frag.appendChild(document.createElement('small'));
             sizeNode.appendChild(document.createTextNode('('));
             sizeNode.appendChild(document.createTextNode(format.bytes(size)));
             sizeNode.appendChild(document.createTextNode(')'));
 
-            return sizeNode;
+            return frag;
         }
 
         function _createDataIndex(result) {
@@ -164,6 +200,7 @@ require([
             errorsCount = result.errors;
             warningsCount = result.warnings;
             status = result.status;
+            collapseId = 'collapse-defconf' + idx;
 
             if (fileServerURL === null || fileServerURL === undefined) {
                 fileServerURL = gFileServer;
@@ -177,24 +214,56 @@ require([
             fileServerURI = translatedURI[0];
             pathURI = translatedURI[1];
 
+            panelNode = docFrag.appendChild(document.createElement('div'));
+
+            // Set the data-index attribute to filter the results.
+            panelNode.setAttribute('data-index', _createDataIndex(result));
+
+            headingNode = panelNode.appendChild(document.createElement('div'));
+            headingNode.className = 'panel-heading collapsed';
+            headingNode.id = 'panel-defconf' + idx;
+            headingNode.setAttribute('aria-expanded', false);
+            headingNode.setAttribute('data-parent', '#accordion');
+            headingNode.setAttribute('data-toggle', 'collapse');
+            headingNode.setAttribute('data-target', '#' + collapseId);
+            headingNode.setAttribute('aria-controls', '#' + collapseId);
+
+            hNode = headingNode.appendChild(document.createElement('h4'));
+            hNode.className = 'panel-title';
+
+            aNode = hNode.appendChild(document.createElement('a'));
+            aNode.setAttribute('data-parent', '#accordion');
+            aNode.setAttribute('data-toggle', 'collapse');
+            aNode.setAttribute('href', '#' + collapseId);
+            aNode.setAttribute('aria-controls', '#' + collapseId);
+            aNode.appendChild(document.createTextNode(defconfigFull));
+
+            if (arch !== null) {
+                hNode.insertAdjacentHTML(
+                    'beforeend', '&nbsp;&dash;&nbsp;');
+                archLabelNode = hNode.appendChild(
+                    document.createElement('span'));
+                archLabelNode.setAttribute('class', 'arch-label');
+                archLabelNode.appendChild(document.createTextNode(arch));
+            }
+
             switch (status) {
                 case 'FAIL':
                     hasFailed = true;
-                    statusNode = html.fail();
+                    statusNode = hNode.appendChild(html.fail('pull-right'));
                     cls = 'df-failed';
                     break;
                 case 'PASS':
                     hasSuccess = true;
-                    statusNode = html.success();
+                    statusNode = hNode.appendChild(html.success('pull-right'));
                     cls = 'df-success';
                     break;
                 default:
                     hasUnknown = true;
-                    statusNode = html.unknown();
+                    statusNode = hNode.appendChild(html.unknown('pull-right'));
                     cls = 'df-unknown';
                     break;
             }
-            html.addClass(statusNode.firstElementChild, 'pull-right');
 
             if (errorsCount === undefined) {
                 errorsCount = 0;
@@ -229,10 +298,17 @@ require([
             warnErrCount = warningString +
                 '&nbsp;&mdash;&nbsp;' + errorString;
 
-            errNode = document.createElement('span');
+            // Set the class of the panel node now, since we need the filter
+            // class.
+            panelNode.className = 'panel panel-default searchable ' + cls;
+
+            html.addClass(statusNode.firstElementChild, 'pull-right');
+            statusNode.className = 'pull-right';
+
+            errNode = hNode.appendChild(document.createElement('span'));
             errNode.className = 'build-warnings';
-            smallNode = document.createElement('small');
-            tooltipNode = html.tooltip();
+            smallNode = errNode.appendChild(document.createElement('small'));
+            tooltipNode = smallNode.appendChild(html.tooltip());
 
             if (warningsCount === 0 && errorsCount === 0) {
                 if (result.build_log !== null) {
@@ -240,7 +316,8 @@ require([
                         'Click to view the build log';
 
                     tooltipNode.setAttribute('title', warnErrTooltip);
-                    aNode = document.createElement('a');
+                    aNode = tooltipNode.appendChild(
+                        document.createElement('a'));
                     aNode.setAttribute(
                         'href',
                         fileServerURI
@@ -248,95 +325,48 @@ require([
                             .normalizePath().href()
                     );
                     aNode.insertAdjacentHTML('beforeend', warnErrCount);
-
-                    tooltipNode.appendChild(aNode);
-                    smallNode.appendChild(tooltipNode);
-                    errNode.appendChild(smallNode);
                 } else {
                     tooltipNode.setAttribute('title', warnErrString);
                     tooltipNode.insertAdjacentHTML(
                         'beforeend', warnErrCount);
-
-                    smallNode.appendChild(tooltipNode);
-                    errNode.appendChild(smallNode);
                 }
             } else {
                 warnErrTooltip = warnErrString + '&nbsp;&mdash;&nbsp;' +
                     'Click to view detailed build log information';
 
                 tooltipNode.setAttribute('title', warnErrTooltip);
-                aNode = document.createElement('a');
+                aNode = tooltipNode.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', '/build/id/' + docId + '/logs/');
                 aNode.insertAdjacentHTML('beforeend', warnErrCount);
-
-                tooltipNode.appendChild(aNode);
-                smallNode.appendChild(tooltipNode);
-                errNode.appendChild(smallNode);
             }
 
-            collapseId = 'collapse-defconf' + idx;
-            panelNode = document.createElement('div');
-            panelNode.className = 'panel panel-default searchable ' + cls;
-
-            headingNode = document.createElement('div');
-            headingNode.className = 'panel-heading collapsed';
-            headingNode.id = 'panel-defconf' + idx;
-            headingNode.setAttribute('aria-expanded', false);
-            headingNode.setAttribute('data-parent', '#accordion');
-            headingNode.setAttribute('data-toggle', 'collapse');
-            headingNode.setAttribute('data-target', '#' + collapseId);
-            headingNode.setAttribute('aria-controls', '#' + collapseId);
-
-            hNode = document.createElement('h4');
-            hNode.className = 'panel-title';
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('data-parent', '#accordion');
-            aNode.setAttribute('data-toggle', 'collapse');
-            aNode.setAttribute('href', '#' + collapseId);
-            aNode.setAttribute('aria-controls', '#' + collapseId);
-            aNode.appendChild(document.createTextNode(defconfigFull));
-
-            hNode.appendChild(aNode);
-
-            if (arch !== null) {
-                hNode.insertAdjacentHTML(
-                    'beforeend', '&nbsp;&dash;&nbsp;');
-                archLabelNode = document.createElement('span');
-                archLabelNode.setAttribute('class', 'arch-label');
-                archLabelNode.appendChild(document.createTextNode(arch));
-                hNode.appendChild(archLabelNode);
-            }
-
-            hNode.appendChild(statusNode);
-            hNode.appendChild(errNode);
-            headingNode.appendChild(hNode);
-            panelNode.appendChild(headingNode);
-
-            collapseNode = document.createElement('div');
+            collapseNode = panelNode.appendChild(
+                document.createElement('div'));
             collapseNode.id = collapseId;
             collapseNode.className = 'panel-collapse collapse';
             collapseNode.setAttribute('aria-expanded', false);
-            collapseBodyNode = document.createElement('div');
+
+            collapseBodyNode = collapseNode.appendChild(
+                document.createElement('div'));
             collapseBodyNode.className = 'panel-body';
 
-            rowNode = document.createElement('div');
+            rowNode = collapseBodyNode.appendChild(
+                document.createElement('div'));
             rowNode.className = 'row';
 
-            colNode = document.createElement('div');
+            colNode = rowNode.appendChild(document.createElement('div'));
             colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
 
-            dlNode = document.createElement('dl');
+            dlNode = colNode.appendChild(document.createElement('dl'));
             dlNode.className = 'dl-horizontal';
 
             if (result.dtb_dir !== null) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-                aNode = document.createElement('a');
-                iNode = document.createElement('i');
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(
                     document.createTextNode('Dtb directory'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
+                aNode = ddNode.appendChild(document.createElement('a'));
 
                 aNode.setAttribute(
                     'href',
@@ -348,62 +378,48 @@ require([
                 aNode.appendChild(document.createTextNode(result.dtb_dir));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
-                iNode.className = 'fa fa-external-link';
-
-                aNode.appendChild(iNode);
-                ddNode.appendChild(aNode);
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
+                aNode.appendChild(html.external());
             }
 
             if (result.modules !== null && result.modules !== undefined) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-                aNode = document.createElement('a');
-                iNode = document.createElement('i');
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(document.createTextNode('Modules'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
+                aNode = ddNode.appendChild(document.createElement('a'));
+
                 aNode.setAttribute(
                     'href',
                      fileServerURI.path(pathURI + '/' + result.modules)
                         .normalizePath().href());
                 aNode.appendChild(document.createTextNode(result.modules));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                iNode.className = 'fa fa-external-link';
-
-                aNode.appendChild(iNode);
-                ddNode.appendChild(aNode);
+                aNode.appendChild(html.external());
 
                 if (result.modules_size !== null &&
                         result.modules_size !== undefined) {
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp');
                     ddNode.appendChild(_createSizeNode(result.modules_size));
                 }
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
 
             if (result.text_offset !== null) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(
                     document.createTextNode('Text offset'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
                 ddNode.appendChild(
                     document.createTextNode(result.text_offset));
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
 
             if (result.kernel_image !== null) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-                aNode = document.createElement('a');
-                iNode = document.createElement('i');
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(document.createTextNode('Kernel image'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
+                aNode = ddNode.appendChild(document.createElement('a'));
+
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -413,29 +429,24 @@ require([
                 aNode.appendChild(
                     document.createTextNode(result.kernel_image));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                iNode.className = 'fa fa-external-link';
-                aNode.appendChild(iNode);
+                aNode.appendChild(html.external());
 
-                ddNode.appendChild(aNode);
                 if (result.kernel_image_size !== null &&
                         result.kernel_image_size !== undefined) {
                     ddNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     ddNode.appendChild(
                         _createSizeNode(result.kernel_image_size));
                 }
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
 
             if (result.kernel_config !== null) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-                aNode = document.createElement('a');
-                iNode = document.createElement('i');
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(
                     document.createTextNode('Kernel config'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
+                aNode = ddNode.appendChild(document.createElement('a'));
+
                 aNode.setAttribute('href',
                     fileServerURI
                         .path(pathURI + '/' + result.kernel_config)
@@ -444,9 +455,7 @@ require([
                 aNode.appendChild(
                     document.createTextNode(result.kernel_config));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                iNode.className = 'fa fa-external-link';
-                aNode.appendChild(iNode);
-                ddNode.appendChild(aNode);
+                aNode.appendChild(html.external());
 
                 if (result.kernel_config_size !== null &&
                         result.kernel_config_size !== undefined) {
@@ -454,19 +463,14 @@ require([
                     ddNode.appendChild(
                         _createSizeNode(result.kernel_config_size));
                 }
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
 
             if (result.build_log !== null) {
-                dtNode = document.createElement('dt');
-                ddNode = document.createElement('dd');
-                aNode = document.createElement('a');
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-external-link';
-
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(document.createTextNode('Build log'));
+
+                ddNode = dlNode.appendChild(document.createElement('dd'));
+                aNode = ddNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -476,8 +480,7 @@ require([
                 aNode.appendChild(
                     document.createTextNode(result.build_log));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(iNode);
-                ddNode.appendChild(aNode);
+                aNode.appendChild(html.external());
 
                 if (result.build_log_size !== null &&
                         result.build_log_size !== undefined) {
@@ -485,132 +488,90 @@ require([
                     ddNode.appendChild(
                         _createSizeNode(result.build_log_size));
                 }
-
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
 
-            colNode.appendChild(dlNode);
-            rowNode.appendChild(colNode);
-
-            colNode = document.createElement('div');
+            // New col group.
+            colNode = rowNode.appendChild(document.createElement('div'));
             colNode.className = 'col-xs-12 col-sm-12 col-md-6 col-lg-6';
 
-            dlNode = document.createElement('dl');
+            dlNode = colNode.appendChild(document.createElement('dl'));
             dlNode.className = 'dl-horizontal';
 
-            dtNode = document.createElement('dt');
+            dtNode = dlNode.appendChild(document.createElement('dt'));
             dtNode.appendChild(document.createTextNode('Build errors'));
-            ddNode = document.createElement('dd');
+            ddNode = dlNode.appendChild(document.createElement('dd'));
             ddNode.appendChild(document.createTextNode(errorsCount));
 
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
-            dtNode = document.createElement('dt');
+            dtNode = dlNode.appendChild(document.createElement('dt'));
             dtNode.appendChild(document.createTextNode('Build warnings'));
-            ddNode = document.createElement('dd');
+            ddNode = dlNode.appendChild(document.createElement('dd'));
             ddNode.appendChild(document.createTextNode(warningsCount));
 
-            dlNode.appendChild(dtNode);
-            dlNode.appendChild(ddNode);
-
             if (result.build_time !== null) {
-                dtNode = document.createElement('dt');
+                dtNode = dlNode.appendChild(document.createElement('dt'));
                 dtNode.appendChild(document.createTextNode('Build time'));
-                ddNode = document.createElement('dd');
+                ddNode = dlNode.appendChild(document.createElement('dd'));
                 ddNode.appendChild(
                     document.createTextNode(result.build_time));
                 ddNode.insertAdjacentHTML('beforeend', '&nbsp;sec.');
-                dlNode.appendChild(dtNode);
-                dlNode.appendChild(ddNode);
             }
-
-            colNode.appendChild(dlNode);
-            rowNode.appendChild(colNode);
 
             if (result.compiler || result.compiler_version_full ||
                     result.cross_compile) {
 
-                colNode = document.createElement('div');
+                colNode = rowNode.appendChild(document.createElement('div'));
                 colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
-                dlNode = document.createElement('dl');
+                dlNode = colNode.appendChild(document.createElement('dl'));
                 dlNode.className = 'dl-horizontal';
 
                 if (result.compiler) {
-                    dtNode = document.createElement('dt');
+                    dtNode = dlNode.appendChild(document.createElement('dt'));
                     dtNode.appendChild(
                         document.createTextNode('Compiler'));
-                    ddNode = document.createElement('dd');
+                    ddNode = dlNode.appendChild(document.createElement('dd'));
                     ddNode.appendChild(
                         document.createTextNode(result.compiler));
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
                 }
 
                 if (result.compiler_version) {
-                    dtNode = document.createElement('dt');
+                    dtNode = dlNode.appendChild(document.createElement('dt'));
                     dtNode.appendChild(
                         document.createTextNode('Compiler version'));
-                    ddNode = document.createElement('dd');
+                    ddNode = dlNode.appendChild(document.createElement('dd'));
                     ddNode.appendChild(
                         document.createTextNode(result.compiler_version));
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
                 }
 
                 if (result.compiler_version_full) {
-                    dtNode = document.createElement('dt');
+                    dtNode = dlNode.appendChild(document.createElement('dt'));
                     dtNode.appendChild(
                         document.createTextNode('Compiler string'));
-                    ddNode = document.createElement('dd');
+                    ddNode = dlNode.appendChild(document.createElement('dd'));
                     ddNode.appendChild(
                         document.createTextNode(
                             result.compiler_version_full));
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
                 }
 
                 if (result.cross_compile) {
-                    dtNode = document.createElement('dt');
+                    dtNode = dlNode.appendChild(document.createElement('dt'));
                     dtNode.appendChild(
                         document.createTextNode('Cross-compile'));
-                    ddNode = document.createElement('dd');
+                    ddNode = dlNode.appendChild(document.createElement('dd'));
                     ddNode.appendChild(
                         document.createTextNode(result.cross_compile));
-                    dlNode.appendChild(dtNode);
-                    dlNode.appendChild(ddNode);
                 }
-
-                colNode.appendChild(dlNode);
-                rowNode.appendChild(colNode);
             }
 
-            colNode = document.createElement('div');
+            colNode = rowNode.appendChild(document.createElement('div'));
             colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
-            infoNode = document.createElement('div');
+            infoNode = colNode.appendChild(document.createElement('div'));
             infoNode.className = 'pull-center';
-            tooltipNode = html.tooltip();
+            tooltipNode = infoNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', 'Details for this build');
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-search';
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/build/id/' + result._id.$oid + '/');
             aNode.insertAdjacentHTML('beforeend', 'More info&nbsp;');
-            aNode.appendChild(iNode);
-            tooltipNode.appendChild(aNode);
-            infoNode.appendChild(tooltipNode);
-            colNode.appendChild(infoNode);
-
-            rowNode.appendChild(colNode);
-            collapseBodyNode.appendChild(rowNode);
-            collapseNode.appendChild(collapseBodyNode);
-            panelNode.appendChild(collapseNode);
-
-            // Set the data-index attribute to filter the results.
-            panelNode.setAttribute('data-index', _createDataIndex(result));
-
-            accordionElement.appendChild(panelNode);
+            aNode.appendChild(html.search());
         }
 
         if (results.length === 0) {
@@ -618,10 +579,10 @@ require([
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data available'));
         } else {
-            accordionElement = document.getElementById('accordion');
-            html.removeChildren(accordionElement);
-
+            docFrag = document.createDocumentFragment();
             results.forEach(_parseResult);
+            // Append everything at the end.
+            html.replaceContent(document.getElementById('accordion'), docFrag);
 
             document
                 .getElementById('all-btn').removeAttribute('disabled');
@@ -640,46 +601,19 @@ require([
                     .getElementById('unknown-btn').removeAttribute('disabled');
             }
 
-            // Bind buttons to the correct function.
-            bindDetailButtons();
-
-            if (!loadSavedSession()) {
-                if (hasFailed) {
-                    // If there is no saved session, show only the failed ones.
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-failed'),
-                        function(element) {
-                            element.style.setProperty('display', 'block');
-                        }
-                    );
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-success'),
-                        function(element) {
-                            element.style.setProperty('display', 'none');
-                        }
-                    );
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-unknown'),
-                        function(element) {
-                            element.style.setProperty('display', 'none');
-                        }
-                    );
-
-                    failBtn = document.getElementById('fail-btn');
-                    Array.prototype.forEach.call(
-                        failBtn.parentElement.children, function(element) {
-                            if (element === failBtn) {
-                                html.addClass(element, 'active');
-                            } else {
-                                html.removeClass(element, 'active');
-                            }
-                        }
-                    );
-                } else {
-                    html.addClass(
-                        document.getElementById('all-btn'), 'active');
+            setTimeout(function() {
+                if (!loadSavedSession()) {
+                    if (hasFailed) {
+                        showFailedOnly();
+                    } else {
+                        html.addClass(
+                            document.getElementById('all-btn'), 'active');
+                    }
                 }
-            }
+            }, 0);
+
+            // Bind buttons to the correct function.
+            setTimeout(bindDetailButtons, 0);
         }
     }
 
@@ -725,14 +659,14 @@ require([
     function getJobDone(response) {
         var aNode;
         var createdOn;
+        var docFrag;
         var gitCommit;
         var gitURL;
-        var iNode;
         var localResult;
         var results;
         var spanNode;
         var tURLs;
-        var updateElement;
+        var tooltipNode;
 
         results = response.result;
         if (results.length === 0) {
@@ -744,117 +678,113 @@ require([
             tURLs = u.translateCommit(gitURL, gitCommit);
             createdOn = new Date(localResult.created_on.$date);
 
-            spanNode = html.tooltip();
-            spanNode.setAttribute('title', 'Details for tree ' + gJobName);
+            // Tree.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            tooltipNode = spanNode.appendChild(html.tooltip());
+            tooltipNode.setAttribute('title', 'Details for tree ' + gJobName);
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/job/' + gJobName + '/');
             aNode.appendChild(document.createTextNode(gJobName));
 
-            spanNode.appendChild(aNode);
-
-            updateElement = document.getElementById('tree');
-            html.removeChildren(updateElement);
-
-            updateElement.appendChild(spanNode);
-            updateElement.insertAdjacentHTML(
+            spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
-            spanNode = html.tooltip();
-            spanNode.setAttribute(
+            tooltipNode = spanNode.appendChild(html.tooltip());
+            tooltipNode.setAttribute(
                 'title', 'Boot reports details for ' + gJobName);
 
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
+            aNode.appendChild(html.boot());
 
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-hdd-o';
+            html.replaceContent(document.getElementById('tree'), docFrag);
 
-            aNode.appendChild(iNode);
-            spanNode.appendChild(aNode);
-
-            updateElement.appendChild(spanNode);
-
-            updateElement = document.getElementById('git-branch');
-            html.removeChildren(updateElement);
-            updateElement.appendChild(
+            // Branch.
+            html.replaceContent(
+                document.getElementById('git-branch'),
                 document.createTextNode(localResult.git_branch));
 
-            updateElement = document.getElementById('git-describe');
-            html.removeChildren(updateElement);
+            // Git describe.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
 
-            updateElement.appendChild(document.createTextNode(gKernelName));
-            updateElement.insertAdjacentHTML(
+            spanNode.appendChild(document.createTextNode(gKernelName));
+
+            spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
-            spanNode = html.tooltip();
-            spanNode.setAttribute(
+            tooltipNode = spanNode.appendChild(html.tooltip());
+            tooltipNode.setAttribute(
                 'title',
-                'All boot reports for ' + gJobName + '&nbsp;&dash;&nbsp;' +
+                'Boot reports for ' + gJobName + '&nbsp;&dash;&nbsp;' +
                 gKernelName
             );
-            aNode = document.createElement('a');
+            aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
                 '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-hdd-o';
+            aNode.appendChild(html.boot());
 
-            aNode.appendChild(iNode);
-            spanNode.appendChild(aNode);
-            updateElement.appendChild(spanNode);
+            html.replaceContent(
+                document.getElementById('git-describe'), docFrag);
 
-            updateElement = document.getElementById('git-url');
-            html.removeChildren(updateElement);
-
+            // Git URL.
             if (tURLs[0] !== null) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', tURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
 
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-external-link';
-
-                aNode.appendChild(iNode);
-                updateElement.appendChild(aNode);
+                html.replaceContent(
+                    document.getElementById('git-url'), docFrag);
             } else {
                 if (gitURL !== null) {
-                    updateElement.appendChild(document.createTextNode(gitURL));
+                    html.replaceContent(
+                        document.getElementById('git-url'),
+                        document.createTextNode(gitURL));
                 } else {
-                    updateElement.appendChild(html.nonavail());
+                    html.replaceContent(
+                        document.getElementById('git-url'),
+                        html.nonavail());
                 }
             }
 
-            updateElement = document.getElementById('git-commit');
-            html.removeChildren(updateElement);
+            // Git commit.
             if (tURLs[1] !== null) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', tURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
 
-                iNode = document.createElement('i');
-                iNode.className = 'fa fa-external-link';
-
-                aNode.appendChild(iNode);
-                updateElement.appendChild(aNode);
+                html.replaceContent(
+                    document.getElementById('git-commit'), docFrag);
             } else {
                 if (gitCommit !== null) {
-                    updateElement.appendChild(
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
                         document.createTextNode(gitCommit));
                 } else {
-                    updateElement.appendChild(html.nonavail());
+                    html.replaceContent(
+                        document.getElementById('git-commit'),
+                        html.nonavail());
                 }
             }
 
-            spanNode = document.createElement('time');
+            // Date.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('time'));
             spanNode.setAttribute('datetime', createdOn.toISOString());
             spanNode.appendChild(
                 document.createTextNode(createdOn.toCustomISODate()));
 
             html.replaceContent(
-                document.getElementById('build-date'), spanNode);
+                document.getElementById('build-date'), docFrag);
         }
     }
 
@@ -865,6 +795,7 @@ require([
     }
 
     function getLogsDone(response) {
+        var docFrag;
         var errors;
         var mismatches;
         var result;
@@ -872,31 +803,31 @@ require([
         var sectionDivTitle;
         var sectionTable;
         var sectionTitle;
-        var summaryDiv;
         var tableCell;
         var tableRow;
         var warnings;
 
         result = response.result;
         if (result.length > 0) {
-            summaryDiv = document.getElementById('logs-summary');
-            html.removeChildren(summaryDiv);
-
             errors = result[0].errors;
             warnings = result[0].warnings;
             mismatches = result[0].mismatches;
 
-            if (errors.length > 0) {
-                sectionDiv = document.createElement('div');
-                sectionDivTitle = document.createElement('div');
-                sectionTitle = document.createElement('h5');
+            docFrag = document.createDocumentFragment();
 
+            if (errors.length > 0) {
+                sectionDiv = docFrag.appendChild(
+                    document.createElement('div'));
+                sectionDivTitle = sectionDiv.appendChild(
+                    document.createElement('div'));
+
+                sectionTitle = sectionDivTitle.appendChild(
+                    document.createElement('h5'));
                 sectionTitle.appendChild(
                     document.createTextNode('Errors Summary'));
-                sectionDivTitle.appendChild(sectionTitle);
-                sectionDiv.appendChild(sectionDivTitle);
 
-                sectionTable = document.createElement('table');
+                sectionTable = sectionDiv.appendChild(
+                    document.createElement('table'));
                 sectionTable.className = 'table table-condensed summary-table';
 
                 errors.forEach(function(value) {
@@ -907,22 +838,21 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
-
-                sectionDiv.appendChild(sectionTable);
-                summaryDiv.appendChild(sectionDiv);
             }
 
             if (warnings.length > 0) {
-                sectionDiv = document.createElement('div');
-                sectionDivTitle = document.createElement('div');
-                sectionTitle = document.createElement('h5');
+                sectionDiv = docFrag.appendChild(
+                    document.createElement('div'));
+                sectionDivTitle = sectionDiv.appendChild(
+                    document.createElement('div'));
 
+                sectionTitle = sectionDivTitle.appendChild(
+                    document.createElement('h5'));
                 sectionTitle.appendChild(
                     document.createTextNode('Warnings Summary'));
-                sectionDivTitle.appendChild(sectionTitle);
-                sectionDiv.appendChild(sectionDivTitle);
 
-                sectionTable = document.createElement('table');
+                sectionTable = sectionDiv.appendChild(
+                    document.createElement('table'));
                 sectionTable.className = 'table table-condensed summary-table';
 
                 warnings.forEach(function(value) {
@@ -933,22 +863,21 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
-
-                sectionDiv.appendChild(sectionTable);
-                summaryDiv.appendChild(sectionDiv);
             }
 
             if (mismatches.length > 0) {
-                sectionDiv = document.createElement('div');
-                sectionDivTitle = document.createElement('div');
-                sectionTitle = document.createElement('h5');
+                sectionDiv = docFrag.appendChild(
+                    document.createElement('div'));
+                sectionDivTitle = sectionDiv.appendChild(
+                    document.createElement('div'));
 
+                sectionTitle = sectionDivTitle.appendChild(
+                    document.createElement('h5'));
                 sectionTitle.appendChild(
                     document.createTextNode('Mismatches Summary'));
-                sectionDivTitle.appendChild(sectionTitle);
-                sectionDiv.appendChild(sectionDivTitle);
 
-                sectionTable = document.createElement('table');
+                sectionTable = sectionDiv.appendChild(
+                    document.createElement('table'));
                 sectionTable.className = 'table table-condensed summary-table';
 
                 mismatches.forEach(function(value) {
@@ -959,10 +888,10 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
-
-                sectionDiv.appendChild(sectionTable);
-                summaryDiv.appendChild(sectionDiv);
             }
+
+            html.replaceContent(
+                document.getElementById('logs-summary'), docFrag);
         } else {
             html.replaceContent(
                 document.getElementById('logs-summary'),
@@ -971,31 +900,13 @@ require([
     }
 
     function getLogs() {
-        var deferred;
-
-        deferred = r.get(
-            '/_ajax/job/logs',
-            {
-                job: gJobName,
-                kernel: gKernelName
-            }
-        );
-        $.when(deferred)
+        $.when(r.get('/_ajax/job/logs', {job: gJobName, kernel: gKernelName}))
             .fail(e.error, getLogsFail)
             .done(getLogsDone);
     }
 
     function getJob() {
-        var deferred;
-
-        deferred = r.get(
-            '/_ajax/job',
-            {
-                job: gJobName,
-                kernel: gKernelName
-            }
-        );
-        $.when(deferred)
+        $.when(r.get('/_ajax/job', {job: gJobName, kernel: gKernelName}))
             .fail(e.error, getJobFail)
             .done(getJobDone, getBuilds);
     }
@@ -1068,9 +979,7 @@ require([
                 document.querySelectorAll('[id^="collapse-defconf"]'),
                 _saveElementState);
 
-            gSessionStorage
-                .addObjects(pageState)
-                .save();
+            gSessionStorage.addObjects(pageState).save();
         });
     }
 
