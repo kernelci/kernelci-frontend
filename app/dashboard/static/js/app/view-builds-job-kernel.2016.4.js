@@ -851,7 +851,7 @@ require([
             spanNode = document.createElement('time');
             spanNode.setAttribute('datetime', createdOn.toISOString());
             spanNode.appendChild(
-                document.createTextNode(createdOn.toCustomISODateTime()));
+                document.createTextNode(createdOn.toCustomISODate()));
 
             html.replaceContent(
                 document.getElementById('build-date'), spanNode);

@@ -519,7 +519,7 @@ require([
             domNode = document.createElement('time');
             domNode.setAttribute('datetime', createdOn.toISOString());
             domNode.appendChild(
-                document.createTextNode(createdOn.toCustomISODateTime()));
+                document.createTextNode(createdOn.toCustomISODate()));
             html.replaceContent(
                 document.getElementById('job-date'), domNode);
         }
