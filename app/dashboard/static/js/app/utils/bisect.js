@@ -97,7 +97,8 @@ define([
     kciBisect = {
         data: null,
         isCompared: false,
-        table: null
+        table: null,
+        tableRows: []
     };
 
     kciBisect.setup = function() {
@@ -107,11 +108,13 @@ define([
 
     kciBisect.createDefaultSummary = function(bad, good, type) {
         var aNode;
+        var docFrag;
         var iNode;
         var spanNode;
 
         // The bad commit.
-        spanNode = document.createElement('span');
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
         if (bad) {
             spanNode.className = 'text-danger';
             spanNode.appendChild(document.createTextNode(bad));
@@ -122,10 +125,11 @@ define([
         }
 
         html.replaceContent(
-            document.getElementById(this.badCommitID), spanNode);
+            document.getElementById(this.badCommitID), docFrag);
 
         // The good commit.
-        spanNode = document.createElement('span');
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
         if (good) {
             spanNode.className = 'text-success';
             spanNode.appendChild(document.createTextNode(good));
@@ -136,7 +140,7 @@ define([
         }
 
         html.replaceContent(
-            document.getElementById(this.goodCommitID), spanNode);
+            document.getElementById(this.goodCommitID), docFrag);
 
         // The bisect script.
         if (bad && good) {
@@ -144,17 +148,15 @@ define([
                 document.getElementById(this.bisectScriptContainerID),
                 'hidden');
 
-            spanNode = html.tooltip();
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(html.tooltip());
 
-            aNode = document.createElement('a');
+            aNode = spanNode.appendChild(document.createElement('a'));
             aNode.setAttribute('download', 'bisect.sh');
             aNode.setAttribute('href', shellScript(bad, good));
 
-            iNode = document.createElement('i');
+            iNode = aNode.appendChild(document.createElement('i'));
             iNode.className = 'fa fa-download';
-
-            aNode.appendChild(iNode);
-            spanNode.appendChild(aNode);
 
             if (type === 'boot') {
                 spanNode.setAttribute('title', 'Download boot bisect script');
@@ -163,8 +165,7 @@ define([
             }
 
             html.replaceContent(
-                document.getElementById(this.bisectScriptContentID),
-                spanNode);
+                document.getElementById(this.bisectScriptContentID), docFrag);
         } else {
             html.removeElement(
                 document.getElementById(this.bisectScriptContainerID));
@@ -175,6 +176,7 @@ define([
 
     kciBisect.createComparedSummary = function(type, commits) {
         var aNode;
+        var docFrag;
         var iNode;
         var otherCommitDate;
         var otherCommitsArray;
@@ -213,18 +215,16 @@ define([
                 }
             });
 
-            spanNode = html.tooltip();
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(html.tooltip());
 
-            iNode = document.createElement('i');
-            iNode.className = 'fa fa-download';
-
-            aNode = document.createElement('a');
+            aNode = spanNode.appendChild(document.createElement('a'));
             aNode.setAttribute('download', 'bisect-compared.sh');
             aNode.setAttribute(
                 'href', shellScriptCompared(prevBadCommit, otherCommitsArray));
 
-            aNode.appendChild(iNode);
-            spanNode.appendChild(aNode);
+            iNode = aNode.appendChild(document.createElement('i'));
+            iNode.className = 'fa fa-download';
 
             if (type === 'boot') {
                 spanNode.setAttribute(
@@ -235,7 +235,7 @@ define([
             }
 
             html.replaceContent(
-                document.getElementById(this.bisectScriptContentID), spanNode);
+                document.getElementById(this.bisectScriptContentID), docFrag);
             html.removeClass(
                 document.getElementById(this.bisectScriptContainerID),
                 'hidden');
@@ -256,23 +256,26 @@ define([
         return this;
     };
 
-    // TODO: rework using DocumentFragment.
     kciBisect.parseData = function(data, type, job) {
         var aNode;
+        var badCell;
         var bisectStatus;
         var board;
         var cellNode;
         var defconfigFull;
+        var docFrag;
         var docId;
         var gitCommit;
         var gitDescribe;
         var gitURL;
         var gitURLs;
+        var goodCell;
         var goodCommit;
         var lab;
         var rowNode;
         var spanNode;
         var tooltipNode;
+        var unknownCell;
 
         gitDescribe = data.git_describe;
         defconfigFull = data.defconfig_full;
@@ -294,13 +297,31 @@ define([
         }
 
         if (gitCommit) {
-            rowNode = this.table.tBodies[0].insertRow();
+            // this.tableRows is a DocumentFragment.
+            rowNode = this.tableRows.appendChild(document.createElement('tr'));
 
-            aNode = document.createElement('a');
-            aNode.appendChild(document.createTextNode(gitDescribe));
+            // The git describe table cell.
+            cellNode = rowNode.appendChild(document.createElement('td'));
 
-            tooltipNode = html.tooltip();
+            // The commit cells.
+            badCell = rowNode.appendChild(document.createElement('td'));
+            badCell.className = 'bg-danger';
+
+            unknownCell = rowNode.appendChild(document.createElement('td'));
+            unknownCell.className = 'bg-warning';
+
+            goodCell = rowNode.appendChild(document.createElement('td'));
+            goodCell.className = 'bg-success';
+
+            // The git describe value.
+            tooltipNode = cellNode.appendChild(html.tooltip());
             html.addClass(tooltipNode, 'bisect-tooltip');
+
+            spanNode = tooltipNode.appendChild(document.createElement('span'));
+            spanNode.className = 'bisect-text';
+
+            aNode = spanNode.appendChild(document.createElement('a'));
+            aNode.appendChild(document.createTextNode(gitDescribe));
 
             if (type === 'boot') {
                 aNode.setAttribute('href', '/boot/id/' + docId + '/');
@@ -316,18 +337,11 @@ define([
                     sprintf(gStrings.build_tooltip, job, gitDescribe));
             }
 
-            spanNode = document.createElement('span');
-            spanNode.className = 'bisect-text';
-            spanNode.appendChild(aNode);
-
-            tooltipNode.appendChild(spanNode);
-
-            cellNode = rowNode.insertCell();
-            cellNode.appendChild(tooltipNode);
-
             gitURLs = urls.translateCommit(gitURL, gitCommit);
 
-            aNode = document.createElement('a');
+            // The git commit value.
+            docFrag = document.createDocumentFragment();
+            aNode = docFrag.appendChild(document.createElement('a'));
             aNode.setAttribute('href', gitURLs[1]);
             aNode.appendChild(document.createTextNode(gitCommit));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -336,40 +350,13 @@ define([
             switch (bisectStatus) {
                 case 'PASS':
                     goodCommit = data;
-                    // Bad cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-danger';
-                    // Unknown cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-warning';
-                    // Good cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-success';
-                    cellNode.appendChild(aNode);
+                    goodCell.appendChild(docFrag);
                     break;
                 case 'FAIL':
-                    // Bad cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-danger';
-                    cellNode.appendChild(aNode);
-                    // Unknown cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-warning';
-                    // Good cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-success';
+                    badCell.appendChild(docFrag);
                     break;
                 default:
-                    // Bad cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-danger';
-                    // Unknown cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-warning';
-                    cellNode.appendChild(aNode);
-                    // Good cell.
-                    cellNode = rowNode.insertCell();
-                    cellNode.className = 'bg-success';
+                    unknownCell.appendChild(docFrag);
                     break;
             }
         }
@@ -385,6 +372,7 @@ define([
         var compareGoodCommits;
         var compareTo;
         var divNode;
+        var docFrag;
         var goodCommit;
         var job;
         var pNode;
@@ -405,7 +393,7 @@ define([
 
         // Internal wrapper to bind 'this'.
         function _parseData(data) {
-            goodCommit = this.parseData(data, bisectType, job);
+            goodCommit = this.parseData(data, bisectType, job); // jshint ignore:line
             if (goodCommit) {
                 compareGoodCommits.push(goodCommit);
             }
@@ -441,7 +429,11 @@ define([
                 document.getElementById(this.contentDivID),
                 html.errorDiv('No bisect data available'));
         } else {
+            // Initialize the table rows as a DocumentFragment.
+            this.tableRows = document.createDocumentFragment();
             bisectData.forEach(_parseData.bind(this));
+            // Now append all the rows to the table.
+            this.table.tBodies[0].appendChild(this.tableRows);
 
             // Create the bisect summary.
             this.createSummary(
@@ -454,22 +446,20 @@ define([
                     this.showHideID, this.contentDivID, 'hide', compareTo)
                 );
 
-
             if (bisectLength > gMaxElements) {
-                divNode = document.createElement('div');
+                docFrag = document.createDocumentFragment();
+                divNode = docFrag.appendChild(document.createElement('div'));
                 divNode.className = 'pull-right bisect-back';
 
-                spanNode = html.tooltip();
+                spanNode = divNode.appendChild(html.tooltip());
                 spanNode.setAttribute('title', 'Go back to bisect summary');
 
-                smallNode = document.createElement('small');
-                aNode = document.createElement('a');
+                smallNode = spanNode.appendChild(
+                    document.createElement('small'));
+
+                aNode = smallNode.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', '#' + this.contentDivID);
                 aNode.appendChild(document.createTextNode('Back to Summary'));
-
-                smallNode.appendChild(aNode);
-                spanNode.appendChild(smallNode);
-                divNode.appendChild(spanNode);
 
                 html.replaceContent(
                     document.getElementById(this.bisectShowHideID),
@@ -478,7 +468,7 @@ define([
                 );
 
                 document.getElementById(this.tableDivID)
-                    .appendChild(divNode);
+                    .appendChild(docFrag);
             }
 
             setTimeout(bindEvents, 0);
