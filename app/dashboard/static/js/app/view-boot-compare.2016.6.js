@@ -7,13 +7,16 @@ require([
     'utils/urls',
     'utils/table',
     'tables/boot',
-    'compare/bootdiff'
+    'compare/bootdiff',
+    'utils/date'
 ], function($, init, request, html, urls, table, tboot, matrix) {
     'use strict';
     var gCompareId;
     var gComparedTable;
 
-    document.getElementById('li-compare').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-compare').setAttribute('class', 'active');
+    }, 0);
 
     function setupComparedTable(comparedData) {
         var columns;
@@ -138,6 +141,7 @@ require([
         var baseJob;
         var baseKernel;
         var baseLab;
+        var createdOn;
         var gitURLs;
         var spanNode;
         var tooltipNode;
@@ -150,6 +154,7 @@ require([
         baseBoard = baseline.board;
         baseLab = baseline.lab_name;
         baseBoardInstance = baseline.board_instance;
+        createdOn = new Date(baseline.created_on.$date);
 
         gitURLs = urls.translateCommit(baseGitUrl, baseGitCommit);
 
@@ -270,14 +275,21 @@ require([
 
         // Defconfig.
         spanNode = document.createElement('span');
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.setAttribute(
+            'title',
+            'Build details for&nbsp;' + baseJob +
+                '&nbsp;&dash;&nbsp;' + baseKernel +
+                '&nbsp;&dash;&nbsp;' + baseDefconfig
+        );
 
-        aNode = document.createElement('a');
-        aNode.setAttribute('href', '/build/id/' + baseline._id.$oid + '/');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute(
+            'href', '/build/id/' + baseline.build_id.$oid + '/');
         aNode.appendChild(document.createTextNode(baseDefconfig));
 
-        spanNode.appendChild(aNode);
-
-        tooltipNode = html.tooltip();
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute(
             'title',
             'Boot reports for&nbsp;' + baseJob +
@@ -285,17 +297,13 @@ require([
                 '&nbsp;&dash;&nbsp;' + baseDefconfig
             );
 
-        aNode = document.createElement('a');
+        aNode = tooltipNode.appendChild(document.createElement('a'));
         aNode.setAttribute(
             'href',
             '/boot/all/job/' + baseJob + '/kernel/' +
             baseKernel + '/defconfig/' + baseDefconfig + '/'
         );
         aNode.appendChild(html.boot());
-
-        tooltipNode.appendChild(aNode);
-        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        spanNode.appendChild(tooltipNode);
 
         html.replaceContent(
             document.getElementById('dd-defconfig'), spanNode);
@@ -343,9 +351,11 @@ require([
         }
 
         // Date.
-        html.replaceContent(
-            document.getElementById('dd-date'),
-            html.time(baseline.created_on));
+        spanNode = document.createElement('time');
+        spanNode.setAttribute('datetime', createdOn.toISOString());
+        spanNode.appendChild(
+            document.createTextNode(createdOn.toCustomISODateTime()));
+        html.replaceContent(document.getElementById('dd-date'), spanNode);
     }
 
     function getCompareDone(response) {
@@ -380,10 +390,7 @@ require([
     }
 
     function getBootCompare() {
-        var deferred;
-
-        deferred = request.get('/_ajax/boot/compare/' + gCompareId + '/', {});
-        $.when(deferred)
+        $.when(request.get('/_ajax/boot/compare/' + gCompareId + '/', {}))
             .fail(getCompareFail)
             .done(getCompareDone);
     }
@@ -396,7 +403,7 @@ require([
         tableId: 'compared-against'
     });
 
-    getBootCompare();
+    setTimeout(getBootCompare, 0);
 
     init.hotkeys();
     init.tooltip();
