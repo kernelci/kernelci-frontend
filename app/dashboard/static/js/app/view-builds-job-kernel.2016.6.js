@@ -302,9 +302,6 @@ require([
             // class.
             panelNode.className = 'panel panel-default searchable ' + cls;
 
-            html.addClass(statusNode.firstElementChild, 'pull-right');
-            statusNode.className = 'pull-right';
-
             errNode = hNode.appendChild(document.createElement('span'));
             errNode.className = 'build-warnings';
             smallNode = errNode.appendChild(document.createElement('small'));
