@@ -398,11 +398,9 @@ define([
      * @param {string} className: The name of the class to add.
     **/
     html.addClass = function(element, className) {
-        setTimeout(function() {
-            if (element) {
-                _addClass(element, className);
-            }
-        }, 0);
+        if (element) {
+            _addClass(element, className);
+        }
     };
 
     /**
@@ -414,11 +412,9 @@ define([
     **/
     html.addClasses = function(element, classes) {
         if (element) {
-            setTimeout(function() {
-                classes.forEach(function(className) {
-                    _addClass(element, className);
-                });
-            }, 0);
+            classes.forEach(function(className) {
+                _addClass(element, className);
+            });
         }
     };
 
