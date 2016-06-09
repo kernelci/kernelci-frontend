@@ -73,7 +73,17 @@ define([
                 lengthMenu: this._languageLengthMenu,
                 zeroRecords: this._languageZeroRecords,
                 search: gSearchLanguage,
-                searchPlaceholder: 'Filter the results'
+                searchPlaceholder: 'Filter the results',
+                paginate: {
+                    previous: '&#60;',
+                    next: '&#62;'
+                },
+                aria: {
+                    paginate: {
+                        previous: 'Previous page',
+                        next: 'Next page'
+                    }
+                }
             },
             search: {
                 regex: true,
