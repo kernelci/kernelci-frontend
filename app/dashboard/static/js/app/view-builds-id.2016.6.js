@@ -21,7 +21,8 @@ require([
     }, 0);
 
     function getBisectFail() {
-        html.removeElement('bisect-loading-div');
+        html.removeElement(
+            document.getElementById('bisect-loading-div'));
         html.replaceContent(
             document.getElementById('bisect-content'),
             html.errorDiv('Error loading bisect data.'));
@@ -29,7 +30,8 @@ require([
     }
 
     function getBisectToMainlineFail() {
-        html.removeElement('bisect-compare-loading-div');
+        html.removeElement(
+            document.getElementById('bisect-compare-loading-div'));
         html.replaceContent(
             document.getElementById('bisect-compare-content'),
             html.errorDiv('Error loading bisect data.'));
