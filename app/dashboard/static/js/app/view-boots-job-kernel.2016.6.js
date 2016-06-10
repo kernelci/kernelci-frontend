@@ -26,33 +26,37 @@ require([
         unique,
         storage, session, html, filter, bootView) {
     'use strict';
-    var gFileServer,
-        gJob,
-        gKernel,
-        gResultFilter,
-        gSearchFilter,
-        gSessionStorage;
+    var gFileServer;
+    var gJob;
+    var gKernel;
+    var gResultFilter;
+    var gSearchFilter;
+    var gSessionStorage;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 0);
 
     function uniqueCountFail() {
        html.replaceByClassHTML('unique-values', '&infin;');
     }
 
     function createOtherCount(totals) {
-        var archStr,
-            boardStr,
-            defconfigStr,
-            smallNode,
-            socStr,
-            tooltipNode;
+        var archStr;
+        var boardStr;
+        var defconfigStr;
+        var docFrag;
+        var smallNode;
+        var socStr;
+        var tooltipNode;
 
-        tooltipNode = html.tooltip();
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
         html.addClass(tooltipNode, 'default-cursor');
         tooltipNode.setAttribute(
             'title', 'Total unique architectures, boards, SoCs and defconfigs');
 
-        smallNode = document.createElement('small');
+        smallNode = tooltipNode.appendChild(document.createElement('small'));
         smallNode.appendChild(document.createTextNode('('));
 
         if (totals.hasOwnProperty('arch')) {
@@ -105,17 +109,18 @@ require([
         }
 
         smallNode.appendChild(document.createTextNode(')'));
-        tooltipNode.appendChild(smallNode);
 
-        return tooltipNode;
+        return docFrag;
     }
 
     function createLabBootCount(total, pass, fail, unknown) {
-        var smallNode,
-            spanNode,
-            tooltipNode;
+        var docFrag;
+        var smallNode;
+        var spanNode;
+        var tooltipNode;
 
-        tooltipNode = html.tooltip();
+        docFrag = document.createDocumentFragment();
+        tooltipNode = docFrag.appendChild(html.tooltip());
         html.addClass(tooltipNode, 'default-cursor');
         tooltipNode.setAttribute(
             'title',
@@ -123,51 +128,46 @@ require([
             'for this lab'
         );
 
-        smallNode = document.createElement('small');
+        smallNode = tooltipNode.appendChild(document.createElement('small'));
         smallNode.appendChild(document.createTextNode('('));
         smallNode.appendChild(
             document.createTextNode(format.number(total)));
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
-        spanNode = document.createElement('span');
+        spanNode = smallNode.appendChild(document.createElement('span'));
         spanNode.className = 'green-font';
         spanNode.appendChild(document.createTextNode(format.number(pass)));
 
-        smallNode.appendChild(spanNode);
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
 
-        spanNode = document.createElement('span');
+        spanNode = smallNode.appendChild(document.createElement('span'));
         spanNode.className = 'red-font';
         spanNode.appendChild(document.createTextNode(format.number(fail)));
 
-        smallNode.appendChild(spanNode);
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
 
-        spanNode = document.createElement('span');
+        spanNode = smallNode.appendChild(document.createElement('span'));
         spanNode.className = 'yellow-font';
         spanNode.appendChild(
             document.createTextNode(format.number(unknown)));
 
-        smallNode.appendChild(spanNode);
         smallNode.appendChild(document.createTextNode(')'));
 
-        tooltipNode.appendChild(smallNode);
-
-        return tooltipNode;
+        return docFrag;
     }
 
     function uniqueCountDone(builds, distincts) {
-        var failCount,
-            lab,
-            labStatus,
-            localLab,
-            passCount,
-            tooltipNode,
-            totalBuilds,
-            totalCount,
-            uniqueLab,
-            uniqueTotal,
-            unknownCount;
+        var failCount;
+        var lab;
+        var labStatus;
+        var localLab;
+        var passCount;
+        var tooltipNode;
+        var totalBuilds;
+        var totalCount;
+        var uniqueLab;
+        var uniqueTotal;
+        var unknownCount;
 
         totalBuilds = builds[0].result[0].count;
         uniqueTotal = distincts[0];
@@ -277,13 +277,8 @@ require([
         var deferred;
 
         if (response.count > 0) {
-            deferred = request.get(
-                '/_ajax/count/build',
-                {
-                    job: gJob,
-                    kernel: gKernel
-                }
-            );
+            deferred = request
+                .get('/_ajax/count/build', {job: gJob, kernel: gKernel});
 
             $.when(deferred, unique.countD(response))
                 .fail(e.error, uniqueCountFail)
@@ -317,9 +312,9 @@ require([
     }
 
     function getBootsDone(response) {
-        var bootPanel,
-            failButton,
-            results;
+        var bootPanel;
+        var failButton;
+        var results;
 
         results = response.result;
         if (results.length === 0) {
@@ -382,8 +377,8 @@ require([
     }
 
     function getBoot(response) {
-        var deferred,
-            results;
+        var deferred;
+        var results;
 
         results = response.result;
         if (results.length > 0) {
@@ -410,15 +405,15 @@ require([
     }
 
     function getJobDone(response) {
-        var results,
-            gitBranch,
-            gitURLs,
-            domNode,
-            tooltipNode,
-            aNode,
-            gitCommit,
-            gitURL,
-            createdOn;
+        var results;
+        var gitBranch;
+        var gitURLs;
+        var domNode;
+        var tooltipNode;
+        var aNode;
+        var gitCommit;
+        var gitURL;
+        var createdOn;
 
         results = response.result;
         if (results.length === 0) {
@@ -526,17 +521,7 @@ require([
     }
 
     function getJob() {
-        var deferred;
-
-        deferred = request.get(
-            '/_ajax/job',
-            {
-                job: gJob,
-                kernel: gKernel
-            }
-        );
-
-        $.when(deferred)
+        $.when(request.get('/_ajax/job', {job: gJob, kernel: gKernel}))
             .fail(e.error, getJobFailed)
             .done(getJobDone, getBoot);
     }
