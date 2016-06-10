@@ -60,8 +60,6 @@ define([
         var dataIndex;
 
         dataIndex = '';
-        dataIndex += result.job.toLowerCase();
-        dataIndex += result.kernel.toLowerCase();
         dataIndex += result.arch.toLowerCase();
 
         if (result.defconfig_full) {
