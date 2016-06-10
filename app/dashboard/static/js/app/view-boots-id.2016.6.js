@@ -20,7 +20,7 @@ require([
     gDateRange = appconst.MAX_DATE_RANGE;
     gFileServer = null;
 
-    function _tableMessage(table, text) {
+    function _tableMessage(tableId, text) {
         var cellNode;
         var frag;
         var rowNode;
@@ -36,7 +36,8 @@ require([
         strongNode = cellNode.appendChild(document.createElement('strong'));
         strongNode.appendChild(document.createTextNode(text));
 
-        table.tBodies[0].appendChild(frag);
+        document.getElementById(tableId)
+            .tBodies[0].appendChild(frag);
     }
 
     function addBootTableRow(data, docFrag) {
@@ -122,8 +123,9 @@ require([
         var table;
 
         results = response.result;
+        table = document.getElementById(tableId);
+
         if (results.length > 0) {
-            table = document.getElementById(tableId);
             docFrag = document.createDocumentFragment();
 
             results.forEach(function(result) {
@@ -133,7 +135,7 @@ require([
             table.tBodies[0].appendChild(docFrag);
         } else {
             setTimeout(
-                _tableMessage.bind(null, table, 'No results found.'), 0);
+                _tableMessage.bind(null, tableId, 'No results found.'), 0);
         }
 
         html.removeClass(table, 'hidden');
@@ -181,13 +183,16 @@ require([
         var docFrag;
         var results;
         var table;
+        var tableId;
         var validReports;
 
+        tableId = 'multiple-labs-table';
         results = response.result;
+        table = document.getElementById(tableId);
+
         if (results.length > 0) {
             validReports = 0;
 
-            table = document.getElementById('multiple-labs-table');
             docFrag = document.createDocumentFragment();
 
             results.forEach(function(result) {
@@ -200,13 +205,13 @@ require([
             if (validReports === 0) {
                 setTimeout(
                     _tableMessage.bind(
-                        null, table, 'No similar boot reports found.'), 0);
+                        null, tableId, 'No similar boot reports found.'), 0);
             } else {
                 table.tBodies[0].appendChild(docFrag);
             }
         } else {
             setTimeout(
-                _tableMessage.bind(null, table, 'No data available.'), 0);
+                _tableMessage.bind(null, tableId, 'No data available.'), 0);
         }
 
         html.removeElement(
