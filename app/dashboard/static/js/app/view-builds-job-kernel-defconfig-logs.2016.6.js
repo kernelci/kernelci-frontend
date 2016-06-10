@@ -26,34 +26,26 @@ require([
     }
 
     function getBuildLogsDone(response) {
+        var aNode;
+        var customLog;
         var divNode;
         var errorsCount;
         var hNode;
-        var localResult;
         var logsNode;
+        var messageNode;
         var mismatchesCount;
         var results;
+        var serverURL;
         var textArea;
+        var translatedURI;
         var warningsCount;
-
-        function _splicedLogsParse(spliced, nodeId) {
-            var domNode;
-
-            domNode = logsNode.querySelector('#' + nodeId);
-            spliced.forEach(function(str) {
-                setTimeout(function() {
-                    domNode.appendChild(document.createTextNode(str + '\n'));
-                }, 0);
-            });
-        }
 
         /**
          * Create the div and textarea to contain the log strings.
         **/
-        function _parseLogStrings(title, strings) {
+        function _parseLogStrings(title, strings, type) {
             var docFrag;
             var len;
-            var parts;
 
             docFrag = document.createDocumentFragment();
             divNode = docFrag.appendChild(document.createElement('div'));
@@ -70,23 +62,44 @@ require([
             textArea.setAttribute('rows', 15);
 
             len = strings.length;
-            if (len > 1024) {
-                parts = Math.ceil(len / 1024);
-                logsNode.appendChild(docFrag);
+            if (len > 128) {
+                strings = strings.splice(0, 128);
 
-                while (parts > 0) {
-                    setTimeout(
-                        _splicedLogsParse.bind(
-                            null, strings.splice(0, 1024), textArea.id), 0);
-                    parts = parts - 1;
+                messageNode = divNode
+                    .appendChild(document.createElement('div'));
+                divNode.appendChild(
+                    document.createTextNode(
+                        'Shown log messages have been limited. ' +
+                        'For more info, please refer to the'));
+                divNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode = divNode.appendChild(document.createElement('a'));
+
+                switch (type) {
+                    case 'errors':
+                        customLog = 'build-errors.log';
+                        break;
+                    case 'warnings':
+                        customLog = 'build-warnings.log';
+                        break;
+                    default:
+                        customLog = 'build-mismatches.log';
+                        break;
                 }
-            } else {
-                strings.forEach(function(str) {
-                    textArea.appendChild(document.createTextNode(str + '\n'));
-                });
 
-                logsNode.appendChild(docFrag);
+                aNode.setAttribute(
+                    'href',
+                    translatedURI[0]
+                        .path(translatedURI[1] + '/' + customLog)
+                        .normalizePath().href()
+                );
+                aNode.appendChild(document.createTextNode('build logs.'));
             }
+
+            strings.forEach(function(str) {
+                textArea.appendChild(document.createTextNode(str + '\n'));
+            });
+
+            logsNode.appendChild(docFrag);
         }
 
         results = response.result;
@@ -99,10 +112,26 @@ require([
         } else {
             logsNode = document.getElementById('build-logs');
 
-            localResult = results[0];
-            errorsCount = parseInt(localResult.errors_count, 10);
-            warningsCount = parseInt(localResult.warnings_count, 10);
-            mismatchesCount = parseInt(localResult.mismatches_count, 10);
+            results = results[0];
+
+            serverURL = results.file_server_url;
+            if (serverURL === null || serverURL === undefined) {
+                serverURL = gFileServer;
+            }
+
+            translatedURI = urls.translateServerURL(
+                serverURL,
+                results.file_server_resource,
+                [
+                    results.job,
+                    results.kernel,
+                    results.arch + '-' + results.defconfig_full
+                ]
+            );
+
+            errorsCount = parseInt(results.errors_count, 10);
+            warningsCount = parseInt(results.warnings_count, 10);
+            mismatchesCount = parseInt(results.mismatches_count, 10);
 
             html.replaceContent(
                 document.getElementById('build-errors'),
@@ -118,19 +147,19 @@ require([
 
             if (errorsCount > 0) {
                 setTimeout(function() {
-                    _parseLogStrings('Errors', localResult.errors);
+                    _parseLogStrings('Errors', results.errors, 'errors');
                 }, 1);
             }
 
             if (warningsCount > 0) {
                 setTimeout(function() {
-                    _parseLogStrings('Warnings', localResult.warnings);
+                    _parseLogStrings('Warnings', results.warnings, 'warnings');
                 }, 1);
             }
 
             if (mismatchesCount > 0) {
                 setTimeout(function() {
-                    _parseLogStrings('Mismatched', localResult.mismatches);
+                    _parseLogStrings('Mismatched', results.mismatches, 'mism');
                 }, 1);
             }
 
