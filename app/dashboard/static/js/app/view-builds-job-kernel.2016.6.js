@@ -24,8 +24,12 @@ require([
     var gFileServer;
     var gJobName;
     var gKernelName;
+    var gLogMessage;
     var gResultFilter;
     var gSessionStorage;
+
+    gLogMessage = 'Shown log messages have been limited. ' +
+        'Please refer to each single build for more info.';
 
     setTimeout(function() {
         document.getElementById('li-build').setAttribute('class', 'active');
@@ -794,12 +798,14 @@ require([
     function getLogsDone(response) {
         var docFrag;
         var errors;
+        var len;
         var mismatches;
         var result;
         var sectionDiv;
         var sectionDivTitle;
         var sectionTable;
         var sectionTitle;
+        var tFoot;
         var tableCell;
         var tableRow;
         var warnings;
@@ -812,7 +818,8 @@ require([
 
             docFrag = document.createDocumentFragment();
 
-            if (errors.length > 0) {
+            len = errors.length;
+            if (len > 0) {
                 sectionDiv = docFrag.appendChild(
                     document.createElement('div'));
                 sectionDivTitle = sectionDiv.appendChild(
@@ -825,7 +832,11 @@ require([
 
                 sectionTable = sectionDiv.appendChild(
                     document.createElement('table'));
-                sectionTable.className = 'table table-condensed summary-table';
+                sectionTable.className = 'table table-condensed logs-table';
+
+                if (len > 128) {
+                    errors = errors.splice(0, 128);
+                }
 
                 errors.forEach(function(value) {
                     tableRow = sectionTable.insertRow();
@@ -835,9 +846,19 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
+
+                if (len > 128) {
+                    tFoot = sectionTable.createTFoot();
+                    tableRow = tFoot.insertRow();
+                    tableCell = tableRow.insertCell();
+
+                    tableCell.setAttribute('colspan', 2);
+                    tableCell.appendChild(document.createTextNode(gLogMessage));
+                }
             }
 
-            if (warnings.length > 0) {
+            len = warnings.length;
+            if (len > 0) {
                 sectionDiv = docFrag.appendChild(
                     document.createElement('div'));
                 sectionDivTitle = sectionDiv.appendChild(
@@ -850,7 +871,11 @@ require([
 
                 sectionTable = sectionDiv.appendChild(
                     document.createElement('table'));
-                sectionTable.className = 'table table-condensed summary-table';
+                sectionTable.className = 'table table-condensed logs-table';
+
+                if (len > 128) {
+                    warnings = warnings.splice(0, 128);
+                }
 
                 warnings.forEach(function(value) {
                     tableRow = sectionTable.insertRow();
@@ -860,9 +885,19 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
+
+                if (len > 128) {
+                    tFoot = sectionTable.createTFoot();
+                    tableRow = tFoot.insertRow();
+                    tableCell = tableRow.insertCell();
+
+                    tableCell.setAttribute('colspan', 2);
+                    tableCell.appendChild(document.createTextNode(gLogMessage));
+                }
             }
 
-            if (mismatches.length > 0) {
+            len = mismatches.length;
+            if (len > 0) {
                 sectionDiv = docFrag.appendChild(
                     document.createElement('div'));
                 sectionDivTitle = sectionDiv.appendChild(
@@ -875,7 +910,11 @@ require([
 
                 sectionTable = sectionDiv.appendChild(
                     document.createElement('table'));
-                sectionTable.className = 'table table-condensed summary-table';
+                sectionTable.className = 'table table-condensed logs-table';
+
+                if (len > 128) {
+                    mismatches = mismatches.splice(0, 128);
+                }
 
                 mismatches.forEach(function(value) {
                     tableRow = sectionTable.insertRow();
@@ -885,6 +924,15 @@ require([
                     tableCell = tableRow.insertCell();
                     tableCell.appendChild(document.createTextNode(value[1]));
                 });
+
+                if (len > 128) {
+                    tFoot = sectionTable.createTFoot();
+                    tableRow = tFoot.insertRow();
+                    tableCell = tableRow.insertCell();
+
+                    tableCell.setAttribute('colspan', 2);
+                    tableCell.appendChild(document.createTextNode(gLogMessage));
+                }
             }
 
             html.replaceContent(

@@ -5,16 +5,21 @@
 {%- block head %}
 {{super() }}
 <style type="text/css">
-    .summary-table {
+    .logs-table {
         font-size: smaller;
     }
-    .summary-table > tbody > tr > td {
+    .logs-table > tbody > tr > td {
         border-top: none;
         vertical-align: middle;
     }
-    .summary-table > tbody > tr > td:first-child {
+    .logs-table > tbody > tr > td:first-child {
         font-weight: bold;
         text-align: right;
+    }
+    .logs-table > tfoot > tr > td {
+        border: none;
+        font-style: italic;
+        padding-top: 1.1em;
     }
 </style>
 {%- endblock %}
