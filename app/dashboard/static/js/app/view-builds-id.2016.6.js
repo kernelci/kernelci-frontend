@@ -727,14 +727,15 @@ require([
             }
 
             if (configFragments !== null && configFragments !== undefined) {
-                tooltipNode = html.tooltip();
+                docFrag = document.createDocumentFragment();
+                tooltipNode = docFrag.appendChild(html.tooltip());
                 tooltipNode.setAttribute('title', configFragments);
                 tooltipNode.appendChild(
                     document.createTextNode(
                         html.sliceText(configFragments, 35)));
 
                 html.replaceContent(
-                    document.getElementById('config-fragments'), tooltipNode);
+                    document.getElementById('config-fragments'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('config-fragments'),
@@ -769,9 +770,10 @@ require([
             }
 
             if (kernelImage !== null && kernelImage !== undefined) {
-                spanNode = document.createElement('span');
+                docFrag = document.createDocumentFragment();
+                spanNode = docFrag.appendChild(document.createElement('span'));
 
-                aNode = document.createElement('a');
+                aNode = spanNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -782,8 +784,6 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
-                spanNode.appendChild(aNode);
-
                 if (kernelImageSize !== null &&
                         kernelImageSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -791,15 +791,16 @@ require([
                 }
 
                 html.replaceContent(
-                    document.getElementById('kernel-image'), spanNode);
+                    document.getElementById('kernel-image'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('kernel-image'), html.nonavail());
             }
 
             if (kernelConfig !== null && kernelConfig !== undefined) {
-                spanNode = document.createElement('span');
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                spanNode = docFrag.appendChild(document.createElement('span'));
+                aNode = spanNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -810,8 +811,6 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
-                spanNode.appendChild(aNode);
-
                 if (kernelConfigSize !== null &&
                         kernelConfigSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -819,15 +818,16 @@ require([
                 }
 
                 html.replaceContent(
-                    document.getElementById('kernel-config'), spanNode);
+                    document.getElementById('kernel-config'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('kernel-config'), html.nonavail());
             }
 
             if (systemMap !== null && systemMap !== undefined) {
-                spanNode = document.createElement('span');
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                spanNode = docFrag.appendChild(document.createElement('span'));
+                aNode = spanNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -838,15 +838,13 @@ require([
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
 
-                spanNode.appendChild(aNode);
-
                 if (systemMapSize !== null && systemMapSize !== undefined) {
                     spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
                     spanNode.appendChild(_createSizeNode(systemMapSize));
                 }
 
                 html.replaceContent(
-                    document.getElementById('system-map'), spanNode);
+                    document.getElementById('system-map'), docFrag);
             } else {
                 html.replaceContent(
                     document.getElementById('system-map'), html.nonavail());
@@ -856,7 +854,7 @@ require([
                 docFrag = document.createDocumentFragment();
                 spanNode = docFrag.appendChild(document.createElement('span'));
 
-                aNode = document.createElement('a');
+                aNode = spanNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
                     fileServerURI
@@ -899,12 +897,13 @@ require([
                     document.getElementById('platform-cpu'),
                     document.createTextNode(buildPlatform[5]));
             } else {
-                divNode = document.createElement('div');
+                docFrag = document.createDocumentFragment();
+                divNode = docFrag.appendChild(document.createElement('div'));
                 divNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
                 divNode.appendChild(html.errorDiv('No data available.'));
 
                 html.replaceContent(
-                    document.getElementById('build-platform'), divNode);
+                    document.getElementById('build-platform'), docFrag);
             }
         }
     }
