@@ -168,7 +168,8 @@ require([
                 operation_id: 'unknown-count-' + kernel,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=OFFLINE&status=UNKNOWN&' + queryStr
+                query: 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&' +
+                    queryStr
             });
         }
 

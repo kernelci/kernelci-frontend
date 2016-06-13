@@ -178,7 +178,8 @@ require([
                 method: 'GET',
                 resource: 'count',
                 document: 'boot',
-                query: gQueryStr + '&status=OFFLINE&status=UNKNOWN&kernel=' +
+                query: gQueryStr +
+                    '&status=OFFLINE&status=UNKNOWN&status=UNTRIED&kernel=' +
                     kernel
             });
         }

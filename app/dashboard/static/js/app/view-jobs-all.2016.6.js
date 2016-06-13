@@ -127,7 +127,8 @@ require([
                 operation_id: 'boot-unknown-count-' + job,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=OFFLINE&status=UNTRIED&' + queryStr
+                query: 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&' +
+                    queryStr
             });
         }
 
