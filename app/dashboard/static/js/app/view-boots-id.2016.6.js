@@ -9,8 +9,9 @@ require([
     'tables/boot',
     'utils/html',
     'utils/const',
+    'utils/format',
     'utils/date'
-], function($, init, e, r, u, bisect, tboot, html, appconst) {
+], function($, init, e, r, u, bisect, tboot, html, appconst, format) {
     'use strict';
     var gBootId;
     var gDateRange;
@@ -620,6 +621,7 @@ require([
         var job;
         var kernel;
         var kernelImage;
+        var kernelImageSize;
         var lab;
         var loadAddr;
         var pathURI;
@@ -660,6 +662,7 @@ require([
         loadAddr = result.load_addr;
         initrdAddr = result.initrd_addr;
         kernelImage = result.kernel_image;
+        kernelImageSize = result.kernel_image_size;
         qemuData = result.qemu;
         qemuCommand = result.qemu_command;
         soc = result.mach;
@@ -957,7 +960,8 @@ require([
         // Kernel image.
         if (kernelImage) {
             docFrag = document.createDocumentFragment();
-            aNode = docFrag.appendChild(document.createElement('a'));
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            aNode = spanNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
                 serverURI
@@ -966,6 +970,16 @@ require([
             aNode.appendChild(document.createTextNode(kernelImage));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(html.external());
+
+            if (kernelImageSize) {
+                spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                smallNode = spanNode
+                    .appendChild(document.createElement('small'));
+                smallNode.appendChild(
+                    document.createTextNode(
+                        '(' + format.bytes(kernelImageSize) + ')'));
+            }
+
             html.replaceContent(
                 document.getElementById('dd-board-kernel-image'), docFrag);
         } else {

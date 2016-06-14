@@ -349,7 +349,7 @@ define([
                 smallNode = document.createElement('small');
                 smallNode.appendChild(
                     document.createTextNode(
-                        format.bytes(kernelImageSize)));
+                        '(' + format.bytes(kernelImageSize) + ')'));
                 ddNode.appendChild(smallNode);
             }
         } else {
