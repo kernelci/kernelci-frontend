@@ -611,7 +611,11 @@ require([
         var boardInstance;
         var bootLog;
         var bootTime;
+        var compiler;
+        var compilerVersion;
+        var compilerVersionFull;
         var createdOn;
+        var crossCompile;
         var defconfigFull;
         var docFrag;
         var dtb;
@@ -666,6 +670,11 @@ require([
         qemuData = result.qemu;
         qemuCommand = result.qemu_command;
         soc = result.mach;
+
+        compiler = result.compiler;
+        compilerVersion = result.compiler_version;
+        compilerVersionFull = result.compiler_version_full;
+        crossCompile = result.cross_compile;
 
         if (!serverURL) {
             serverURL = gFileServer;
@@ -907,6 +916,45 @@ require([
         }
         html.replaceContent(
             document.getElementById('dd-board-boot-log'), bootLog);
+
+        if (crossCompile) {
+            html.replaceContent(
+                document.getElementById('cross-compile'),
+                document.createTextNode(crossCompile));
+        } else {
+            html.replaceContent(
+                document.getElementById('cross-compile'),
+                html.nonavail());
+        }
+
+        if (compiler) {
+            html.replaceContent(
+                document.getElementById('compiler'),
+                document.createTextNode(compiler));
+        } else {
+            html.replaceContent(
+                document.getElementById('compiler'), html.nonavail());
+        }
+
+        if (compilerVersion) {
+            html.replaceContent(
+                document.getElementById('compiler-version'),
+                document.createTextNode(compilerVersion));
+        } else {
+            html.replaceContent(
+                document.getElementById('compiler-version'),
+                html.nonavail());
+        }
+
+        if (compilerVersionFull) {
+            html.replaceContent(
+                document.getElementById('compiler-version-full'),
+                document.createTextNode(compilerVersionFull));
+        } else {
+            html.replaceContent(
+                document.getElementById('compiler-version-full'),
+                html.nonavail());
+        }
 
         if (dtb) {
             docFrag = document.createDocumentFragment();
