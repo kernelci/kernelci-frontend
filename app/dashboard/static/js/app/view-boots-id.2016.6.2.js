@@ -55,6 +55,7 @@ require([
         var serverResource;
         var serverURI;
         var serverURL;
+        var str;
         var translatedURI;
 
         arch = data.arch;
@@ -70,10 +71,11 @@ require([
             serverURL = gFileServer;
         }
 
+        str = arch;
+        str += '-';
+        str += defconfigFull;
         translatedURI = u.translateServerURL(
-            serverURL,
-            serverResource,
-            [job, kernel, arch + '-' + defconfigFull]
+            serverURL, serverResource, [job, kernel, str]
         );
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
@@ -640,6 +642,7 @@ require([
         var soc;
         var spanNode;
         var statusNode;
+        var str;
         var tooltipNode;
         var translatedURI;
         var warnings;
@@ -680,10 +683,12 @@ require([
             serverURL = gFileServer;
         }
 
+        str = arch;
+        str += '-';
+        str += defconfigFull;
+
         translatedURI = u.translateServerURL(
-            serverURL,
-            serverResource,
-            [job, kernel, arch + '-' + defconfigFull]
+            serverURL, serverResource, [job, kernel, str]
         );
 
         serverURI = translatedURI[0];
@@ -699,17 +704,25 @@ require([
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
         smallNode = spanNode.appendChild(document.createElement('small'));
-        smallNode.appendChild(document.createTextNode('(' + lab + ')'));
+        str = '(';
+        str += lab;
+        str += ')';
+        smallNode.appendChild(document.createTextNode(str));
 
         document.getElementById('body-title').appendChild(docFrag);
 
         // Lab.
         docFrag = document.createDocumentFragment();
         tooltipNode = docFrag.appendChild(html.tooltip());
-        tooltipNode.setAttribute(
-            'title', 'Boot reports for lab&nbsp' + lab);
+        str = 'Boot reports for lab&nbsp';
+        str += lab;
+        tooltipNode.setAttribute('title', lab);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute('href', '/boot/all/lab/' + lab + '/');
+        str = '/boot/all/lab/';
+        str += lab;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.appendChild(document.createTextNode(lab));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
@@ -719,10 +732,15 @@ require([
         // Board.
         docFrag = document.createDocumentFragment();
         tooltipNode = docFrag.appendChild(html.tooltip());
-        tooltipNode.setAttribute(
-            'title', 'Boot reports for board&nbsp;' + board);
+        str = 'Boot reports for board&nbsp;';
+        str += board;
+        tooltipNode.setAttribute('title', str);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute('href', '/boot/' + board + '/');
+        str = '/boot/';
+        str += board;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.appendChild(document.createTextNode(board));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
@@ -746,17 +764,29 @@ require([
         spanNode = docFrag.appendChild(document.createElement('span'));
 
         tooltipNode = spanNode.appendChild(html.tooltip());
-        tooltipNode.setAttribute('title', 'Boot reports for&nbsp;' + job);
+        str = 'Boot reports for&nbsp;';
+        str += job;
+        tooltipNode.setAttribute('title', str);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+        str = '/boot/all/job/';
+        str += job;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.appendChild(document.createTextNode(job));
 
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = spanNode.appendChild(html.tooltip());
-        tooltipNode.setAttribute('title', 'Details for tree&nbsp;' + job);
+        str = 'Details for tree&nbsp;';
+        str += job;
+        tooltipNode.setAttribute('title', str);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute('href', '/job/' + job + '/');
+        str = '/job/';
+        str += job;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.tree());
 
@@ -772,23 +802,37 @@ require([
         spanNode = docFrag.appendChild(document.createElement('span'));
 
         tooltipNode = spanNode.appendChild(html.tooltip());
-        tooltipNode.setAttribute(
-            'title',
-            'Boot reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
+        str = 'Boot reports for&nbsp;';
+        str += job;
+        str += '&nbsp;&dash;&nbsp;';
+        str += kernel;
+        tooltipNode.setAttribute('title', str);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute(
-            'href', '/boot/all/job/' + job + '/kernel/' + kernel + '/');
+        str = '/boot/all/job/';
+        str += job;
+        str += '/kernel/';
+        str += kernel;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.appendChild(document.createTextNode(kernel));
 
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = spanNode.appendChild(html.tooltip());
-        tooltipNode.setAttribute(
-            'title',
-            'Build reports for&nbsp;' + job + '&nbsp;&dash;&nbsp;' + kernel);
+        str = 'Build reports for&nbsp;';
+        str += job;
+        str += '&nbsp;&dash;&nbsp;';
+        str += kernel;
+        tooltipNode.setAttribute('title', str);
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute(
-            'href', '/build/' + job + '/kernel/' + kernel + '/');
+        str = '/build/';
+        str += job;
+        str += '/kernel/';
+        str += kernel;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.build());
 
@@ -800,12 +844,18 @@ require([
         spanNode = docFrag.appendChild(document.createElement('span'));
         tooltipNode = spanNode.appendChild(html.tooltip());
         tooltipNode.setAttribute('title', 'Boot reports');
+
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        aNode.setAttribute(
-            'href',
-            '/boot/' + board + '/job/' + job + '/kernel/' + kernel +
-                '/defconfig/' + defconfigFull + '/'
-        );
+        str = '/boot/';
+        str += board;
+        str += '/job/';
+        str += job;
+        str += '/kernel/';
+        str += kernel;
+        str += '/defconfig/';
+        str += defconfigFull;
+        str += '/';
+        aNode.setAttribute('href', str);
         aNode.appendChild(document.createTextNode(defconfigFull));
 
         if (result.build_id) {
@@ -814,8 +864,10 @@ require([
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', 'Build details');
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute(
-                'href', '/build/id/' + result.build_id.$oid + '/');
+            str = '/build/id/';
+            str += result.build_id.$oid;
+            str += '/';
+            aNode.setAttribute('href', str);
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(html.build());
         }
@@ -868,10 +920,15 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for SoC &#171;' + soc + '&#187;');
+            str = 'Boot reports for SoC&nbsp;';
+            str += soc;
+            tooltipNode.setAttribute('title', str);
+
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', '/soc/' + soc + '/');
+            str = '/soc/';
+            str += soc;
+            str += '/';
+            aNode.setAttribute('href', str);
             aNode.appendChild(html.soc());
 
             html.replaceContent(
@@ -959,10 +1016,11 @@ require([
         if (dtb) {
             docFrag = document.createDocumentFragment();
             aNode = docFrag.appendChild(document.createElement('a'));
+            str = pathURI;
+            str += '/';
+            str += dtb;
             aNode.setAttribute(
-                'href',
-                serverURI
-                    .path(pathURI + '/' + dtb).normalizePath().href()
+                'href', serverURI.path(str).normalizePath().href()
             );
             aNode.appendChild(document.createTextNode(dtb));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -1010,10 +1068,11 @@ require([
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
             aNode = spanNode.appendChild(document.createElement('a'));
+            str = pathURI;
+            str += '/';
+            str += kernelImage;
             aNode.setAttribute(
-                'href',
-                serverURI
-                    .path(pathURI + '/' + kernelImage).normalizePath().href()
+                'href', serverURI.path(str).normalizePath().href()
             );
             aNode.appendChild(document.createTextNode(kernelImage));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -1023,9 +1082,10 @@ require([
                 spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 smallNode = spanNode
                     .appendChild(document.createElement('small'));
-                smallNode.appendChild(
-                    document.createTextNode(
-                        '(' + format.bytes(kernelImageSize) + ')'));
+                str = '(';
+                str += format.bytes(kernelImageSize);
+                str += ')';
+                smallNode.appendChild(document.createTextNode(str));
             }
 
             html.replaceContent(
