@@ -65,12 +65,12 @@ class BuildsJobKernelView(GeneralBuildsView):
 
     # pylint: disable=unused-argument
     def dispatch_request(self, *args, **kwargs):
-        job = kwargs["job"]
-        kernel = kwargs["kernel"]
+        job = kwargs.get("job")
+        kernel = kwargs.get("kernel")
 
         body_title = (
-            "Build details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
-            (job, kernel)
+            "Build details for&nbsp;&#171;{:s}&#187;&nbsp;&dash;&nbsp;".format(
+                job)
         )
 
         return render_template(

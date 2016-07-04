@@ -22,11 +22,12 @@ require([
         r, u, commonBtns, buildBtns, chart, html, storage, session, filter) {
     'use strict';
     var gFileServer;
-    var gJobName;
-    var gKernelName;
+    var gJob;
+    var gKernel;
     var gLogMessage;
     var gResultFilter;
     var gSessionStorage;
+    var gStorageName;
 
     gLogMessage = 'Shown log messages have been limited. ' +
         'Please refer to each single build for more info.';
@@ -632,12 +633,13 @@ require([
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data available.'));
         } else {
+            results = results[0];
             deferred = r.get(
                 '/_ajax/build',
                 {
-                    job: gJobName,
-                    job_id: results[0]._id.$oid,
-                    kernel: gKernelName,
+                    job: results.job,
+                    job_id: results._id.$oid,
+                    kernel: results.kernel,
                     sort: ['defconfig_full', 'arch'],
                     sort_order: 1,
                     nfield: ['dtb_dir_data']
@@ -663,7 +665,8 @@ require([
         var docFrag;
         var gitCommit;
         var gitURL;
-        var localResult;
+        var job;
+        var kernel;
         var results;
         var spanNode;
         var tURLs;
@@ -673,31 +676,38 @@ require([
         if (results.length === 0) {
             html.replaceByClass('loading-content', '?');
         } else {
-            localResult = results[0];
-            gitURL = localResult.git_url;
-            gitCommit = localResult.git_commit;
+            results = results[0];
+            createdOn = new Date(results.created_on.$date);
+            gitCommit = results.git_commit;
+            gitURL = results.git_url;
+            job = results.job;
+            kernel = results.kernel;
             tURLs = u.translateCommit(gitURL, gitCommit);
-            createdOn = new Date(localResult.created_on.$date);
+
+            // The kernel name in the title.
+            html.replaceContent(
+                document.getElementById('kernel-title'),
+                document.createTextNode(kernel));
 
             // Tree.
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.setAttribute('title', 'Details for tree ' + gJobName);
+            tooltipNode.setAttribute('title', 'Details for tree ' + job);
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', '/job/' + gJobName + '/');
-            aNode.appendChild(document.createTextNode(gJobName));
+            aNode.setAttribute('href', '/job/' + job + '/');
+            aNode.appendChild(document.createTextNode(job));
 
             spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
-                'title', 'Boot reports details for ' + gJobName);
+                'title', 'Boot reports details for ' + job);
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', '/boot/all/job/' + gJobName + '/');
+            aNode.setAttribute('href', '/boot/all/job/' + job + '/');
             aNode.appendChild(html.boot());
 
             html.replaceContent(document.getElementById('tree'), docFrag);
@@ -705,13 +715,13 @@ require([
             // Branch.
             html.replaceContent(
                 document.getElementById('git-branch'),
-                document.createTextNode(localResult.git_branch));
+                document.createTextNode(results.git_branch));
 
             // Git describe.
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
 
-            spanNode.appendChild(document.createTextNode(gKernelName));
+            spanNode.appendChild(document.createTextNode(kernel));
 
             spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
@@ -719,13 +729,13 @@ require([
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
-                'Boot reports for ' + gJobName + '&nbsp;&dash;&nbsp;' +
-                gKernelName
+                'Boot reports for ' + job + '&nbsp;&dash;&nbsp;' +
+                kernel
             );
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href',
-                '/boot/all/job/' + gJobName + '/kernel/' + gKernelName + '/');
+                '/boot/all/job/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(html.boot());
 
             html.replaceContent(
@@ -792,7 +802,7 @@ require([
     function getLogsFail() {
         html.replaceContent(
             document.getElementById('logs-summary'),
-            html.errorDiv('Error loading logs summary data.'));
+            html.errorDiv('Error loading logs data.'));
     }
 
     function getLogsDone(response) {
@@ -940,20 +950,47 @@ require([
         } else {
             html.replaceContent(
                 document.getElementById('logs-summary'),
-                html.errorDiv('No logs summary data.'));
+                html.errorDiv('No logs data available.'));
         }
     }
 
-    function getLogs() {
-        $.when(r.get('/_ajax/job/logs', {job: gJobName, kernel: gKernelName}))
-            .fail(e.error, getLogsFail)
-            .done(getLogsDone);
+    function getLogs(response) {
+        var results;
+
+        results = response.result;
+        if (results.length > 0) {
+            results = results[0];
+            $.when(
+                r.get(
+                    '/_ajax/job/logs',
+                    {job: results.job, kernel: results.kernel}))
+                .fail(e.error, getLogsFail)
+                .done(getLogsDone);
+        } else {
+            html.replaceContent(
+                document.getElementById('logs-summary'),
+                html.errorDiv('No logs data available.'));
+        }
     }
 
-    function getJob() {
-        $.when(r.get('/_ajax/job', {job: gJobName, kernel: gKernelName}))
+    function getJob(job, kernel) {
+        var data;
+
+        data = {
+            job: job
+        };
+
+        if (kernel) {
+            data.kernel = kernel;
+        } else {
+            data.sort = 'created_on';
+            data.sort_order = -1;
+            data.limit = 1;
+        }
+
+        $.when(r.get('/_ajax/job', data))
             .fail(e.error, getJobFail)
-            .done(getJobDone, getBuilds);
+            .done(getJobDone, getLogs, getBuilds);
     }
 
     function registerEvents() {
@@ -1047,18 +1084,30 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
     if (document.getElementById('job-name') !== null) {
-        gJobName = document.getElementById('job-name').value;
+        gJob = document.getElementById('job-name').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        gKernelName = document.getElementById('kernel-name').value;
+        gKernel = document.getElementById('kernel-name').value;
+        if (gKernel === 'None' || gKernel === 'null') {
+            gKernel = null;
+        }
     }
 
-    gSessionStorage = storage('build-' + gJobName + '-' + gKernelName);
+    gStorageName = 'build-';
+    gStorageName += gJob;
+    gStorageName += '-';
+
+    if (gKernel) {
+        gStorageName += gKernel;
+    } else {
+        gStorageName += 'latest';
+    }
+
+    gSessionStorage = storage(gStorageName);
     gResultFilter = filter('data-filter');
 
     setTimeout(registerEvents, 0);
-    setTimeout(getJob, 0);
-    setTimeout(getLogs, 0);
+    setTimeout(getJob.bind(null, gJob, gKernel), 0);
 
     init.hotkeys();
     init.tooltip();
