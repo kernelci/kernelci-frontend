@@ -134,12 +134,12 @@ class BootIdView(BootGeneralView):
 class BootJobKernelView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
-        job = kwargs["job"]
-        kernel = kwargs["kernel"]
+        job = kwargs.get("job")
+        kernel = kwargs.get("kernel")
 
         body_title = (
-            "Boot details for&nbsp;&#171;%s&#187;&nbsp;&dash;&nbsp;%s" %
-            (job, kernel)
+            "Boot details for&nbsp;&#171;{:s}&#187;&nbsp;&dash;&nbsp;".format(
+                job)
         )
 
         search_filter, _ = get_search_parameters(request)

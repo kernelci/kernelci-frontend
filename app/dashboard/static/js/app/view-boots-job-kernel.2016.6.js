@@ -32,6 +32,7 @@ require([
     var gResultFilter;
     var gSearchFilter;
     var gSessionStorage;
+    var gStorageName;
 
     setTimeout(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
@@ -275,10 +276,14 @@ require([
 
     function getBootDoneUnique(response) {
         var deferred;
+        var results;
 
         if (response.count > 0) {
-            deferred = request
-                .get('/_ajax/count/build', {job: gJob, kernel: gKernel});
+            results = response.result[0];
+
+            deferred = request.get(
+                '/_ajax/count/build',
+                {job: results.job, kernel: results.kernel});
 
             $.when(deferred, unique.countD(response))
                 .fail(e.error, uniqueCountFail)
@@ -382,11 +387,13 @@ require([
 
         results = response.result;
         if (results.length > 0) {
+            results = results[0];
+
             deferred = request.get(
                 '/_ajax/boot',
                 {
-                    job: gJob,
-                    kernel: gKernel,
+                    job: results.job,
+                    kernel: results.kernel,
                     sort: ['board', 'defconfig_full', 'arch'],
                     sort_order: 1
                 }
@@ -405,15 +412,17 @@ require([
     }
 
     function getJobDone(response) {
-        var results;
-        var gitBranch;
-        var gitURLs;
-        var domNode;
-        var tooltipNode;
         var aNode;
+        var createdOn;
+        var domNode;
+        var gitBranch;
         var gitCommit;
         var gitURL;
-        var createdOn;
+        var gitURLs;
+        var job;
+        var kernel;
+        var results;
+        var tooltipNode;
 
         results = response.result;
         if (results.length === 0) {
@@ -421,21 +430,28 @@ require([
         } else {
             results = results[0];
 
+            createdOn = new Date(results.created_on.$date);
             gitBranch = results.git_branch;
             gitCommit = results.git_commit;
             gitURL = results.git_url;
-            createdOn = new Date(results.created_on.$date);
+            job = results.job;
+            kernel = results.kernel;
 
             gitURLs = urls.translateCommit(gitURL, gitCommit);
+
+            // The kernel name in the title.
+            html.replaceContent(
+                document.getElementById('kernel-title'),
+                document.createTextNode(kernel));
 
             // Tree.
             domNode = document.createElement('div');
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Boot reports for tree &#171;' + gJob + '&#187;');
+                'title', 'Boot reports for tree &#171;' + job + '&#187;');
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/boot/all/job/' + gJob + '/');
-            aNode.appendChild(document.createTextNode(gJob));
+            aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+            aNode.appendChild(document.createTextNode(job));
             tooltipNode.appendChild(aNode);
 
             domNode.appendChild(tooltipNode);
@@ -443,9 +459,9 @@ require([
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Details for tree &#171;' + gJob + '&#187;');
+                'title', 'Details for tree &#171;' + job + '&#187;');
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/job/' + gJob + '/');
+            aNode.setAttribute('href', '/job/' + job + '/');
             aNode.appendChild(html.tree());
             tooltipNode.appendChild(aNode);
 
@@ -460,16 +476,16 @@ require([
 
             // Git describe.
             domNode = document.createElement('div');
-            domNode.appendChild(document.createTextNode(gKernel));
+            domNode.appendChild(document.createTextNode(kernel));
             domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
                 'title',
-                'Build reports for &#171;' + gJob + '&#187; - ' + gKernel);
+                'Build reports for &#171;' + job + '&#187; - ' + kernel);
             aNode = document.createElement('a');
             aNode.setAttribute(
-                'href', '/build/' + gJob + '/kernel/' + gKernel + '/');
+                'href', '/build/' + job + '/kernel/' + kernel + '/');
             aNode.appendChild(html.build());
             tooltipNode.appendChild(aNode);
 
@@ -520,8 +536,22 @@ require([
         }
     }
 
-    function getJob() {
-        $.when(request.get('/_ajax/job', {job: gJob, kernel: gKernel}))
+    function getJob(job, kernel) {
+        var data;
+
+        data = {
+            job: job
+        };
+
+        if (kernel) {
+            data.kernel = kernel;
+        } else {
+            data.sort = 'created_on';
+            data.sort_order = -1;
+            data.limit = 1;
+        }
+
+        $.when(request.get('/_ajax/job', data))
             .fail(e.error, getJobFailed)
             .done(getJobDone, getBoot);
     }
@@ -618,6 +648,9 @@ require([
     }
     if (document.getElementById('kernel-name') !== null) {
         gKernel = document.getElementById('kernel-name').value;
+        if (gKernel === 'None' || gKernel === 'null') {
+            gKernel = null;
+        }
     }
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
@@ -626,11 +659,21 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gSessionStorage = storage('boot-' + gJob + '-' + gKernel);
+    gStorageName = 'boot-';
+    gStorageName += gJob;
+    gStorageName += '-';
+
+    if (gKernel) {
+        gStorageName += gKernel;
+    } else {
+        gStorageName += 'latest';
+    }
+
+    gSessionStorage = storage(gStorageName);
     gResultFilter = filter('data-filter');
 
     setTimeout(registerEvents, 0);
-    setTimeout(getJob, 0);
+    setTimeout(getJob.bind(null, gJob, gKernel), 0);
 
     init.hotkeys();
     init.tooltip();

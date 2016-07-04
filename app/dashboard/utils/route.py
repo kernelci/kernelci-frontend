@@ -184,6 +184,11 @@ def init():
         methods=["GET"]
     )
     add_rule(
+        "/boot/all/job/<string:job>/kernel/latest/",
+        view_func=vboot.BootJobKernelView.as_view("boot-job-kernel-latest"),
+        methods=["GET"]
+    )
+    add_rule(
         "/boot/all/job/<string:job>/",
         view_func=vboot.BootJobView.as_view("boot-job"),
         methods=["GET"]
