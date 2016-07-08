@@ -58,7 +58,7 @@ class BootAllJobKernelDefconfigView(BootGeneralView):
 
         page_title = self.BOOT_PAGES_TITLE + ""
         body_title = (
-            "Boot reports for &#171;%(job)s - %(kernel)s&#187;&nbsp;"
+            "Boot Reports for &#171;%(job)s - %(kernel)s&#187;&nbsp;"
             "<small>(%(defconfig)s)</small>" % kwargs
         )
         search_filter, page_len = get_search_parameters(request)
@@ -83,7 +83,7 @@ class BootDefconfigView(BootGeneralView):
             self.BOOT_PAGES_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" %
             kwargs)
         body_title = (
-            "Boot reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
+            "Boot Reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
 
         return render_template(
             "boots-board-job-kernel-defconfig.html",
@@ -108,7 +108,7 @@ class BootBoardLabView(BootGeneralView):
                 "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
                 kwargs)
             body_title = (
-                "Boot reports for board&nbsp;&#171;%(board)s&#187;&nbsp;"
+                "Boot Reports for board &#171;%(board)s&#187;&nbsp;"
                 "<small>(%(lab_name)s)</small>" % kwargs)
             return render_template(
                 "boots-board-lab.html",
@@ -134,13 +134,9 @@ class BootIdView(BootGeneralView):
 class BootJobKernelView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
-        job = kwargs.get("job")
-        kernel = kwargs.get("kernel")
-
         body_title = (
-            "Boot details for&nbsp;&#171;{:s}&#187;&nbsp;&dash;&nbsp;".format(
-                job)
-        )
+            "Boot Reports: &#171;{job:s}&#187; &dash; {kernel:s}".format(
+                **kwargs))
 
         search_filter, _ = get_search_parameters(request)
 
@@ -148,8 +144,8 @@ class BootJobKernelView(BootGeneralView):
             "boots-job-kernel.html",
             page_title=self.BOOT_PAGES_TITLE,
             body_title=body_title,
-            job=job,
-            kernel=kernel,
+            job=kwargs.get("job"),
+            kernel=kwargs.get("kernel"),
             search_filter=search_filter
         )
 

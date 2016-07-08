@@ -20,9 +20,119 @@
     <div class="page-header">
         <h3 id="details">{{ body_title|safe }}<span id="kernel-title"></span></h3>
     </div>
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a role="tab" data-toggle="tab" href="#overview">
+            <i class="fa fa-newspaper-o" aria-hidden="true"></i>&nbsp;
+            Overview
+            </a>
+        </li>
+        <li role="presentation">
+            <a role="tab" data-toggle="tab" href="#regressions">
+            <i class="fa fa-history" aria-hidden="true"></i>&nbsp;
+            Regressions</a>
+        </li>
+        <li role="presentation">
+            <a role="tab" data-toggle="tab" href="#graphs">
+            <i class="fa fa-bar-chart"></i>&nbsp;
+            Graphs</a>
+        </li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="overview">
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                        <dt>Tree</dt>
+                        <dd class="loading-content" id="tree">
+                            <small>
+                                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                            </small>
+                        </dd>
+                        <dt>Git branch</dt>
+                        <dd class="loading-content" id="git-branch">
+                            <small>
+                                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                            </small>
+                        </dd>
+                        <dt>Git describe</dt>
+                        <dd class="loading-content" id="git-describe">
+                            <small>
+                                <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                            </small>
+                        </dd>
+                        </dl>
+                    </div>
+                </div>
+{#                 <dl class="dl-horizontal">
+                    <dt>Tree</dt>
+                    <dd class="loading-content" id="tree">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Git branch</dt>
+                    <dd class="loading-content" id="git-branch">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Git describe</dt>
+                    <dd class="loading-content" id="git-describe">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Git URL</dt>
+                    <dd class="loading-content" id="git-url">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Git commit</dt>
+                    <dd class="loading-content" id="git-commit">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Date</dt>
+                    <dd class="loading-content" id="job-date">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                </dl> #}
+            </div>
+{#             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <dl class="dl-horizontal">
+                    <dt>Unique boards</dt>
+                    <dd id="unique-boards" class="loading-content unique-values">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt >Unique SoCs</dt>
+                    <dd id="unique-socs" class="loading-content unique-values">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                    <dt>Unique defconfigs</dt>
+                    <dd id="unique-defconfigs" class="loading-content unique-values">
+                        <small>
+                            <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
+                        </small>
+                    </dd>
+                </dl>
+            </div> #}
+        </div>
+        <div role="tabpanel" class="tab-pane" id="regressions"></div>
+        <div role="tabpanel" class="tab-pane" id="graphs"></div>
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
         <dl class="dl-horizontal">
-            <dt>Tree</dt>
+{#             <dt>Tree</dt>
             <dd class="loading-content" id="tree">
                 <small>
                     <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
@@ -39,7 +149,7 @@
                 <small>
                     <i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;
                 </small>
-            </dd>
+            </dd> #}
             <dt>Git URL</dt>
             <dd class="loading-content" id="git-url">
                 <small>
