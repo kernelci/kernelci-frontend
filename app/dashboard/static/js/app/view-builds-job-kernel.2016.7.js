@@ -29,8 +29,8 @@ require([
     var gSessionStorage;
     var gStorageName;
 
-    gLogMessage = 'Shown log messages have been limited. ' +
-        'Please refer to each single build for more info.';
+    gLogMessage = 'Shown log messages have been limited. ';
+    gLogMessage += 'Please refer to each single build for more info.';
 
     setTimeout(function() {
         document.getElementById('li-build').setAttribute('class', 'active');
@@ -96,6 +96,68 @@ require([
                 }
             }
         );
+    }
+
+    function getCompilersDone(message) {
+        var cell;
+        var compilers;
+        var docFrag;
+        var row;
+        var table;
+
+        if (message.data) {
+            docFrag = document.createDocumentFragment();
+
+            Object.keys(message.data).forEach(function(key) {
+                compilers = message.data[key];
+
+                row = docFrag.appendChild(document.createElement('tr'));
+                cell = row.appendChild(document.createElement('td'));
+
+                cell.appendChild(document.createTextNode(key));
+                cell.setAttribute('rowspan', compilers.length);
+
+                cell = row.appendChild(document.createElement('td'));
+                if (compilers[0]) {
+                    cell.appendChild(document.createTextNode(compilers[0]));
+                } else {
+                    cell.appendChild(html.nonavail());
+                }
+
+                if (compilers.length > 1) {
+                    compilers.slice(1).forEach(function(comp) {
+                        row = docFrag.appendChild(document.createElement('tr'));
+                        cell = row.appendChild(document.createElement('td'));
+                        if (comp) {
+                            cell.appendChild(document.createTextNode(comp));
+                        } else {
+                            cell.appendChild(html.nonavail());
+                        }
+                    });
+                }
+            });
+
+            table = document.getElementById('compiler-table');
+            html.replaceContent(
+                table.tBodies[0],
+                docFrag
+            );
+        }
+    }
+
+    function getCompilers(response) {
+        var result;
+        var worker;
+
+        result = response.result;
+        if (result.length > 0) {
+            if (window.Worker) {
+                worker = new Worker('/static/js/worker/compiler-version.js');
+
+                worker.onmessage = getCompilersDone;
+                worker.postMessage(result);
+            }
+        }
     }
 
     function getBuildsFail() {
@@ -648,7 +710,7 @@ require([
 
             $.when(deferred)
                 .fail(e.error, getBuildsFail)
-                .done(getBuildsDone, getBuildsDoneChart);
+                .done(getBuildsDone, getBuildsDoneChart, getCompilers);
         }
     }
 

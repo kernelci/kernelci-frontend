@@ -21,6 +21,12 @@
         font-style: italic;
         padding-top: 1.1em;
     }
+    .compiler > tbody > tr > td:first-child {
+        vertical-align: middle;
+    }
+    .compiler > tbody > tr:first-child > td {
+        border-top: none;
+    }
 </style>
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
@@ -139,10 +145,21 @@
     </div>
 </div>
 <div class="row">
-    <div>
-        <h4>Build Logs Summary</h4>
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <h4>Compilers Used</h4>
+        <table id="compiler-table" class="table table-condensed compiler">
+            <thead><tr><th>Arch.</th><th class="compiler-version">Compiler</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" class="pull-center">
+                        <small><i class="fa fa-cog fa-spin"></i>&nbsp;loading&hellip;</small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h4>Build Logs Summary</h4>
         <div id="logs-summary">
             <div id="logs-summary-loading" class="pull-center">
                 <small>
