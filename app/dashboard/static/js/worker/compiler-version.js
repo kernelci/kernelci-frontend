@@ -1,4 +1,9 @@
 /* globals onmessage: true, postMessage: true */
+/**
+ * Extract the compilers used for the build.
+ *
+ * @param {Object} message
+**/
 onmessage = function(message) {
     'use strict';
     var gCompilers;
@@ -26,8 +31,6 @@ onmessage = function(message) {
     if (message.data) {
         message.data.forEach(parseBuildData);
     }
-
-    console.log(gCompilers);
 
     postMessage(gCompilers);
 };
