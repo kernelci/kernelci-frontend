@@ -1,10 +1,10 @@
 /* globals onmessage: true, postMessage: true */
 onmessage = function(message) {
     'use strict';
-    var bootData,
-        bootDataKeys,
-        conflicts,
-        conflictsCount;
+    var bootData;
+    var bootDataKeys;
+    var conflicts;
+    var conflictsCount;
 
     bootData = {};
     bootDataKeys = [];
@@ -16,7 +16,7 @@ onmessage = function(message) {
      * The new data structure is an Object whose keys is a combination of
      * values from the boot data.
      *
-     * @param {Object} element: The element we are looking at.
+     * @param {Object} element The element we are looking at.
     **/
     function _parseMessageData(element) {
         var key;
@@ -33,13 +33,13 @@ onmessage = function(message) {
     /**
      * Search for the conflicts in the boot data.
      *
-     * @param {String} key: The bootData key we are working on.
+     * @param {String} key The bootData key we are working on.
     **/
     function _searchConflicts(key) {
-        var arrayLen,
-            hasConflict,
-            idx,
-            jdx;
+        var arrayLen;
+        var hasConflict;
+        var idx;
+        var jdx;
 
         function _reduce(array) {
             hasConflict = false;

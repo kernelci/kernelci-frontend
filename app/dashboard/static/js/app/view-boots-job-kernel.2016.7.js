@@ -42,6 +42,12 @@ require([
        html.replaceByClassHTML('unique-values', '&infin;');
     }
 
+    function getRegressions() {
+        require(['app/view-boots-regressions'], function(regr) {
+            regr.get(gJob, gKernel);
+        });
+    }
+
     function createOtherCount(totals) {
         var archStr;
         var boardStr;
@@ -428,14 +434,19 @@ require([
         if (results.length === 0) {
             html.replaceByClassTxt('loading-content', '?');
         } else {
+            // Enable the regressions tab now that we have the "kernel" value.
+            html.removeClass(
+                document.getElementById('regressions-tab'), 'disabled');
+
             results = results[0];
 
+            // Reset the external kernel variable to the correct value.
+            job = results.job;
+            gKernel = kernel = results.kernel;
             createdOn = new Date(results.created_on.$date);
             gitBranch = results.git_branch;
             gitCommit = results.git_commit;
             gitURL = results.git_url;
-            job = results.job;
-            kernel = results.kernel;
 
             gitURLs = urls.translateCommit(gitURL, gitCommit);
 
@@ -675,6 +686,12 @@ require([
     setTimeout(registerEvents, 0);
     setTimeout(getJob.bind(null, gJob, gKernel), 0);
 
-    init.hotkeys();
-    init.tooltip();
+    // Set the click event on the regressions tab now, so that we have
+    // the kernel value.
+    document
+        .getElementById('regressions-tab')
+        .addEventListener('click', getRegressions);
+
+    setTimeout(init.hotkeys, 5);
+    setTimeout(init.tooltip, 5);
 });

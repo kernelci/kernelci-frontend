@@ -310,3 +310,6 @@ div.qemu-command {
     font-size: 83%;
     font-family: monospace;
 }
+.fa-spin {
+    -webkit-filter: blur(0);
+}

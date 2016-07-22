@@ -13,8 +13,8 @@ define([
 
     k.charts.piechart = function() {
         var margin = {top: 0, right: 0, bottom: 0, left: 0},
-            width = 200,
-            height = 200,
+            width = 100,
+            height = 100,
             w = width - margin.right - margin.left,
             h = height - margin.top - margin.bottom,
             defaultText,
@@ -27,7 +27,7 @@ define([
 
         radius = Math.min(w, h) / 2;
         gLayout = d3.layout.pie().sort(null);
-        gArc = d3.svg.arc().innerRadius(radius - 30).outerRadius(radius - 50);
+        gArc = d3.svg.arc().innerRadius(radius - 15).outerRadius(radius);
         // pass, fail, unknown
         color = ['#5cb85c', '#d9534f', '#f0ad4e'];
         defaultText = 'total reports';

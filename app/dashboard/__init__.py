@@ -94,6 +94,13 @@ with app.app_context():
     route.init()
 
 
+def handle_ajax_get(req, endpoint, timeout=None):
+    if validate_csrf(req.headers.get(CSRF_TOKEN_H, None)):
+        return backend.ajax_get(req, endpoint, timeout=timeout)
+    else:
+        abort(403)
+
+
 @app.context_processor
 def inject_variables():
     """Inject some often used variables."""
@@ -161,7 +168,7 @@ def ajax_job():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get("JOB_API_ENDPOINT"))
     else:
-        abort(400)
+        abort(403)
 
 
 @app.route("/_ajax/build")
@@ -170,7 +177,7 @@ def ajax_build():
         return backend.ajax_get(
             request, app_conf_get("BUILD_API_ENDPOINT"))
     else:
-        abort(400)
+        abort(403)
 
 
 @app.route("/_ajax/boot")
@@ -178,7 +185,17 @@ def ajax_boot():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get("BOOT_API_ENDPOINT"))
     else:
-        abort(400)
+        abort(403)
+
+
+@app.route("/_ajax/boot/regressions")
+def ajax_boot_regressions():
+    # handle_ajax_get(request, app_conf_get("BOOT_REGRESSIONS_API_ENDPOINT"))
+    if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        return backend.ajax_get(
+            request, app_conf_get("BOOT_REGRESSIONS_API_ENDPOINT"))
+    else:
+        abort(403)
 
 
 @app.route("/_ajax/count")
@@ -192,7 +209,7 @@ def ajax_count(collection=None):
             timeout=60*60
         )
     else:
-        abort(400)
+        abort(403)
 
 
 @app.route("/_ajax/batch", methods=("POST", "OPTIONS"))
@@ -207,7 +224,7 @@ def ajax_batch():
         else:
             abort(400)
     else:
-        abort(400)
+        abort(403)
 
 
 @app.route("/_ajax/bisect")
@@ -221,7 +238,7 @@ def ajax_bisect_call(doc_id=None):
             timeout=60*60*4
         )
     else:
-        abort(400)
+        abort(403)
 
 
 @app.route("/_ajax/build/logs", methods=["GET"])

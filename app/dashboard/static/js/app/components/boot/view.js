@@ -9,8 +9,8 @@ define([
     'utils/date'
 ], function(format, html, urls, bootBtns, commonBtns, common) {
     'use strict';
-    var gBootViews,
-        kciView;
+    var gBootViews;
+    var kciView;
 
     gBootViews = {};
 
@@ -87,12 +87,12 @@ define([
     }
 
     kciView.createLabSection = function(lab) {
-        var buttonNode,
-            divNode,
-            otherDivNode,
-            hNode,
-            ruleNode,
-            spanNode;
+        var buttonNode;
+        var divNode;
+        var otherDivNode;
+        var hNode;
+        var ruleNode;
+        var spanNode;
 
         divNode = document.createElement('div');
         divNode.id = lab;
@@ -155,43 +155,43 @@ define([
     };
 
     kciView.createPanels = function(result, index) {
-        var aNode,
-            arch,
-            board,
-            bootTime,
-            colNode,
-            collapseBodyNode,
-            collapseId,
-            collapseNode,
-            ddNode,
-            defconfigFull,
-            divNode,
-            dlNode,
-            docId,
-            dtNode,
-            filterClass,
-            hNode,
-            headingNode,
-            htmlLog,
-            job,
-            kernel,
-            kernelImage,
-            kernelImageSize,
-            labName,
-            mach,
-            panelNode,
-            pathURI,
-            rowNode,
-            serverResource,
-            serverURI,
-            serverURL,
-            smallNode,
-            spanNode,
-            statusNode,
-            tooltipNode,
-            translatedURI,
-            txtLog,
-            warnings;
+        var aNode;
+        var arch;
+        var board;
+        var bootTime;
+        var colNode;
+        var collapseBodyNode;
+        var collapseId;
+        var collapseNode;
+        var ddNode;
+        var defconfigFull;
+        var divNode;
+        var dlNode;
+        var docId;
+        var dtNode;
+        var filterClass;
+        var hNode;
+        var headingNode;
+        var htmlLog;
+        var job;
+        var kernel;
+        var kernelImage;
+        var kernelImageSize;
+        var labName;
+        var mach;
+        var panelNode;
+        var pathURI;
+        var rowNode;
+        var serverResource;
+        var serverURI;
+        var serverURL;
+        var smallNode;
+        var spanNode;
+        var statusNode;
+        var tooltipNode;
+        var translatedURI;
+        var txtLog;
+        var warnings;
 
         job = result.job;
         kernel = result.kernel;
@@ -463,9 +463,9 @@ define([
     };
 
     kciView.conflictSelectEvent = function(event) {
-        var inputGroup,
-            selector,
-            target;
+        var inputGroup;
+        var selector;
+        var target;
 
         target = event.target || event.srcElement;
 
@@ -477,8 +477,8 @@ define([
          * @return {Boolean}
         **/
         function _anyChecked(elements) {
-            var elementsLen,
-                idx;
+            var elementsLen;
+            var idx;
 
             elementsLen = elements.length;
             for (idx = 0; idx < elementsLen; idx = idx + 1) {
@@ -509,8 +509,11 @@ define([
         }
 
         if (target.checked) {
-            inputGroup = document.querySelectorAll(
-                'input.checkbox[name="' + target.name + '"]');
+            selector = 'input.checkbox[name="';
+            selector += target.name;
+            selector += '"]';
+
+            inputGroup = document.querySelectorAll(selector);
 
             if (!_anyChecked(inputGroup)) {
                 if (html.classed(this.buttonAll, 'active')) {
@@ -527,10 +530,10 @@ define([
             Array.prototype.forEach.call(inputGroup, _unchecked);
 
             target.checked = true;
-            selector = 'div.searchable:not([data-conflict="' +
-                target.getAttribute('data-arch') +
-                target.getAttribute('data-defconfig') +
-                target.getAttribute('data-board') + '"])';
+            selector = 'div.searchable:not([data-conflict="';
+            selector += target.getAttribute('data-arch');
+            selector += target.getAttribute('data-defconfig');
+            selector += target.getAttribute('data-board') + '"])';
 
             // Fake a click on the all button prior to filtering so we have
             // all the elements as "display: block".
@@ -544,23 +547,23 @@ define([
     };
 
     kciView.checkConflictsDone = function(message) {
-        var arch,
-            board,
-            cellNode,
-            conflicts,
-            conflictsDiv,
-            count,
-            defconfig,
-            divNode,
-            headCell,
-            headRow,
-            htmlNode,
-            inputNode,
-            splitKey,
-            tableBody,
-            tableHead,
-            tableNode,
-            tableRow;
+        var arch;
+        var board;
+        var cellNode;
+        var conflicts;
+        var conflictsDiv;
+        var count;
+        var defconfig;
+        var divNode;
+        var headCell;
+        var headRow;
+        var htmlNode;
+        var inputNode;
+        var splitKey;
+        var tableBody;
+        var tableHead;
+        var tableNode;
+        var tableRow;
 
         function _createRow(key) {
             splitKey = key.split('|');
