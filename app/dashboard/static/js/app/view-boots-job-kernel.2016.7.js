@@ -46,6 +46,12 @@ require([
         require(['app/view-boots-regressions'], function(regr) {
             regr.get(gJob, gKernel);
         });
+
+        /* Once clicked, remove the listener since we don't want to reload the
+           data each time. */
+        document
+            .getElementById('regressions-tab')
+            .removeEventListener('click', getRegressions);
     }
 
     function createOtherCount(totals) {
