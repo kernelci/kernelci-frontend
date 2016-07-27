@@ -2,12 +2,13 @@
 define([
     'jquery',
     'utils/html',
-    'utils/request'
-], function($, html, request) {
+    'utils/request',
+    'components/boot/regressions'
+], function($, html, request, bootRegressions) {
     'use strict';
-    var regressions;
+    var gRegressions;
 
-    regressions = {};
+    gRegressions = {};
 
     function getRegressionsFail() {
         html.replaceContent(
@@ -16,10 +17,86 @@ define([
         );
     }
 
+    function showRegressions(message) {
+        var docFrag;
+        var div;
+        var node;
+        var newRegr;
+        var newRegrKeys;
+        var recurringRegr;
+        var recurringRegrKeys;
+        var regrNode;
+
+        newRegr = message.data[0];
+        newRegrKeys = Object.keys(newRegr);
+        recurringRegr = message.data[1];
+        recurringRegrKeys = Object.keys(recurringRegr);
+
+        docFrag = document.createDocumentFragment();
+
+        div = docFrag.appendChild(document.createElement('div'));
+        div.className = 'sub-header';
+
+        node = div.appendChild(document.createElement('h4'));
+        node.appendChild(document.createTextNode('New'));
+
+        if (newRegrKeys.length === 0) {
+            docFrag.appendChild(html.errorDiv('No new regressions found.'));
+        } else {
+            regrNode = docFrag.appendChild(document.createElement('div'));
+            regrNode.id = 'new-regressions-accordion';
+
+            newRegrKeys.forEach(function(k) {
+                var regrResult;
+                var accordion;
+
+                regrResult = bootRegressions.createSection(k);
+                accordion = regrResult[1];
+
+                recurringRegr[k].forEach(function(d, idx) {
+                    accordion.appendChild(bootRegressions.createPanel(d, idx));
+                });
+
+                regrNode.appendChild(regrResult[0]);
+            });
+        }
+
+        div = docFrag.appendChild(document.createElement('div'));
+        div.className = 'sub-header';
+
+        node = div.appendChild(document.createElement('h4'));
+        node.appendChild(document.createTextNode('Recurring'));
+
+        if (recurringRegrKeys.length === 0) {
+            docFrag.appendChild(
+                html.errorDiv('No recurring regressions found.'));
+        } else {
+            regrNode = docFrag.appendChild(document.createElement('div'));
+            regrNode.id = 'recurring-regressions-accordion';
+
+            recurringRegrKeys.forEach(function(k) {
+                var accordion;
+                var regrResult;
+
+                regrResult = bootRegressions.createSection(k);
+                accordion = regrResult[1];
+
+                recurringRegr[k].forEach(function(d, idx) {
+                    accordion.appendChild(bootRegressions.createPanel(d, idx));
+                });
+
+                regrNode.appendChild(regrResult[0]);
+            });
+        }
+
+        html.replaceContent(
+            document.getElementById('regressions-container'), docFrag);
+    }
+
     function getRegressionsDone(response) {
         var results;
+        var worker;
 
-        console.log(response);
         results = response.result;
         if (results.length === 0) {
             html.replaceContent(
@@ -27,28 +104,21 @@ define([
                 html.errorDiv('No regressions found.')
             );
         } else {
-            var docFrag;
-            var div;
-            var node;
+            if (window.Worker) {
+                worker = new Worker(
+                    '/static/js/worker/boot-regressions.2016.7.js');
 
-            docFrag = document.createDocumentFragment();
-
-            div = docFrag.appendChild(document.createElement('div'));
-            div.className = 'sub-header';
-            node = div.appendChild(document.createElement('h4'));
-            node.appendChild(document.createTextNode('New Failures'));
-
-            div = docFrag.appendChild(document.createElement('div'));
-            div.className = 'sub-header';
-            node = div.appendChild(document.createElement('h4'));
-            node.appendChild(document.createTextNode('Recurring Failures'));
-
-            html.replaceContent(
-                document.getElementById('regressions-container'), docFrag);
+                worker.onmessage = showRegressions;
+                worker.postMessage(results[0].regressions);
+            } else {
+                html.replaceContent(
+                    document.getElementById('regressions-container'),
+                    html.errorDiv('Unable to calculate regressions.'));
+            }
         }
     }
 
-    regressions.get = function(job, kernel) {
+    gRegressions.get = function(job, kernel) {
         var deferred;
 
         if (job && kernel) {
@@ -67,5 +137,5 @@ define([
 
     };
 
-    return regressions;
+    return gRegressions;
 });
