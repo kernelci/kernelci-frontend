@@ -544,5 +544,21 @@ define([
         return frag;
     };
 
+    html.timeDate = function(date) {
+        var created;
+        var frag;
+        var timeNode;
+
+        frag = document.createDocumentFragment();
+
+        created = new Date(date.$date);
+        timeNode = frag.appendChild(document.createElement('time'));
+        timeNode.setAttribute('datetime', created.toISOString());
+        timeNode.appendChild(
+            document.createTextNode(created.toCustomISODateTime()));
+
+        return frag;
+    };
+
     return html;
 });
