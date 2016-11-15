@@ -2,6 +2,9 @@ html {
   min-height: 100%;
   position: relative;
 }
+div#content-container {
+    margin-bottom: 45px;
+}
 .main-content {
     margin-bottom: 90px;
 }
