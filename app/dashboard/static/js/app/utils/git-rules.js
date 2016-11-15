@@ -25,6 +25,12 @@ define(function() {
             '%s',
             '%s/commitdiff/',
             []
+        ],
+        'android.googlesource.com': [
+            'https',
+            '%s',
+            '%s/+/',
+            []
         ]
     };
     return rules;
