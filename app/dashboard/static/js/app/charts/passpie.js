@@ -17,12 +17,12 @@ define([
      * and an array with the counts for passed/failed/unknown (in that order).
     **/
     function countStatus(response) {
-        var counted,
-            failed,
-            passed,
-            results,
-            total,
-            unknown;
+        var counted;
+        var failed;
+        var passed;
+        var results;
+        var total;
+        var unknown;
 
         total = 0;
         failed = 0;
@@ -53,14 +53,14 @@ define([
         return counted;
     }
 
-    function createGraph(data, element, text) {
-        var chart,
-            setup;
+    function createGraph(data, settings) {
+        var chart;
+        var setup;
 
         if (data !== null) {
             chart = k.charts
                 .piechart()
-                .innerText(text);
+                .settings(settings);
 
             setup = {
                 values: data[1],
@@ -68,8 +68,8 @@ define([
                 chart: chart
             };
 
-            html.removeChildren(document.getElementById(element));
-            d3.select('#' + element)
+            html.removeChildren(document.getElementById(settings.element));
+            d3.select('#' + settings.element)
                 .data([setup])
                 .each(function(datum) {
                     d3.select(this).call(datum.chart);
@@ -77,38 +77,31 @@ define([
         }
     }
 
-    function countWorkerResponse(response) {
-        createGraph(response.data, this.element, this.text);
-    }
-
-    function prepareGraph(element, response, text, countFunc) {
-        var boundData,
-            worker;
-
-        if (!countFunc) {
+    function prepareGraph(settings) {
+        var worker;
+        if (!settings.countFunc) {
             if (window.Worker) {
                 worker = new Worker('/static/js/worker/count-status.js');
-                boundData = {
-                    element: element,
-                    text: text
+                worker.onmessage = function(response) {
+                    createGraph(response.data, settings);
                 };
-
-                worker.onmessage = countWorkerResponse.bind(boundData);
-                worker.postMessage(response);
+                worker.postMessage(settings.response);
             } else {
-                createGraph(countStatus(response), element, text);
+                createGraph(countStatus(settings.response), settings);
             }
         } else {
-            createGraph(countFunc(response), element, text);
+            createGraph(settings.countFunc(settings.response), settings);
         }
     }
 
-    passpie.buildpie = function(element, response, countFunc) {
-        prepareGraph(element, response, 'total builds', countFunc);
+    passpie.buildpie = function(settings) {
+        settings.text = 'total builds';
+        prepareGraph(settings);
     };
 
-    passpie.bootpie = function(element, response, countFunc) {
-        prepareGraph(element, response, 'total boots', countFunc);
+    passpie.bootpie = function(settings) {
+        settings.text = 'total boots';
+        prepareGraph(settings);
     };
 
     return passpie;

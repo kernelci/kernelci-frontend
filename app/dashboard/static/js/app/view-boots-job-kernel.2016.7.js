@@ -319,7 +319,15 @@ require([
     }
 
     function getBootDoneChart(response) {
-        chart.bootpie('boot-chart', response);
+        chart.bootpie({
+            element: 'boot-chart',
+            response: response,
+            size: {
+                height: 110,
+                width: 110
+            },
+            radius: {inner: -12.5, outer: 0}
+        });
     }
 
     function getBootsFailed() {

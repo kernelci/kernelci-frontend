@@ -682,7 +682,11 @@ require([
     }
 
     function getBuildsDoneChart(response) {
-        chart.buildpie('build-chart', response);
+        chart.buildpie({
+            element: 'build-chart',
+            response: response,
+            legend: true
+        });
     }
 
     function getBuilds(response) {

@@ -6,41 +6,53 @@ define([
     'charts/base'
 ], function($, d3, p, k) {
     'use strict';
-    var piechart,
-        sTooltipFmt;
+    var piechart;
+    var sTooltipFmt;
+
     sTooltipFmt = '<span ' +
         'rel="tooltip" data-toggle="tooltip" title="%s">%d</span>';
 
     k.charts.piechart = function() {
-        var margin = {top: 0, right: 0, bottom: 0, left: 0},
-            width = 100,
-            height = 100,
-            w = width - margin.right - margin.left,
-            h = height - margin.top - margin.bottom,
-            defaultText,
-            radius,
-            gLayout,
-            gArc,
-            color,
-            svg,
-            svge;
+        var color;
+        var svg;
+        var svge;
 
-        radius = Math.min(w, h) / 2;
-        gLayout = d3.layout.pie().sort(null);
-        gArc = d3.svg.arc().innerRadius(radius - 15).outerRadius(radius);
+        var settings;
+
+        settings = {
+            legend: false,
+            margin: {top: 0, right: 0, bottom: 0, left: 0},
+            radius: {inner: -30, outer: -50},
+            size: {height: 200, width: 200},
+            text: 'total reports'
+        };
+
         // pass, fail, unknown
         color = ['#5cb85c', '#d9534f', '#f0ad4e'];
-        defaultText = 'total reports';
 
         piechart = function(selection) {
+            var gArc;
+            var gLayout;
+            var radius;
+
+            radius = Math.min(
+                piechart.settings().size.width,
+                piechart.settings().size.height) / 2;
+            gLayout = d3.layout.pie().sort(null);
+            gArc = d3.svg.arc()
+                .innerRadius(radius + piechart.settings().radius.inner)
+                .outerRadius(radius + piechart.settings().radius.outer);
+
             selection.each(function(data) {
                 svg = d3.select(this).append('svg:svg')
-                    .attr('width', w)
-                    .attr('height', h);
+                    .attr('width', piechart.settings().size.width)
+                    .attr('height', piechart.settings().size.height);
                 svge = svg.append('g')
                     .attr(
                         'transform',
-                        'translate(' + (w / 2) + ',' + (h / 2) + ')');
+                        'translate(' +
+                            (piechart.settings().size.width / 2) + ',' +
+                            (piechart.settings().size.height / 2) + ')');
 
                 svge.selectAll('path')
                     .data(gLayout(data.values))
@@ -61,30 +73,39 @@ define([
                     .attr('dy', '1.5em')
                     .style('text-anchor', 'middle')
                     .attr('class', 'pie-chart-data')
-                    .text(piechart.innerText());
+                    .text(piechart.settings().text);
 
-                $('#success-cell')
-                    .empty()
-                    .append(
-                        p.sprintf(sTooltipFmt, 'Successful', data.values[0]))
-                    .css('border-bottom-color', color[0]);
-                $('#fail-cell')
-                    .empty()
-                    .append(
-                        p.sprintf(sTooltipFmt, 'Failed', data.values[1]))
-                    .css('border-bottom-color', color[1]);
-                $('#unknown-cell')
-                    .empty()
-                    .append(
-                        p.sprintf(sTooltipFmt, 'Unknown', data.values[2]))
-                    .css('border-bottom-color', color[2]);
+                if (piechart.settings().legend) {
+                    $('#success-cell')
+                        .empty()
+                        .append(
+                            p.sprintf(
+                                sTooltipFmt, 'Successful', data.values[0]))
+                        .css('border-bottom-color', color[0]);
+                    $('#fail-cell')
+                        .empty()
+                        .append(
+                            p.sprintf(sTooltipFmt, 'Failed', data.values[1]))
+                        .css('border-bottom-color', color[1]);
+                    $('#unknown-cell')
+                        .empty()
+                        .append(
+                            p.sprintf(sTooltipFmt, 'Unknown', data.values[2]))
+                        .css('border-bottom-color', color[2]);
+                }
             });
         };
 
-        piechart.innerText = function(value) {
-            var ret = defaultText;
-            if (arguments.length) {
-                defaultText = value;
+        piechart.settings = function(value) {
+            var key;
+            var ret = settings;
+
+            if (value) {
+                for (key in value) {
+                    if (value.hasOwnProperty(key)) {
+                        settings[key] = value[key];
+                    }
+                }
                 ret = piechart;
             }
             return ret;

@@ -528,7 +528,11 @@ define([
     }
 
     function getBootDoneChart(response) {
-        chart.bootpie('boot-chart', response);
+        chart.bootpie({
+            element: 'boot-chart',
+            response: response,
+            legend: true
+        });
     }
 
     function getBoots() {

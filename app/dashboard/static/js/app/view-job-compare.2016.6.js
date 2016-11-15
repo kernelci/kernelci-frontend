@@ -334,13 +334,14 @@ require([
             setupBaselineData(baseline);
             setupCompareToTable(comparedData, baseline);
 
-            pie.buildpie(
-                'build-chart',
-                [baseline.total_builds, baseline.build_counts],
-                function(resp) {
+            pie.buildpie({
+                element: 'build-chart',
+                response: [baseline.total_builds, baseline.build_counts],
+                legend: true,
+                countFunc: function(resp) {
                     return resp;
                 }
-            );
+            });
 
             if (deltaResult.length > 0) {
                 matrixData = {
