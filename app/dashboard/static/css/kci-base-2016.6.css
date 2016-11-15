@@ -316,3 +316,7 @@ div.qemu-command {
 .fa-spin {
     -webkit-filter: blur(0);
 }
+.dd-defconfig {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}

@@ -17,20 +17,51 @@ define([
         );
     }
 
+    /**
+     * Compare function for regressions.
+     *
+     * Calculate an internal index for the regressions based on the following
+     * values:
+     * . board
+     * . defconfig_full
+     * . arch
+     *
+     * @param {Object} regrA: A regression document.
+     * @param {Object} regrB: A regression document.
+    **/
+    function regressionsCompareFunc(regrA, regrB) {
+        var indexVal;
+        var regrIdxA;
+        var regrIdxB;
+
+        indexVal = 0;
+
+        regrIdxA = regrA.board + regrA.defconfig_full + regrA.arch;
+        regrIdxB = regrB.board + regrB.defconfig_full + regrB.arch;
+
+        if (regrIdxA < regrIdxB) {
+            indexVal = -1;
+        } else if (regrIdxA > regrIdxB) {
+            indexVal = 1;
+        }
+
+        return indexVal;
+    }
+
     function showRegressions(message) {
-        var docFrag;
         var div;
-        var node;
+        var docFrag;
         var newRegr;
         var newRegrKeys;
+        var node;
         var recurringRegr;
         var recurringRegrKeys;
         var regrNode;
 
         newRegr = message.data[0];
-        newRegrKeys = Object.keys(newRegr);
+        newRegrKeys = Object.keys(newRegr).sort();
         recurringRegr = message.data[1];
-        recurringRegrKeys = Object.keys(recurringRegr);
+        recurringRegrKeys = Object.keys(recurringRegr).sort();
 
         docFrag = document.createDocumentFragment();
 
@@ -53,9 +84,12 @@ define([
                 regrResult = bootRegressions.createSection(k);
                 accordion = regrResult[1];
 
-                recurringRegr[k].forEach(function(d, idx) {
-                    accordion.appendChild(bootRegressions.createPanel(d, idx));
-                });
+                newRegr[k]
+                    .sort(regressionsCompareFunc)
+                    .forEach(function(d, idx) {
+                        accordion.appendChild(
+                            bootRegressions.createPanel(d, idx, 'new'));
+                    });
 
                 regrNode.appendChild(regrResult[0]);
             });
@@ -81,9 +115,12 @@ define([
                 regrResult = bootRegressions.createSection(k);
                 accordion = regrResult[1];
 
-                recurringRegr[k].forEach(function(d, idx) {
-                    accordion.appendChild(bootRegressions.createPanel(d, idx));
-                });
+                recurringRegr[k]
+                    .sort(regressionsCompareFunc)
+                    .forEach(function(d, idx) {
+                        accordion.appendChild(
+                            bootRegressions.createPanel(d, idx, 'recurring'));
+                    });
 
                 regrNode.appendChild(regrResult[0]);
             });
@@ -134,7 +171,6 @@ define([
                 html.errorDiv('Unable to retrieve regressions data.')
             );
         }
-
     };
 
     return gRegressions;

@@ -21,6 +21,23 @@
         margin-bottom: 10px;
         border-bottom: 1px solid #eee;
     }
+    dl[role="regressions"] {
+        font-size: 88%;
+    }
+    @media (min-width: 768px) {
+        dl[role="regressions"] dt {
+            width: 120px;
+        }
+        dl[role="regressions"] dd {
+            margin-left: 135px;
+        }
+    }
+    div.regression-details {
+        margin-bottom: 15px;
+    }
+    .bb-details {
+        padding-left: 1em;
+    }
 </style>
 {%- endblock %}
 {%- block content %}
@@ -28,7 +45,7 @@
     <div class="page-header">
         <h3 id="details">{{ body_title|safe }}<span id="kernel-title"></span></h3>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
         <dl class="dl-horizontal">
             <dt>Tree</dt>
             <dd class="loading-content" id="tree">
@@ -56,8 +73,46 @@
             </dd>
         </dl>
     </div>
-    <div class="col-xs-4 col-sm-4 col-md-4 col-md-offset-2 col-lg-4 col-lg-offset-2">
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+        <dl class="dl-horizontal">
+            <dt>Unique boards</dt>
+            <dd id="unique-boards" class="loading-content unique-values">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt >Unique SoCs</dt>
+            <dd id="unique-socs" class="loading-content unique-values">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Unique defconfigs</dt>
+            <dd id="unique-defconfigs" class="loading-content unique-values">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-4 col-sm-4 col-md-3 col-lg-3">
         <div id="boot-chart" class="chart-div pull-center"></div>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <dl class="dl-horizontal">
+            <dt>Git URL</dt>
+            <dd class="loading-content" id="git-url">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git commit</dt>
+            <dd class="loading-content" id="git-commit">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
     </div>
 </div>
 <div class="row">
@@ -74,75 +129,48 @@
             Regressions</a>
         </li>
     </ul>
-</div>
-<div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="overview">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
-                <dl class="dl-horizontal">
-                    <dt>Git URL</dt>
-                    <dd class="loading-content" id="git-url">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
-                        </small>
-                    </dd>
-                    <dt>Git commit</dt>
-                    <dd class="loading-content" id="git-commit">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
-                        </small>
-                    </dd>
-                </dl>
-                <dl class="dl-horizontal">
-                    <dt>Unique boards</dt>
-                    <dd id="unique-boards" class="loading-content unique-values">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
-                        </small>
-                    </dd>
-                    <dt >Unique SoCs</dt>
-                    <dd id="unique-socs" class="loading-content unique-values">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
-                        </small>
-                    </dd>
-                    <dt>Unique defconfigs</dt>
-                    <dd id="unique-defconfigs" class="loading-content unique-values">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-fw" aria-hidden="true" title="Loading"></i>&nbsp;loading&hellip;
-                        </small>
-                    </dd>
-                </dl>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="overview">
+            <div class="row" id="boot-conflicts">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="conflicts-header"></div>
+                    <div id="conflicts-div"></div>
+                </div>
             </div>
-        </div>
-        {%- include "conflicts-row.html" %}
-        <div class="row">
-            <div class="page-header">
-                <h3>Tested Boards</h3>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div class="page-header">
+                        <h4>Tested Boards</h4>
+                    </div>
+                </div>
             </div>
-            {%- include "boots-buttons-row.html" %}
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div id="accordion-container">
-                    <div class="pull-center">
-                        <small>
-                            <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw" aria-hidden="true" title="Retrieving data"></i>
-                            <span class="sr-only">Retrieving data</span>
-                            <br />
-                            Retrieving data&hellip;
-                        </small>
+            <div class="row">
+                {%- include "boots-buttons-row.html" %}
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="accordion-container">
+                        <div class="pull-center">
+                            <small>
+                                <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw" aria-hidden="true" title="Retrieving data"></i>
+                                <span class="sr-only">Retrieving data</span>
+                                <br />
+                                Retrieving data&hellip;
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div role="tabpanel" class="tab-pane" id="regressions">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div id="regressions-container">
-                    <div class="pull-center">
-                        <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw" aria-hidden="true"></i>
-                        <br />
-                        <span>Crunching the latest regressions data&hellip;</span>
+        <div role="tabpanel" class="tab-pane" id="regressions">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div id="regressions-container">
+                        <div class="pull-center">
+                            <i class="fa fa-circle-o-notch fa-spin fa-2x fa-fw" aria-hidden="true"></i>
+                            <br />
+                            <span>Crunching the latest regressions data&hellip;</span>
+                        </div>
                     </div>
                 </div>
             </div>

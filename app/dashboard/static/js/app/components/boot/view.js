@@ -254,7 +254,7 @@ define([
         headingNode.setAttribute('data-target', '#' + collapseId);
         headingNode.setAttribute('aria-controls', '#' + collapseId);
 
-        hNode = document.createElement('h4');
+        hNode = document.createElement('h5');
         hNode.className = 'panel-title';
 
         aNode = document.createElement('a');
