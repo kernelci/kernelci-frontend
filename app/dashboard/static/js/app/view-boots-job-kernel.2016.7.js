@@ -708,4 +708,17 @@ require([
 
     setTimeout(init.hotkeys, 5);
     setTimeout(init.tooltip, 5);
+
+    setTimeout(function() {
+        var location = document.location.toString();
+        if (location.match('#')) {
+            location = location.split('#')[1];
+
+            if (location === 'regressions') {
+                document.getElementById('regressions-tab').click();
+                $(document.getElementById('regressions-a')).tab('show');
+                window.scrollTo(0, 0);
+            }
+        }
+    }, 15);
 });
