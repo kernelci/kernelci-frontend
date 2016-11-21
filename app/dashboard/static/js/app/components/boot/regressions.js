@@ -313,17 +313,6 @@ define([
         dNode.appendChild(document.createTextNode(failRegr.git_describe));
 
         dNode = dlNode.appendChild(document.createElement('dt'));
-        dNode.appendChild(document.createTextNode('Defconfig'));
-
-        dNode = dlNode.appendChild(document.createElement('dd'));
-        dNode.className = 'dd-defconfig';
-        aNode = dNode.appendChild(document.createElement('a'));
-        aNode.appendChild(document.createTextNode(failRegr.defconfig_full));
-        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-        aNode.appendChild(html.search());
-        aNode.setAttribute('href', failBuildURL);
-
-        dNode = dlNode.appendChild(document.createElement('dt'));
         dNode.appendChild(document.createTextNode('Git commit'));
 
         dNode = dlNode.appendChild(document.createElement('dd'));
@@ -423,16 +412,6 @@ define([
 
         dNode = dlNode.appendChild(document.createElement('dd'));
         dNode.appendChild(document.createTextNode(passRegr.git_describe));
-
-        dNode = dlNode.appendChild(document.createElement('dt'));
-        dNode.appendChild(document.createTextNode('Defconfig'));
-
-        dNode = dlNode.appendChild(document.createElement('dd'));
-        dNode.className = 'dd-defconfig';
-        aNode = dNode.appendChild(document.createElement('a'));
-        aNode.appendChild(document.createTextNode(passRegr.defconfig_full));
-        aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-        aNode.appendChild(html.search());
 
         hrefStr = '/build/id/';
         hrefStr += passRegr.build_id.$oid;
