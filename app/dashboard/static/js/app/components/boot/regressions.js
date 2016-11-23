@@ -51,7 +51,7 @@ define([
 
             if (rem > 0) {
                 if (rem === 1) {
-                    sinceStr += '1 hours';
+                    sinceStr += '1 hour';
                 } else {
                     sinceStr += rem;
                     sinceStr += ' hours';
