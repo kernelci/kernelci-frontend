@@ -413,11 +413,6 @@ define([
         dNode = dlNode.appendChild(document.createElement('dd'));
         dNode.appendChild(document.createTextNode(passRegr.git_describe));
 
-        hrefStr = '/build/id/';
-        hrefStr += passRegr.build_id.$oid;
-        hrefStr += '/';
-        aNode.setAttribute('href', hrefStr);
-
         dNode = dlNode.appendChild(document.createElement('dt'));
         dNode.appendChild(document.createTextNode('Git commit'));
 
