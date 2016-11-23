@@ -71,6 +71,7 @@ define([
             }
         }
 
+        sinceStr.trim();
         sinceStr += ')';
 
         return sinceStr;
