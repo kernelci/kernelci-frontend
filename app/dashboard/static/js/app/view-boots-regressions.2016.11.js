@@ -143,7 +143,7 @@ define([
         } else {
             if (window.Worker) {
                 worker = new Worker(
-                    '/static/js/worker/boot-regressions.2016.7.js');
+                    '/static/js/worker/boot-regressions.2016.11.js');
 
                 worker.onmessage = showRegressions;
                 worker.postMessage(results[0].regressions);
