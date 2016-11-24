@@ -89,7 +89,7 @@ require([
     }
 
     function getBuildsFail() {
-        html.removeElement('table-loading');
+        html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('table-div'),
             html.errorDiv('Error loading data.'));
@@ -111,10 +111,10 @@ require([
 
         results = response.result;
         if (results.length === 0) {
-            html.removeElement('table-loading');
+            html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('table-div'),
-                html.errorDiv('No data available'));
+                html.errorDiv('No data available.'));
         } else {
             columns = [
                 {
