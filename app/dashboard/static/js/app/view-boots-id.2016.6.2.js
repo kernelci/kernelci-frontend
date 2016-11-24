@@ -267,7 +267,7 @@ require([
         docFrag = document.createDocumentFragment();
 
         childNode = docFrag.appendChild(document.createElement('i'));
-        childNode.className = 'fa fa-cog fa-spin';
+        childNode.className = 'fa fa-circle-o-notch fa-spin fa-fw';
 
         // Needed to insert HTML text.
         templateNode = document.createElement('template');

@@ -67,7 +67,7 @@ require([
             spanNode = docFrag.appendChild(document.createElement('span'));
 
             iNode = spanNode.appendChild(document.createElement('i'));
-            iNode.className = 'fa fa-cog fa-spin';
+            iNode.className = 'fa fa-circle-o-notch fa-spin fa-fw';
 
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
             spanNode.appendChild(

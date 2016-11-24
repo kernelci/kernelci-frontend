@@ -68,7 +68,7 @@ require([
             spanNode = document.createElement('span');
 
             iNode = document.createElement('i');
-            iNode.className = 'fa fa-cog fa-spin';
+            iNode.className = 'fa fa-circle-o-notch fa-spin fa-fw';
 
             spanNode.appendChild(iNode);
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');

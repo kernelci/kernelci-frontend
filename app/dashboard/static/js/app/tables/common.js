@@ -88,7 +88,7 @@ define([
         spanNode.className = classes.join(' ');
 
         iNode = document.createElement('i');
-        iNode.className = 'fa fa-cog fa-spin count-content';
+        iNode.className = 'fa fa-circle-o-notch fa-spin fa-fw count-content';
 
         spanNode.appendChild(iNode);
 
