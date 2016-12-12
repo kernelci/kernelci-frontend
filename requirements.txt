@@ -5,3 +5,4 @@ redis==2.10.5
 hiredis
 requests
 simplejson
+pymongo==2.8.1
