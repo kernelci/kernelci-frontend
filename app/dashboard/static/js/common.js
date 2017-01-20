@@ -48,7 +48,7 @@ require.config({
             'app/view-info-faq': 'app/view-info-faq.2016.6',
             'app/view-job-compare': 'app/view-job-compare.2016.6',
             'app/view-jobs-all': 'app/view-jobs-all.2016.6',
-            'app/view-jobs-job': 'app/view-jobs-job.2016.6',
+            'app/view-jobs-job': 'app/view-jobs-job.2017.1',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2016.6',
             'app/view-socs-all': 'app/view-socs-all.2016.6',
             'app/view-socs-soc': 'app/view-socs-soc.2016.6',
