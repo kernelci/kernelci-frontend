@@ -103,24 +103,30 @@
                 </dd>
                 <dt id="boot-test">How can I participate in the boot test phase?</dt>
                 <dd>
-                    Because the system is in alpha, the best way to participate
-                    is to send us your boards, supporting documentation and hardware
-                    and we will enable upstream kernel testing on them.
-                    For more info, please <a title="Contact us" href="mailto:{{ info_email }}">contact us</a>.
+                    If you would like to boot test your own board, please see the <a href="#my-board" title="I would like to have my board boot tested, how can I do it?">my board</a>
+                    section for board requirements. Or, if you would like to help boot test already supported boards 
+                    please <a title="Contact us" href="mailto:{{ info_email }}">contact us</a> for more information.
                 </dd>
                 <dt id="my-board">I would like to have my board boot tested, how can I do it?</dt>
                 <dd>
                     Because the system is in alpha, the best way to participate
-                    is to send us your boards, supporting documentation and hardware
+                    is to first check your board meets the requirements below. If so,
+                    send us your boards, supporting documentation and hardware
                     and we will enable upstream kernel testing on them.
+                    <p>
+                    Main requirements for devices to be boot tested by kernelci:<br/>
+                    <ul>
+                        <li>Must be able to boot a current build and defconfig from a mainline/upstream linux tree, to a shell prompt. No vendor kernels or out-of-tree patchsets.</li>
+                        <li>Have a contact/maintainer who will react to boot failures. We do not want to waste effort adding boards that will never get fixed, and then have to remove them.</li>
+                        <li>Ideally, be supported by <a href="https://validation.linaro.org/static/docs/v2/index.html#what-is-lava" title="What is LAVA?">LAVA v2</a> for ease of integration.</li>
+                    </ul>
+                    </p>
                     For more info, please <a title="Contact us" href="mailto:{{ info_email }}">contact us</a>.
                 </dd>
                 <dt id="send-hw">Can I send you my boards?</dt>
                 <dd>
-                    Because the system is in alpha, the best way to participate
-                    is to send us your boards, supporting documentation and hardware
-                    and we will enable upstream kernel testing on them.
-                    For more info, please <a title="Contact us" href="mailto:{{ info_email }}">contact us</a>.
+                    Please see the <a href="#my-board" title="I would like to have my board boot tested, how can I do it?">my board</a> section for board requirements, and then please
+                    <a title="Contact us" href="mailto:{{ info_email }}">contact us</a> for more information.
                 </dd>
                 <dt id="contact">How can I contact you?</dt>
                 <dd>
