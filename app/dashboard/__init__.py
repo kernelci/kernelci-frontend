@@ -206,7 +206,7 @@ def ajax_count(collection=None):
         return backend.ajax_count_get(
             request, app_conf_get("COUNT_API_ENDPOINT"),
             collection,
-            timeout=60*60
+            timeout=60 * 60
         )
     else:
         abort(403)
@@ -235,7 +235,7 @@ def ajax_bisect_call(doc_id=None):
             request,
             doc_id,
             app_conf_get("BISECT_API_ENDPOINT"),
-            timeout=60*60*4
+            timeout=60 * 60 * 4
         )
     else:
         abort(403)
@@ -250,7 +250,7 @@ def ajax_build_logs(doc_id=None):
         else:
             api_path = app_conf_get("DEFCONFIG_LOGS_ENPOINT")
         return backend.ajax_logs(
-            request, api_path, doc_id=doc_id, timeout=60*60*3)
+            request, api_path, doc_id=doc_id, timeout=60 * 60 * 3)
     else:
         abort(403)
 
@@ -264,7 +264,7 @@ def ajax_job_logs(doc_id=None):
         else:
             api_path = app_conf_get("JOB_LOGS_ENPOINT")
         return backend.ajax_logs(
-            request, api_path, doc_id=doc_id, timeout=60*60*3)
+            request, api_path, doc_id=doc_id, timeout=60 * 60 * 3)
     else:
         abort(403)
 
@@ -273,7 +273,8 @@ def ajax_job_logs(doc_id=None):
 def ajax_statistics():
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(
-            request, app_conf_get("STATISTICS_API_ENDPOINT"), timeout=60*60*1)
+            request,
+            app_conf_get("STATISTICS_API_ENDPOINT"), timeout=60 * 60 * 1)
     else:
         abort(403)
 
@@ -304,11 +305,11 @@ def ajax_compare(doc_id, api):
         api_path = app_conf_get(api)
         if request.method == "GET":
             return backend.ajax_get(
-                request, api_path, doc_id=doc_id, timeout=60*60*2)
+                request, api_path, doc_id=doc_id, timeout=60 * 60 * 2)
         elif any([request.method == "POST", request.method == "OPTIONS"]):
             if request.data:
                 return backend.ajax_batch_post(
-                    request, api_path, timeout=60*60*2)
+                    request, api_path, timeout=60 * 60 * 2)
             else:
                 abort(400)
         else:
@@ -322,6 +323,6 @@ def ajax_compare(doc_id, api):
 def ajax_distinct(resource, field):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(
-            request, "/%s/distinct" % resource, doc_id=field, timeout=60*30)
+            request, "/%s/distinct" % resource, doc_id=field, timeout=60 * 30)
     else:
         abort(403)
