@@ -742,6 +742,15 @@ require([
                     html.nonavail());
             }
 
+            if (vmlinuxFileSize !== null && vmlinuxFileSize !== undefined) {
+                html.replaceContent(
+                    document.getElementById('elf-file-size'),
+                    document.createTextNode(format.bytes(vmlinuxFileSize)));
+            } else {
+                html.replaceContent(
+                    document.getElementById('elf-file-size'), html.nonavail());
+            }
+
             if (bssSize !== null && bssSize !== undefined) {
                 html.replaceContent(
                     document.getElementById('elf-bss-size'),
