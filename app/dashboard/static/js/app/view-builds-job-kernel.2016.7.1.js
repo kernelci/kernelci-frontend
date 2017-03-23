@@ -170,6 +170,7 @@ require([
         var aNode;
         var arch;
         var archLabelNode;
+        var branch;
         var cls;
         var colNode;
         var collapseBodyNode;
@@ -183,9 +184,7 @@ require([
         var errNode;
         var errorString;
         var errorsCount;
-        var fileServerData;
         var fileServerResource;
-        var fileServerURI;
         var fileServerURL;
         var hNode;
         var hasFailed;
@@ -196,7 +195,6 @@ require([
         var job;
         var kernel;
         var panelNode;
-        var pathURI;
         var results;
         var rowNode;
         var smallNode;
@@ -258,6 +256,7 @@ require([
 
         function _parseResult(result, idx) {
             docId = result._id.$oid;
+            branch = result.git_branch;
             defconfigFull = result.defconfig_full;
             job = result.job;
             kernel = result.kernel;
@@ -273,13 +272,7 @@ require([
                 fileServerURL = gFileServer;
             }
 
-            fileServerData = [
-                job, kernel, arch + '-' + defconfigFull
-            ];
-            translatedURI = u.translateServerURL(
-                fileServerURL, fileServerResource, fileServerData);
-            fileServerURI = translatedURI[0];
-            pathURI = translatedURI[1];
+            translatedURI = u.createFileServerURL(fileServerURL, result);
 
             panelNode = docFrag.appendChild(document.createElement('div'));
 
@@ -384,9 +377,9 @@ require([
                         document.createElement('a'));
                     aNode.setAttribute(
                         'href',
-                        fileServerURI
-                            .path(pathURI + '/' + result.build_log)
-                            .normalizePath().href()
+                        u.getHref(
+                            translatedURI[0],
+                            translatedURI[1], result.build_log)
                     );
                     aNode.insertAdjacentHTML('beforeend', warnErrCount);
                 } else {
@@ -434,10 +427,9 @@ require([
 
                 aNode.setAttribute(
                     'href',
-                    fileServerURI
-                        .path(
-                            pathURI + '/' + result.dtb_dir + '/')
-                        .normalizePath().href()
+                    u.getHref(
+                        translatedURI[0],
+                        translatedURI[1], result.dtb_dir)
                 );
                 aNode.appendChild(document.createTextNode(result.dtb_dir));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -454,8 +446,10 @@ require([
 
                 aNode.setAttribute(
                     'href',
-                     fileServerURI.path(pathURI + '/' + result.modules)
-                        .normalizePath().href());
+                    u.getHref(
+                        translatedURI[0],
+                        translatedURI[1], result.modules)
+                );
                 aNode.appendChild(document.createTextNode(result.modules));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
@@ -486,9 +480,9 @@ require([
 
                 aNode.setAttribute(
                     'href',
-                    fileServerURI
-                        .path(pathURI + '/' + result.kernel_image)
-                        .normalizePath().href()
+                    u.getHref(
+                        translatedURI[0],
+                        translatedURI[1], result.kernel_image)
                 );
                 aNode.appendChild(
                     document.createTextNode(result.kernel_image));
@@ -511,10 +505,11 @@ require([
                 ddNode = dlNode.appendChild(document.createElement('dd'));
                 aNode = ddNode.appendChild(document.createElement('a'));
 
-                aNode.setAttribute('href',
-                    fileServerURI
-                        .path(pathURI + '/' + result.kernel_config)
-                        .normalizePath().href()
+                aNode.setAttribute(
+                    'href',
+                    u.getHref(
+                        translatedURI[0],
+                        translatedURI[1], result.kernel_config)
                 );
                 aNode.appendChild(
                     document.createTextNode(result.kernel_config));
@@ -537,9 +532,9 @@ require([
                 aNode = ddNode.appendChild(document.createElement('a'));
                 aNode.setAttribute(
                     'href',
-                    fileServerURI
-                        .path(pathURI + '/' + result.build_log)
-                        .normalizePath().href()
+                    u.getHref(
+                        translatedURI[0],
+                        translatedURI[1], result.build_log)
                 );
                 aNode.appendChild(
                     document.createTextNode(result.build_log));
