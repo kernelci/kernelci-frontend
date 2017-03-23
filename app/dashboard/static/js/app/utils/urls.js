@@ -9,6 +9,63 @@ define([
 
     urls = {};
 
+    /**
+     * Concatenate the path and extra path to create a full URL.
+     * @param  {URI}    base      The base URI
+     * @param  {String} path      The path string
+     * @param  {String} extraPath The extra path to append
+     * @return {String}           The normalized href
+     */
+    urls.getHref = function(base, path, extraPath) {
+        return base.path(URI.joinPaths(path, extraPath)).normalizePath().href();
+    };
+
+    /**
+     * Create the file server URL and its path.
+     * @param  {String} serverURL The file server URL
+     * @param  {Object} data      The object from which to take the data
+     * @return {Array}            A 2-values array: the file server URI,
+     * and the path
+     */
+    urls.createFileServerURL = function(serverURL, data) {
+        var translatedURL;
+        var serverURI;
+
+        translatedURL = [null, null];
+        if (serverURL) {
+            serverURI = new URI(serverURL);
+
+            translatedURL[0] = serverURI;
+
+            if (data.file_server_resource) {
+                translatedURL[1] = URI
+                    .joinPaths(serverURI.path(), data.file_server_resource)
+                    .path();
+            } else {
+                if (data.version === '1.0') {
+                    translatedURL[1] = URI
+                        .joinPaths(
+                            data.job,
+                            data.kernel,
+                            data.arch + '-' +
+                            (data.defconfig_full || data.defconfig))
+                        .path();
+                } else {
+                    translatedURL[1] = URI
+                        .joinPaths(
+                            data.job,
+                            data.git_branch,
+                            data.kernel,
+                            data.arch,
+                            (data.defconfig_full || data.defconfig))
+                        .path();
+                }
+            }
+        }
+
+        return translatedURL;
+    };
+
     // Translate a URL into a URI object.
     // Return a 2-elements list:
     //  0. The URI object
