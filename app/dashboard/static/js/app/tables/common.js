@@ -45,10 +45,10 @@ define([
      * @return {Element} A DOM element.
     **/
     function _countBadge(data, type, extraClasses, idStart) {
-        var classes,
-            iNode,
-            nodeId,
-            spanNode;
+        var classes;
+        var iNode;
+        var nodeId;
+        var spanNode;
 
         if (idStart && idStart.length > 0) {
             nodeId = idStart;
@@ -150,13 +150,13 @@ define([
      * - idStart: Head element for the id of the badge.
     **/
     gTablesUtils.countAll = function(settings) {
-        var aNode,
-            divNode,
-            failNode,
-            rendered,
-            successNode,
-            totalNode,
-            unknownNode;
+        var aNode;
+        var divNode;
+        var failNode;
+        var rendered;
+        var successNode;
+        var totalNode;
+        var unknownNode;
 
         if (settings.type === 'display') {
             divNode = document.createElement('div');
@@ -211,8 +211,8 @@ define([
     };
 
     gTablesUtils.renderTree = function(tree, type, href) {
-        var aNode,
-            rendered;
+        var aNode;
+        var rendered;
 
         rendered = tree;
         if (type === 'display') {
@@ -248,9 +248,9 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gTablesUtils.renderDate = function(date, type) {
-        var created,
-            node,
-            rendered;
+        var created;
+        var node;
+        var rendered;
 
         if (date) {
             if (type === 'display') {
@@ -283,9 +283,9 @@ define([
      * @return {Element} The DOM element.
     **/
     gTablesUtils.renderStatus = function(status, type, defaults) {
-        var cacheKey,
-            node,
-            rendered;
+        var cacheKey;
+        var node;
+        var rendered;
 
         if (type === 'display') {
             cacheKey = _toStatusCacheKey(status, defaults);
@@ -313,9 +313,9 @@ define([
      * @param {String} title: The title for the tooltip.
     **/
     gTablesUtils.renderDetails = function(href, type, title) {
-        var aNode,
-            rendered,
-            tooltipNode;
+        var aNode;
+        var rendered;
+        var tooltipNode;
 
         rendered = null;
         if (type === 'display') {
@@ -351,9 +351,9 @@ define([
      * @return {String} The HTML string to be rendered by dataTables.
     **/
     gTablesUtils.renderKernel = function(data, type, href) {
-        var aNode,
-            rendered,
-            tooltipNode;
+        var aNode;
+        var rendered;
+        var tooltipNode;
 
         rendered = data;
         if (type === 'display') {

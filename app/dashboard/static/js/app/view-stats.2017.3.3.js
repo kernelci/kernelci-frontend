@@ -10,10 +10,12 @@ require([
     'utils/date'
 ], function($, init, format, e, r, chart, html) {
     'use strict';
-    var oneDay,
-        startDate;
+    var oneDay;
+    var startDate;
 
-    document.getElementById('li-info').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-info').setAttribute('class', 'active');
+    }, 15);
 
     oneDay = 86400000;
     startDate = null;
@@ -25,19 +27,19 @@ require([
     }
 
     function createGraphs(response) {
-        var bootData,
-            bootDiffs,
-            buildData,
-            buildDiffs,
-            createdOn,
-            jobData,
-            jobDiffs,
-            localResult,
-            oneWeek,
-            resLen,
-            results,
-            twoWeeks,
-            yesterday;
+        var bootData;
+        var bootDiffs;
+        var buildData;
+        var buildDiffs;
+        var createdOn;
+        var jobData;
+        var jobDiffs;
+        var localResult;
+        var oneWeek;
+        var resLen;
+        var results;
+        var twoWeeks;
+        var yesterday;
 
         results = response.result;
         resLen = results.length;
@@ -100,22 +102,28 @@ require([
             bootData[oneWeek] = localResult.weekly_total_boots;
             bootData[twoWeeks] = localResult.biweekly_total_boots;
 
-            chart.jobs('job-trends', jobData, jobDiffs);
-            chart.builds('build-trends', buildData, buildDiffs);
-            chart.boots('boot-trends', bootData, bootDiffs);
+            setTimeout(function() {
+                chart.jobs('job-trends', jobData, jobDiffs);
+            }, 25);
+            setTimeout(function() {
+                chart.builds('build-trends', buildData, buildDiffs);
+            }, 25);
+            setTimeout(function() {
+                chart.boots('boot-trends', bootData, bootDiffs);
+            }, 25);
         }
     }
 
     function getStatsDone(response) {
-        var createdOn,
-            localResult,
-            resLen,
-            results,
-            startNode,
-            totalBoots,
-            totalBuilds,
-            totalDays,
-            totalJobs;
+        var createdOn;
+        var localResult;
+        var resLen;
+        var results;
+        var startNode;
+        var totalBoots;
+        var totalBuilds;
+        var totalDays;
+        var totalJobs;
 
         results = response.result;
         resLen = results.length;
@@ -205,22 +213,20 @@ require([
     }
 
     function getStats() {
-        var data,
-            deferred;
+        var data;
 
         data = {
             sort: 'created_on',
             sort_order: -1,
             limit: 1
         };
-        deferred = r.get('/_ajax/statistics', data);
-        $.when(deferred)
+        $.when(r.get('/_ajax/statistics', data))
             .fail(e.error, getStatsFail)
             .done(getStatsDone, createGraphs);
     }
 
     getStats();
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

@@ -182,7 +182,6 @@ define([
         var panelNode;
         var pathURI;
         var rowNode;
-        var serverResource;
         var serverURI;
         var serverURL;
         var smallNode;
@@ -197,7 +196,6 @@ define([
         kernel = result.kernel;
         docId = result._id.$oid;
         serverURL = result.file_server_url;
-        serverResource = result.file_server_resource;
         defconfigFull = result.defconfig_full;
         arch = result.arch;
         labName = result.lab_name;
@@ -213,9 +211,7 @@ define([
             serverURL = this.fileServer;
         }
 
-        translatedURI = urls.translateServerURL(
-            serverURL,
-            serverResource, [job, kernel, arch + '-' + defconfigFull]);
+        translatedURI = urls.createFileServerURL(serverURL, result);
 
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
@@ -333,11 +329,7 @@ define([
         if (kernelImage) {
             aNode = document.createElement('a');
             aNode.setAttribute(
-                'href',
-                serverURI
-                    .path(pathURI + '/' + kernelImage)
-                    .normalizePath().href()
-            );
+                'href', urls.getHref(serverURI, [pathURI, kernelImage]));
             aNode.appendChild(
                 document.createTextNode(kernelImage));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -425,7 +417,8 @@ define([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute('title', 'Boot report details');
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/id/' + docId + '/');
+        aNode.setAttribute(
+            'href', urls.createPathHref(['/boot/id/', docId, '/']));
         aNode.appendChild(document.createTextNode('More info'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());

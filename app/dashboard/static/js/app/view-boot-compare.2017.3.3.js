@@ -16,7 +16,7 @@ require([
 
     setTimeout(function() {
         document.getElementById('li-compare').setAttribute('class', 'active');
-    }, 0);
+    }, 15);
 
     function setupComparedTable(comparedData) {
         var columns;

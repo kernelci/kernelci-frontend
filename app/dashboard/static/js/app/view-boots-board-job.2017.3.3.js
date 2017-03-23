@@ -10,19 +10,21 @@ require([
     'utils/const'
 ], function($, init, e, r, table, html, tboot, appconst) {
     'use strict';
-    var boardName,
-        bootReqData,
-        bootsTable,
-        dateRange,
-        jobName,
-        pageLen,
-        searchFilter;
+    var gBoard;
+    var gBootReqData;
+    var gBootsTable;
+    var gDateRange;
+    var gTree;
+    var gPageLen;
+    var gSearchFilter;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 15);
 
-    dateRange = appconst.MAX_DATE_RANGE;
-    pageLen = null;
-    searchFilter = null;
+    gDateRange = appconst.MAX_DATE_RANGE;
+    gPageLen = null;
+    gSearchFilter = null;
 
     /**
      * Update the table with the new data.
@@ -34,7 +36,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            bootsTable.addRows(results);
+            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 25);
         }
 
         // Remove the loading banner when we get the last response.
@@ -52,13 +54,17 @@ require([
      * @param {object} response: The response from the previous request.
     **/
     function getMoreBoots(response) {
-        var deferred,
-            iNode,
-            idx,
-            resLen,
-            resTotal,
-            spanNode,
-            totalReq;
+        var iNode;
+        var idx;
+        var resLen;
+        var resTotal;
+        var spanNode;
+        var totalReq;
+
+        function getData(reqData) {
+            $.when(r.get('/_ajax/boot', reqData))
+                .done(getMoreBootsDone);
+        }
 
         resTotal = response.count;
         resLen = response.result.length;
@@ -82,10 +88,9 @@ require([
 
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
-                bootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                deferred = r.get('/_ajax/boot', bootReqData);
-                $.when(deferred)
-                    .done(getMoreBootsDone);
+                gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
+
+                setTimeout(getData.bind(null, gBootReqData), 25);
             }
         }
     }
@@ -109,12 +114,6 @@ require([
                 html.errorDiv('No data found.'));
         } else {
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'kernel',
                     title: 'Kernel',
@@ -163,56 +162,64 @@ require([
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([4, 'desc'])
                 .languageLengthMenu('boot reports per page')
                 .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
 
-            bootsTable
-                .pageLen(pageLen)
-                .search(searchFilter);
+            gBootsTable
+                .gPageLen(gPageLen)
+                .search(gSearchFilter);
         }
     }
 
     function getBoots() {
-        var deferred;
-
-        deferred = r.get('/_ajax/boot', bootReqData);
-        $.when(deferred)
+        $.when(r.get('/_ajax/boot', gBootReqData))
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getMoreBoots);
     }
 
     function setUpData() {
-        var spanNode,
-            aNode,
-            iNode,
-            tooltipNode;
+        var aNode;
+        var iNode;
+        var spanNode;
+        var str;
+        var tooltipNode;
 
         spanNode = document.createElement('span');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title', 'All boot reports for &nbsp;&#171;' + jobName + '&#187;');
+        str = 'Boot reports for tree &#171;';
+        str += gTree;
+        str += '&#187;';
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/all/job/' + jobName + '/');
-        aNode.appendChild(document.createTextNode(jobName));
+        str = '/boot/all/job/';
+        str += gTree;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(document.createTextNode(gTree));
 
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title', 'Details for job&nbsp;&#171;' + jobName + '&#187;');
+        str = 'Details for tree &#171;';
+        str += gTree;
+        str += '&#187;';
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/job/' + jobName + '/');
+        str = '/job/';
+        str += gTree;
+        str += '/';
+        aNode.setAttribute('href', str);
 
         iNode = document.createElement('i');
         iNode.className = 'fa fa-sitemap';
@@ -223,13 +230,18 @@ require([
         html.replaceContent(document.getElementById('dd-tree'), spanNode);
 
         tooltipNode = html.tooltip();
+        str = 'Boot reports for board &#171;';
+        str += gBoard;
+        str += '&#187;';
         tooltipNode.setAttribute(
-            'title',
-            'All boot reports for &nbsp;&#171;' + boardName + '&#187;');
+            'title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/' + boardName + '/');
-        aNode.appendChild(document.createTextNode(boardName));
+        str = '/boot/';
+        str += gBoard;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(document.createTextNode(gBoard));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
         iNode = document.createElement('i');
@@ -241,38 +253,39 @@ require([
     }
 
     if (document.getElementById('board-name') !== null) {
-        boardName = document.getElementById('board-name').value;
+        gBoard = document.getElementById('board-name').value;
     }
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gTree = document.getElementById('job-name').value;
     }
     if (document.getElementById('date-range') !== null) {
-        dateRange = document.getElementById('date-range').value;
+        gDateRange = document.getElementById('date-range').value;
     }
     if (document.getElementById('page-len') !== null) {
-        pageLen = document.getElementById('page-len').value;
+        gPageLen = document.getElementById('page-len').value;
     }
     if (document.getElementById('search-filter') !== null) {
-        searchFilter = document.getElementById('search-filter').value;
+        gSearchFilter = document.getElementById('search-filter').value;
     }
 
-    bootReqData = {
-        board: boardName,
-        date_range: dateRange,
-        job: jobName,
+    gBootReqData = {
+        board: gBoard,
+        date_range: gDateRange,
+        job: gTree,
         limit: appconst.MAX_QUERY_LIMIT,
         sort: 'created_on',
         sort_order: -1
     };
 
-    bootsTable = table({
+    gBootsTable = table({
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    setUpData();
-    getBoots();
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(setUpData, 10);
+    setTimeout(getBoots, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

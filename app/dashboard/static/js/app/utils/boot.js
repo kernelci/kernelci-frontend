@@ -1,7 +1,8 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'utils/html'
-], function(html) {
+    'utils/html',
+    'utils/urls'
+], function(html, urls) {
     'use strict';
     var gBoot;
 
@@ -21,10 +22,10 @@ define([
     **/
     gBoot.createBootLog = function(
             txtLog, htmlLog, labName, serverURI, pathURI) {
-        var aNode,
-            logPath,
-            retVal,
-            tooltipNode;
+        var aNode;
+        var logPath;
+        var retVal;
+        var tooltipNode;
 
         retVal = null;
         if (txtLog || htmlLog) {
@@ -32,17 +33,23 @@ define([
 
             if (txtLog) {
                 if (txtLog.search(labName) === -1) {
-                    logPath = pathURI + '/' + labName + '/' + txtLog;
+                    logPath = urls.getHref(serverURI, [
+                        pathURI,
+                        labName,
+                        txtLog
+                    ]);
                 } else {
-                    logPath = pathURI + '/' + txtLog;
+                    logPath = urls.getHref(serverURI, [
+                        pathURI,
+                        txtLog
+                    ]);
                 }
 
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', 'View raw text log');
 
                 aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href', serverURI.path(logPath).normalizePath().href());
+                aNode.setAttribute('href', logPath);
                 aNode.appendChild(document.createTextNode('txt'));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());
@@ -58,17 +65,23 @@ define([
                 }
 
                 if (htmlLog.search(labName) === -1) {
-                    logPath = pathURI + '/' + labName + '/' + htmlLog;
+                    logPath = urls.getHref(serverURI, [
+                        pathURI,
+                        labName,
+                        htmlLog
+                    ]);
                 } else {
-                    logPath = pathURI + '/' + htmlLog;
+                    logPath = urls.getHref(serverURI, [
+                        pathURI,
+                        htmlLog
+                    ]);
                 }
 
                 tooltipNode = html.tooltip();
                 tooltipNode.setAttribute('title', 'View HTML log');
 
                 aNode = document.createElement('a');
-                aNode.setAttribute(
-                    'href', serverURI.path(logPath).normalizePath().href());
+                aNode.setAttribute('href', logPath);
                 aNode.appendChild(document.createTextNode('html'));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
                 aNode.appendChild(html.external());

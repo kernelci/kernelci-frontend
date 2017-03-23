@@ -12,12 +12,23 @@ define([
     /**
      * Concatenate the path and extra path to create a full URL.
      * @param  {URI}    base      The base URI
-     * @param  {String} path      The path string
-     * @param  {String} extraPath The extra path to append
+     * @param  {Array}  paths     The other paths to join
      * @return {String}           The normalized href
      */
-    urls.getHref = function(base, path, extraPath) {
-        return base.path(URI.joinPaths(path, extraPath)).normalizePath().href();
+    urls.getHref = function(base, paths) {
+        return base
+            .path(URI.joinPaths.apply(null, paths))
+            .normalizePath()
+            .href();
+    };
+
+    /**
+     * Create just the path of an URL,
+     * @param  {Array} paths
+     * @return {String}
+     */
+    urls.createPathHref = function(paths) {
+        return URI.joinPaths.apply(null, paths).href();
     };
 
     /**
@@ -64,39 +75,6 @@ define([
         }
 
         return translatedURL;
-    };
-
-    // Translate a URL into a URI object.
-    // Return a 2-elements list:
-    //  0. The URI object
-    //  1. The URI path
-    // In case the server URL is not valid, it returns a 2-nulls list.
-    urls.translateServerURL = function(serverUrl, serverPath, data) {
-        var serverUri,
-            translatedUrl,
-            validPath;
-
-        function addPath(value) {
-            validPath = validPath + value + '/';
-        }
-
-        if (serverUrl) {
-            if (serverPath) {
-                validPath = serverPath;
-            } else {
-                validPath = '';
-                if (data) {
-                    data.forEach(addPath);
-                }
-            }
-
-            serverUri = new URI(serverUrl);
-            translatedUrl = [serverUri, serverUri.path() + '/' + validPath];
-        } else {
-            translatedUrl = [null, null];
-        }
-
-        return translatedUrl;
     };
 
     /*

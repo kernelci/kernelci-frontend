@@ -13,14 +13,16 @@ require([
     'utils/date'
 ], function($, init, format, r, e, table, u, chart, html, jobt) {
     'use strict';
-    var gBranchRegEx,
-        gBuildsTable,
-        gJobName,
-        gNumberRange,
-        gPageLen,
-        gSearchFilter;
+    var gBranchRegEx;
+    var gBuildsTable;
+    var gJobName;
+    var gNumberRange;
+    var gPageLen;
+    var gSearchFilter;
 
-    document.getElementById('li-job').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-job').setAttribute('class', 'active');
+    }, 15);
 
     gJobName = null;
     gPageLen = null;
@@ -42,8 +44,7 @@ require([
     }
 
     function getBootStats(startDate, dateRange) {
-        var deferred,
-            data;
+        var data;
 
         data = {
             job: gJobName,
@@ -55,8 +56,7 @@ require([
             nfield: ['_id']
         };
 
-        deferred = r.get('/_ajax/boot', data);
-        $.when(deferred)
+        $.when(r.get('/_ajax/boot', data))
             .fail(e.error, getBootStatsFail)
             .done(getBootStatsDone);
     }
@@ -72,8 +72,7 @@ require([
     }
 
     function getBuildsStats(startDate, dateRange) {
-        var deferred,
-            data;
+        var data;
 
         data = {
             job: gJobName,
@@ -85,18 +84,17 @@ require([
             nfield: ['_id']
         };
 
-        deferred = r.get('/_ajax/build', data);
-        $.when(deferred)
+        $.when(r.get('/_ajax/build', data))
             .fail(e.error, getBuildsStatsFail)
             .done(getBuildsStatsDone);
     }
 
     function getTrendsData(response) {
-        var firstDate,
-            lDateRange,
-            lastDate,
-            resLen,
-            results;
+        var firstDate;
+        var lDateRange;
+        var lastDate;
+        var resLen;
+        var results;
 
         results = response.result;
         resLen = results.length;
@@ -127,18 +125,18 @@ require([
     }
 
     function getBuildBootCountDone(response) {
-        var batchCount,
-            batchData;
+        var batchData;
 
         batchData = response.result;
 
+        function parseBatchData(data) {
+            html.replaceContent(
+                document.getElementById(data.operation_id),
+                document.createTextNode(data.result[0].count));
+        }
+
         if (batchData.length > 0) {
-            batchData.forEach(function(batchRes) {
-                batchCount = batchRes.result[0].count;
-                html.replaceContent(
-                    document.getElementById(batchRes.operation_id),
-                    document.createTextNode(batchCount));
-            });
+            batchData.forEach(parseBatchData);
         }
         // Perform the table search now, after completing all operations.
         gBuildsTable
@@ -147,15 +145,20 @@ require([
     }
 
     function getBuildBootCount(response) {
-        var batchOps,
-            deferred,
-            kernel,
-            queryStr,
-            results;
+        var batchOps;
+        var deferred;
+        var kernel;
+        var queryStr;
+        var results;
 
-        function _createOp(result) {
+        function createBatchOp(result) {
             kernel = result.kernel;
-            queryStr = 'job=' + gJobName + '&kernel=' + kernel;
+            queryStr = 'job=';
+            queryStr += gJobName;
+            queryStr += '&kernel=';
+            queryStr += kernel;
+            queryStr += '&git_branch=';
+            queryStr += result.git_branch;
 
             // Get total build count.
             batchOps.push({
@@ -233,7 +236,7 @@ require([
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
-            results.forEach(_createOp);
+            results.forEach(createBatchOp);
 
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -283,25 +286,38 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderDetails(data, type) {
-            return jobt.renderDetails(
-                '/build/' + gJobName + '/kernel/' + data + '/', type);
+        function _renderDetails(data, type, object) {
+            var href = '/build/';
+            href += gJobName;
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/kernel/';
+            href += data;
+            href += '/';
+            return jobt.renderDetails(href, type);
         }
 
         /**
          * Wrapper to provide the href.
         **/
         function _renderBootCount(data, type) {
-            return jobt.renderTableBootCount(
-                data, type, '/boot/all/job/' + gJobName + '/kernel/' + data);
+            var href = '/boot/all/job/';
+            href += gJobName;
+            href += '/kernel/';
+            href += data;
+            return jobt.renderTableBootCount(data, type, href);
         }
 
         /**
          * Wrapper to provide the href.
         **/
         function _renderKernel(data, type) {
-            return jobt.renderKernel(
-                data, type, '/build/' + gJobName + '/kernel/' + data + '/');
+            var href = '/build/';
+            href += gJobName;
+            href += '/kernel/';
+            href += data;
+            href += '/';
+            return jobt.renderKernel(data, type, href);
         }
 
         /**
@@ -315,10 +331,11 @@ require([
         }
 
         function _renderBranch(data, type) {
-            var aNode,
-                branch,
-                rendered,
-                tooltipNode;
+            var aNode;
+            var branch;
+            var rendered;
+            var tooltipNode;
+            var href;
 
             branch = data.replace(gBranchRegEx, ':', 'g');
             rendered = data;
@@ -328,8 +345,11 @@ require([
 
                 aNode = document.createElement('a');
                 aNode.className = 'table-link';
-                aNode.setAttribute(
-                    'href', '/job/' + gJobName + '/branch/' + branch);
+                href = '/job/';
+                href += gJobName;
+                href += '/branch/';
+                href += branch;
+                aNode.setAttribute('href', href);
 
                 aNode.appendChild(document.createTextNode(data));
                 tooltipNode.appendChild(aNode);
@@ -349,18 +369,18 @@ require([
         } else {
             columns = [
                 {
-                    data: 'kernel',
-                    title: 'Kernel',
-                    type: 'string',
-                    className: 'kernel-column',
-                    render: _renderKernel
-                },
-                {
                     data: 'git_branch',
                     title: 'Branch',
                     type: 'string',
                     className: 'branch-column',
                     render: _renderBranch
+                },
+                {
+                    data: 'kernel',
+                    title: 'Kernel',
+                    type: 'string',
+                    className: 'kernel-column',
+                    render: _renderKernel
                 },
                 {
                     data: 'git_commit',
@@ -405,7 +425,9 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([5, 'desc'])
-                .rowURLElements(['job', 'kernel'])
+                .rowURL(
+                    '/build/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
+                .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
                 .draw();
@@ -420,8 +442,7 @@ require([
     }
 
     function getBuilds() {
-        var data,
-            deferred;
+        var data;
 
         data = {
             aggregate: 'kernel',
@@ -431,13 +452,15 @@ require([
             limit: gNumberRange,
             field: [
                 'job',
-                'kernel', 'created_on', 'git_branch', 'git_commit', 'git_url'
-            ],
-            nfield: ['_id']
+                'kernel',
+                'created_on',
+                'git_branch',
+                'git_commit',
+                'git_url'
+            ]
         };
 
-        deferred = r.get('/_ajax/build', data);
-        $.when(deferred)
+        $.when(r.get('/_ajax/build', data))
             .fail(
                 e.error,
                 getBuildsFailed, getBuildsStatsFail, getBootStatsFail)
@@ -445,14 +468,14 @@ require([
     }
 
     function getDetailsDone(response) {
-        var firstCount,
-            firstResult,
-            resLen,
-            results,
-            secondCount,
-            secondResult,
-            thirdCount,
-            thirdResult;
+        var firstCount;
+        var firstResult;
+        var resLen;
+        var results;
+        var secondCount;
+        var secondResult;
+        var thirdCount;
+        var thirdResult;
 
         results = response.result;
         resLen = results.length;
@@ -487,11 +510,12 @@ require([
     }
 
     function getDetails() {
-        var batchOps,
-            deferred,
-            queryString;
+        var batchOps;
+        var deferred;
+        var queryStr;
 
-        queryString = 'job=' + gJobName;
+        queryStr = 'job=';
+        queryStr += gJobName;
         batchOps = [];
 
         batchOps.push({
@@ -499,7 +523,7 @@ require([
             method: 'GET',
             resource: 'count',
             document: 'job',
-            query: queryString
+            query: queryStr
         });
 
         batchOps.push({
@@ -507,7 +531,7 @@ require([
             method: 'GET',
             resource: 'count',
             document: 'build',
-            query: queryString
+            query: queryStr
         });
 
         batchOps.push({
@@ -515,7 +539,7 @@ require([
             method: 'GET',
             resource: 'count',
             document: 'boot',
-            query: queryString
+            query: queryStr
         });
 
         deferred = r.post(
@@ -544,9 +568,10 @@ require([
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    getDetails();
-    getBuilds();
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(getDetails, 10);
+    setTimeout(getBuilds, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

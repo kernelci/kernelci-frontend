@@ -17,7 +17,10 @@ require([
     var gDateRange;
     var gFileServer;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 15);
+
     gDateRange = appconst.MAX_DATE_RANGE;
     gFileServer = null;
 
@@ -49,13 +52,9 @@ require([
         var kernel;
         var lab;
         var logsNode;
-        var pathURI;
         var resultDescription;
         var rowNode;
-        var serverResource;
-        var serverURI;
         var serverURL;
-        var str;
         var translatedURI;
 
         arch = data.arch;
@@ -64,21 +63,13 @@ require([
         kernel = data.kernel;
         lab = data.lab_name;
         resultDescription = data.boot_result_description;
-        serverResource = data.file_server_resource;
         serverURL = data.file_server_url;
 
         if (!serverURL) {
             serverURL = gFileServer;
         }
 
-        str = arch;
-        str += '-';
-        str += defconfigFull;
-        translatedURI = u.translateServerURL(
-            serverURL, serverResource, [job, kernel, str]
-        );
-        serverURI = translatedURI[0];
-        pathURI = translatedURI[1];
+        translatedURI = u.createFileServerURL(serverURL, data);
 
         rowNode = docFrag.appendChild(document.createElement('tr'));
 
@@ -99,7 +90,8 @@ require([
 
         // Boot log.
         logsNode = tboot.createBootLog(
-            data.boot_log, data.boot_log_html, lab, serverURI, pathURI);
+            data.boot_log,
+            data.boot_log_html, lab, translatedURI[0], translatedURI[1]);
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'pull-center';
         cellNode.appendChild(logsNode);
@@ -228,21 +220,23 @@ require([
 
         result = response.result[0];
 
-        deferred = r.get(
-            '/_ajax/boot',
-            {
-                board: result.board,
-                defconfig_full: result.defconfig_full,
-                job: result.job,
-                kernel: result.kernel
-            }
-        );
-        $.when(deferred)
-            .fail(e.error, getMultiLabDataFail)
-            .done(function(data) {
-                setTimeout(
-                    getMultiLabDataDone.bind(null, data, result.lab_name), 0);
-            });
+        setTimeout(function() {
+            deferred = r.get(
+                '/_ajax/boot',
+                {
+                    board: result.board,
+                    defconfig_full: result.defconfig_full,
+                    job: result.job,
+                    kernel: result.kernel
+                }
+            );
+
+            $.when(deferred)
+                .fail(e.error, getMultiLabDataFail)
+                .done(function(data) {
+                    getMultiLabDataDone(data, result.lab_name);
+                });
+        }, 10);
     }
 
     function getBootDataFail() {
@@ -381,17 +375,20 @@ require([
             isCompared: true
         };
 
-        deferred = r.get(
-            '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
-            bBootId,
-            {}
-        );
-        $.when(deferred)
-            .fail(e.error, getBisectCompareToMainlineFail)
-            .done(function(data) {
-                settings.data = data;
-                bisect(settings).draw();
-            });
+        setTimeout(function() {
+            deferred = r.get(
+                '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
+                bBootId,
+                {}
+            );
+
+            $.when(deferred)
+                .fail(e.error, getBisectCompareToMainlineFail)
+                .done(function(data) {
+                    settings.data = data;
+                    bisect(settings).draw();
+                });
+        }, 10);
     }
 
     function getBisectCompareTo(response) {
@@ -461,16 +458,18 @@ require([
                 bisectShowHideID: 'bisect-hide-div'
             };
 
-            deferred = r.get(
-                '/_ajax/bisect?collection=boot&boot_id=' + lBootId, {});
+            setTimeout(function() {
+                deferred = r.get(
+                    '/_ajax/bisect?collection=boot&boot_id=' + lBootId, {});
 
-            $.when(deferred)
-                .fail(e.error, getBisectDataFail)
-                .done(getBisectCompareTo)
-                .done(function(data) {
-                    settings.data = data;
-                    bisect(settings).draw();
-                });
+                $.when(deferred)
+                    .fail(e.error, getBisectDataFail)
+                    .done(getBisectCompareTo)
+                    .done(function(data) {
+                        settings.data = data;
+                        bisect(settings).draw();
+                    });
+            }, 10);
         }
     }
 
@@ -613,6 +612,7 @@ require([
         var boardInstance;
         var bootLog;
         var bootTime;
+        var branch;
         var compiler;
         var compilerVersion;
         var compilerVersionFull;
@@ -635,7 +635,6 @@ require([
         var qemuData;
         var result;
         var resultDescription;
-        var serverResource;
         var serverURI;
         var serverURL;
         var smallNode;
@@ -654,12 +653,12 @@ require([
         board = result.board;
         boardInstance = result.board_instance;
         job = result.job;
+        branch = result.git_branch;
         kernel = result.kernel;
         defconfigFull = result.defconfig_full;
         arch = result.arch;
         lab = result.lab_name;
         serverURL = result.file_server_url;
-        serverResource = result.file_server_resource;
 
         resultDescription = result.boot_result_description;
         endianness = result.endian;
@@ -683,14 +682,7 @@ require([
             serverURL = gFileServer;
         }
 
-        str = arch;
-        str += '-';
-        str += defconfigFull;
-
-        translatedURI = u.translateServerURL(
-            serverURL, serverResource, [job, kernel, str]
-        );
-
+        translatedURI = u.createFileServerURL(serverURL, result);
         serverURI = translatedURI[0];
         pathURI = translatedURI[1];
 
@@ -716,7 +708,7 @@ require([
         tooltipNode = docFrag.appendChild(html.tooltip());
         str = 'Boot reports for lab&nbsp';
         str += lab;
-        tooltipNode.setAttribute('title', lab);
+        tooltipNode.setAttribute('title', str);
 
         aNode = tooltipNode.appendChild(document.createElement('a'));
         str = '/boot/all/lab/';
@@ -795,7 +787,7 @@ require([
         // Branch.
         html.replaceContent(
             document.getElementById('dd-board-branch'),
-            document.createTextNode(result.git_branch));
+            document.createTextNode(branch));
 
         // Kernel.
         docFrag = document.createDocumentFragment();
@@ -811,6 +803,8 @@ require([
         aNode = tooltipNode.appendChild(document.createElement('a'));
         str = '/boot/all/job/';
         str += job;
+        str += '/branch/';
+        str += branch;
         str += '/kernel/';
         str += kernel;
         str += '/';
@@ -829,6 +823,8 @@ require([
         aNode = tooltipNode.appendChild(document.createElement('a'));
         str = '/build/';
         str += job;
+        str += '/branch/';
+        str += branch;
         str += '/kernel/';
         str += kernel;
         str += '/';
@@ -850,6 +846,8 @@ require([
         str += board;
         str += '/job/';
         str += job;
+        str += '/branch/';
+        str += branch;
         str += '/kernel/';
         str += kernel;
         str += '/defconfig/';
@@ -864,7 +862,7 @@ require([
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute('title', 'Build details');
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/build/id/';
+            str ='/build/id/';
             str += result.build_id.$oid;
             str += '/';
             aNode.setAttribute('href', str);
@@ -1016,11 +1014,8 @@ require([
         if (dtb) {
             docFrag = document.createDocumentFragment();
             aNode = docFrag.appendChild(document.createElement('a'));
-            str = pathURI;
-            str += '/';
-            str += dtb;
             aNode.setAttribute(
-                'href', serverURI.path(str).normalizePath().href()
+                'href', u.getHref(serverURI, [pathURI, dtb, '/'])
             );
             aNode.appendChild(document.createTextNode(dtb));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -1068,11 +1063,8 @@ require([
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
             aNode = spanNode.appendChild(document.createElement('a'));
-            str = pathURI;
-            str += '/';
-            str += kernelImage;
             aNode.setAttribute(
-                'href', serverURI.path(str).normalizePath().href()
+                'href', u.getHref(serverURI, [pathURI, kernelImage])
             );
             aNode.appendChild(document.createTextNode(kernelImage));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -1115,10 +1107,7 @@ require([
     }
 
     function getBootData() {
-        var deferred;
-
-        deferred = r.get('/_ajax/boot', {id: gBootId});
-        $.when(deferred)
+        $.when(r.get('/_ajax/boot', {id: gBootId}))
             .fail(e.error, getBootDataFail, getMultiLabDataFail)
             .done(
                 getBootDataDone,
@@ -1135,8 +1124,8 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    setTimeout(getBootData, 0);
+    setTimeout(getBootData, 10);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

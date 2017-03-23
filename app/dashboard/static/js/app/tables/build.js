@@ -81,14 +81,49 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBuildUtils.renderDefconfig = function(data, type) {
-        var rendered,
-            tooltipNode;
+        var rendered;
+        var tooltipNode;
 
         rendered = data;
         if (type === 'display') {
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute('title', data);
             tooltipNode.appendChild(document.createTextNode(data));
+
+            rendered = tooltipNode.outerHTML;
+        }
+
+        return rendered;
+    };
+
+    /**
+     * Render the commit column.
+     *
+     * @param {string} data: The actual data value.
+     * @param {string} type: The type of the display option.
+     * @param {string} href: The href to associate with the element.
+     * @return {string} The rendered element as a string.
+    **/
+    gBuildUtils.renderCommit = function(data, type, href) {
+        var aNode;
+        var rendered;
+        var tooltipNode;
+
+        rendered = data;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', data);
+
+            if (href) {
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', href);
+
+                aNode.appendChild(document.createTextNode(data));
+                tooltipNode.appendChild(aNode);
+            } else {
+                tooltipNode.appendChild(document.createTextNode(data));
+            }
 
             rendered = tooltipNode.outerHTML;
         }

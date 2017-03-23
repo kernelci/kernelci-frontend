@@ -99,17 +99,13 @@ define([
         var gitURLs;
         var hNode;
         var headingNode;
-        var hrefStr;
         var htmlLog;
         var labName;
         var panelBody;
         var panelHead;
         var panelNode;
         var passRegr;
-        var pathStr;
-        var pathURI;
         var rowNode;
-        var serverURI;
         var serverURL;
         var smallNode;
         var spanNode;
@@ -125,17 +121,11 @@ define([
         passRegr = data.pass;
         defconfigFull = data.defconfig_full;
 
-        pathStr = arch;
-        pathStr += '-';
-        pathStr += defconfigFull;
+        failBuildURL = urls
+            .createPathHref(['/build/id/', failRegr.build_id.$oid, '/']);
 
-        failBuildURL = '/build/id/';
-        failBuildURL += failRegr.build_id.$oid;
-        failBuildURL += '/';
-
-        failBootURL = '/boot/id/';
-        failBootURL += failRegr._id.$oid;
-        failBootURL += '/';
+        failBootURL = urls
+            .createPathHref(['/boot/id/', failRegr._id.$oid, '/']);
 
         docFrag = document.createDocumentFragment();
 
@@ -210,29 +200,28 @@ define([
         dNode = dlNode.appendChild(document.createElement('dd'));
 
         if (data.hasOwnProperty('first_fail')) {
-            // console.log(data.first_fail);
             dNode.appendChild(document.createTextNode(data.first_fail.kernel));
-
-            hrefStr = '/build/id/';
-            hrefStr += data.first_fail.build_id.$oid;
-            hrefStr += '/';
 
             spanNode = dNode.appendChild(document.createElement('span'));
             spanNode.className = 'bb-details';
             aNode = spanNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', hrefStr);
+            aNode.setAttribute('href', urls.createPathHref([
+                '/build/id/',
+                data.first_fail.build_id.$oid,
+                '/',
+            ]));
             tooltipNode = aNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'First failure build report details');
             tooltipNode.appendChild(html.build());
 
-            hrefStr = '/boot/id/';
-            hrefStr += data.first_fail._id.$oid;
-            hrefStr += '/';
-
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
             aNode = spanNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', hrefStr);
+            aNode.setAttribute('href', urls.createPathHref([
+                '/boot/id/',
+                data.first_fail._id.$oid,
+                '/'
+            ]));
             tooltipNode = aNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'First failure boot report details');
@@ -355,20 +344,16 @@ define([
                 serverURL = gFileServer;
             }
 
-            translatedURI = urls.translateServerURL(
-                serverURL,
-                failRegr.file_server_resource,
-                [failRegr.job, failRegr.kernel, pathStr]);
-
-            serverURI = translatedURI[0];
-            pathURI = translatedURI[1];
+            translatedURI = urls.createFileServerURL(serverURL, failRegr);
 
             dNode = dlNode.appendChild(document.createElement('dt'));
             dNode.appendChild(document.createTextNode('Boot Log'));
 
             dNode = dlNode.appendChild(document.createElement('dd'));
             dNode.appendChild(
-                common.logsNode(txtLog, htmlLog, labName, serverURI, pathURI));
+                common.logsNode(
+                    txtLog,
+                    htmlLog, labName, translatedURI[0], translatedURI[1]));
         }
 
         divNode = panelBody.appendChild(document.createElement('div'));
@@ -432,10 +417,10 @@ define([
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
             aNode.appendChild(html.external());
         } else {
-            if (gitCommit && gitCommit !== null) {
-                dNode.appendChild(document.createTextNode(gitCommit));
-            } else {
+            if (!gitCommit) {
                 dNode.appendChild(html.nonavail());
+            } else {
+                dNode.appendChild(document.createTextNode(gitCommit));
             }
         }
 
@@ -456,20 +441,16 @@ define([
                 serverURL = gFileServer;
             }
 
-            translatedURI = urls.translateServerURL(
-                serverURL,
-                passRegr.file_server_resource,
-                [passRegr.job, passRegr.kernel, pathStr]);
-
-            serverURI = translatedURI[0];
-            pathURI = translatedURI[1];
+            translatedURI = urls.createFileServerURL(serverURL, passRegr);
 
             dNode = dlNode.appendChild(document.createElement('dt'));
             dNode.appendChild(document.createTextNode('Boot Log'));
 
             dNode = dlNode.appendChild(document.createElement('dd'));
             dNode.appendChild(
-                common.logsNode(txtLog, htmlLog, labName, serverURI, pathURI));
+                common.logsNode(
+                    txtLog,
+                    htmlLog, labName, translatedURI[0], translatedURI[1]));
         }
 
         divNode = panelBody.appendChild(document.createElement('div'));
@@ -483,10 +464,11 @@ define([
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
 
-        hrefStr = '/boot/id/';
-        hrefStr += passRegr._id.$oid;
-        hrefStr += '/';
-        aNode.setAttribute('href', hrefStr);
+        aNode.setAttribute('href', urls.createPathHref([
+            '/boot/id/',
+            passRegr._id.$oid,
+            '/'
+        ]));
 
         return docFrag;
     };

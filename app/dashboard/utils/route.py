@@ -73,6 +73,20 @@ def init():
         view_func=vbuild.BuildsAllView.as_view("all-builds"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/build/<string:tree>/branch/<string:branch>/kernel/<string:kernel>/",
+        view_func=vbuild.BuildsJobBranchKernelView.as_view(
+            "job-branch-kernel-builds"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/build/<string:tree>/branch/<string:branch>/kernel/latest/",
+        view_func=vbuild.BuildsJobBranchKernelView.as_view(
+            "job-branch-latest-builds"),
+        methods=["GET"]
+    )
+
     add_rule(
         "/build/<string:job>/kernel/<string:kernel>/",
         view_func=vbuild.BuildsJobKernelView.as_view("job-kernel-builds"),
@@ -167,10 +181,26 @@ def init():
     )
     add_rule(
         (
+            "/boot/all/job/<string:job>/branch/<string:branch>/"
+            "kernel/<string:kernel>/defconfig/<string:defconfig>/"
+        ),
+        view_func=vboot.BootAllJBKDView.as_view("boot-all-jbkd"),
+        methods=["GET"]
+    )
+    add_rule(
+        (
             "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
             "defconfig/<string:defconfig>/"
         ),
         view_func=vboot.BootDefconfigView.as_view("boot-defconfig"),
+        methods=["GET"]
+    )
+    add_rule(
+        (
+            "/boot/<string:board>/job/<string:job>/branch/<string:branch>"
+            "/kernel/<string:kernel>/defconfig/<string:defconfig>/"
+        ),
+        view_func=vboot.BootBoardJBKDView.as_view("boot-board-jbkd"),
         methods=["GET"]
     )
     add_rule(
@@ -190,8 +220,21 @@ def init():
         methods=["GET"]
     )
     add_rule(
+        (
+            "/boot/all/job/<string:job>/branch/<string:branch>/"
+            "kernel/<string:kernel>/"
+        ),
+        view_func=vboot.BootAllJBKView.as_view("boot-all-jbk"),
+        methods=["GET"]
+    )
+    add_rule(
         "/boot/all/job/<string:job>/kernel/latest/",
         view_func=vboot.BootJobKernelView.as_view("boot-job-kernel-latest"),
+        methods=["GET"]
+    )
+    add_rule(
+        "/boot/all/job/<string:job>/branch/<string:branch>/kernel/latest/",
+        view_func=vboot.BootAllJBKView.as_view("boot-all-jbk-latest"),
         methods=["GET"]
     )
     add_rule(

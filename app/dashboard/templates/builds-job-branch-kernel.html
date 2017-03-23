@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{%- block meta -%}
+<meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block head %}
+{{super() }}
+<style type="text/css">
+    .logs-table {
+        font-size: smaller;
+    }
+    .logs-table > tbody > tr > td {
+        border-top: none;
+        vertical-align: middle;
+    }
+    .logs-table > tbody > tr > td:first-child {
+        font-weight: bold;
+        text-align: right;
+    }
+    .logs-table > tfoot > tr > td {
+        border: none;
+        font-style: italic;
+        padding-top: 1.1em;
+    }
+    .compiler > tbody > tr > td:first-child {
+        vertical-align: middle;
+    }
+    .compiler > tbody > tr:first-child > td {
+        border-top: none;
+    }
+</style>
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3>{{ body_title|safe }}<span id="kernel-title"></span></h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd class="loading-content" id="tree">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git branch</dt>
+            <dd class="loading-content" id="git-branch">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git describe</dt>
+            <dd class="loading-content" id="git-describe">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git URL</dt>
+            <dd class="loading-content" id="git-url">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git commit</dt>
+            <dd class="loading-content" id="git-commit">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Date</dt>
+            <dd class="loading-content" id="build-date">
+                <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+        <div id="pie-chart" class="chart-div pull-center">
+            <div id="pie-chart-heading">
+                <table id="pie-chart-legend" class="pie-chart">
+                    <tbody>
+                        <tr>
+                            <td id="success-cell" class="click-btn">0</td>
+                            <td>&nbsp;/&nbsp;</td>
+                            <td id="fail-cell" class="click-btn">0</td>
+                            <td>&nbsp;/&nbsp;</td>
+                            <td id="unknown-cell" class="click-btn">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="build-chart"></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="page-header">
+        <h3>Defconfigs Built</h3>
+    </div>
+    <div class="buttons-row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="btn-group btn-group-sm">
+                <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
+                <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
+                <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
+                <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div id="search-area" class="input-group">
+                <span class="input-group-addon">
+                    <i class="fa fa-search"></i>
+                </span>
+                <input id="data-filter" type="search" class="form-control input-sm" placeholder="Filter the results">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-md-offset-2 col-lg-2 col-lg-offset-2">
+            <div class="dropdown warn-err-dropdown">
+                <button id="warn-err-btn" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="true" aria-haspopup="true" disabled>Show
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="all">All</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings">Builds with warnings and no errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="errors">Builds with errors and no warnings</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings-errors">Builds with warnings and errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="accordion-container">
+            <div class="panel-group" id="accordion">
+                <div class="pull-center">
+                    <small>
+                        <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;retrieving builds data&hellip;
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+        <h4>Compilers Used</h4>
+        <table id="compiler-table" class="table table-condensed compiler">
+            <thead><tr><th>Arch.</th><th class="compiler-version">Compiler</th></tr></thead>
+            <tbody>
+                <tr>
+                    <td colspan="2" class="pull-center">
+                        <small><i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;</small>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <h4>Build Logs Summary</h4>
+        <div id="logs-summary">
+            <div id="logs-summary-loading" class="pull-center">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;retrieving build logs&hellip;
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="tree-name" value="{{tree}}">
+<input type="hidden" id="branch-name" value="{{branch}}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="file-server" value="{{ config['FILE_SERVER_URL'] }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-builds-job-branch-kernel" src="/static/js/lib/require.js"></script>
+{%- endblock %}

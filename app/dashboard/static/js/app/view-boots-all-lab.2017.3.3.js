@@ -19,7 +19,7 @@ require([
 
     setTimeout(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
-    }, 0);
+    }, 15);
 
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
@@ -35,7 +35,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 0);
+            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 25);
         }
 
         // Remove the loading banner when we get the last response.
@@ -60,6 +60,11 @@ require([
         var spanNode;
         var totalReq;
 
+        function getData(reqData) {
+            $.when(r.get('/_ajax/boot', reqData))
+                .done(getMoreBootsDone);
+        }
+
         resTotal = response.count;
         if (response.result.length < resTotal) {
             // Add a small loading banner while we load more results.
@@ -81,8 +86,7 @@ require([
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
                 gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                $.when(r.get('/_ajax/boot', gBootReqData))
-                    .done(getMoreBootsDone);
+                setTimeout(getData.bind(null, gBootReqData), 25);
             }
         }
     }
@@ -237,8 +241,9 @@ require([
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    setTimeout(getBoots, 0);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(getBoots, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

@@ -9,14 +9,17 @@ require([
     'utils/table'
 ], function($, init, e, r, html, tboot, table) {
     'use strict';
-    var boardName,
-        bootsTable,
-        defconfigFull,
-        fileServer,
-        jobName,
-        kernelName;
+    var gBootsTable;
+    var fileServer;
+    var gBoard;
+    var gBranch;
+    var gDefconfigFull;
+    var gKernel;
+    var gTree;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 15);
 
     function getBootsFail() {
         html.removeElement(
@@ -27,9 +30,9 @@ require([
     }
 
     function getBootsDone(response) {
-        var columns,
-            results,
-            rowURLFmt;
+        var columns;
+        var results;
+        var rowURLFmt;
 
         /**
          * Wrapper to inject the server URL.
@@ -50,12 +53,6 @@ require([
             rowURLFmt = '/boot/id/%(_id)s/';
 
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'lab_name',
                     title: 'Lab Name',
@@ -108,10 +105,10 @@ require([
                 }
             ];
 
-            bootsTable
+            gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([4, 'desc'])
                 .rowURL(rowURLFmt)
                 .rowURLElements(['_id'])
                 .draw();
@@ -124,10 +121,11 @@ require([
         deferred = r.get(
             '/_ajax/boot',
             {
-                board: boardName,
-                job: jobName,
-                kernel: kernelName,
-                defconfig_full: defconfigFull
+                board: gBoard,
+                job: gTree,
+                git_branch: gBranch,
+                kernel: gKernel,
+                defconfig_full: gDefconfigFull
             }
         );
         $.when(deferred)
@@ -136,19 +134,25 @@ require([
     }
 
     function setUpData() {
-        var aNode,
-            spanNode,
-            tooltipNode;
+        var aNode;
+        var spanNode;
+        var str;
+        var tooltipNode;
 
         // Add the tree data.
         spanNode = document.createElement('span');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Boot details for&nbsp;' + jobName);
+        str = 'Boot details for&nbsp;';
+        str += gTree;
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/boot/all/job/' + jobName + '/');
-        aNode.appendChild(document.createTextNode(jobName));
+        str = '/boot/all/job/';
+        str += gTree;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(document.createTextNode(gTree));
 
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
@@ -156,10 +160,15 @@ require([
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute('title', 'Details for job&nbsp;' + jobName);
+        str = 'Details for job&nbsp;';
+        str += gTree;
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute('href', '/job/' + jobName + '/');
+        str = '/job/';
+        str += gTree;
+        str += '/';
+        aNode.setAttribute('href', str);
 
         aNode.appendChild(html.tree());
         tooltipNode.appendChild(aNode);
@@ -167,21 +176,31 @@ require([
 
         html.replaceContent(document.getElementById('dd-tree'), spanNode);
 
+        // Add the git branch data.
+        html.replaceContent(
+            document.getElementById('dd-branch'),
+            document.createTextNode(gBranch));
+
         // Add the kernel data.
         spanNode = document.createElement('span');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title',
-            'Boot reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
-        );
+        str = 'Boot reports for&nbsp;';
+        str += gTree;
+        str += '&nbsp;&ndash;&nbsp;';
+        str += gKernel;
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href',
-            '/boot/all/job/' + jobName + '/kernel/' + kernelName + '/');
-        aNode.appendChild(document.createTextNode(kernelName));
+        str = '/boot/all/job/';
+        str += gTree;
+        str += '/branch/';
+        str += gBranch;
+        str += '/kernel/';
+        str += gKernel;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(document.createTextNode(gKernel));
 
         tooltipNode.appendChild(aNode);
         spanNode.appendChild(tooltipNode);
@@ -189,15 +208,21 @@ require([
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title',
-            'Build reports for&nbsp;' + jobName +
-                '&nbsp;&dash;&nbsp;' + kernelName
-        );
+        str = 'Build reports for&nbsp;';
+        str += gTree;
+        str += '&nbsp;&ndash;&nbsp;';
+        str += gKernel;
+        tooltipNode.setAttribute('title', str);
 
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href', '/build/' + jobName + '/kernel/' + kernelName + '/');
+        str = '/build/';
+        str += gTree;
+        str += '/branch/';
+        str += gBranch;
+        str += '/kernel/';
+        str += gKernel;
+        str += '/';
+        aNode.setAttribute('href', str);
 
         aNode.appendChild(html.build());
         tooltipNode.appendChild(aNode);
@@ -209,33 +234,37 @@ require([
         // Add the defconfig data.
         html.replaceContent(
             document.getElementById('dd-defconfig'),
-            document.createTextNode(defconfigFull));
+            document.createTextNode(gDefconfigFull));
     }
 
     if (document.getElementById('board-name') !== null) {
-        boardName = document.getElementById('board-name').value;
+        gBoard = document.getElementById('board-name').value;
     }
     if (document.getElementById('defconfig-full') !== null) {
-        defconfigFull = document.getElementById('defconfig-full').value;
+        gDefconfigFull = document.getElementById('defconfig-full').value;
     }
     if (document.getElementById('kernel-name') !== null) {
-        kernelName = document.getElementById('kernel-name').value;
+        gKernel = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('job-name') !== null) {
-        jobName = document.getElementById('job-name').value;
+        gTree = document.getElementById('job-name').value;
+    }
+    if (document.getElementById('branch-name') !== null) {
+        gBranch = document.getElementById('branch-name').value;
     }
     if (document.getElementById('file-server') !== null) {
         fileServer = document.getElementById('file-server').value;
     }
 
-    bootsTable = table({
+    gBootsTable = table({
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
-    setUpData();
-    getBoots();
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(setUpData, 25);
+    setTimeout(getBoots, 25);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

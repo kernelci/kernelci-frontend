@@ -33,10 +33,11 @@ require([
     var gSearchFilter;
     var gSessionStorage;
     var gStorageName;
+    var gBranch;
 
     setTimeout(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
-    }, 0);
+    }, 15);
 
     function uniqueCountFail() {
        html.replaceByClassHTML('unique-values', '&infin;');
@@ -130,16 +131,15 @@ require([
         var docFrag;
         var smallNode;
         var spanNode;
+        var str;
         var tooltipNode;
 
         docFrag = document.createDocumentFragment();
         tooltipNode = docFrag.appendChild(html.tooltip());
         html.addClass(tooltipNode, 'default-cursor');
-        tooltipNode.setAttribute(
-            'title',
-            'Total, passed, failed and unknown boot reports count ' +
-            'for this lab'
-        );
+        str = 'Total, passed, failed and unknown boot reports count&nbsp;';
+        str += 'for this lab';
+        tooltipNode.setAttribute('title', str);
 
         smallNode = tooltipNode.appendChild(document.createElement('small'));
         smallNode.appendChild(document.createTextNode('('));
@@ -293,13 +293,15 @@ require([
         if (response.count > 0) {
             results = response.result[0];
 
-            deferred = request.get(
-                '/_ajax/count/build',
-                {job: results.job, kernel: results.kernel});
+            setTimeout(function() {
+                deferred = request.get(
+                    '/_ajax/count/build',
+                    {job: results.job, kernel: results.kernel});
 
-            $.when(deferred, unique.countD(response))
-                .fail(e.error, uniqueCountFail)
-                .done(uniqueCountDone);
+                $.when(deferred, unique.countD(response))
+                    .fail(e.error, uniqueCountFail)
+                    .done(uniqueCountDone);
+            }, 25);
         } else {
             html.replaceByClassTxt('unique-values', '?');
         }
@@ -413,6 +415,7 @@ require([
                 '/_ajax/boot',
                 {
                     job: results.job,
+                    git_branch: results.git_branch,
                     kernel: results.kernel,
                     sort: ['board', 'defconfig_full', 'arch'],
                     sort_order: 1
@@ -442,6 +445,10 @@ require([
         var job;
         var kernel;
         var results;
+        var spanNode;
+        var node;
+        var docFrag;
+        var str;
         var tooltipNode;
 
         results = response.result;
@@ -465,17 +472,31 @@ require([
             gitURLs = urls.translateCommit(gitURL, gitCommit);
 
             // The kernel name in the title.
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            spanNode.appendChild(document.createTextNode(kernel));
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            node = spanNode.appendChild(document.createElement('small'));
+            str = '(';
+            str += gitBranch;
+            str += ')';
+            node.appendChild(document.createTextNode(str));
             html.replaceContent(
-                document.getElementById('kernel-title'),
-                document.createTextNode(kernel));
+                document.getElementById('kernel-title'), docFrag);
 
             // Tree.
-            domNode = document.createElement('div');
+            docFrag = document.createDocumentFragment();
+            domNode = docFrag.appendChild(document.createElement('div'));
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Boot reports for tree &#171;' + job + '&#187;');
+            str = 'Boot reports for tree&nbsp;';
+            str += job;
+            tooltipNode.setAttribute('title', str);
+            
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/boot/all/job/' + job + '/');
+            str = '/boot/all/job/';
+            str += job;
+            str += '/';
+            aNode.setAttribute('href', str);
             aNode.appendChild(document.createTextNode(job));
             tooltipNode.appendChild(aNode);
 
@@ -483,16 +504,21 @@ require([
             domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Details for tree &#171;' + job + '&#187;');
+            str = 'Details for tree&nbsp;';
+            str += job;
+            tooltipNode.setAttribute('title', str);
+
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/job/' + job + '/');
+            str = '/job/';
+            str += job;
+            str += '/';
+            aNode.setAttribute('href', str);
             aNode.appendChild(html.tree());
             tooltipNode.appendChild(aNode);
 
             domNode.appendChild(tooltipNode);
 
-            html.replaceContent(document.getElementById('tree'), domNode);
+            html.replaceContent(document.getElementById('tree'), docFrag);
 
             // Git branch.
             html.replaceContent(
@@ -500,28 +526,42 @@ require([
                 document.createTextNode(gitBranch));
 
             // Git describe.
-            domNode = document.createElement('div');
+            docFrag = document.createDocumentFragment();
+            domNode = docFrag.appendChild(document.createElement('div'));
             domNode.appendChild(document.createTextNode(kernel));
             domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title',
-                'Build reports for &#171;' + job + '&#187; - ' + kernel);
+            str = 'Build reports for&nbsp;';
+            str += job;
+            str += '&nbsp;&ndash;&nbsp;';
+            str += kernel;
+            str += '&nbsp;(';
+            str += gitBranch;
+            str += ')';
+            tooltipNode.setAttribute('title', str);
+
             aNode = document.createElement('a');
-            aNode.setAttribute(
-                'href', '/build/' + job + '/kernel/' + kernel + '/');
+            str = '/build/';
+            str += job;
+            str += '/branch/';
+            str += gitBranch;
+            str += '/kernel/';
+            str += kernel;
+            str += '/';
+            aNode.setAttribute('href', str);
             aNode.appendChild(html.build());
             tooltipNode.appendChild(aNode);
 
             domNode.appendChild(tooltipNode);
 
             html.replaceContent(
-                document.getElementById('git-describe'), domNode);
+                document.getElementById('git-describe'), docFrag);
 
             // Git URL.
             if (gitURLs[0]) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', gitURLs[0]);
                 aNode.appendChild(document.createTextNode(gitURL));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -533,11 +573,12 @@ require([
                     aNode = html.nonavail();
                 }
             }
-            html.replaceContent(document.getElementById('git-url'), aNode);
+            html.replaceContent(document.getElementById('git-url'), docFrag);
 
             // Git commit.
             if (gitURLs[1]) {
-                aNode = document.createElement('a');
+                docFrag = document.createDocumentFragment();
+                aNode = docFrag.appendChild(document.createElement('a'));
                 aNode.setAttribute('href', gitURLs[1]);
                 aNode.appendChild(document.createTextNode(gitCommit));
                 aNode.insertAdjacentHTML('beforeend', '&nbsp;');
@@ -549,23 +590,25 @@ require([
                     aNode = html.nonavail();
                 }
             }
-            html.replaceContent(document.getElementById('git-commit'), aNode);
+            html.replaceContent(document.getElementById('git-commit'), docFrag);
 
             // Date.
-            domNode = document.createElement('time');
+            docFrag = document.createDocumentFragment();
+            domNode = docFrag.appendChild(document.createElement('time'));
             domNode.setAttribute('datetime', createdOn.toISOString());
             domNode.appendChild(
                 document.createTextNode(createdOn.toCustomISODate()));
             html.replaceContent(
-                document.getElementById('job-date'), domNode);
+                document.getElementById('job-date'), docFrag);
         }
     }
 
-    function getJob(job, kernel) {
+    function getJob(job, branch, kernel) {
         var data;
 
         data = {
-            job: job
+            job: job,
+            git_branch: branch
         };
 
         if (kernel) {
@@ -640,7 +683,6 @@ require([
                 value: html.attrById('unknown-btn', 'class')
             };
 
-
             Array.prototype.forEach.call(
                 document.querySelectorAll('[id^="panel-boot"]'),
                 _saveElementState);
@@ -671,6 +713,9 @@ require([
     if (document.getElementById('job-name') !== null) {
         gJob = document.getElementById('job-name').value;
     }
+    if (document.getElementById('branch-name') !== null) {
+        gBranch = document.getElementById('branch-name').value;
+    }
     if (document.getElementById('kernel-name') !== null) {
         gKernel = document.getElementById('kernel-name').value;
         if (gKernel === 'None' || gKernel === 'null') {
@@ -687,6 +732,8 @@ require([
     gStorageName = 'boot-';
     gStorageName += gJob;
     gStorageName += '-';
+    gStorageName += gBranch;
+    gStorageName += '-';
 
     if (gKernel) {
         gStorageName += gKernel;
@@ -697,8 +744,8 @@ require([
     gSessionStorage = storage(gStorageName);
     gResultFilter = filter('data-filter');
 
-    setTimeout(registerEvents, 0);
-    setTimeout(getJob.bind(null, gJob, gKernel), 0);
+    setTimeout(registerEvents, 25);
+    setTimeout(getJob.bind(null, gJob, gBranch, gKernel), 10);
 
     // Set the click event on the regressions tab now, so that we have
     // the kernel value.
@@ -706,8 +753,8 @@ require([
         .getElementById('regressions-tab')
         .addEventListener('click', getRegressions);
 
-    setTimeout(init.hotkeys, 5);
-    setTimeout(init.tooltip, 5);
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 
     setTimeout(function() {
         var location = document.location.toString();
@@ -720,5 +767,5 @@ require([
                 window.scrollTo(0, 0);
             }
         }
-    }, 15);
+    }, 25);
 });

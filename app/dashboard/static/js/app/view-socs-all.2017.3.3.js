@@ -15,6 +15,7 @@ require([
         init, format, error, request, table, html, appconst, tsoc, storage) {
     'use strict';
     var gBatchCountMissing;
+    var gBatchOpBase;
     var gBoardsCount;
     var gBootsCount;
     var gDateRange;
@@ -25,7 +26,11 @@ require([
     var gSessionStorage;
     var gSocsTable;
 
-    document.getElementById('li-soc').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-soc').setAttribute('class', 'active');
+    }, 15);
+
+    gBatchOpBase = 'mach=';
     gDateRange = appconst.MAX_DATE_RANGE;
     gBootsCount = {};
     gBoardsCount = {};
@@ -110,23 +115,23 @@ require([
     function getBootsCount(response) {
         var batchOps;
         var deferred;
-        var soc;
-        var queryStr;
+
+        function createBatchOp(value) {
+            var soc = value.mach;
+            var query = gBatchOpBase;
+            query += soc;
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boots-count-' + soc,
+                resource: 'count',
+                document: 'boot',
+                query: query
+            });
+        }
 
         if (response.length > 0) {
             batchOps = [];
-            queryStr = 'mach=';
-
-            response.forEach(function(value) {
-                soc = value.mach;
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'boots-count-' + soc,
-                    resource: 'count',
-                    document: 'boot',
-                    query: queryStr + soc
-                });
-            });
+            response.forEach(createBatchOp);
 
             deferred = request.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -171,23 +176,23 @@ require([
     function getLabsCount(response) {
         var batchOps;
         var deferred;
-        var soc;
-        var queryStr;
+
+        function createBatchOp(value) {
+            var soc = value.mach;
+            var query = gBatchOpBase;
+            query += soc;
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'labs-count-' + soc,
+                resource: 'boot',
+                distinct: 'lab_name',
+                query: query
+            });
+        }
 
         if (response.length > 0) {
             batchOps = [];
-            queryStr = 'mach=';
-
-            response.forEach(function(value) {
-                soc = value.mach;
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'labs-count-' + soc,
-                    resource: 'boot',
-                    distinct: 'lab_name',
-                    query: queryStr + soc
-                });
-            });
+            response.forEach(createBatchOp);
 
             deferred = request.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -232,23 +237,24 @@ require([
     function getBoardsCount(response) {
         var batchOps;
         var deferred;
-        var soc;
-        var queryStr;
+
+        function createBatchOp(value) {
+            var soc = value.mach;
+            var query = gBatchOpBase;
+
+            query += soc;
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'boards-count-' + soc,
+                resource: 'boot',
+                distinct: 'board',
+                query: query
+            });
+        }
 
         if (response.length > 0) {
             batchOps = [];
-            queryStr = 'mach=';
-
-            response.forEach(function(value) {
-                soc = value.mach;
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'boards-count-' + soc,
-                    resource: 'boot',
-                    distinct: 'board',
-                    query: queryStr + soc
-                });
-            });
+            response.forEach(createBatchOp);
 
             deferred = request.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -423,11 +429,11 @@ require([
             results = results.map(_toObject);
         }
 
-        setTimeout(getSocsDone.bind(null, results), 0);
-        setTimeout(getBoardsCount.bind(null, results), 0);
-        setTimeout(getBootsCount.bind(null, results), 0);
-        setTimeout(getLabsCount.bind(null, results), 0);
-        setTimeout(enableSearch, 0);
+        setTimeout(getSocsDone.bind(null, results), 25);
+        setTimeout(getBoardsCount.bind(null, results), 75);
+        setTimeout(getBootsCount.bind(null, results), 100);
+        setTimeout(getLabsCount.bind(null, results), 125);
+        setTimeout(enableSearch, 175);
     }
 
     function getSocsFail() {
@@ -487,8 +493,9 @@ require([
         tableDivId: 'table-div',
         tableLoadingDivId: 'table-loading'
     });
-    setTimeout(getSocs, 0);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(getSocs, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

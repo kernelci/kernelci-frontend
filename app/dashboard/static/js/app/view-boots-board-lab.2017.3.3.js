@@ -19,7 +19,7 @@ require([
 
     setTimeout(function() {
         document.getElementById('li-boot').setAttribute('class', 'active');
-    }, 0);
+    }, 15);
 
     function getBootsFail() {
         html.removeElement(

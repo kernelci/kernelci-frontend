@@ -16,7 +16,10 @@ require([
     var gPageLen;
     var gSearchFilter;
 
-    document.getElementById('li-job').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-job').setAttribute('class', 'active');
+    }, 15);
+
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
@@ -26,17 +29,17 @@ require([
     }
 
     function getBatchCountDone(response) {
-        var bResult;
         var results;
+
+        function parseBatchData(data) {
+            html.replaceContent(
+                document.getElementById(data.operation_id),
+                document.createTextNode(data.result[0].count));
+        }
 
         results = response[0].result;
         if (results.length > 0) {
-            results.forEach(function(result) {
-                bResult = result.result[0];
-                html.replaceContent(
-                    document.getElementById(result.operation_id),
-                    document.createTextNode(bResult.count));
-            });
+            results.forEach(parseBatchData);
         }
 
         // Perform the table search now, after completing all operations.
@@ -47,16 +50,24 @@ require([
 
     function getBatchCount(response) {
         var batchOps;
+        var branch;
         var deferred;
         var job;
         var kernel;
         var queryStr;
         var results;
 
-        function _createOp(result) {
+        function createBatchOp(result) {
             job = result.job;
             kernel = result.kernel;
-            queryStr = 'job=' + job + '&kernel=' + kernel;
+            branch = result.git_branch;
+
+            queryStr = 'job=';
+            queryStr += job;
+            queryStr += '&kernel=';
+            queryStr += kernel;
+            queryStr += '&git_branch=';
+            queryStr += branch;
 
             // Get total build count.
             batchOps.push({
@@ -135,7 +146,7 @@ require([
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
-            results.forEach(_createOp);
+            results.forEach(createBatchOp);
 
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -190,15 +201,20 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type) {
-            return jobt.renderDetails('/job/' + data + '/', type);
+            var href = '/job/';
+            href += data;
+            href += '/';
+            return jobt.renderDetails(href, type);
         }
 
         /**
          * Wrapper to provide the href.
         **/
         function _renderBootCount(data, type) {
-            return jobt.renderTableBootCount(
-                data, type, '/boot/all/job/' + data + '/');
+            var href = '/boot/all/job/';
+            href += data;
+            href += '/';
+            return jobt.renderTableBootCount(data, type, href);
         }
 
         results = response.result;
@@ -326,8 +342,9 @@ require([
         tableDivId: 'table-div',
         tableLoadingDivId: 'table-loading'
     });
-    setTimeout(getJobs, 0);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(getJobs, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });

@@ -73,9 +73,8 @@ class JobsJobBranchView(GeneralJobsView):
         old_branch_name = kwargs["branch"]
         branch_name = old_branch_name.replace(":", "/")
 
-        body_title = (
-            "Details for &#171;%s&#187; <small>"
-            "(branch %s)</small>" % (job, branch_name))
+        body_title = "Details for &#171;%s&#187; <small>(%s)</small>" % (
+            job, branch_name)
         body_title += self.RSS_LINK % \
             ("/job/" + job + "/branch/" + old_branch_name + "/feed.xml")
 

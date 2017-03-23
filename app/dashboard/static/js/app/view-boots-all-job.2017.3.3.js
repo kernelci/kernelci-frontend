@@ -11,14 +11,16 @@ require([
     'utils/const'
 ], function($, init, format, e, r, table, html, tboot, appconst) {
     'use strict';
-    var gBootsTable,
-        gJobName,
-        gNumberRange,
-        gPageLen,
-        gSearchFilter,
-        gTableCount;
+    var gBootsTable;
+    var gJobName;
+    var gNumberRange;
+    var gPageLen;
+    var gSearchFilter;
+    var gTableCount;
 
-    document.getElementById('li-boot').setAttribute('class', 'active');
+    setTimeout(function() {
+        document.getElementById('li-boot').setAttribute('class', 'active');
+    }, 15);
 
     gNumberRange = appconst.MAX_NUMBER_RANGE;
     gPageLen = null;
@@ -33,9 +35,9 @@ require([
     }
 
     function getDetailsCountDone(response) {
-        var boardsCount,
-            reportsCount,
-            results;
+        var boardsCount;
+        var reportsCount;
+        var results;
 
         results = response.result;
         reportsCount = 0;
@@ -60,8 +62,8 @@ require([
     }
 
     function getDetailsCount() {
-        var batchQueries,
-            deferred;
+        var batchQueries;
+        var deferred;
 
         batchQueries = [];
         batchQueries.push({
@@ -79,11 +81,13 @@ require([
             query: 'job=' + gJobName + '&aggregate=board&field=board'
         });
 
-        deferred = r.post(
-            '/_ajax/batch', JSON.stringify({batch: batchQueries}));
-        $.when(deferred)
-            .fail(e.error, getDetailsCountFail)
-            .done(getDetailsCountDone);
+        setTimeout(function() {
+            deferred = r.post(
+                '/_ajax/batch', JSON.stringify({batch: batchQueries}));
+            $.when(deferred)
+                .fail(e.error, getDetailsCountFail)
+                .done(getDetailsCountDone);
+        }, 25);
     }
 
     function getBootsCountFail() {
@@ -125,11 +129,11 @@ require([
     }
 
     function getBootsCount(response) {
-        var batchOps,
-            deferred,
-            kernel,
-            queryStr,
-            results;
+        var batchOps;
+        var deferred;
+        var kernel;
+        var queryStr;
+        var results;
 
         function _createOp(result) {
             kernel = result.kernel;
@@ -178,11 +182,13 @@ require([
             batchOps = [];
             results.forEach(_createOp);
 
-            deferred = r.post(
-                '/_ajax/batch', JSON.stringify({batch: batchOps}));
-            $.when(deferred)
-                .fail(e.error, getBootsCountFail)
-                .done(getBootsCountDone);
+            setTimeout(function() {
+                deferred = r.post(
+                    '/_ajax/batch', JSON.stringify({batch: batchOps}));
+                $.when(deferred)
+                    .fail(e.error, getBootsCountFail)
+                    .done(getBootsCountDone);
+            }, 25);
         }
     }
 
@@ -205,9 +211,9 @@ require([
     }
 
     function getBootsDone(response) {
-        var columns,
-            results,
-            rowURLFmt;
+        var columns;
+        var results;
+        var rowURLFmt;
 
         /**
          * Wrapper to provide the sort value.
@@ -260,8 +266,13 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No board data found'));
         } else {
-            rowURLFmt = '/boot/all/job/%(job)s/kernel/%(kernel)s/';
+            rowURLFmt = '/boot/all/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/';
             columns = [
+                {
+                    data: 'git_branch',
+                    title: 'Branch',
+                    type: 'string'
+                },
                 {
                     data: 'kernel',
                     title: 'Kernel',
@@ -316,9 +327,9 @@ require([
             gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([5, 'desc'])
+                .order([6, 'desc'])
                 .rowURL(rowURLFmt)
-                .rowURLElements(['job', 'kernel'])
+                .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
                 .draw();
@@ -336,7 +347,7 @@ require([
                 sort: 'created_on',
                 sort_order: -1,
                 limit: gNumberRange,
-                field: ['job', 'kernel', 'created_on']
+                field: ['job', 'git_branch', 'kernel', 'created_on']
             }
         );
         $.when(deferred)
@@ -362,9 +373,10 @@ require([
         tableId: 'boots-table',
         tableLoadingDivId: 'table-loading'
     });
-    getDetailsCount();
-    getBoots();
 
-    init.hotkeys();
-    init.tooltip();
+    getDetailsCount();
+    setTimeout(getBoots, 10);
+
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });
