@@ -17,10 +17,11 @@ require.config({
         'd3': 'lib/d3-3.5.16',
         'datatables.net': 'lib/jquery.dataTables-1.10.11',
         'datatables.bootstrap': 'lib/dataTables.bootstrap-1.10.11',
-        'URI': 'lib/URI-1.17.0',
-        'punycode': 'lib/punycode-1.17.0',
-        'IPv6': 'lib/IPv6-1.17.0',
-        'SecondLevelDomains': 'lib/SecondLevelDomains-1.17.0'
+        'URI': 'lib/URI-1.18.9',
+        'punycode': 'lib/punycode-1.18.9',
+        'IPv6': 'lib/IPv6-1.18.9',
+        'SecondLevelDomains': 'lib/SecondLevelDomains-1.18.9'
+        // 'URI': 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.9/URI.min',
     },
     map: {
         '*': {
@@ -56,7 +57,12 @@ require.config({
             'app/view-socs-soc-job-kernel': 'app/view-socs-soc-job-kernel.2016.6',
             'app/view-sponsors': 'app/view-sponsors.2016.6',
             'app/view-stats': 'app/view-stats.2016.6'
-        }
+        },
+        // 'URI': {
+        //     'punycode': 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.9/punycode.js',
+        //     'IPv6': 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.9/IPv6.js',
+        //     'SecondLevelDomains': 'https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.9/SecondLevelDomains.js'
+        // }
     },
     shim: {
         'bootstrap': {
