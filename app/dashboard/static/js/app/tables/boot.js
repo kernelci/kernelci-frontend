@@ -146,13 +146,13 @@ define([
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as a string.
     **/
-    gBootUtils.countFail = function(kernel, type) {
+    gBootUtils.countFail = function(data, type) {
         var node;
         var rendered;
 
         rendered = null;
         if (type === 'display') {
-            node = tcommon.countBadge(kernel, 'fail');
+            node = tcommon.countBadge(data, 'fail');
             rendered = node.outerHTML;
             // Remove the node.
             node.remove();

@@ -4,8 +4,8 @@ define([
     'tables/common'
 ], function(html, tcommon) {
     'use strict';
-    var gJobUtils,
-        gStatusDefaults;
+    var gJobUtils;
+    var gStatusDefaults;
 
     gJobUtils = {};
 
@@ -14,6 +14,18 @@ define([
         build: 'Building',
         fail: 'Build failed',
         default: 'Unknown status'
+    };
+
+    gJobUtils.renderBootCount = function(settings) {
+        settings.extraClasses = ['extra-margin'];
+        settings.idStart = 'boot-';
+        return tcommon.countAll(settings);
+    };
+
+    gJobUtils.renderBuildCount = function(settings) {
+        settings.extraClasses = ['extra-margin'];
+        settings.idStart = 'build-';
+        return tcommon.countAll(settings);
     };
 
     /**
@@ -53,12 +65,13 @@ define([
     /**
      * Function to render the tree column on a table.
      *
-     * @param {object} job: The name of the tree/job.
+     * @param {object} data: The name of the tree/job.
      * @param {string} type: The type of the display option.
+     * @param {String} href The URL for the link node.
      * @return {string} The rendered element as a string.
     **/
-    gJobUtils.renderTree = function(tree, type) {
-        return tcommon.renderTree(tree, type, '/job/' + tree + '/');
+    gJobUtils.renderTree = function(data, type, href) {
+        return tcommon.renderTree(data, type, href);
     };
 
     /**
