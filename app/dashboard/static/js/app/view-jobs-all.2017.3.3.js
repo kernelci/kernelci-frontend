@@ -54,7 +54,10 @@ require([
         var deferred;
         var job;
         var kernel;
-        var queryStr;
+        var opId;
+        var opIdTail;
+        var qHead;
+        var qStr;
         var results;
 
         function createBatchOp(result) {
@@ -62,84 +65,115 @@ require([
             kernel = result.kernel;
             branch = result.git_branch;
 
-            queryStr = 'job=';
-            queryStr += job;
-            queryStr += '&kernel=';
-            queryStr += kernel;
-            queryStr += '&git_branch=';
-            queryStr += branch;
+            qStr = 'job=';
+            qStr += job;
+            qStr += '&kernel=';
+            qStr += kernel;
+            qStr += '&git_branch=';
+            qStr += branch;
+
+            opIdTail = job;
+            opIdTail += '-';
+            opIdTail += branch;
 
             // Get total build count.
+            opId = 'build-total-count-';
+            opId += opIdTail;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-total-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: queryStr
+                query: qStr
             });
 
             // Get successful build count.
+            opId = 'build-success-count-';
+            opId += opIdTail;
+            qHead = 'status=PASS&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-success-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=PASS&' + queryStr
+                query: qHead
             });
 
             // Get failed build count.
+            opId = 'build-fail-count-';
+            opId += opIdTail;
+            qHead = 'status=FAIL&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-fail-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=FAIL&' + queryStr
+                query: qHead
             });
 
             // Get unknown build count.
+            opId = 'build-unknown-count-';
+            opId += opIdTail;
+            qHead = 'status=UNKNOWN&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-unknown-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=UNKNOWN&' + queryStr
+                query: qHead
             });
 
             // Get total boot reports count.
+            opId = 'boot-total-count-';
+            opId += opIdTail;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-total-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: queryStr
+                query: qStr
             });
 
             // Get successful boot reports count.
+            opId = 'boot-success-count-';
+            opId += opIdTail;
+            qHead = 'status=PASS&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-success-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=PASS&' + queryStr
+                query: qHead
             });
 
             // Get failed boot reports count.
+            opId = 'boot-fail-count-';
+            opId += opIdTail;
+            qHead = 'status=FAIL&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-fail-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=FAIL&' + queryStr
+                query: qHead
             });
 
             // Get unknown boot reports count.
+            opId = 'boot-unknown-count-';
+            opId += opIdTail;
+            qHead = 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-unknown-count-' + job,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&' +
-                    queryStr
+                query: qHead
             });
         }
 
@@ -200,9 +234,11 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderDetails(data, type) {
+        function _renderDetails(data, type, object) {
             var href = '/job/';
             href += data;
+            href += '/branch/';
+            href += object.git_branch;
             href += '/';
             return jobt.renderDetails(href, type);
         }
@@ -210,11 +246,51 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderBootCount(data, type) {
-            var href = '/boot/all/job/';
+        function _renderBootCount(data, type, object) {
+            var href;
+            var nodeId;
+
+            href = '/boot/all/job/';
             href += data;
             href += '/';
-            return jobt.renderTableBootCount(data, type, href);
+
+            nodeId = data;
+            nodeId += '-';
+            nodeId += object.git_branch;
+            return jobt.renderBootCount({
+                data: nodeId,
+                type: type,
+                href: href
+            });
+        }
+
+        function _renderBuildCount(data, type, object) {
+            var href;
+            var nodeId;
+
+            href = '/build/';
+            href += data;
+            href += '/';
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/kernel/';
+            href += object.kernel;
+
+            nodeId = data;
+            nodeId += '-';
+            nodeId += object.git_branch;
+            return jobt.renderBuildCount({
+                data: nodeId,
+                type: type,
+                href: href
+            });
+        }
+
+        function _renderTree(data, type) {
+            var href = '/job/';
+            href += data;
+            href += '/';
+            return jobt.renderTree(data, type, href);
         }
 
         results = response.result;
@@ -229,7 +305,8 @@ require([
                     data: 'job',
                     title: 'Tree',
                     type: 'string',
-                    render: jobt.renderTree
+                    className: 'tree-column',
+                    render: _renderTree
                 },
                 {
                     data: 'git_branch',
@@ -244,7 +321,7 @@ require([
                     searchable: false,
                     orderable: false,
                     className: 'pull-center',
-                    render: jobt.renderTableBuildCount
+                    render: _renderBuildCount
                 },
                 {
                     data: 'job',
@@ -285,8 +362,8 @@ require([
                 .columns(columns)
                 .order([4, 'desc'])
                 .languageLengthMenu('jobs per page')
-                .rowURL('/job/%(job)s/')
-                .rowURLElements(['job'])
+                .rowURL('/job/%(job)s/branch/%(git_branch)s/')
+                .rowURLElements(['job', 'git_branch'])
                 .draw();
         }
     }
@@ -312,7 +389,7 @@ require([
         var deferred;
 
         data = {
-            aggregate: 'job',
+            aggregate: ['job', 'git_branch'],
             sort: 'created_on',
             sort_order: -1,
             date_range: gDateRange,
