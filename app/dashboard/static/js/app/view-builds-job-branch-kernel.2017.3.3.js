@@ -35,7 +35,7 @@ require([
 
     setTimeout(function() {
         document.getElementById('li-build').setAttribute('class', 'active');
-    }, 0);
+    }, 15);
 
     function bindDetailButtons() {
         Array.prototype.forEach.call(
@@ -733,6 +733,7 @@ require([
         var job;
         var kernel;
         var results;
+        var smallNode;
         var spanNode;
         var tURLs;
         var tooltipNode;
@@ -754,7 +755,8 @@ require([
             spanNode = document.createElement('span');
             spanNode.appendChild(document.createTextNode(kernel));
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
-            spanNode.appendChild(document.createTextNode('(' + branch + ')'));
+            smallNode = spanNode.appendChild(document.createElement('small'));
+            smallNode.appendChild(document.createTextNode('(' + branch + ')'));
 
             html.replaceContent(
                 document.getElementById('kernel-title'), spanNode);
@@ -1195,9 +1197,9 @@ require([
     gSessionStorage = storage(gStorageName);
     gResultFilter = filter('data-filter');
 
-    setTimeout(registerEvents, 0);
-    setTimeout(getJob.bind(null, gTree, gBranch, gKernel), 0);
+    setTimeout(getJob.bind(null, gTree, gBranch, gKernel), 10);
+    setTimeout(registerEvents, 25);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout( init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });
