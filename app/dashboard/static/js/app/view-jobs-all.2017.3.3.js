@@ -270,7 +270,6 @@ require([
 
             href = '/build/';
             href += data;
-            href += '/';
             href += '/branch/';
             href += object.git_branch;
             href += '/kernel/';
