@@ -252,6 +252,10 @@ require([
 
             href = '/boot/all/job/';
             href += data;
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/kernel/';
+            href += object.kernel;
             href += '/';
 
             nodeId = data;
@@ -274,6 +278,7 @@ require([
             href += object.git_branch;
             href += '/kernel/';
             href += object.kernel;
+            href += '/';
 
             nodeId = data;
             nodeId += '-';
