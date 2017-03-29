@@ -31,7 +31,7 @@ from flask_wtf.csrf import (
 from flask_cache import Cache
 from werkzeug.routing import BaseConverter
 
-__version__ = "2017.3.3"
+__version__ = "2017.3.4"
 __versionfull__ = __version__
 
 CSRF_TOKEN_H = "X-Csrftoken"
