@@ -313,6 +313,30 @@ require([
             }
         }
 
+        function _renderBranch(data, type, object) {
+            var rendered;
+            var aNode;
+            var str;
+
+            rendered = data;
+            if (type === 'display') {
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                str = '/boot/all/job/';
+                str += object.job;
+                str += '/branch/';
+                str += data;
+                str += '/';
+                aNode.setAttribute('href', str);
+
+                aNode.appendChild(document.createTextNode(data));
+                rendered = aNode.outerHTML;
+
+                aNode.remove();
+            }
+            return rendered;
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -325,7 +349,9 @@ require([
                 {
                     data: 'git_branch',
                     title: 'Branch',
-                    type: 'string'
+                    type: 'string',
+                    className: 'branch-column',
+                    render: _renderBranch
                 },
                 {
                     data: 'kernel',
