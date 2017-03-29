@@ -64,21 +64,28 @@ require([
     function getDetailsCount() {
         var batchQueries;
         var deferred;
+        var qStr;
 
         batchQueries = [];
+
+        qStr = 'job=';
+        qStr += gJobName;
         batchQueries.push({
             method: 'GET',
             operation_id: 'boot-reports-count',
             resource: 'count',
             document: 'boot',
-            query: 'job=' + gJobName
+            query: qStr
         });
 
+        qStr = 'job=';
+        qStr += gJobName;
+        qStr += '&aggregate=board&field=board';
         batchQueries.push({
             method: 'GET',
             operation_id: 'boot-boards-count',
             resource: 'boot',
-            query: 'job=' + gJobName + '&aggregate=board&field=board'
+            query: qStr
         });
 
         setTimeout(function() {
@@ -87,7 +94,7 @@ require([
             $.when(deferred)
                 .fail(e.error, getDetailsCountFail)
                 .done(getDetailsCountDone);
-        }, 25);
+        }, 50);
     }
 
     function getBootsCountFail() {
@@ -131,49 +138,72 @@ require([
     function getBootsCount(response) {
         var batchOps;
         var deferred;
-        var kernel;
+        var opId;
+        var opIdTail;
+        var qHead;
         var queryStr;
         var results;
 
         function _createOp(result) {
-            kernel = result.kernel;
-            queryStr = 'job=' + gJobName + '&kernel=' + kernel;
+            queryStr = 'job=';
+            queryStr += gJobName;
+            queryStr += '&kernel=';
+            queryStr += result.kernel;
+            queryStr += '&git_branch=';
+            queryStr += result.git_branch;
+
+            opIdTail = result.kernel;
+            opIdTail += '-';
+            opIdTail += result.git_branch;
 
             // Get the total count.
+            opId = 'total-count-';
+            opId += opIdTail;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'total-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
                 query: queryStr
             });
 
             // Get the success count.
+            opId = 'success-count-';
+            opId += opIdTail;
+            qHead = 'status=PASS&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'success-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=PASS&' + queryStr
+                query: qHead
             });
 
             // Get the fail count.
+            opId = 'fail-count-';
+            opId += opIdTail;
+            qHead = 'status=FAIL&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'fail-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=FAIL&' + queryStr
+                query: qHead
             });
 
             // Get the other count.
+            opId = 'unknown-count-';
+            opId += opIdTail;
+            qHead = 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'unknown-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&' +
-                    queryStr
+                query: qHead
             });
         }
 
@@ -218,44 +248,68 @@ require([
         /**
          * Wrapper to provide the sort value.
         **/
-        function _countTotal(data, type) {
+        function _countTotal(data, type, object) {
+            var key;
             if (type === 'sort') {
-                return getSortCount('total-count-' + data);
+                key = 'total-count-';
+                key += data;
+                return getSortCount(key);
             } else {
-                return tboot.countTotal(data, type);
+                key = data;
+                key += '-';
+                key += object.git_branch;
+                return tboot.countTotal(key, type);
             }
         }
 
         /**
          * Wrapper to provide the sort value.
         **/
-        function _countSuccessful(data, type) {
+        function _countSuccessful(data, type, object) {
+            var key;
             if (type === 'sort') {
-                return getSortCount('success-count-' + data);
+                key = 'success-count-';
+                key += data;
+                return getSortCount(key);
             } else {
-                return tboot.countSuccess(data, type);
+                key = data;
+                key += '-';
+                key += object.git_branch;
+                return tboot.countSuccess(key, type);
             }
         }
 
         /**
          * Wrapper to provide the sort value.
         **/
-        function _countFailed(data, type) {
+        function _countFailed(data, type, object) {
+            var key;
             if (type === 'sort') {
-                return getSortCount('fail-count-' + data);
+                key = 'fail-count-';
+                key += data;
+                return getSortCount(key);
             } else {
-                return tboot.countFail(data, type);
+                key = data;
+                key += '-';
+                key += object.git_branch;
+                return tboot.countFail(key, type);
             }
         }
 
         /**
          * Wrapper to provide the sort value.
         **/
-        function _countUnknown(data, type) {
+        function _countUnknown(data, type, object) {
+            var key;
             if (type === 'sort') {
-                return getSortCount('unknown-count-' + data);
+                key = 'unknown-count-';
+                key += data;
+                return getSortCount(key);
             } else {
-                return tboot.countUnknown(data, type);
+                key = data;
+                key += '-';
+                key += object.git_branch;
+                return tboot.countUnknown(key, type);
             }
         }
 
@@ -342,7 +396,7 @@ require([
         deferred = r.get(
             '/_ajax/boot',
             {
-                aggregate: 'kernel',
+                aggregate: ['kernel', 'git_branch'],
                 job: gJobName,
                 sort: 'created_on',
                 sort_order: -1,
@@ -374,8 +428,8 @@ require([
         tableLoadingDivId: 'table-loading'
     });
 
-    getDetailsCount();
     setTimeout(getBoots, 10);
+    setTimeout(getDetailsCount, 10);
 
     setTimeout(init.hotkeys, 50);
     setTimeout(init.tooltip, 50);
