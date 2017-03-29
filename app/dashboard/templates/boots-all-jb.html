@@ -1,0 +1,66 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+<link href="/boot/all/job/{{ job_name }}/feed.xml" rel="alternate" title="Recent Changes - Atom Feed" type="application/atom+xml">
+{%- endblock %}
+{%- block content %}
+{%- include "number-range.html" %}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+        <ul class="list-group">
+            <li class="list-group-item">
+                Total boot reports
+                <span class="badge">
+                    <span id="boot-reports-count">
+                        <small>
+                            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                        </small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
+                Total unique boards
+                <span class="badge">
+                    <span id="boot-boards-count">
+                        <small>
+                            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                        </small>
+                    </span>
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h4>Kernels Tested</h4>
+        </div>
+        <div id="table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;retrieving boot data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="boots-table">
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="job-name" value="{{job}}">
+<input type="hidden" id="branch-name" value="{{branch}}">
+<input type="hidden" id="page-len" value="{{page_len}}">
+<input type="hidden" id="search-filter" value="{{ search_filter }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-boots-all-jb" src="/static/js/lib/require.js"></script>
+{%- endblock %}
