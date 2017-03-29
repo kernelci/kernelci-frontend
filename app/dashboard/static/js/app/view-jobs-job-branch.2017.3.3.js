@@ -104,8 +104,12 @@ require([
                 lDateRange = Math.round((firstDate - lastDate) / 86400000);
             }
 
-            getBuildsStats(firstDate.toCustomISODate(), lDateRange);
-            getBootStats(firstDate.toCustomISODate(), lDateRange);
+            setTimeout(function() {
+                getBuildsStats(firstDate.toCustomISODate(), lDateRange);
+            }, 25);
+            setTimeout(function() {
+                getBootStats(firstDate.toCustomISODate(), lDateRange);
+            }, 25);
         } else {
             html.replaceContent(
                 document.getElementById('build-pass-rate'),
@@ -145,8 +149,10 @@ require([
         var batchOps;
         var deferred;
         var kernel;
-        var results;
+        var opId;
+        var qHead;
         var queryStr;
+        var results;
 
         function createBatchOp(result) {
             kernel = result.kernel;
@@ -158,75 +164,103 @@ require([
             queryStr += gBranchName;
 
             // Get total build count.
+            opId = 'build-total-count-';
+            opId += kernel;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-total-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
                 query: queryStr
             });
 
             // Get the successful build count.
+            opId = 'build-success-count-';
+            opId += kernel;
+            qHead = 'status=PASS&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-success-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=PASS&' + queryStr
+                query: qHead
             });
 
             // Get failed build count.
+            opId = 'build-fail-count-';
+            opId += kernel;
+            qHead = 'status=FAIL&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-fail-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=FAIL&' + queryStr
+                query: qHead
             });
 
             // Get unknown build count.
+            opId = 'build-unknown-count-';
+            opId += kernel;
+            qHead = 'status=UNKNOWN&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'build-unknown-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: 'status=UNKNOWN&' + queryStr
+                query: qHead
             });
 
             // Get total boot reports count.
+            opId = 'boot-total-count-';
+            opId += kernel;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-total-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
                 query: queryStr
             });
 
             // Get successful boot reports count.
+            opId = 'boot-success-count-';
+            opId += kernel;
+            qHead = 'status=PASS&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-success-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=PASS&' + queryStr
+                query: qHead
             });
 
             // Get failed boot reports count.
+            opId = 'boot-fail-count-';
+            opId += kernel;
+            qHead = 'status=FAIL&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-fail-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=FAIL&' + queryStr
+                query: qHead
             });
 
             // Get unknown boot reports count.
+            opId = 'boot-unknown-count-';
+            opId += kernel;
+            qHead = 'status=OFFLINE&status=UNTRIED&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-unknown-count-' + kernel,
+                operation_id: opId,
                 resource: 'count',
                 document: 'boot',
-                query: 'status=OFFLINE&status=UNTRIED&' + queryStr
+                query: qHead
             });
         }
 
@@ -314,7 +348,12 @@ require([
             href += gBranchName;
             href += '/kernel/';
             href += data;
-            return jobt.renderTableBootCount(data, type, href);
+            href += '/';
+            return jobt.renderBootCount({data: data, type: type, href: href});
+        }
+
+        function _renderBuildCount(data, type) {
+            return jobt.renderBuildCount({data: data, type: type});
         }
 
         /**
@@ -357,7 +396,7 @@ require([
                     title: _buildColumTitle(),
                     type: 'string',
                     className: 'build-count pull-center',
-                    render: jobt.renderTableBuildCount
+                    render: _renderBuildCount
                 },
                 {
                     data: 'kernel',
@@ -389,7 +428,8 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .languageLengthMenu('builds per page')
-                .rowURLElements(['job', 'kernel'])
+                .rowURL('/build/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
+                .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
                 .draw();
@@ -415,7 +455,12 @@ require([
             sort_order: -1,
             limit: gNumberRange,
             field: [
-                'job', 'kernel', 'created_on', 'git_commit', 'git_url'
+                'created_on',
+                'git_branch',
+                'git_commit',
+                'git_url',
+                'job',
+                'kernel'
             ]
         };
 
@@ -534,8 +579,8 @@ require([
         tableDivId: 'table-div'
     });
 
-    setTimeout(getDetails, 10);
     setTimeout(getBuilds, 10);
+    setTimeout(getDetails, 50);
 
     setTimeout(init.hotkeys, 50);
     setTimeout(init.tooltip, 50);
