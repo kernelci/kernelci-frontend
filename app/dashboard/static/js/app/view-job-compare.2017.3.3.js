@@ -97,6 +97,13 @@ require([
             return rendered;
         }
 
+        function _renderTree(data, type) {
+            var href = '/job/';
+            href += data;
+            href += '/';
+            return jobt.renderTree(data, type, href);
+        }
+
         dom = '<"row"' +
             '<"col-xs-12 col-sm-12 col-md-12 col-lg-12"t>>';
         rowURL = '/build/%(job)s/kernel/%(kernel)s/';
@@ -107,7 +114,7 @@ require([
                 title: 'Tree',
                 type: 'string',
                 className: 'tree-column',
-                render: jobt.renderTree
+                render: _renderTree
             },
             {
                 data: 'git_branch',
