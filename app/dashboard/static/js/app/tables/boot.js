@@ -459,7 +459,10 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderDetails = function(data, type) {
-        return tcommon.renderDetails('/boot/id/' + data.$oid + '/', type);
+        var href = '/boot/id/';
+        href += data.$oid;
+        href += '/';
+        return tcommon.renderDetails(href, type);
     };
 
     /**
