@@ -8,10 +8,13 @@ require([
     'utils/html',
     'utils/const',
     'tables/job',
+    'utils/format',
     'utils/date'
-], function($, init, e, r, table, html, appconst, jobt) {
+], function($, init, e, r, table, html, appconst, jobt, format) {
     'use strict';
+    var gBatchCountMissing;
     var gDateRange;
+    var gDrawEventBound;
     var gJobsTable;
     var gPageLen;
     var gSearchFilter;
@@ -20,9 +23,54 @@ require([
         document.getElementById('li-job').setAttribute('class', 'active');
     }, 15);
 
+    // Used to check if the table draw event function has already been bound.
+    // In order not to bind it multiple times.
+    gDrawEventBound = false;
+    gBatchCountMissing = {};
+
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
+
+    function updateOrStageCount(opId, count) {
+        var element;
+
+        element = document.getElementById(opId);
+        // If we do not have the element in the DOM, it means dataTables has
+        // yet to add it.
+        if (element) {
+            html.replaceContent(
+                element, document.createTextNode(format.number(count)));
+
+            // Check if the data structure holding the data to update the
+            // elements still holds the element.
+            if (gBatchCountMissing.hasOwnProperty(opId)) {
+                delete gBatchCountMissing[opId];
+            }
+        } else {
+            // Store it in a dictionary for later access.
+            if (!gBatchCountMissing.hasOwnProperty(opId)) {
+                gBatchCountMissing[opId] = count;
+            }
+        }
+    }
+
+    /**
+     * Function to be bound to the draw event of the table.
+     * This is done to update dynamic elements that are not yet available
+     * in the DOM due to the derefer rendering of dataTables.
+    **/
+    function updateJobsTable() {
+        var key;
+
+        if (Object.keys(gBatchCountMissing).length > 0) {
+            for (key in gBatchCountMissing) {
+                if (gBatchCountMissing.hasOwnProperty(key)) {
+                    updateOrStageCount(key, gBatchCountMissing[key]);
+                }
+            }
+        }
+    }
 
     function getBatchCountFail() {
         html.replaceByClass('count-badge', '&infin;');
@@ -32,14 +80,17 @@ require([
         var results;
 
         function parseBatchData(data) {
-            html.replaceContent(
-                document.getElementById(data.operation_id),
-                document.createTextNode(data.result[0].count));
+            updateOrStageCount(
+                data.operation_id, parseInt(data.result[0].count, 10));
         }
 
         results = response[0].result;
         if (results.length > 0) {
             results.forEach(parseBatchData);
+            if (!gDrawEventBound) {
+                gDrawEventBound = true;
+                gJobsTable.addDrawEvent(updateJobsTable);
+            }
         }
 
         // Perform the table search now, after completing all operations.
