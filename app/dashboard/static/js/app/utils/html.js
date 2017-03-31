@@ -263,7 +263,7 @@ define([
                     _cleanElementChildren(element);
                     element.insertAdjacentHTML('beforeend', replacement);
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceAllBySelectorTxt = function(selector, txt) {
@@ -274,7 +274,7 @@ define([
                     _cleanElementChildren(element);
                     element.appendChild(document.createTextNode(txt));
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceAllBySelector = function(selector, content) {
@@ -285,7 +285,7 @@ define([
                     _cleanElementChildren(element);
                     element.insertAdjacentHTML('beforeend', content);
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceByClassHTML = function(className, replacement) {
@@ -296,7 +296,7 @@ define([
                     _cleanElementChildren(element);
                     element.insertAdjacentHTML('beforeend', replacement);
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceByClassTxt = function(className, txt) {
@@ -307,7 +307,7 @@ define([
                     _cleanElementChildren(element);
                     element.appendChild(document.createTextNode(txt));
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceByClass = function(className, content) {
@@ -318,7 +318,7 @@ define([
                     _cleanElementChildren(element);
                     element.insertAdjacentHTML('beforeend', content);
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceByClassNode = function(className, child) {
@@ -329,7 +329,7 @@ define([
                     _cleanElementChildren(element);
                     element.appendChild(child.cloneNode(true));
                 });
-        }, 0);
+        }, 5);
     };
 
     html.replaceContent = function(element, child) {
@@ -338,7 +338,7 @@ define([
                 _cleanElementChildren(element);
                 element.appendChild(child);
             }
-        }, 0);
+        }, 5);
     };
 
     html.replaceContentHTML = function(element, replacement) {
@@ -347,7 +347,7 @@ define([
                 _cleanElementChildren(element);
                 element.insertAdjacentHTML('beforeend', replacement);
             }
-        }, 0);
+        }, 5);
     };
 
     /**
@@ -361,7 +361,7 @@ define([
                 document.getElementsByClassName(className),
                 _cleanElementChildren
             );
-        }, 0);
+        }, 5);
     };
 
     /**
@@ -442,7 +442,7 @@ define([
             if (element) {
                 _removeClass(element, className);
             }
-        }, 0);
+        }, 5);
     };
 
     html.removeClasses = function(element, classes) {
@@ -452,7 +452,7 @@ define([
                     _removeClass(element, className);
                 });
             }
-        }, 0);
+        }, 5);
     };
 
     /**
@@ -494,7 +494,7 @@ define([
             if (element && element.parentElement) {
                 element.parentElement.removeChild(element);
             }
-        }, 0);
+        }, 5);
     };
 
     html.sliceText = function(text, max) {
