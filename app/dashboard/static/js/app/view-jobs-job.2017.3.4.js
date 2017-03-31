@@ -341,6 +341,8 @@ require([
 
             href = '/boot/all/job/';
             href += gJobName;
+            href += '/branch/';
+            href += object.git_branch;
             href += '/kernel/';
             href += data;
 
