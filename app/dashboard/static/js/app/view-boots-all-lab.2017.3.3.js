@@ -103,7 +103,10 @@ require([
         var results;
 
         function _renderTree(data, type) {
-            return tboot.renderTree(data, type, '/boot/all/job/' + data + '/');
+            var href = '/boot/all/job/';
+            href += data;
+            href += '/';
+            return tboot.renderTree(data, type, href);
         }
 
         results = response.result;
@@ -114,12 +117,6 @@ require([
                 html.errorDiv('No data found.'));
         } else {
             columns = [
-                {
-                    data: '_id',
-                    visible: false,
-                    searchable: false,
-                    orderable: false
-                },
                 {
                     data: 'job',
                     title: 'Tree',
@@ -172,7 +169,7 @@ require([
                     render: tboot.renderStatus
                 },
                 {
-                    data: 'board',
+                    data: '_id',
                     title: '',
                     type: 'string',
                     orderable: false,
@@ -185,7 +182,7 @@ require([
             gBootsTable
                 .data(results)
                 .columns(columns)
-                .order([7, 'desc'])
+                .order([6, 'desc'])
                 .languageLengthMenu('boot reports per page')
                 .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
