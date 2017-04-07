@@ -1,13 +1,21 @@
 /*! Kernel CI Dashboard | Licensed under the GNU GPL v3 (or later) */
 define([
-    'sprintf',
     'utils/git-rules',
     'URI'
-], function(p, gitRules, URI) {
+], function(gitRules, URI) {
     'use strict';
     var urls;
 
     urls = {};
+
+    if (!String.format) {
+        String.format = function(format) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            return format.replace(/{(\d+)}/g, function(match, number) {
+                return typeof args[number] !== null ? args[number] : match;
+          });
+        };
+    }
 
     /**
      * Concatenate the path and extra path to create a full URL.
@@ -77,25 +85,26 @@ define([
         return translatedURL;
     };
 
-    /*
+    /**
         Return a list with:
         0. The base git URL
         1. The git commit URL
     */
     urls.translateCommit = function(url, sha) {
-        var bURL,
-            cURL,
-            hostName,
-            knownGit,
-            parser,
-            urlPath;
+        var baseUrl;
+        var commitUrl;
+        var hostName;
+        var rule;
+        var parser;
+        var urlPath;
+        var commitPath;
 
         function replaceRule(value) {
             urlPath = urlPath.replace(value[0], value[1]);
         }
 
-        bURL = null;
-        cURL = null;
+        baseUrl = null;
+        commitUrl = null;
         if (url && sha) {
             parser = new URI(url);
             hostName = parser.hostname();
@@ -103,26 +112,33 @@ define([
 
             // Perform translation only if we know the host.
             if (gitRules.hasOwnProperty(hostName)) {
-                knownGit = gitRules[hostName];
+                rule = gitRules[hostName];
 
-                knownGit[3].forEach(replaceRule);
+                rule[3].forEach(replaceRule);
 
-                bURL = new URI({
-                    protocol: knownGit[0],
+                if (rule[4]) {
+                    hostName = rule[4];
+                }
+
+                baseUrl = new URI({
+                    protocol: rule[0],
                     hostname: hostName,
-                    path: p.sprintf(knownGit[1], urlPath)
-                });
-                cURL = new URI({
-                    protocol: knownGit[0],
-                    hostname: hostName,
-                    path: p.sprintf(knownGit[2], urlPath) + sha
+                    path: String.format(rule[1], urlPath)
                 });
 
-                bURL = bURL.href();
-                cURL = cURL.href();
+                commitPath = String.format(rule[2], urlPath);
+                commitPath += sha;
+                commitUrl = new URI({
+                    protocol: rule[0],
+                    hostname: hostName,
+                    path: commitPath
+                });
+
+                baseUrl = baseUrl.href();
+                commitUrl = commitUrl.href();
             }
         }
-        return [bURL, cURL];
+        return [baseUrl, commitUrl];
     };
 
     return urls;
