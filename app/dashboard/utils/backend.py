@@ -1,3 +1,4 @@
+# Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -87,7 +88,7 @@ def extract_gzip_data(data, headers):
     return json_data
 
 
-@app.cache.memoize(timeout=60*60*6)
+@app.cache.memoize(timeout=60 * 60 * 6)
 def _is_mobile_browser(platform, user_agent):
     """Wrapper to make the function cachable.
 
@@ -187,7 +188,7 @@ def today_date():
     return datetime.date.today().strftime("%a, %d %b %Y")
 
 
-@app.cache.memoize(timeout=60*60*6)
+@app.cache.memoize(timeout=60 * 60 * 6)
 def create_url(api_path):
     """Create the complete URL to the API backend.
 
@@ -407,7 +408,7 @@ def ajax_batch_post(request, api_path, timeout=None):
     return data, status_code, headers.items()
 
 
-@app.cache.memoize(timeout=60*60*8)
+@app.cache.memoize(timeout=60 * 60 * 8)
 def get_version():
     """Get the backend API version."""
     url = create_url(CONFIG_GET("VERSION_API_ENDPOINT"))
