@@ -1015,7 +1015,7 @@ require([
             docFrag = document.createDocumentFragment();
             aNode = docFrag.appendChild(document.createElement('a'));
             aNode.setAttribute(
-                'href', u.getHref(serverURI, [pathURI, dtb, '/'])
+                'href', u.getHref(serverURI, [pathURI, dtb])
             );
             aNode.appendChild(document.createTextNode(dtb));
             aNode.insertAdjacentHTML('beforeend', '&nbsp;');
