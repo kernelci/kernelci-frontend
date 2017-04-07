@@ -1,0 +1,7 @@
+# Kernel CI Frontend
+
+Data visualization tool/dashboard for the kernel-ci-backend.
+
+# Installation
+
+See the [INSTALL](./INSTALL.md) file.

@@ -1,5 +1,4 @@
-Installation
-============
+# Installation
 
 Requirements are defined in the requirements.txt file.
 
@@ -10,8 +9,7 @@ Once installed, to run the Flask application:
 
 It will bind to localhost:5000
 
-Configuration
-=============
+# Configuration
 
 There is a default file with configuration parameters located at:
 
@@ -25,8 +23,7 @@ the following env variable that points to it:
 The important parameter to define, at this moment, is the BACKEND_URL, that
 should point to the server:port running the backend REST API.
 
-Installation via Ansible
-========================
+# Installation via Ansible
 
 To locally deploy the frontend using ansible, move into the `ansible` directory
 and run:
