@@ -42,7 +42,7 @@ require.config({
     map: {
         '*': {
             'app/view-boot-compare': 'app/view-boot-compare.2017.4',
-            'app/view-boots-all': 'app/view-boots-all.2017.3.3',
+            'app/view-boots-all': 'app/view-boots-all.2017.5',
             'app/view-boots-all-jb': 'app/view-boots-all-jb.2017.3.4',
             'app/view-boots-all-job': 'app/view-boots-all-job.2017.3.4',
             'app/view-boots-all-job-branch-kernel': 'app/view-boots-all-job-branch-kernel.2017.4',
@@ -59,7 +59,7 @@ require.config({
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2017.4',
             'app/view-boots-regressions': 'app/view-boots-regressions.2017.3.3',
             'app/view-build-compare': 'app/view-build-compare.2017.4',
-            'app/view-builds-all': 'app/view-builds-all.2017.3.3',
+            'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2017.4',
             'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2017.4',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2017.4',
