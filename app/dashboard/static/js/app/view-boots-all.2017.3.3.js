@@ -27,7 +27,7 @@ require([
     'tables/boot'
 ], function($, init, e, r, table, html, appconst, tboot) {
     'use strict';
-    var gBootReqData;
+    var gBootSearchFields;
     var gBootsTable;
     var gDateRange;
     var gPageLen;
@@ -40,6 +40,18 @@ require([
     gSearchFilter = null;
     gPageLen = null;
     gDateRange = appconst.MAX_DATE_RANGE;
+    gBootSearchFields = [
+        '_id',
+        'arch',
+        'board',
+        'created_on',
+        'defconfig_full',
+        'git_branch',
+        'job',
+        'kernel',
+        'lab_name',
+        'status'
+    ];
 
     /**
      * Update the table with the new data.
@@ -51,7 +63,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 35);
+            setTimeout(gBootsTable.addRows.bind(gBootsTable, results), 25);
         }
 
         // Remove the loading banner when we get the last response.
@@ -72,6 +84,7 @@ require([
         var docFrag;
         var iNode;
         var idx;
+        var lBootReqData;
         var resTotal;
         var spanNode;
         var totalReq;
@@ -101,8 +114,15 @@ require([
 
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
-                gBootReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                setTimeout(getData.bind(null, gBootReqData), 25);
+                lBootReqData = {
+                    sort: 'created_on',
+                    sort_order: -1,
+                    date_range: gDateRange,
+                    limit: appconst.MAX_QUERY_LIMIT,
+                    fields: gBootSearchFields,
+                    skip: appconst.MAX_QUERY_LIMIT * idx
+                };
+                setTimeout(getData.bind(null, lBootReqData), 25);
             }
         }
     }
@@ -224,7 +244,15 @@ require([
     }
 
     function getBoots() {
-        $.when(r.get('/_ajax/boot', gBootReqData))
+        var reqData;
+        reqData = {
+            sort: 'created_on',
+            sort_order: -1,
+            date_range: gDateRange,
+            limit: appconst.MAX_QUERY_LIMIT,
+            fields: gBootSearchFields
+        };
+        $.when(r.get('/_ajax/boot', reqData))
             .fail(e.error, getBootsFail)
             .done(getBootsDone, getMoreBoots);
     }
@@ -238,26 +266,6 @@ require([
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
     }
-
-    // Hold the data for the boot request. Global since it can be reused.
-    gBootReqData = {
-        date_range: gDateRange,
-        limit: appconst.MAX_QUERY_LIMIT,
-        sort: 'created_on',
-        sort_order: -1,
-        fields: [
-            '_id',
-            'arch',
-            'board',
-            'created_on',
-            'defconfig_full',
-            'git_branch',
-            'job',
-            'kernel',
-            'lab_name',
-            'status'
-        ]
-    };
 
     gBootsTable = table({
         tableId: 'bootstable',

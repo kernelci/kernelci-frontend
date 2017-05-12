@@ -28,8 +28,9 @@ require([
     'utils/date'
 ], function($, init, e, r, table, html, appconst, buildt) {
     'use strict';
-    var gBuildsTable;
     var gBuildReqData;
+    var gBuildSearchFields;
+    var gBuildsTable;
     var gDateRange;
     var gPageLen;
     var gSearchFilter;
@@ -42,6 +43,16 @@ require([
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = null;
     gSearchFilter = null;
+    gBuildSearchFields = [
+        '_id',
+        'arch',
+        'created_on',
+        'defconfig_full',
+        'git_branch',
+        'job',
+        'kernel',
+        'status'
+    ];
 
     /**
      * Update the table with the new data.
@@ -74,6 +85,7 @@ require([
         var docFrag;
         var iNode;
         var idx;
+        var lBuildReqData;
         var resTotal;
         var spanNode;
         var totalReq;
@@ -103,8 +115,15 @@ require([
 
             // Starting at 1 since we already got the first batch of results.
             for (idx = 1; idx <= totalReq; idx = idx + 1) {
-                gBuildReqData.skip = appconst.MAX_QUERY_LIMIT * idx;
-                setTimeout(getData.bind(null, gBuildReqData), 25);
+                lBuildReqData = {
+                    sort: 'created_on',
+                    sort_order: -1,
+                    date_range: gDateRange,
+                    limit: appconst.MAX_QUERY_LIMIT,
+                    field: gBuildSearchFields,
+                    skip: appconst.MAX_QUERY_LIMIT * idx
+                };
+                setTimeout(getData.bind(null, lBuildReqData), 25);
             }
         }
     }
@@ -219,10 +238,15 @@ require([
     }
 
     function getBuilds() {
-        var deferred;
-
-        deferred = r.get('/_ajax/build', gBuildReqData);
-        $.when(deferred)
+        var reqData;
+        reqData = {
+            sort: 'created_on',
+            sort_order: -1,
+            date_range: gDateRange,
+            limit: appconst.MAX_QUERY_LIMIT,
+            field: gBuildSearchFields
+        };
+        $.when(r.get('/_ajax/build', reqData))
             .fail(e.error, getBuildsFail)
             .done(getBuildsDone, getMoreBuilds);
     }
@@ -236,23 +260,6 @@ require([
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
     }
-
-    gBuildReqData = {
-        sort: 'created_on',
-        sort_order: -1,
-        date_range: gDateRange,
-        limit: appconst.MAX_QUERY_LIMIT,
-        field: [
-            '_id',
-            'arch',
-            'created_on',
-            'defconfig_full',
-            'git_branch',
-            'job',
-            'kernel',
-            'status'
-        ]
-    };
 
     gBuildsTable = table({
         tableId: 'builds-table',
