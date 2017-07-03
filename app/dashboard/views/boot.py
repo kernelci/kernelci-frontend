@@ -264,11 +264,12 @@ class BootLab(BootGeneralView):
     def dispatch_request(self, **kwargs):
 
         lab_name = kwargs["lab_name"]
-        body_title = (
+        common_title = (
             "Boot reports for lab&nbsp;&#171;%s&#187;" % lab_name)
-        body_title += \
-            self.RSS_LINK % ("/boot/all/lab/" + lab_name + "/feed.xml")
-        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, body_title)
+
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, common_title)
+        body_title = common_title + self.RSS_LINK % (
+            "/boot/all/lab/" + lab_name + "/feed.xml")
 
         search_filter, page_len = get_search_parameters(request)
 
