@@ -61,7 +61,7 @@ require.config({
             'app/view-build-compare': 'app/view-build-compare.2017.4',
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2017.4',
-            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2017.4',
+            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2017.7.1',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2017.4',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2017.3.3',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.2017.4',
