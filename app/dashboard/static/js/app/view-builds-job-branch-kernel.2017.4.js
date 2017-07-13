@@ -721,6 +721,7 @@ require([
                     job: results.job,
                     job_id: results._id.$oid,
                     kernel: results.kernel,
+                    git_branch: results.git_branch,
                     sort: ['defconfig_full', 'arch'],
                     sort_order: 1,
                     nfield: ['dtb_dir_data']
@@ -1080,7 +1081,7 @@ require([
 
         data = {
             job: job,
-            branch: branch
+            git_branch: branch
         };
 
         if (kernel) {
