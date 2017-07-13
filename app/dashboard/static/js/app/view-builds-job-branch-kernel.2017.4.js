@@ -1218,6 +1218,6 @@ require([
     setTimeout(getJob.bind(null, gTree, gBranch, gKernel), 10);
     setTimeout(registerEvents, 25);
 
-    setTimeout( init.hotkeys, 50);
+    setTimeout(init.hotkeys, 50);
     setTimeout(init.tooltip, 50);
 });
