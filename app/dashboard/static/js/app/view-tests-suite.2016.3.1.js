@@ -13,12 +13,11 @@ require([
     var gTestSuite;
     var gTestSuiteID;
     var gTestSetsTable;
+    var gTestCasesTable;
     var gBatchOpBase;
     var gBatchCountMissing;
     var gCasesCount;
     var gDrawEventBound;
-
-
 
     document.getElementById('li-test').setAttribute('class', 'active');
 
@@ -53,6 +52,132 @@ require([
             }
         }
     }
+
+/**
+ *  This block is related to getTestCases
+**/
+    // TODO: implement the cases count results
+    function getCasesResultsCount() {
+        console.log('getCasesResultsCount: not implemented yet');
+        html.replaceByClassHTML('cases-count-results-badge', '&infin;');
+    }
+
+    function getTestCasesFail() {
+        // TODO
+        console.error('getTestCasesFail: nothing to print');
+    }
+
+    function getTestCasesDone(response) {
+        var results;
+        var columns;
+
+        // TODO: fix this
+        function _renderDetails(data, type, object) {
+            var href;
+
+            href = '/test/suite/' +
+                object.test_suite_name + '/case/' + object.name + '/' +
+                data.$oid + '/';
+            return ttestset.renderDetails(href, type);
+        }
+
+        // TODO: Print success / fail Test Cases using filter
+        function _renderTestCasesCount(data, type) {
+            var rendered;
+
+            rendered = null;
+            if (type === 'display') {
+                rendered = ttestset.countBadge({
+                    data: data,
+                    type: 'default',
+                    idStart: 'cases-',
+                    extraClasses: ['cases-count-results-badge']
+                });
+            } else {
+                rendered = NaN;
+            }
+
+            return rendered;
+
+        }
+
+        results = response.result;
+        if (results.length > 0) {
+            gTestCasesTable = table({
+                tableId: 'test-cases-table',
+                tableDivId: 'test-cases-table-div'
+            });
+
+            columns = [
+                {
+                    data: 'name',
+                    title: 'Name',
+                    type: 'string'
+                },
+                // TODO: update this view
+                {
+                    data: 'name',
+                    title: 'Latest results',
+                    type: 'num',
+                    searchable: false,
+                    className: 'pull-center',
+                    render: _renderTestCasesCount
+                },
+                {
+                    data: 'created_on',
+                    title: 'Date',
+                    type: 'date',
+                    className: 'pull-center',
+                    render: ttestset.renderDate
+                },
+                {
+                    data: '_id',
+                    title: '',
+                    type: 'string',
+                    searchable: false,
+                    orderable: false,
+                    className: 'select-column pull-center',
+                    render: _renderDetails
+                }
+            ];
+
+            gTestCasesTable
+                .data(results)
+                .columns(columns)
+                .lengthMenu([10, 25, 50, 75, 100])
+                .order([2, 'asc'])
+                .languageLengthMenu('Test cases per page')
+                .draw();
+
+            setTimeout(getCasesResultsCount.bind(null, results), 25);
+        } else {
+            html.replaceContent(
+                document.getElementById('test-cases'),
+                html.errorDiv('No test cases available.'));
+        }
+    }
+
+    function getTestCases(response) {
+        var data;
+        var deferred;
+
+        data = {
+            test_suite_id: gTestSuiteID
+        };
+
+        deferred = request.get('/_ajax/test/case', data);
+        $.when(deferred)
+            .fail(error.error, getTestCasesFail)
+            .done(getTestCasesDone);
+    }
+
+/**
+ *  End of block
+**/
+
+/**
+ *  This block is related to getTestSets
+**/
 
     /**
      * Function to be bound to the draw event of the table.
@@ -92,7 +217,6 @@ require([
         }
 
         results = response.result;
-        console.log('getCasesCountDone: results: %o', results);
         if (results.length > 0) {
             results.forEach(_updateCasesCount);
             if (!gDrawEventBound) {
@@ -108,6 +232,7 @@ require([
         var batchOps;
         var deferred;
 
+        console.log('getCasesCountDone: response: %o', response);
         function createBatchOp(value) {
             var set = value.name;
             var query = gBatchOpBase;
@@ -244,7 +369,13 @@ require([
             .fail(error.error, getTestSetsFail)
             .done(getTestSetsDone);
     }
+/**
+ *  End of block
+**/
 
+/**
+ * This block is related to getCounts
+**/
     function getCountsFail() {
         html.replaceByClass('count-list-badge', '&infin;');
     }
@@ -260,8 +391,7 @@ require([
         });
     }
 
-    // TODO: It seems this is printing to much information, and some of them are random
-
+    // TODO: It seems this is printing to much information, and some of them are random (verify)
     function getCounts() {
         var batchOps;
         var deferred;
@@ -322,12 +452,20 @@ require([
             .done(getCountsDone)
             .fail(error.error, getCountsFail);
     }
+/**
+ *  End of block
+**/
+
 
     function getTestSuiteParse(response) {
         gTestSuiteID = response.result[0]._id.$oid;
-
+        // TODO: use timeouts for function calls: setTimeout
+        // Update the "count-*" IDs
         getCounts();
+        // Update the test-set ID
         getTestSets(response);
+        // Update the test-case ID
+        getTestCases(response);
     }
 
     function getTestSuiteFail() {
@@ -353,12 +491,9 @@ require([
             .fail(error.error, getTestSuiteFail);
     }
 
-    // TODO: use timeouts for function calls: setTimeout
-
     gTestSuite = document.getElementById('test-suite');
     if (gTestSuite) {
         gTestSuite = gTestSuite.value;
-
         getTestSuiteInfo();
     }
 
