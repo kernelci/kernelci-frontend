@@ -71,13 +71,9 @@ require([
         var results;
         var columns;
 
-        // TODO: fix this
         function _renderDetails(data, type, object) {
             var href;
-
-            href = '/test/suite/' +
-                object.test_suite_name + '/case/' + object.name + '/' +
-                data.$oid + '/';
+            href = '/test/case/id/' + data.$oid + '/';
             return ttestset.renderDetails(href, type);
         }
 
@@ -112,7 +108,8 @@ require([
                 {
                     data: 'name',
                     title: 'Name',
-                    type: 'string'
+                    type: 'string',
+                    render: ttestset.renderTestCase
                 },
                 // TODO: update this view
                 {
@@ -142,6 +139,8 @@ require([
             ];
 
             gTestCasesTable
+                .rowURL('/test/case/%(name)s/')
+                .rowURLElements(['name'])
                 .data(results)
                 .columns(columns)
                 .lengthMenu([10, 25, 50, 75, 100])
@@ -271,13 +270,9 @@ require([
         var results;
         var columns;
 
-        // TODO: fix this
         function _renderDetails(data, type, object) {
             var href;
-
-            href = '/test/suite/' +
-                object.test_suite_name + '/set/' + object.name + '/' +
-                data.$oid + '/';
+            href = '/test/set/id/' + data.$oid + '/';
             return ttestset.renderDetails(href, type);
         }
 
@@ -312,7 +307,8 @@ require([
                 {
                     data: 'name',
                     title: 'Name',
-                    type: 'string'
+                    type: 'string',
+                    render: ttestset.renderTestSet
                 },
                 {
                     data: 'name',
@@ -341,6 +337,8 @@ require([
             ];
 
             gTestSetsTable
+                .rowURL('/test/set/%(name)s/')
+                .rowURLElements(['name'])
                 .data(results)
                 .columns(columns)
                 .lengthMenu([10, 25, 50, 75, 100])
