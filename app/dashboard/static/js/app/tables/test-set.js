@@ -15,5 +15,12 @@ define([
         return tcommon.renderDetails(href, type, title);
     };
 
+
+    gTestSetTable.countBadge = function(settings) {
+        return tcommon.countBadge(
+            settings.data,
+            settings.type, settings.extraClasses, settings.idStart).outerHTML;
+    };
+
     return gTestSetTable;
 });

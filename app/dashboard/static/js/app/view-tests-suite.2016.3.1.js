@@ -2,26 +2,151 @@
 require([
     'jquery',
     'utils/init',
+    'utils/format',
     'utils/html',
     'utils/error',
     'utils/request',
     'utils/table',
     'tables/test-set'
-], function($, init, html, err, request, table, ttestset) {
+], function($, init, format, html, error, request, table, ttestset) {
     'use strict';
     var gTestSuite;
+    var gTestSuiteID;
     var gTestSetsTable;
+    var gBatchOpBase;
+    var gBatchCountMissing;
+    var gCasesCount;
+    var gDrawEventBound;
+
+
 
     document.getElementById('li-test').setAttribute('class', 'active');
 
+    gBatchOpBase = 'test_set_id=';
+    gBatchCountMissing = {};
+    gCasesCount = {};
+    // Used to check if the table draw event function has already been bound.
+    // In order not to bind it multiple times.
+    gDrawEventBound = false;
+
+    function updateOrStageCount(opId, count) {
+        var element;
+
+        console.log('updateOrStageCount: opId: %o, count: %o', opId, count);
+
+        element = document.getElementById(opId);
+        // If we do not have the element in the DOM, it means dataTables has
+        // yet to add it.
+        if (element) {
+            html.replaceContent(
+                element, document.createTextNode(format.number(count)));
+
+            // Check if the data structure holding the data to update the
+            // elements still holds the element.
+            if (gBatchCountMissing.hasOwnProperty(opId)) {
+                delete gBatchCountMissing[opId];
+            }
+        } else {
+            // Store it in a dictionary for later access.
+            if (!gBatchCountMissing.hasOwnProperty(opId)) {
+                gBatchCountMissing[opId] = count;
+            }
+        }
+    }
+
+    /**
+     * Function to be bound to the draw event of the table.
+     * This is done to update dynamic elements that are not yet available
+     * in the DOM due to the derefer rendering of dataTables.
+    **/
+    function updateSetsTable() {
+        var key;
+
+        if (Object.keys(gBatchCountMissing).length > 0) {
+            for (key in gBatchCountMissing) {
+                if (gBatchCountMissing.hasOwnProperty(key)) {
+                    updateOrStageCount(key, gBatchCountMissing[key]);
+                }
+            }
+        }
+    }
+
+    function getCasesCountFail() {
+        console.error('getCasesCountFail: nothing to print');
+        html.replaceByClassHTML('cases-count-badge', '&infin;');
+    }
+
+    function getCasesCountDone(response) {
+        var results;
+
+        // Internally used to parse the results.
+        function _updateCasesCount(result) {
+            var count;
+            var opId;
+
+            count = parseInt(result.result[0].count, 10);
+            opId = result.operation_id;
+            gCasesCount[opId] = count;
+
+            updateOrStageCount(opId, count);
+        }
+
+        results = response.result;
+        console.log('getCasesCountDone: results: %o', results);
+        if (results.length > 0) {
+            results.forEach(_updateCasesCount);
+            if (!gDrawEventBound) {
+                gDrawEventBound = true;
+                gTestSetsTable.addDrawEvent(updateSetsTable);
+            }
+        } else {
+            html.replaceByClassTxt('cases-count-badge', '?');
+        }
+    }
+
+    function getCasesCount(response) {
+        var batchOps;
+        var deferred;
+
+        function createBatchOp(value) {
+            var set = value.name;
+            var query = gBatchOpBase;
+            query += value._id.$oid;
+            console.log('createBatchOp: query: %s', query);
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'cases-count-' + set,
+                resource: 'count',
+                document: 'test_case',
+                query: query
+            });
+        }
+
+        if (response.length > 0) {
+            console.log('Creating batch ops');
+
+            batchOps = [];
+            response.forEach(createBatchOp);
+
+            deferred = request.post(
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+            $.when(deferred)
+                .fail(error.error, getCasesCountFail)
+                .done(getCasesCountDone);
+        }
+    }
+
     function getTestSetsFail() {
         // TODO
+        console.error('getTestSetsFail: nothing to print');
     }
 
     function getTestSetsDone(response) {
         var results;
         var columns;
 
+        // TODO: fix this
         function _renderDetails(data, type, object) {
             var href;
 
@@ -31,19 +156,28 @@ require([
             return ttestset.renderDetails(href, type);
         }
 
+        // TODO: Print success / fail Test Cases using filter
         function _renderTestCasesCount(data, type) {
-            if (type === 'sort') {
-                return data.length;
-            } else if (type === 'display') {
-                // TODO
+            var rendered;
+
+            rendered = null;
+            if (type === 'display') {
+                rendered = ttestset.countBadge({
+                    data: data,
+                    type: 'default',
+                    idStart: 'cases-',
+                    extraClasses: ['cases-count-badge']
+                });
+            } else {
+                rendered = NaN;
             }
+
+            return rendered;
+
         }
 
         results = response.result;
         if (results.length > 0) {
-            // TODO
-            console.log(results);
-
             gTestSetsTable = table({
                 tableId: 'test-sets-table',
                 tableDivId: 'test-sets-table-div'
@@ -56,9 +190,10 @@ require([
                     type: 'string'
                 },
                 {
-                    data: 'test_case',
+                    data: 'name',
                     title: 'Total Test Cases',
                     type: 'num',
+                    searchable: false,
                     className: 'pull-center',
                     render: _renderTestCasesCount
                 },
@@ -87,6 +222,8 @@ require([
                 .order([2, 'asc'])
                 .languageLengthMenu('Test sets per page')
                 .draw();
+
+            setTimeout(getCasesCount.bind(null, results), 25);
         } else {
             html.replaceContent(
                 document.getElementById('test-sets'),
@@ -94,18 +231,18 @@ require([
         }
     }
 
-    function getTestSets() {
+    function getTestSets(response) {
         var data;
         var deferred;
 
         data = {
-            test_suite_name: gTestSuite
+            test_suite_id: gTestSuiteID
         };
 
         deferred = request.get('/_ajax/test/set', data);
         $.when(deferred)
-            .done(getTestSetsDone)
-            .fail(err.error, getTestSetsFail);
+            .fail(error.error, getTestSetsFail)
+            .done(getTestSetsDone);
     }
 
     function getCountsFail() {
@@ -123,13 +260,17 @@ require([
         });
     }
 
+    // TODO: It seems this is printing to much information, and some of them are random
+
     function getCounts() {
         var batchOps;
         var deferred;
         var queryStr;
 
+        console.log('Test suite ID: %o', gTestSuiteID);
+
         batchOps = [];
-        queryStr = 'test_suite_name=' + gTestSuite;
+        queryStr = 'test_suite_id=' + gTestSuiteID;
 
         batchOps.push({
             method: 'GET',
@@ -179,15 +320,46 @@ require([
 
         $.when(deferred)
             .done(getCountsDone)
-            .fail(err.error, getCountsFail);
+            .fail(error.error, getCountsFail);
     }
+
+    function getTestSuiteParse(response) {
+        gTestSuiteID = response.result[0]._id.$oid;
+
+        getCounts();
+        getTestSets(response);
+    }
+
+    function getTestSuiteFail() {
+        // TODO
+        console.error('getTestSuiteFail: nothing to print');
+    }
+
+    /**
+     * Get the test suite data from the test suite name
+     *
+    **/
+    function getTestSuiteInfo() {
+        var data;
+        var deferred;
+
+        data = {
+            name: gTestSuite
+        };
+
+        deferred = request.get('/_ajax/test/suite', data);
+        $.when(deferred)
+            .done(getTestSuiteParse)
+            .fail(error.error, getTestSuiteFail);
+    }
+
+    // TODO: use timeouts for function calls: setTimeout
 
     gTestSuite = document.getElementById('test-suite');
     if (gTestSuite) {
         gTestSuite = gTestSuite.value;
 
-        getCounts();
-        getTestSets();
+        getTestSuiteInfo();
     }
 
     init.hotkeys();
