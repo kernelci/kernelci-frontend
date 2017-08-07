@@ -20,38 +20,35 @@ from flask import (
 )
 from flask.views import View
 
-import dashboard.utils.backend as backend
-
-DISTINCT_SUITE_NAMES_URL = "{:s}/distinct/name/".format(
-    app.config.get("TEST_SUITE_API_ENDPOINT"))
-PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+from dashboard.utils.backend import get_search_parameters
 
 
 class TestGenericView(View):
 
-    TESTS_PAGE_TITLE = "{:s} {:s}".format(PAGE_TITLE, "Tests Reports")
+    PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
+    TESTS_PAGE_TITLE = "%s &mdash; %s" % (PAGE_TITLE, "Tests Reports")
+    RSS_LINK = (
+        "<span class=\"rss-feed\">" +
+        "<a href=\"%s\" title=\"Recent Changes - Atom Feed\">" +
+        "<i class=\"fa fa-rss\"></i></a><span>"
+    )
 
 
 class TestsAllView(TestGenericView):
 
     def dispatch_request(self):
-
         body_title = "Available Test Suite Reports"
+        search_filter, page_len = get_search_parameters(request)
 
-        data, status, headers = backend.request_get(
-            backend.create_url(DISTINCT_SUITE_NAMES_URL), timeout=60*5)
-
-        if status == 200:
-            json_data = backend.extract_gzip_data(data, headers)
-
-            return render_template(
-                "tests-all.html",
-                page_title=self.TESTS_PAGE_TITLE,
-                body_title=body_title,
-                test_suites=json_data["result"]
-            )
-        else:
-            abort(status)
+        return render_template(
+            "base-all.html",
+            table_id="tests-table",
+            data_main="kci-tests-all",
+            body_title=body_title,
+            page_len=page_len,
+            page_title=self.TESTS_PAGE_TITLE,
+            search_filter=search_filter
+        )
 
 
 class TestSuiteView(TestGenericView):

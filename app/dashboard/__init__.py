@@ -318,6 +318,9 @@ def ajax_compare(doc_id, api):
     "/_ajax/<string:resource>/distinct/<string:field>/", methods=["GET"])
 def ajax_distinct(resource, field):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+        # Workaround because the backend uses /test/suite/...
+        if (resource == "suite"):
+            resource = "test/suite"
         return backend.ajax_get(
             request, "/%s/distinct" % resource, doc_id=field, timeout=60 * 30)
     else:
