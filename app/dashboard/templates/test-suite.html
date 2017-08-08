@@ -19,9 +19,17 @@
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <ul class="list-group">
             <li class="list-group-item">
+                Total unique suites
+                <span class="badge">
+                    <span id="count-suites" class="count-list-badge">
+                        <small><i class="fa fa-cog fa-spin"></i></small>
+                    </span>
+                </span>
+            </li>
+            <li class="list-group-item">
                 Total test sets
                 <span class="badge">
-                    <span id="count-test-sets" class="count-list-badge">
+                    <span id="count-sets" class="count-list-badge">
                         <small><i class="fa fa-cog fa-spin"></i></small>
                     </span>
                 </span>
@@ -29,7 +37,7 @@
             <li class="list-group-item">
                 Total test cases
                 <span class="badge">
-                    <span id="count-test-cases" class="count-list-badge">
+                    <span id="count-cases" class="count-list-badge">
                         <small><i class="fa fa-cog fa-spin"></i></small>
                     </span>
                 </span>
@@ -38,14 +46,6 @@
                 Total unique builds
                 <span class="badge">
                     <span id="count-builds" class="count-list-badge">
-                        <small><i class="fa fa-cog fa-spin"></i></small>
-                    </span>
-                </span>
-            </li>
-            <li class="list-group-item">
-                Total unique boots
-                <span class="badge">
-                    <span id="count-boots" class="count-list-badge">
                         <small><i class="fa fa-cog fa-spin"></i></small>
                     </span>
                 </span>
@@ -64,15 +64,20 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Test Sets</h3>
+            <h3>Available Boards</h3>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="test-sets">
-        <div id="test-sets-table-div">
-            <table id="test-sets-table"
-                class="table table-hover table-striped table-condensed clickable-table big-table">
+        <div id="boards-table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                &nbsp;retrieving board data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="boards-table-div">
+    {%- else %}
+        <div class="table" id="boards-table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="boards-table">
             </table>
         </div>
     </div>
@@ -80,20 +85,27 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Test Cases</h3>
+            <h3>Available Test Sets</h3>
         </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="test-cases">
-        <div id="test-cases-table-div">
-            <table id="test-cases-table"
-                class="table table-hover table-striped table-condensed clickable-table big-table">
+        <div id="sets-table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                &nbsp;retrieving sets data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="sets-table-div">
+    {%- else %}
+        <div class="table" id="sets-table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="sets-table">
             </table>
         </div>
     </div>
 </div>
-<input type="hidden" id="test-suite" value="{{ suite }}">
+<input type="hidden" id="suite" value="{{ suite }}">
+<input type="hidden" id="search-filter" value="{{ search_filter }}">
+<input type="hidden" id="page-len" value="{{ page_len }}">
 {%- endblock %}{# content block #}
 {%- block scripts %}
 <script data-main="/static/js/kci-tests-suite" src="/static/js/lib/require.js"></script>

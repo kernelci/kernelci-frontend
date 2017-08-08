@@ -122,11 +122,24 @@ define([
         return tcommon.renderDetails(href, type, title);
     };
 
-
     gTestTable.countBadge = function(settings) {
         return tcommon.countBadge(
             settings.data,
             settings.type, settings.extraClasses, settings.idStart).outerHTML;
+    };
+
+    gTestTable.renderCasesCount = function(data, type, href) {
+        return tcommon.countAll({
+            data: data,
+            type: type,
+            href: href,
+            extraClasses: ['extra-margin'],
+            idStart: 'cases-'
+        });
+    };
+
+   gTestTable.renderTree = function(tree, type, href) {
+        return tcommon.renderTree(tree, type, href);
     };
 
     return gTestTable;

@@ -56,11 +56,19 @@ class TestSuiteView(TestGenericView):
     def dispatch_request(self, **kwargs):
         suite = kwargs["suite"]
 
-        page_title = "{:s} &mdash; {:s} Test Suite".format(PAGE_TITLE, suite)
-        body_title = "Test Suite &#171;{:s}&#187;".format(suite)
+        body_title = "Details for test suite &#171;%s&#187;" % suite
+        body_title += self.RSS_LINK % ("/suite/" + suite + "/feed.xml")
+
+        page_title = "%s test" % suite
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
+
+        search_filter, page_len = get_search_parameters(request)
+
         return render_template(
             "test-suite.html",
-            page_title=page_title,
             body_title=body_title,
+            page_len=page_len,
+            page_title=page_title,
+            search_filter=search_filter,
             suite=suite
         )
