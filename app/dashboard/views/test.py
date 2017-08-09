@@ -65,7 +65,7 @@ class TestBoardView(TestGenericView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "test-board.html",
+            "tests-board.html",
             body_title=body_title,
             page_len=page_len,
             page_title=page_title,
@@ -90,11 +90,32 @@ class TestBoardJobView(TestGenericView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "test-board-job.html",
+            "tests-board-job.html",
             body_title=body_title,
             page_len=page_len,
             page_title=page_title,
             search_filter=search_filter,
             board=board,
             job=job
+        )
+
+
+class TestBoardJobKernelView(TestGenericView):
+    def dispatch_request(self, **kwargs):
+        board = kwargs["board"]
+        job = kwargs["job"]
+        kernel = kwargs["kernel"]
+
+        body_title = (
+            "Details for Tree &#171;%s&#187; - %s" % (job, kernel))
+        page_title = "%s tests: %s - %s" % (board, job, kernel)
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
+
+        return render_template(
+            "tests-board-job-kernel.html",
+            body_title=body_title,
+            page_title=page_title,
+            board=board,
+            job=job,
+            kernel=kernel
         )

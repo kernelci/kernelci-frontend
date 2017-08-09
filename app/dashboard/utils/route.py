@@ -369,3 +369,10 @@ def init():
         view_func=vtest.TestBoardJobView.as_view("tests-board-job-view"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/test/board/<string:board>/job/<string:job>/kernel/<string:kernel>/",
+        view_func=vtest.TestBoardJobKernelView.
+        as_view("tests-board-job-kernel-view"),
+        methods=["GET"]
+    )
