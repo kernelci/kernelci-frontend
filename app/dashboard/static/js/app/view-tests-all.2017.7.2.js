@@ -35,8 +35,8 @@ require([
     var gSearchFilter;
     var gPageLen;
     var gTestsTable;
-    var gSetsCount;
-    var gCasesCount;
+    var gSuitesCount;
+    var gLabsCount;
     var gBatchOpBase;
     var gBatchCountMissing;
     var gDrawEventBound;
@@ -46,9 +46,9 @@ require([
     }, 15);
 
     gDateRange = appconst.MAX_DATE_RANGE;
-    gSetsCount = {};
-    gCasesCount = {};
-    gBatchOpBase = 'test_suite_name=';
+    gSuitesCount = {};
+    gLabsCount = {};
+    gBatchOpBase = 'board=';
     gBatchCountMissing = {};
     // Used to check if the table draw event function has already been bound.
     // In order not to bind it multiple times.
@@ -94,51 +94,51 @@ require([
         }
     }
 
-    function getCasesCountFail() {
-        html.replaceByClassHTML('cases-count-badge', '&infin;');
+    function getLabsCountFail() {
+        html.replaceByClassHTML('labs-count-badge', '&infin;');
     }
 
-    function getCasesCountDone(response) {
+    function getLabsCountDone(response) {
         var results;
 
         // Internally used to parse the results.
-        function _updateCasesCount(result) {
+        function _updateLabsCount(result) {
             var count;
             var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
-            gCasesCount[opId] = count;
+            gLabsCount[opId] = count;
 
             updateOrStageCount(opId, count);
         }
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_updateCasesCount);
+            results.forEach(_updateLabsCount);
             if (!gDrawEventBound) {
                 gDrawEventBound = true;
                 gTestsTable.addDrawEvent(updateTestsTable);
             }
         } else {
-            html.replaceByClassTxt('cases-count-badge', '?');
+            html.replaceByClassTxt('labs-count-badge', '?');
         }
     }
 
-    function getCasesCount(response) {
+    function getLabsCount(response) {
         var batchOps;
         var deferred;
 
         function createBatchOp(value) {
-            var suite = value.name;
+            var suite = value.board;
             var query = gBatchOpBase;
 
             query += suite;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-count-' + suite,
-                resource: 'count',
-                document: 'test_case',
+                operation_id: 'labs-count-' + suite,
+                resource: 'test_suite',
+                distinct: 'lab_name',
                 query: query
             });
         }
@@ -151,56 +151,56 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(error.error, getCasesCountFail)
-                .done(getCasesCountDone);
+                .fail(error.error, getLabsCountFail)
+                .done(getLabsCountDone);
         }
     }
 
-    function getSetsCountFail() {
-        html.replaceByClassHTML('sets-count-badge', '&infin;');
+    function getSuitesCountFail() {
+        html.replaceByClassHTML('suites-count-badge', '&infin;');
     }
 
-    function getSetsCountDone(response) {
+    function getSuitesCountDone(response) {
         var results;
 
         // Internally used to parse the results.
-        function _updateSetsCount(result) {
+        function _updateSuitesCount(result) {
             var count;
             var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
-            gSetsCount[opId] = count;
+            gSuitesCount[opId] = count;
 
             updateOrStageCount(opId, count);
         }
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_updateSetsCount);
+            results.forEach(_updateSuitesCount);
             if (!gDrawEventBound) {
                 gDrawEventBound = true;
                 gTestsTable.addDrawEvent(updateTestsTable);
             }
         } else {
-            html.replaceByClassTxt('sets-count-badge', '?');
+            html.replaceByClassTxt('suites-count-badge', '?');
         }
     }
 
-    function getSetsCount(response) {
+    function getSuitesCount(response) {
         var batchOps;
         var deferred;
 
         function createBatchOp(value) {
-            var suite = value.name;
+            var suite = value.board;
             var query = gBatchOpBase;
 
             query += suite;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'sets-count-' + suite,
+                operation_id: 'suites-count-' + suite,
                 resource: 'count',
-                document: 'test_set',
+                document: 'test_suite',
                 query: query
             });
         }
@@ -213,8 +213,8 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(error.error, getSetsCountFail)
-                .done(getSetsCountDone);
+                .fail(error.error, getSuitesCountFail)
+                .done(getSuitesCountDone);
         }
     }
 
@@ -223,11 +223,11 @@ require([
 
         // Internal wrapper to provide the href.
         function _renderDetails(data, type) {
-            return ttest.renderDetails('/test/' + data + '/', type);
+            return ttest.renderDetails('/test/board/' + data + '/', type);
         }
 
         // Internal wrapper to provide the oreder count.
-        function _renderSetsCount(data, type) {
+        function _renderSuitesCount(data, type) {
             var rendered;
 
             rendered = null;
@@ -235,12 +235,12 @@ require([
                 rendered = ttest.countBadge({
                     data: data,
                     type: 'default',
-                    idStart: 'sets-',
-                    extraClasses: ['sets-count-badge']
+                    idStart: 'suites-',
+                    extraClasses: ['suites-count-badge']
                 });
             } else if (type === 'sort') {
-                if (gSetsCount.hasOwnProperty('sets-count-' + data)) {
-                    rendered = gSetsCount['sets-count-' + data];
+                if (gSuitesCount.hasOwnProperty('suites-count-' + data)) {
+                    rendered = gSuitesCount['suites-count-' + data];
                 } else {
                     rendered = NaN;
                 }
@@ -250,7 +250,7 @@ require([
         }
 
         // Internal wrapper to provide the oreder count.
-        function _renderCasesCount(data, type) {
+        function _renderLabsCount(data, type) {
             var rendered;
 
             rendered = null;
@@ -258,12 +258,12 @@ require([
                 rendered = ttest.countBadge({
                     data: data,
                     type: 'default',
-                    idStart: 'cases-',
-                    extraClasses: ['cases-count-badge']
+                    idStart: 'labs-',
+                    extraClasses: ['labs-count-badge']
                 });
             } else if (type === 'sort') {
-                if (gCasesCount.hasOwnProperty('cases-count-' + data)) {
-                    rendered = gCasesCount['cases-count-' + data];
+                if (gLabsCount.hasOwnProperty('labs-count-' + data)) {
+                    rendered = gLabsCount['labs-count-' + data];
                 } else {
                     rendered = NaN;
                 }
@@ -280,29 +280,29 @@ require([
         } else {
             columns = [
                 {
-                    data: 'name',
-                    title: 'Test suite names',
+                    data: 'board',
+                    title: 'Board',
                     type: 'string',
-                    render: ttest.renderTestSuite
+                    render: ttest.renderBoard
                 },
                 {
-                    data: 'name',
-                    title: 'Total test sets',
+                    data: 'board',
+                    title: 'Total Test Suites',
                     type: 'num',
                     searchable: false,
                     className: 'pull-center',
-                    render: _renderSetsCount
+                    render: _renderSuitesCount
                 },
                 {
-                    data: 'name',
-                    title: 'Total test cases',
+                    data: 'board',
+                    title: 'Total Unique Labs',
                     type: 'num',
                     searchable: false,
                     className: 'pull-center',
-                    render: _renderCasesCount
+                    render: _renderLabsCount
                 },
                 {
-                    data: 'name',
+                    data: 'board',
                     title: '',
                     type: 'string',
                     searchable: false,
@@ -317,8 +317,8 @@ require([
                 .columns(columns)
                 .order([0, 'asc'])
                 .languageLengthMenu('Tests per page')
-                .rowURL('/test/%(name)s/')
-                .rowURLElements(['name'])
+                .rowURL('/test/board/%(board)s/')
+                .rowURLElements(['board'])
                 .draw();
         }
     }
@@ -333,7 +333,7 @@ require([
         var results;
 
         // Internal filter function to check valid test values.
-        function _isValidMach(data) {
+        function _isValidBoard(data) {
             if (data && data !== null && data !== undefined) {
                 return true;
             }
@@ -342,17 +342,17 @@ require([
 
         // Convert a value into an object.
         function _toObject(data) {
-            return {name: data};
+            return {board: data};
         }
 
         results = response.result;
         if (results) {
-            results = results.filter(_isValidMach);
+            results = results.filter(_isValidBoard);
             results = results.map(_toObject);
         }
         setTimeout(getTestsDone.bind(null, results), 25);
-        setTimeout(getSetsCount.bind(null, results), 75);
-        setTimeout(getCasesCount.bind(null, results), 100);
+        setTimeout(getSuitesCount.bind(null, results), 75);
+        setTimeout(getLabsCount.bind(null, results), 100);
         setTimeout(enableSearch, 175);
     }
 
@@ -366,7 +366,7 @@ require([
     function getTests() {
         var deferred;
 
-        deferred = request.get('/_ajax/suite/distinct/name/', {});
+        deferred = request.get('/_ajax/suite/distinct/board/', {});
         $.when(deferred)
             .fail(error.error, getTestsFail)
             .done(getTestsParse);

@@ -359,7 +359,7 @@ def init():
     )
 
     add_rule(
-        "/test/<string:suite>/",
+        "/test/board/<string:board>/",
         view_func=vtest.TestSuiteView.as_view("tests-suite-view"),
         methods=["GET"]
     )

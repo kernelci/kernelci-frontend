@@ -54,12 +54,12 @@ class TestsAllView(TestGenericView):
 class TestSuiteView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
-        suite = kwargs["suite"]
+        board = kwargs["board"]
 
-        body_title = "Details for test suite &#171;%s&#187;" % suite
-        body_title += self.RSS_LINK % ("/suite/" + suite + "/feed.xml")
+        body_title = "Test details for board &#171;%s&#187;" % board
+        body_title += self.RSS_LINK % ("/test/board/" + board + "/feed.xml")
 
-        page_title = "%s test" % suite
+        page_title = "%s tests" % board
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
 
         search_filter, page_len = get_search_parameters(request)
@@ -70,5 +70,5 @@ class TestSuiteView(TestGenericView):
             page_len=page_len,
             page_title=page_title,
             search_filter=search_filter,
-            suite=suite
+            board=board
         )

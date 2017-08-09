@@ -12,11 +12,10 @@ require([
 ], function($, init, format, html, error, request, appconst, table, ttest) {
     'use strict';
     var gDateRange;
-    var gSuite;
+    var gBoard;
     var gPageLen;
     var gSearchFilter;
-    var gSetsTable;
-    var gBoardsTable;
+    var gJobsTable;
     var gTableCount;
     var gBatchCountMissing;
 
@@ -27,71 +26,6 @@ require([
     gSearchFilter = null;
     gTableCount = {};
     gBatchCountMissing = {};
-
-    function getDistinctBoardsTableDone(response) {
-        var columns,
-            results,
-            tableResults;
-
-        /**
-         * Internally used to remap an array of strings into an array of
-         * objects whose key is 'board'.
-         *
-         * @param {string} element: The element from the array.
-         * @return {object} An object with key 'board' and value the passed
-         * one.
-        **/
-        function _remapResults(element) {
-            return {board: element};
-        }
-
-        // Internal wrapper to provide the href and title.
-        function _boardDetails(data, type) {
-            return ttest.renderDetails(
-                // TODO create the destination page
-                '/test/' + gSuite + '/board/' + data + '/', type,
-                'View test sets reports');
-        }
-
-        results = response.result;
-        if (results.length > 0) {
-            columns = [
-                {
-                    data: 'board',
-                    title: 'Board'
-                },
-                {
-                    data: 'board',
-                    title: '',
-                    orderable: false,
-                    searchable: false,
-                    className: 'select-column pull-center',
-                    render: _boardDetails
-                }
-            ];
-
-            // Remap the distinct results into an array of objets.
-            tableResults = results.map(_remapResults);
-
-            gBoardsTable
-                .rowURL('/test/' + gSuite + '/board/%(board)s/')
-                .rowURLElements(['board'])
-                .data(tableResults)
-                .columns(columns)
-                .lengthMenu([5, 10, 25, 50])
-                .languageLengthMenu('boards per page')
-                .order([0, 'asc'])
-                .draw();
-            }
-    }
-
-    function getDistinctBoardsTableFail() {
-            html.removeElement(
-                document.getElementById('boards-table-loading'));
-            html.replaceContent(
-                document.getElementById('boards-table-div'),
-                html.errorDiv('No data found.'));
-    }
 
     function getCountsFail() {
         html.replaceByClass('count-list-badge', '&infin;');
@@ -112,25 +46,27 @@ require([
         var batchOps;
         var deferred;
         var data;
-        var gBaseSelf = "name=";
-        var gBaseOthers = "test_suite_name="
+        var gBaseSelf = "board=" + gBoard;
+        // TODO fix this
+        var gBaseOthers = "board=" + gBoard;
 
-        data = {name: gSuite};
+        data = {board: gBoard};
         batchOps = [];
         batchOps.push({
             method: 'GET',
             resource: 'count',
             document: 'test_suite',
             operation_id: 'count-suites',
-            query: gBaseSelf + gSuite
+            query: gBaseSelf
         });
-
+        // TODO Fix test sets and cases count
+/*
         batchOps.push({
             method: 'GET',
             resource: 'count',
             document: 'test_set',
             operation_id: 'count-sets',
-            query: gBaseOthers + gSuite
+            query: gBaseOthers
         });
 
         batchOps.push({
@@ -138,25 +74,16 @@ require([
             resource: 'count',
             document: 'test_case',
             operation_id: 'count-cases',
-            query: gBaseOthers + gSuite
+            query: gBaseOthers
         });
-        // TODO remove this info ? not sure it's usefull
+*/
         batchOps.push({
             method: 'GET',
             resource: 'count',
             distinct: 'build_id',
             document: 'test_suite',
             operation_id: 'count-builds',
-            query: gBaseSelf + gSuite
-        });
-
-        batchOps.push({
-            method: 'GET',
-            resource: 'count',
-            distinct: 'board',
-            document: 'test_suite',
-            operation_id: 'count-boards',
-            query: gBaseSelf + gSuite
+            query: gBaseSelf
         });
 
         deferred = request.post(
@@ -165,13 +92,6 @@ require([
         $.when(deferred)
             .done(getCountsDone)
             .fail(error.error, getCountsFail);
-
-        deferred = request.get('/_ajax/suite/distinct/board', data);
-
-        $.when(deferred)
-            .fail(error.error, getDistinctBoardsTableFail)
-            .done(getDistinctBoardsTableDone);
-
     }
 
     function updateOrStageCount(elementId, count) {
@@ -231,25 +151,25 @@ require([
             // Invalidate the cells in column #2 before updating the DOM
             // elements. In this way we have the correct 'filter' values in the
             // global object that we can use to provide the search parameters.
-            gSetsTable.invalidateColumn(2);
+            gJobsTable.invalidateColumn(2);
             // Now update the DOM with the results.
             Object.keys(gTableCount).forEach(_updateTable);
 
             // Bind a new function to the draw event of the table.
-            gSetsTable.addDrawEvent(updateCasesCount);
+            gJobsTable.addDrawEvent(updateCasesCount);
         }
     }
 
     function getBatchCount(response) {
         var batchOps;
         var deferred;
-        var set;
+        var job;
         var suiteId;
         var queryStr;
         var results;
 
         function _createOp(result) {
-            set = result.name;
+            job = result.job;
             suiteId = result.test_suite_id;
 
             if (suiteId) {
@@ -259,10 +179,19 @@ require([
                 // TODO add this
                 // suiteId = '&date_range=' + gDateRange;
             }
-
+            console.log('getBatchCount: %s', queryStr + suiteId)
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-total-count-' + set,
+                operation_id: 'suites-count-' + job,
+                resource: 'count',
+                document: 'test_suite',
+                query: 'board=' + gBoard + '&job=' + job
+            });
+            // TODO fix test case count
+/*
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'cases-total-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + suiteId
@@ -270,7 +199,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-success-count-' + set,
+                operation_id: 'cases-success-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=PASS&' + suiteId
@@ -278,7 +207,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-fail-count-' + set,
+                operation_id: 'cases-fail-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=FAIL&' + suiteId
@@ -286,18 +215,19 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-unknown-count-' + set,
+                operation_id: 'cases-unknown-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=OFFLINE&status=UNKNOWN&' +
                     suiteId
             });
+*/
         }
 
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
-            queryStr = 'test_suite_name=' + gSuite;
+            queryStr = 'board=' + gBoard;
             results.forEach(_createOp);
 
             deferred = request.post(
@@ -309,10 +239,10 @@ require([
         }
     }
 
-    function getSetsFail() {
-        html.removeElement(document.getElementById('sets-table-loading'));
+    function getJobsFail() {
+        html.removeElement(document.getElementById('jobs-table-loading'));
         html.replaceContent(
-            document.getElementById('sets-table-div'),
+            document.getElementById('jobs-table-div'),
             html.errorDiv('Error loading data.'));
     }
 
@@ -335,9 +265,33 @@ require([
         return filter;
     }
 
-    function getSetsDone(response) {
+    function getJobsDone(response) {
         var columns,
-            results;
+            results,
+            deferred;
+
+        // Internal wrapper to provide the href.
+        function _renderSuitesCount(data, type) {
+            var rendered;
+
+            rendered = null;
+            if (type === 'display') {
+                rendered = ttest.countBadge({
+                    data: data,
+                    type: 'default',
+                    idStart: 'suites-',
+                    extraClasses: ['suites-count-badge']
+                });
+            } else if (type === 'sort') {
+                if (gTableCount.hasOwnProperty('suites-count-' + data)) {
+                    rendered = gTableCount['suites-count-' + data];
+                } else {
+                    rendered = NaN;
+                }
+            }
+
+            return rendered;
+        }
 
         // Internal wrapper to provide the href.
         function _renderCasesCount(data, type) {
@@ -345,20 +299,20 @@ require([
                 return getFilterCasesCount(data);
             } else {
                 return ttest.renderCasesCount(
-                    data, type, '/test/' + gSuite + '/set/' + data + '/');
+                    data, type, '/test/board/' + gBoard + '/job/' + data + '/');
             }
         }
 
         // Internal wrapper to provide the href.
         function _renderTree(data, type) {
             return ttest.renderTree(
-                data, type, '/test/' + gSuite + '/set/' + data + '/');
+                data, type, '/test/board/' + gBoard + '/job/' + data + '/');
         }
 
         // Internal wrapper to provide the href.
         function _renderDetails(data, type) {
             return ttest.renderDetails(
-                '/test/' + gSuite + '/set/' + data + '/', type);
+                '/test/board/' + gBoard + '/job/' + data + '/', type);
         }
 
         /**
@@ -380,22 +334,28 @@ require([
         if (results.length > 0) {
             columns = [
                 {
-                    data: 'name',
-                    title: 'Test set',
+                    data: 'job',
+                    title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
                     render: _renderTree
                 },
-                // TODO add this ? it's not in the DB
-/*                {
+                {
                     data: 'git_branch',
                     title: 'Branch',
                     type: 'string',
                     className: 'branch-column'
                 },
-*/
                 {
-                    data: 'name',
+                    data: 'job',
+                    title: 'Total Test Suite',
+                    type: 'string',
+                    className: 'test-suite-column',
+                    render: _renderSuitesCount
+                },
+
+                {
+                    data: 'git_branch',
                     orderable: false,
                     type: 'string',
                     title: _testsColumnTitle(),
@@ -410,7 +370,7 @@ require([
                     render: ttest.renderDate
                 },
                 {
-                    data: 'name',
+                    data: 'job',
                     title: '',
                     type: 'string',
                     orderable: false,
@@ -420,55 +380,56 @@ require([
                 }
             ];
 
-            gSetsTable
+            gJobsTable
                 .data(results)
                 .columns(columns)
                 .order([3, 'desc'])
-                .rowURL('/test/' + gSuite + '/set/%(name)s/')
-                .rowURLElements(['name'])
+                .rowURL('/test/board/' + gBoard + '/job/%(job)s/')
+                .rowURLElements(['job'])
                 .languageLengthMenu('trees per page')
                 .draw();
 
-            gSetsTable
+            gJobsTable
                 .pageLen(gPageLen)
                 .search(gSearchFilter);
+
         } else {
-            html.removeElement(document.getElementById('sets-table-loading'));
+            html.removeElement(document.getElementById('jobs-table-loading'));
             html.replaceContent(
-                document.getElementById('sets-table-div'),
+                document.getElementById('jobs-table-div'),
                 html.errorDiv('No data found.'));
         }
     }
 
-    function getSets() {
+    function getJobs() {
         var deferred;
+        var deferred2;
 
         deferred = request.get(
-            '/_ajax/test/set',
+            '/_ajax/test/suite',
             {
-                aggregate: 'name',
+                aggregate: 'job',
                 // TODO add a date range
                 // date_range: gDateRange,
-                // TODO add a git branch ?
                 field: [
-                    'name', 'created_on', 'test_suite_id'
+                    'job', 'git_branch', 'created_on', 'board', 'name'
                 ],
-                test_suite_name: gSuite,
+                board: gBoard,
                 sort: 'created_on',
                 sort_order: -1
             }
         );
 
         $.when(deferred)
-            .fail(error.error, getSetsFail)
-            .done(getSetsDone, getBatchCount);
+            .fail(error.error, getJobsFail)
+            .done(getJobsDone, getBatchCount);
     }
 
     if (document.getElementById('date-range') !== null) {
         gDateRange = document.getElementById('date-range').value;
     }
-    if (document.getElementById('suite') !== null) {
-        gSuite = document.getElementById('suite').value;
+    if (document.getElementById('board') !== null) {
+        gBoard = document.getElementById('board').value;
     }
     if (document.getElementById('page-len') !== null) {
         gPageLen = document.getElementById('page-len').value;
@@ -477,20 +438,14 @@ require([
         gSearchFilter = document.getElementById('search-filter').value;
     }
 
-    gSetsTable = table({
-        tableId: 'sets-table',
-        tableDivId: 'sets-table-div',
-        tableLoadingDivId: 'sets-table-loading'
-    });
-
-    gBoardsTable = table({
-        tableId: 'boards-table',
-        tableDivId: 'boards-table-div',
-        tableLoadingDivId: 'boards-table-loading'
+    gJobsTable = table({
+        tableId: 'jobs-table',
+        tableDivId: 'jobs-table-div',
+        tableLoadingDivId: 'jobs-table-loading'
     });
 
     getDetails();
-    getSets();
+    getJobs();
 
     init.hotkeys();
     init.tooltip();
