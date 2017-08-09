@@ -50,55 +50,26 @@
                     </span>
                 </span>
             </li>
-            <li class="list-group-item">
-                Total unique boards
-                <span class="badge">
-                    <span id="count-boards" class="count-list-badge">
-                        <small><i class="fa fa-cog fa-spin"></i></small>
-                    </span>
-                </span>
-            </li>
         </ul>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="page-header">
-            <h3>Available Boards</h3>
+            <h3>Available Trees</h3>
         </div>
-        <div id="boards-table-loading" class="pull-center">
+        <div id="jobs-table-loading" class="pull-center">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
-                &nbsp;retrieving board data&hellip;
+                &nbsp;retrieving tests data&hellip;
             </small>
         </div>
     {%- if is_mobile %}
-        <div class="table-responsive" id="boards-table-div">
+        <div class="table-responsive" id="jobs-table-div">
     {%- else %}
-        <div class="table" id="boards-table-div">
+        <div class="table" id="jobs-table-div">
     {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="boards-table">
-            </table>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-            <h3>Available Test Sets</h3>
-        </div>
-        <div id="sets-table-loading" class="pull-center">
-            <small>
-                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
-                &nbsp;retrieving sets data&hellip;
-            </small>
-        </div>
-    {%- if is_mobile %}
-        <div class="table-responsive" id="sets-table-div">
-    {%- else %}
-        <div class="table" id="sets-table-div">
-    {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="sets-table">
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="jobs-table">
             </table>
         </div>
     </div>
@@ -108,5 +79,5 @@
 <input type="hidden" id="page-len" value="{{ page_len }}">
 {%- endblock %}{# content block #}
 {%- block scripts %}
-<script data-main="/static/js/kci-tests-suite" src="/static/js/lib/require.js"></script>
+<script data-main="/static/js/kci-tests-board" src="/static/js/lib/require.js"></script>
 {%- endblock %}

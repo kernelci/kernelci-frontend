@@ -83,7 +83,8 @@
             'app/view-sponsors': 'app/view-sponsors.2017.3.3',
             'app/view-stats': 'app/view-stats.2017.3.3',
             'app/view-tests-all': 'app/view-tests-all.2017.7.2',
-            'app/view-tests-suite': 'app/view-tests-suite.2017.7.2'
+            'app/view-tests-board': 'app/view-tests-board.2017.7.2',
+            'app/view-tests-board-job': 'app/view-tests-board-job.2017.7.2',
         }
     },
     shim: {
@@ -137,7 +138,8 @@
         {name: 'app/view-sponsors.2017.3.3'},
         {name: 'app/view-stats.2017.3.3'},
         {name: 'app/view-tests-all.2017.7.2'},
-        {name: 'app/view-tests-suite.2017.7.2'},
+        {name: 'app/view-tests-board.2017.7.2'},
+        {name: 'app/view-tests-board-job.2017.7.2'},
         {name: 'kci-boot-compare'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},

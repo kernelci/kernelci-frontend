@@ -51,7 +51,7 @@ class TestsAllView(TestGenericView):
         )
 
 
-class TestSuiteView(TestGenericView):
+class TestBoardView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]
@@ -65,10 +65,36 @@ class TestSuiteView(TestGenericView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "test-suite.html",
+            "test-board.html",
             body_title=body_title,
             page_len=page_len,
             page_title=page_title,
             search_filter=search_filter,
             board=board
+        )
+
+
+class TestBoardJobView(TestGenericView):
+    def dispatch_request(self, **kwargs):
+        board = kwargs["board"]
+        job = kwargs["job"]
+
+        body_title = "Details for Tree &#171;%s&#187;" % job
+        body_title += \
+            self.RSS_LINK % \
+            ("/test/board/" + board + "/job/" + job + "/feed.xml")
+
+        page_title = "%s tests: %s" % (board, job)
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
+
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "test-board-job.html",
+            body_title=body_title,
+            page_len=page_len,
+            page_title=page_title,
+            search_filter=search_filter,
+            board=board,
+            job=job
         )
