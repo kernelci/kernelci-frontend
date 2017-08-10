@@ -179,7 +179,6 @@ require([
                 // TODO add this
                 // suiteId = '&date_range=' + gDateRange;
             }
-            console.log('getBatchCount: %s', queryStr + suiteId)
             batchOps.push({
                 method: 'GET',
                 operation_id: 'suites-count-' + job,

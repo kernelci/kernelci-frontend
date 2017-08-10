@@ -95,10 +95,11 @@
                     </tbody>
                 </table>
             </div>
-            <div id="boot-chart"></div>
+            <div id="test-chart"></div>
         </div>
     </div>
 </div>
+<!--
 {%- include "conflicts-row.html" %}
 <div class="row">
     <div class="page-header">
@@ -107,6 +108,40 @@
     {%- include "boots-buttons-row.html" %}
 </div>
 {%- include "accordion-container-row.html" %}
+-->
+{%- if lab_names|length > 0 %}
+<input type="hidden" id="lab-names" value="{{ lab_names|sort|join(',') }}">
+    {%- for lab in lab_names|sort %}
+    {% if lab %}
+<div class="row">
+    <div class="page-header">
+        <h4>&#171;{{ lab }}&#187;</h4>
+    </div>
+
+    <div id="lab-table-loading-{{ lab }}" class="pull-center">
+        <small>
+            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+            &nbsp;retrieving build data&hellip;
+        </small>
+    </div>
+{%- if is_mobile %}
+    <div class="table-responsive" id="lab-table-div-{{ lab }}">
+{%- else %}
+    <div class="table" id="lab-table-div-{{ lab }}">
+{%- endif %}
+        <table class="table table-hover table-striped table-condensed clickable-table big-table" id="lab-table-{{ lab }}">
+        </table>
+    </div>
+</div>
+    {% endif %}
+    {%- endfor %}
+{% else %}
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div><p><strong>No data found.</strong></p></div>
+    </div>
+</div>
+{%- endif %}
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
 <input type="hidden" id="board-name" value="{{ board }}">

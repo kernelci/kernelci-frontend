@@ -9,13 +9,13 @@ define([
     gTestTable = {};
 
     /**
-     * Function to render the test suite column on a table.
+     * Function to render the Board column on a table.
      *
-     * @param {string} suite: The suite value.
+     * @param {string} board: The Board value.
      * @param {string} type: The type of the display option.
      * @return {string} The rendered element as string.
     **/
-    gTestTable.renderTestSuite = function(suite, type) {
+    gTestTable.renderBoard = function(board, type) {
         var aNode,
             rendered,
             tooltipNode;
@@ -23,12 +23,12 @@ define([
         if (type === 'display') {
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', suite + '&nbsp;test suite report');
+                'title', 'Test reports for board&nbsp;' + board);
 
             aNode = document.createElement('a');
-            aNode.setAttribute('href', '/test/' + suite + '/');
+            aNode.setAttribute('href', '/test/board/' + board + '/');
             aNode.className = 'table-link';
-            aNode.appendChild(document.createTextNode(suite));
+            aNode.appendChild(document.createTextNode(board));
 
             tooltipNode.appendChild(aNode);
             rendered = tooltipNode.outerHTML;
@@ -37,82 +37,11 @@ define([
             aNode.remove();
             tooltipNode.remove();
         } else {
-            rendered = suite;
+            rendered = board;
         }
 
         return rendered;
     };
-
-    /**
-     * Function to render the test-set column on a table.
-     *
-     * @param {string} set: The test-set value.
-     * @param {string} type: The type of the display option.
-     * @return {string} The rendered element as string.
-    **/
-    gTestTable.renderTestSet = function(set, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Reports for test set&nbsp;' + set);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/test/set/' + set + '/');
-            aNode.className = 'table-link';
-            aNode.appendChild(document.createTextNode(set));
-
-            tooltipNode.appendChild(aNode);
-            rendered = tooltipNode.outerHTML;
-
-            // Remove the nodes.
-            aNode.remove();
-            tooltipNode.remove();
-        } else {
-            rendered = set;
-        }
-
-        return rendered;
-    };
-
-    /**
-     * Function to render the test-case column on a table.
-     *
-     * @param {string} case: The test-case value.
-     * @param {string} type: The type of the display option.
-     * @return {string} The rendered element as string.
-    **/
-/*    gTestTable.renderTestCase = function(case, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Reports for test case&nbsp;' + case);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/test/case/' + case + '/');
-            aNode.className = 'table-link';
-            aNode.appendChild(document.createTextNode(case));
-
-            tooltipNode.appendChild(aNode);
-            rendered = tooltipNode.outerHTML;
-
-            // Remove the nodes.
-            aNode.remove();
-            tooltipNode.remove();
-        } else {
-            rendered = case;
-        }
-
-        return rendered;
-    };
-*/
 
     gTestTable.renderDate = function(date, type) {
         return tcommon.renderDate(date, type);
@@ -128,13 +57,13 @@ define([
             settings.type, settings.extraClasses, settings.idStart).outerHTML;
     };
 
-    gTestTable.renderCasesCount = function(data, type, href) {
+    gTestTable.renderCasesCount = function(data, type, id_str, href) {
         return tcommon.countAll({
             data: data,
             type: type,
             href: href,
             extraClasses: ['extra-margin'],
-            idStart: 'cases-'
+            idStart: id_str
         });
     };
 
