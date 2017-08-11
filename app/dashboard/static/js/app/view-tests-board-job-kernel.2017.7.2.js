@@ -302,11 +302,10 @@ require([
             labTable
                 .columns(columns)
                 .data(results)
-                .paging(false)
                 .info(false)
                 .rowURL('/test/suite/%(_id)s/')
                 .rowURLElements(['_id'])
-                .order([4, 'desc'])
+                .order([5, 'desc'])
                 .draw();
         }
     }
