@@ -1,0 +1,31 @@
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div id="sets-reports-div">
+        <div id="sets-reports-loading-div" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;searching for sets reports&hellip;
+            </small>
+        </div>
+    </div>
+    <div id="cases-reports-div">
+    {%- if is_mobile %}
+        <div class="table-responsive" id="cases-reports-table-div">
+    {%- else %}
+        <div class="table" id="cases-reports-table-div">
+    {%- endif %}
+            <table class="table table-striped table-condensed table-hover clickable-table hidden" id="multiple-cases-table" title="Cases not belonging to any test set">
+                <caption>Test cases not belonging to any test set</caption>
+                <thead>
+                    <tr>
+                        <th class="name-column">Test Case Name</th>
+                        <th class="failure-column">Failure Reason</th>
+                        <th class="pull-center">Test Case Log</th>
+                        <th class="date-column pull-center">Date</th>
+                        <th class="pull-center">Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="cases-reports-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>

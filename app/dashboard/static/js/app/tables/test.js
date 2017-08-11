@@ -5,8 +5,16 @@ define([
 ], function(html, tcommon) {
     'use strict';
     var gTestTable;
+    var gStatusDefaults;
 
     gTestTable = {};
+
+    gStatusDefaults = {
+        pass: 'Test executed successfully',
+        fail: 'Test execution failed',
+        offline: 'Test offline',
+        default: 'Test execution status unknown'
+    };
 
     /**
      * Function to render the Board column on a table.
@@ -41,6 +49,52 @@ define([
         }
 
         return rendered;
+    };
+
+    /**
+     * Function to render the date.
+     *
+     * @param {object} date: The date object.
+     * @return {Element} The DOM element.
+    **/
+    gTestTable.dateNode = function(date) {
+        return tcommon.dateNode(date);
+    };
+
+    /**
+     * Create the test status element.
+     *
+     * @param {string} status: The test status.
+     * @return {HTMLElement} The status node.
+    **/
+    gTestTable.statusNode = function(status) {
+        return tcommon.statusNode(status, gStatusDefaults);
+    };
+
+    /**
+     * Function to render the case detail.
+     *
+     * @param {object} object: The entire data set.
+     * @return {Element} The DOM element.
+    **/
+    gTestTable.detailsNode = function(object) {
+        var aNode;
+        var str;
+        var tooltipNode;
+
+        tooltipNode = html.tooltip();
+        tooltipNode.setAttribute('title', 'More info');
+
+        aNode = document.createElement('a');
+        str = '/test/case/id/';
+        str += object._id.$oid;
+        str += '/';
+        aNode.setAttribute('href', str);
+
+        aNode.appendChild(html.search());
+        tooltipNode.appendChild(aNode);
+
+        return tooltipNode;
     };
 
     gTestTable.renderDate = function(date, type) {

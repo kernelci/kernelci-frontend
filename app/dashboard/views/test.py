@@ -52,7 +52,7 @@ class TestsAllView(TestGenericView):
         )
 
 
-class TestBoardView(TestGenericView):
+class TestsBoardView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]
@@ -75,7 +75,7 @@ class TestBoardView(TestGenericView):
         )
 
 
-class TestBoardJobView(TestGenericView):
+class TestsBoardJobView(TestGenericView):
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]
         job = kwargs["job"]
@@ -101,7 +101,7 @@ class TestBoardJobView(TestGenericView):
         )
 
 
-class TestBoardJobKernelView(TestGenericView):
+class TestsBoardJobKernelView(TestGenericView):
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]
         job = kwargs["job"]
@@ -139,3 +139,12 @@ class TestBoardJobKernelView(TestGenericView):
             )
         else:
             abort(status)
+
+
+class TestsSuiteIdView(TestGenericView):
+
+    def dispatch_request(self, **kwargs):
+        return render_template(
+            "tests-suite-id.html",
+            suite_id=kwargs["uid"],
+            page_title=self.TESTS_PAGE_TITLE)

@@ -359,20 +359,26 @@ def init():
     )
 
     add_rule(
+        "/test/suite/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
+        view_func=vtest.TestsSuiteIdView.as_view("tests-suite-id"),
+        methods=["GET"]
+    )
+
+    add_rule(
         "/test/board/<string:board>/",
-        view_func=vtest.TestBoardView.as_view("tests-board-view"),
+        view_func=vtest.TestsBoardView.as_view("tests-board-view"),
         methods=["GET"]
     )
 
     add_rule(
         "/test/board/<string:board>/job/<string:job>/",
-        view_func=vtest.TestBoardJobView.as_view("tests-board-job-view"),
+        view_func=vtest.TestsBoardJobView.as_view("tests-board-job-view"),
         methods=["GET"]
     )
 
     add_rule(
         "/test/board/<string:board>/job/<string:job>/kernel/<string:kernel>/",
-        view_func=vtest.TestBoardJobKernelView.
+        view_func=vtest.TestsBoardJobKernelView.
         as_view("tests-board-job-kernel-view"),
         methods=["GET"]
     )

@@ -1,0 +1,104 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+    <h3 id="body-title">Test details for test suite&nbsp;</h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-right">
+        <dt>Lab name</dt>
+        <dd id="dd-lab-name" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Board</dt>
+        <dd id="dd-board-board" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Tree</dt>
+        <dd id="dd-board-tree" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git branch<dt>
+        <dd id="dd-board-branch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git describe</dt>
+        <dd id="dd-board-kernel" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Defconfig</dt>
+        <dd id="dd-board-defconfig" class="loading-content dd-defconfig">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Date</dt>
+        <dd id="dd-date" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+    </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-left">
+        <dt>Status</dt>
+        <dd id="dd-board-status" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Architecture</dt>
+        <dd id="dd-board-arch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Errors</dt>
+        <dd id="dd-board-warnings" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Test time</dt>
+        <dd id="dd-board-test-time" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Test log</dt>
+        <dd id="dd-board-test-log" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+    </dl>
+    </div>
+</div>
+<div id="other-details-div" class="row hidden"></div>
+<div id="multiple-sets" class="row">
+    <div class="page-header">
+        <h3>Test Reports</h3>
+    </div>
+    {%- include "other-multiple-set-reports.html" %}
+</div>
+<input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
+<input type="hidden" id="suite-id" value="{{ suite_id }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-tests-suite-id" src="/static/js/lib/require.js"></script>
+{%- endblock %}
