@@ -61,14 +61,6 @@ require([
 
         batchOps.push({
             method: 'GET',
-            operation_id: 'boards-count',
-            distinct: 'board',
-            resource: 'test_suite',
-            query: gQueryStr
-        });
-
-        batchOps.push({
-            method: 'GET',
             operation_id: 'labs-count',
             distinct: 'lab_name',
             resource: 'test_suite',
@@ -142,68 +134,98 @@ require([
     }
 
     function getSuitesCount(response) {
-        var batchOps,
-            deferred,
-            kernel,
-            results;
+        var batchOps;
+        var deferred;
+        var suiteId;
+        var suiteCommit;
+        var queryStr;
+        var queryData;
+        var results;
 
         batchOps = [];
 
-        function _prepareBatchOps(result) {
-            batchOps.push({
-                operation_id: 'useless-count',
-                method: 'GET',
-                resource: 'count',
-                document: 'boot',
-            });
-            // TODO create the batch ops
-/*            kernel = result.kernel;
+        function _createOp(result) {
+            suiteId = result._id;
+            suiteCommit = result.vcs_commit;
+
+            if (suiteId) {
+                queryStr = 'test_suite_id=' + suiteId.$oid;
+            }
 
             batchOps.push({
-                operation_id: 'boot-total-count-' + kernel,
                 method: 'GET',
+                operation_id: 'cases-total-count-' + suiteCommit,
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&kernel=' + kernel
+                document: 'test_case',
+                query: queryStr
             });
 
             batchOps.push({
-                operation_id: 'boot-success-count-' + kernel,
                 method: 'GET',
+                operation_id: 'cases-success-count-' + suiteCommit,
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&status=PASS&kernel=' + kernel
+                document: 'test_case',
+                query: queryStr + '&status=PASS'
             });
 
             batchOps.push({
-                operation_id: 'boot-fail-count-' + kernel,
                 method: 'GET',
+                operation_id: 'cases-fail-count-' + suiteCommit,
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&status=FAIL&kernel=' + kernel
+                document: 'test_case',
+                query: queryStr + '&status=FAIL'
             });
 
             batchOps.push({
-                operation_id: 'boot-unknown-count-' + kernel,
                 method: 'GET',
+                operation_id: 'cases-unknown-count-' + suiteCommit,
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr +
-                    '&status=OFFLINE&status=UNKNOWN&status=UNTRIED&kernel=' +
-                    kernel
-            });*/
+                document: 'test_case',
+                query: queryStr + '&status=OFFLINE&status=UNKNOWN'
+            });
+        }
+
+        function _getTestSuiteDone(response) {
+            results = response.result;
+
+            if (results.length > 0) {
+                batchOps = [];
+                // Only one result, latest test suite
+                _createOp(results[0]);
+                deferred = request.post(
+                    '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+                $.when(deferred)
+                    .fail(error.error, getSuitesCountFail)
+                    .done(getSuitesCountDone);
+            }
+        }
+
+        function _getTestSuite(result) {
+            // Query parameters to get the latest test suite
+            queryData = {
+                board: result.board,
+                job: result.job,
+                git_branch: result.git_branch,
+                kernel: result.kernel,
+                vcs_commit: result.vcs_commit,
+                sort: 'created_on',
+                sort_order: '-1',
+                limit: '1'
+            }
+
+            // Get the latest test suite
+            deferred = request.get('/_ajax/test/suite', queryData);
+            $.when(deferred)
+                .done(_getTestSuiteDone)
+                .fail(function(response) {
+                    ttest.getCountFail(result.vcs_commit)
+                });
         }
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_prepareBatchOps);
-
-            deferred = request.post(
-                '/_ajax/batch', JSON.stringify({batch: batchOps}));
-
-            $.when(deferred)
-                .fail(error.error, getSuitesCountFail)
-                .done(getSuitesCountDone);
+            results.forEach(_getTestSuite);
         }
     }
 
@@ -242,7 +264,7 @@ require([
             if (type === 'filter') {
                 return getFilterCasesCount(data);
             } else {
-                return ttest.renderCasesCount(data, type);
+                return ttest.renderCasesCount(data, type, 'cases-');
             }
         }
 
@@ -293,9 +315,8 @@ require([
                     type: 'string',
                     className: 'commit-column'
                 },
-                // TODO implement this
                 {
-                    data: 'kernel',
+                    data: 'vcs_commit',
                     title: _casesColumnTitle(),
                     type: 'string',
                     orderable: false,
