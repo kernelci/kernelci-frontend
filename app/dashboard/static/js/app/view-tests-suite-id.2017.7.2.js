@@ -296,6 +296,7 @@ require([
         var result;
         var smallNode;
         var spanNode;
+        var statusNode;
         var str;
         var suiteName;
         var testTime;
@@ -366,7 +367,7 @@ require([
         aNode.appendChild(html.search());
 
         html.replaceContent(
-            document.getElementById('dd-board-board'), docFrag);
+            document.getElementById('dd-suite-board'), docFrag);
 
         // Tree.
         docFrag = document.createDocumentFragment();
@@ -399,11 +400,11 @@ require([
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.tree());
 
-        html.replaceContent(document.getElementById('dd-board-tree'), docFrag);
+        html.replaceContent(document.getElementById('dd-suite-tree'), docFrag);
 
         // Branch.
         html.replaceContent(
-            document.getElementById('dd-board-branch'),
+            document.getElementById('dd-suite-branch'),
             document.createTextNode(branch));
 
         // Kernel.
@@ -450,7 +451,7 @@ require([
         aNode.appendChild(html.build());
 
         html.replaceContent(
-            document.getElementById('dd-board-kernel'), docFrag);
+            document.getElementById('dd-suite-kernel'), docFrag);
 
         // Defconfig
         docFrag = document.createDocumentFragment();
@@ -488,7 +489,7 @@ require([
         }
 
         html.replaceContent(
-            document.getElementById('dd-board-defconfig'), docFrag);
+            document.getElementById('dd-suite-defconfig'), docFrag);
 
         // Date.
         docFrag = document.createDocumentFragment();
@@ -498,15 +499,35 @@ require([
             document.createTextNode(createdOn.toCustomISODateTime()));
         html.replaceContent(document.getElementById('dd-date'), docFrag);
 
+        // Status.
+        // TODO Fix when defined
+        html.replaceContent(
+            document.getElementById('dd-suite-status'), html.nonavail());
+
+        // Errors
+        // TODO Fix when defined
+        html.replaceContent(
+            document.getElementById('dd-suite-errors'), html.nonavail());
+
+        // Warnings
+        // TODO Fix when defined
+        html.replaceContent(
+            document.getElementById('dd-suite-warnings'), html.nonavail());
+
         // Arch.
         html.replaceContent(
-            document.getElementById('dd-board-arch'),
+            document.getElementById('dd-suite-arch'),
             document.createTextNode(arch));
 
         // Time.
         html.replaceContent(
-            document.getElementById('dd-board-boot-time'),
+            document.getElementById('dd-suite-test-time'),
             document.createTextNode(testTime.toCustomTime()));
+
+        // Test Log
+        // TODO Fix when defined
+        html.replaceContent(
+            document.getElementById('dd-suite-test-log'), html.nonavail());
     }
 
     function getSuiteData() {
