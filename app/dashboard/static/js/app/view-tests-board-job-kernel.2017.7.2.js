@@ -3,12 +3,13 @@ require([
     'jquery',
     'utils/init',
     'utils/format',
+    'utils/urls',
     'utils/html',
     'utils/error',
     'utils/request',
     'utils/table',
     'tables/test'
-], function($, init, format, html, error, request, table, ttest) {
+], function($, init, format, urls, html, error, request, table, ttest) {
     'use strict';
     var gFileServer,
         gJob,
@@ -310,17 +311,160 @@ require([
         }
     }
 
+    function updateDetails(response) {
+        var aNode,
+            createdOn,
+            domNode,
+            gitBranch,
+            gitCommit,
+            gitURL,
+            gitURLs,
+            results,
+            tooltipNode;
+
+        results = response.result;
+        if (results.length === 0) {
+            html.replaceByClassTxt('loading-content', '?');
+        } else {
+            results = results[0];
+
+            gitBranch = results.git_branch;
+            gitCommit = results.vcs_commit;
+            gitURL = results.git_url;
+            createdOn = new Date(results.created_on.$date);
+
+            gitURLs = urls.translateCommit(gitURL, gitCommit);
+
+            // SoC.
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'Details for SoC ' + gBoard);
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/soc/' + gBoard + '/');
+            aNode.appendChild(document.createTextNode(gBoard));
+            tooltipNode.appendChild(aNode);
+
+            html.replaceContent(document.getElementById('board'), tooltipNode);
+
+            // Tree.
+            domNode = document.createElement('div');
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Details for SoC &#171;' + gBoard + '&#187; with tree ' + gJob);
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/soc/' + gBoard + '/job/' + gJob + '/');
+            aNode.appendChild(document.createTextNode(gJob));
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Boot reports for tree &#171;' + gJob + '&#187;');
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/boot/all/job/' + gJob + '/');
+            aNode.appendChild(html.boot());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Details for tree &#171;' + gJob + '&#187;');
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', '/job/' + gJob + '/');
+            aNode.appendChild(html.tree());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+
+            html.replaceContent(document.getElementById('tree'), domNode);
+
+            // Git branch.
+            html.replaceContent(
+                document.getElementById('git-branch'),
+                document.createTextNode(gitBranch));
+
+            // Git describe.
+            domNode = document.createElement('div');
+            domNode.appendChild(document.createTextNode(gKernel));
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Boot reports for &#171;' + gJob + '&#187; - ' + gKernel);
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/boot/all/job/' + gJob + '/kernel/' + gKernel + '/');
+            aNode.appendChild(html.boot());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+            domNode.insertAdjacentHTML('beforeend', '&nbsp;&dash;&nbsp;');
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title',
+                'Build reports for &#171;' + gJob + '&#187; - ' + gKernel);
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                'href', '/build/' + gJob + '/kernel/' + gKernel);
+            aNode.appendChild(html.build());
+            tooltipNode.appendChild(aNode);
+
+            domNode.appendChild(tooltipNode);
+
+            html.replaceContent(
+                document.getElementById('git-describe'), domNode);
+
+            // Git URL.
+            if (gitURLs[0]) {
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[0]);
+                aNode.appendChild(document.createTextNode(gitURL));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+            } else {
+                if (gitURL && gitURL !== undefined) {
+                    aNode = document.createTextNode(gitURL);
+                } else {
+                    aNode = html.nonavail();
+                }
+            }
+            html.replaceContent(document.getElementById('git-url'), aNode);
+
+            // Git commit.
+            if (gitURLs[1]) {
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', gitURLs[1]);
+                aNode.appendChild(document.createTextNode(gitCommit));
+                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+                aNode.appendChild(html.external());
+            } else {
+                if (gitCommit && gitCommit !== null) {
+                    aNode = document.createTextNode(gitCommit);
+                } else {
+                    aNode = html.nonavail();
+                }
+            }
+            html.replaceContent(document.getElementById('git-commit'), aNode);
+
+            // Date.
+            domNode = document.createElement('time');
+            domNode.setAttribute('datetime', createdOn.toISOString());
+            domNode.appendChild(
+                document.createTextNode(createdOn.toCustomISODate()));
+            html.replaceContent(
+                document.getElementById('job-date'), domNode);
+        }
+    }
+
     function getTests() {
         var data;
         var deferred;
-
-        data = {
-        	board: gBoard,
-        	job: gJob,
-        	kernel: gKernel,
-            sort: 'created_on',
-            sort_order: '-1',
-        };
 
         function getData(lab) {
             data.lab_name = lab;
@@ -342,6 +486,19 @@ require([
                 });
         }
 
+        data = {
+            board: gBoard,
+            job: gJob,
+            kernel: gKernel,
+            sort: 'created_on',
+            sort_order: '-1',
+        };
+        // Update the general details
+        deferred = request.get('/_ajax/test/suite', data);
+        $.when(deferred)
+            // .fail(error.error, )
+            .done(updateDetails)
+        // Update each lab with the specific data
         gLabList.forEach(getData);
     }
 

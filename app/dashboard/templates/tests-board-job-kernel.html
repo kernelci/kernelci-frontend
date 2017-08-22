@@ -65,20 +65,6 @@
                 </small>
             </dd>
         </dl>
-        <dl class="dl-horizontal">
-            <dt>Unique boards</dt>
-            <dd id="unique-boards" class="loading-content unique-values">
-                <small>
-                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Unique defconfigs</dt>
-            <dd id="unique-defconfigs" class="loading-content unique-values">
-                <small>
-                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
         <div id="pie-chart" class="chart-div pull-center">
@@ -99,16 +85,6 @@
         </div>
     </div>
 </div>
-<!--
-{%- include "conflicts-row.html" %}
-<div class="row">
-    <div class="page-header">
-        <h3>Suites Tested</h3>
-    </div>
-    {%- include "boots-buttons-row.html" %}
-</div>
-{%- include "accordion-container-row.html" %}
--->
 {%- if lab_names|length > 0 %}
 <input type="hidden" id="lab-names" value="{{ lab_names|sort|join(',') }}">
     {%- for lab in lab_names|sort %}
