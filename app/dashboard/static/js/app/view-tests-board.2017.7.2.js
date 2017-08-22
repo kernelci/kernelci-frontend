@@ -59,24 +59,6 @@ require([
             operation_id: 'count-suites',
             query: gBaseSelf
         });
-        // TODO Fix test sets and cases count
-/*
-        batchOps.push({
-            method: 'GET',
-            resource: 'count',
-            document: 'test_set',
-            operation_id: 'count-sets',
-            query: gBaseOthers
-        });
-
-        batchOps.push({
-            method: 'GET',
-            resource: 'count',
-            document: 'test_case',
-            operation_id: 'count-cases',
-            query: gBaseOthers
-        });
-*/
         batchOps.push({
             method: 'GET',
             resource: 'count',
@@ -163,78 +145,103 @@ require([
     function getBatchCount(response) {
         var batchOps;
         var deferred;
-        var job;
         var suiteId;
+        var suiteTree;
+        var suiteBranch
         var queryStr;
+        var queryData;
         var results;
 
         function _createOp(result) {
-            job = result.job;
-            suiteId = result.test_suite_id;
+            suiteId = result._id;
+            suiteTree = result.job;
+            suiteBranch = result.git_branch;
 
             if (suiteId) {
-                suiteId = '&test_suite_id=' + suiteId.$oid;
-            } else {
-                // No test_suite_id value, search only in the last X days.
-                // TODO add this
-                // suiteId = '&date_range=' + gDateRange;
+                queryStr = 'test_suite_id=' + suiteId.$oid;
             }
+
             batchOps.push({
                 method: 'GET',
-                operation_id: 'suites-count-' + job,
+                operation_id: 'suites-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_suite',
-                query: 'board=' + gBoard + '&job=' + job
+                query: 'git_branch=' + suiteBranch + '&job=' + suiteTree
             });
-            // TODO fix test case count
-/*
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-total-count-' + job,
+                operation_id: 'cases-total-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + suiteId
+                query: queryStr
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-success-count-' + job,
+                operation_id: 'cases-success-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + '&status=PASS&' + suiteId
+                query: queryStr + '&status=PASS'
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-fail-count-' + job,
+                operation_id: 'cases-fail-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + '&status=FAIL&' + suiteId
+                query: queryStr + '&status=FAIL'
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-unknown-count-' + job,
+                operation_id: 'cases-unknown-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + '&status=OFFLINE&status=UNKNOWN&' +
-                    suiteId
+                query: queryStr + '&status=OFFLINE&status=UNKNOWN'
             });
-*/
+        }
+
+        function _getTestSuiteDone(response) {
+            results = response.result;
+
+            if (results.length > 0) {
+                batchOps = [];
+                // Only one result, latest test suite
+                _createOp(results[0]);
+                deferred = request.post(
+                    '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+                $.when(deferred)
+                    .fail(error.error, getBatchCountFail)
+                    .done(getBatchCountDone);
+            }
+        }
+
+        function _getTestSuite(result) {
+            // Query parameters to get the latest test suite
+            queryData = {
+                board: result.board,
+                job: result.job,
+                git_branch: result.git_branch,
+                sort: 'created_on',
+                sort_order: '-1',
+                limit: '1'
+            }
+
+            // Get the latest test suite
+            deferred = request.get('/_ajax/test/suite', queryData);
+            $.when(deferred)
+                .done(_getTestSuiteDone)
+                .fail(function(response) {
+                    document.getElementById('suites-count-'+ result.job)
+                        .innerHTML ='&infin;';
+                    ttest.getCountFail(result.job)
+                });
         }
 
         results = response.result;
         if (results.length > 0) {
-            batchOps = [];
-            queryStr = 'board=' + gBoard;
-            results.forEach(_createOp);
-
-            deferred = request.post(
-                '/_ajax/batch', JSON.stringify({batch: batchOps}));
-
-            $.when(deferred)
-                .fail(error.error, getBatchCountFail)
-                .done(getBatchCountDone);
+            results.forEach(_getTestSuite);
         }
     }
 
@@ -298,7 +305,7 @@ require([
                 return getFilterCasesCount(data);
             } else {
                 return ttest.renderCasesCount(
-                    data, type, '/test/board/' + gBoard + '/job/' + data + '/');
+                    data, type, 'cases-', '/test/board/' + gBoard + '/job/' + data + '/');
             }
         }
 
@@ -354,7 +361,7 @@ require([
                 },
 
                 {
-                    data: 'git_branch',
+                    data: 'job',
                     orderable: false,
                     type: 'string',
                     title: _testsColumnTitle(),
@@ -402,7 +409,6 @@ require([
 
     function getJobs() {
         var deferred;
-        var deferred2;
 
         deferred = request.get(
             '/_ajax/test/suite',

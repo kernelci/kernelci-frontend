@@ -121,8 +121,19 @@ define([
         });
     };
 
-   gTestTable.renderTree = function(tree, type, href) {
+    gTestTable.renderTree = function(tree, type, href) {
         return tcommon.renderTree(tree, type, href);
+    };
+
+    gTestTable.getCountFail = function(idStart) {
+        document.getElementById('cases-total-count-'+ idStart)
+            .innerHTML ='&infin;';
+        document.getElementById('cases-success-count-'+ idStart)
+            .innerHTML ='&infin;';
+        document.getElementById('cases-fail-count-'+ idStart)
+            .innerHTML ='&infin;';
+        document.getElementById('cases-unknown-count-'+ idStart)
+            .innerHTML ='&infin;';
     };
 
     return gTestTable;
