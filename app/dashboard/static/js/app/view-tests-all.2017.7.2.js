@@ -2,6 +2,8 @@
  * kernelci dashboard.
  * 
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
+ * Copyright (c) 2017 BayLibre, SAS.
+ * Author: Loys Ollivier <lollivier@baylibre.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -351,9 +353,9 @@ require([
             results = results.map(_toObject);
         }
         setTimeout(getTestsDone.bind(null, results), 25);
-        setTimeout(getSuitesCount.bind(null, results), 75);
-        setTimeout(getLabsCount.bind(null, results), 100);
-        setTimeout(enableSearch, 175);
+        setTimeout(getSuitesCount.bind(null, results), 25);
+        setTimeout(getLabsCount.bind(null, results), 25);
+        setTimeout(enableSearch, 25);
     }
 
     function getTestsFail() {

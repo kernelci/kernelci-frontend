@@ -46,9 +46,7 @@ require([
         var batchOps;
         var deferred;
         var data;
-        var gBaseSelf = "board=" + gBoard;
-        // TODO fix this
-        var gBaseOthers = "board=" + gBoard;
+        var gBaseSelf = 'board=' + gBoard;
 
         data = {board: gBoard};
         batchOps = [];
@@ -147,7 +145,7 @@ require([
         var deferred;
         var suiteId;
         var suiteTree;
-        var suiteBranch
+        var suiteBranch;
         var queryStr;
         var queryData;
         var results;
@@ -201,8 +199,8 @@ require([
             });
         }
 
-        function _getTestSuiteDone(response) {
-            results = response.result;
+        function _getTestSuiteDone(resultz) {
+            results = resultz.result;
 
             if (results.length > 0) {
                 batchOps = [];
@@ -232,7 +230,7 @@ require([
             deferred = request.get('/_ajax/test/suite', queryData);
             $.when(deferred)
                 .done(_getTestSuiteDone)
-                .fail(function(response) {
+                .fail(function() {
                     document.getElementById('suites-count-'+ result.job)
                         .innerHTML ='&infin;';
                     ttest.getCountFail(result.job)
@@ -273,8 +271,7 @@ require([
 
     function getJobsDone(response) {
         var columns,
-            results,
-            deferred;
+            results;
 
         // Internal wrapper to provide the href.
         function _renderSuitesCount(data, type) {
@@ -414,8 +411,7 @@ require([
             '/_ajax/test/suite',
             {
                 aggregate: 'job',
-                // TODO add a date range
-                // date_range: gDateRange,
+                date_range: gDateRange,
                 field: [
                     'job', 'git_branch', 'created_on', 'board', 'name'
                 ],

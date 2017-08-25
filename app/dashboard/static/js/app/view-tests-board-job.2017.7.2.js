@@ -185,8 +185,8 @@ require([
             });
         }
 
-        function _getTestSuiteDone(response) {
-            results = response.result;
+        function _getTestSuiteDone(resultz) {
+            results = resultz.result;
 
             if (results.length > 0) {
                 batchOps = [];
@@ -212,14 +212,14 @@ require([
                 sort: 'created_on',
                 sort_order: '-1',
                 limit: '1'
-            }
+            };
 
             // Get the latest test suite
             deferred = request.get('/_ajax/test/suite', queryData);
             $.when(deferred)
                 .done(_getTestSuiteDone)
-                .fail(function(response) {
-                    ttest.getCountFail(result.vcs_commit)
+                .fail(function() {
+                    ttest.getCountFail(result.vcs_commit);
                 });
         }
 

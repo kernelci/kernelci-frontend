@@ -25,7 +25,7 @@ require([
         document.getElementById('li-test').setAttribute('class', 'active');
     }, 15);
 
-   	gTableCount = {};
+    gTableCount = {};
     gBatchCountMissing = {};
     gLabTable = [];
 
@@ -63,7 +63,7 @@ require([
     }
 
     function getBatchCountFail() {
-    	// TODO fix this
+        // TODO fix this
         html.replaceByClass('count-badge', '&infin;');
     }
 
@@ -104,7 +104,7 @@ require([
         var results;
 
         function _createOp(result) {
-        	suiteId = result._id.$oid;
+            suiteId = result._id.$oid;
             // TODO When sorting check if more than 1 result print conflict error
             batchOps.push({
                 method: 'GET',
@@ -157,8 +157,8 @@ require([
 
             $.when(deferred)
                 .fail(error.error, getBatchCountFail)
-                .done(function(response) {
-                	getBatchCountDone(labTable, response)
+                .done(function(resultz) {
+                    getBatchCountDone(labTable, resultz);
                 });
         }
     }
@@ -184,7 +184,7 @@ require([
 
     function getTestsFail(lab) {
         html.replaceContent(
-            document.getElementById("lab-" + lab),
+            document.getElementById('lab-' + lab),
             html.errorDiv('Error loading data.'));
     }
 
@@ -465,16 +465,17 @@ require([
     function getTests() {
         var data;
         var deferred;
+        var labTable;
 
         function getData(lab) {
             data.lab_name = lab;
 
-		    gLabTable.push(table({
-		        tableId: 'lab-table-' + lab,
-		        tableLoadingDivId: 'lab-table-loading-' + lab,
-		        tableDivId: 'lab-table-div-' + lab
-		    }));
-		    var labTable = gLabTable[gLabTable.length - 1];
+            gLabTable.push(table({
+                tableId: 'lab-table-' + lab,
+                tableLoadingDivId: 'lab-table-loading-' + lab,
+                tableDivId: 'lab-table-div-' + lab
+            }));
+            labTable = gLabTable[gLabTable.length - 1];
             deferred = request.get('/_ajax/test/suite', data);
             $.when(deferred)
                 .done(function(response) {
@@ -496,8 +497,7 @@ require([
         // Update the general details
         deferred = request.get('/_ajax/test/suite', data);
         $.when(deferred)
-            // .fail(error.error, )
-            .done(updateDetails)
+            .done(updateDetails);
         // Update each lab with the specific data
         gLabList.forEach(getData);
     }

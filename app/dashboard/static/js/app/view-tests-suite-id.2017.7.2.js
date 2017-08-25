@@ -2,6 +2,8 @@
  * kernelci dashboard.
  * 
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
+ * Copyright (c) 2017 BayLibre, SAS.
+ * Author: Loys Ollivier <lollivier@baylibre.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,10 +27,8 @@ require([
     'utils/bisect',
     'tables/test',
     'utils/html',
-    'utils/const',
-    'utils/format',
-    'utils/date'
-], function($, init, error, request, u, bisect, ttest, html, appconst, format) {
+    'utils/const'
+], function($, init, error, request, u, bisect, ttest, html, appconst) {
     'use strict';
     var gSuiteId;
     var gDateRange;
@@ -42,6 +42,26 @@ require([
     gFileServer = null;
 
     // TODO Add a row from /jobs to tests ?
+
+    function _tableMessage(tableId, text) {
+        var cellNode;
+        var frag;
+        var rowNode;
+        var strongNode;
+
+        frag = document.createDocumentFragment();
+        rowNode = frag.appendChild(document.createElement('tr'));
+
+        cellNode = rowNode.insertCell(-1);
+        cellNode.colSpan = 6;
+        cellNode.className = 'pull-center';
+
+        strongNode = cellNode.appendChild(document.createElement('strong'));
+        strongNode.appendChild(document.createTextNode(text));
+
+        document.getElementById(tableId)
+            .tBodies[0].appendChild(frag);
+    }
 
     function addCaseTableRow(data, docFrag) {
         var cellNode;
@@ -102,7 +122,6 @@ require([
         var results;
         var table;
         var tableId;
-        var tableBody;
 
         docFrag = document.createDocumentFragment();
         // Because we have an aggregate of deferred
@@ -111,7 +130,7 @@ require([
         // For each test case create a table row
         // And update the matching set table
         results.forEach(function(result) {
-            addCaseTableRow(result, docFrag)
+            addCaseTableRow(result, docFrag);
 
             if(result.test_set_id) {
                 tableId = 'table-set-' + result.test_set_id.$oid;
@@ -150,12 +169,11 @@ require([
         setName = data.name;
 
         tableNode = document.createElement('table');
-        tableNode.className =
-            'table table-striped table-condensed \
-             table-hover clickable-table hidden'
+        tableNode.className = 'table table-striped table-condensed';
+        tableNode.className += 'table-hover clickable-table hidden';
         tableNode.id = 'table-set-' + setId;
         tableCaption = tableNode.createCaption();
-        tableCaption.innerHTML = setName; 
+        tableCaption.innerHTML = setName;
 
         tableNode.title = setName;
         
@@ -235,12 +253,11 @@ require([
             html.errorDiv('Error loading data.'));
     }
 
-    function getTestSetAndCaseData(response) {
+    function getTestSetAndCaseData() {
         var deferredSet;
         var resultSetLength;
         var deferredCase;
         var resultCaseLength;
-        var result;
 
         deferredSet =
             request.get('/_ajax/test/set',{test_suite_id: gSuiteId});
