@@ -28,6 +28,7 @@ require([
     gTableCount = {};
     gBatchCountMissing = {};
     gLabTable = [];
+    gLabList = [];
 
     function updateOrStageCount(elementId, count) {
         var element;
@@ -518,12 +519,14 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gLabList = document.getElementById('lab-names');
-    if (gLabList !== null) {
-        gLabList = String(gLabList.value).split(',');
+    function extendLabList(lab) {
+        gLabList.push(lab.value)
+    }
 
+    Array.prototype.slice.call(document.querySelectorAll('input.lab-names'))
+        .map(extendLabList);
+    if (gLabList) {
         if (gLabList.length > 0) {
-            gLabList = gLabList.sort();
             getTests();
         }
     }

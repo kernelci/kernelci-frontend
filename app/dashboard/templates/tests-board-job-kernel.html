@@ -86,7 +86,6 @@
     </div>
 </div>
 {%- if lab_names|length > 0 %}
-<input type="hidden" id="lab-names" value="{{ lab_names|sort|join(',') }}">
     {%- for lab in lab_names|sort %}
     {% if lab %}
 <div class="row">
@@ -110,6 +109,7 @@
     </div>
 </div>
     {% endif %}
+    <input type="hidden" class="lab-names" value="{{ lab }}">
     {%- endfor %}
 {% else %}
 <div class="row">
