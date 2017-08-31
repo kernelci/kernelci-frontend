@@ -74,10 +74,10 @@ define([
     /**
      * Function to render the case detail.
      *
-     * @param {object} object: The entire data set.
+     * @param {string} link: The href link to point to.
      * @return {Element} The DOM element.
     **/
-    gTestTable.detailsNode = function(object) {
+    gTestTable.detailsNode = function(link) {
         var aNode;
         var str;
         var tooltipNode;
@@ -86,9 +86,7 @@ define([
         tooltipNode.setAttribute('title', 'More info');
 
         aNode = document.createElement('a');
-        str = '/test/case/id/';
-        str += object._id.$oid;
-        str += '/';
+        str = link;
         aNode.setAttribute('href', str);
 
         aNode.appendChild(html.search());

@@ -26,13 +26,15 @@ require([
     'utils/urls',
     'utils/bisect',
     'tables/test',
+    'tables/boot',
     'utils/html',
     'utils/const'
-], function($, init, error, request, u, bisect, ttest, html, appconst) {
+], function($, init, error, request, u, bisect, ttest, tboot, html, appconst) {
     'use strict';
     var gSuiteId;
     var gDateRange;
     var gFileServer;
+    var gLogHref;
 
     setTimeout(function() {
         document.getElementById('li-test').setAttribute('class', 'active');
@@ -40,6 +42,7 @@ require([
 
     gDateRange = appconst.MAX_DATE_RANGE;
     gFileServer = null;
+    gLogHref = null;
 
     // TODO Add a row from /jobs to tests ?
 
@@ -65,14 +68,15 @@ require([
 
     function addCaseTableRow(data, docFrag) {
         var cellNode;
-        var logsNode;
         var rowNode;
         var caseName;
-        var definitionURI;
         var logsNode;
+        var measurements;
+        var measureNode;
+        var measureStr;
 
         caseName = data.name;
-        definitionURI = data.definition_uri;
+        measurements = data.measurements;
 
         rowNode = docFrag.appendChild(document.createElement('tr'));
 
@@ -81,21 +85,16 @@ require([
         cellNode.className = 'name-column';
         cellNode.appendChild(document.createTextNode(caseName));
 
-        // Failure desc.
+        // Measurements
         cellNode = rowNode.insertCell(-1);
-        cellNode.className = 'failure-column';
-        if (definitionURI) {
-            cellNode.appendChild(definitionURI);
+        cellNode.className = 'name-column';
+        if (measurements.length !== 0) {
+            measureStr = measurements[0].value + ' ' + measurements[0].unit;
+            measureNode = document.createTextNode(measureStr);
+            cellNode.appendChild(measureNode);
         } else {
-            cellNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            cellNode.insertAdjacentHTML('beforeend', '&empty;');
         }
-        // Test Case log.
-        // TODO Create Log from something
-        //logsNode = tboot.createBootLog();
-        cellNode = rowNode.insertCell(-1);
-        cellNode.className = 'pull-center';
-        //cellNode.appendChild(logsNode);
-        cellNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
         // Date.
         cellNode = rowNode.insertCell(-1);
@@ -108,9 +107,14 @@ require([
         cellNode.appendChild(ttest.statusNode(data.status));
 
         // Detail.
+        // Test Case log.
         cellNode = rowNode.insertCell(-1);
         cellNode.className = 'pull-center';
-        cellNode.appendChild(ttest.detailsNode(data));
+        if (gLogHref) {
+            cellNode.appendChild(ttest.detailsNode(gLogHref));
+        } else {
+            cellNode.insertAdjacentHTML('beforeend', '&nbsp;');
+        }
     }
 
     function getMultiCasesDataFail() {
@@ -173,9 +177,7 @@ require([
         tableNode.className += 'table-hover clickable-table hidden';
         tableNode.id = 'table-set-' + setId;
         tableCaption = tableNode.createCaption();
-        tableCaption.innerHTML = setName;
-
-        tableNode.title = setName;
+        tableCaption.innerHTML = 'Test set:&nbsp;' + setName;
         
         tableBody = document.createElement('tbody');
         tableNode.appendChild(tableBody);
@@ -191,17 +193,11 @@ require([
         nameHead.className = 'name-column';
         tableRow.appendChild(nameHead);
 
-        // Failure desc.
-        var failureHead = document.createElement('th');
-        failureHead.innerHTML = 'Failure Reason';
-        failureHead.className = 'failure-column';
-        tableRow.appendChild(failureHead);
-
-        // Boot log.
-        var testCaseLogHead = document.createElement('th');
-        testCaseLogHead.innerHTML = 'Test Case Log';
-        testCaseLogHead.className = 'pull-center';
-        tableRow.appendChild(testCaseLogHead);
+        // Measurements
+        var measurementHead = document.createElement('th');
+        measurementHead.innerHTML = 'Measurements';
+        measurementHead.className = 'measurement-column';
+        tableRow.appendChild(measurementHead);
 
         // Date.
         var dateHead = document.createElement('th');
@@ -210,12 +206,17 @@ require([
         tableRow.appendChild(dateHead);
 
         // Status.
-        var status = document.createElement('th');
-        status.innerHTML = 'Status';
-        status.className = 'pull-center';
-        tableRow.appendChild(status);
+        var statusHead = document.createElement('th');
+        statusHead.innerHTML = 'Status';
+        statusHead.className = 'pull-center';
+        tableRow.appendChild(statusHead);
 
         // The "select" cell, nothing to write as title.
+        var logHead = document.createElement('th');
+        logHead.innerHTML = 'Log';
+        logHead.className = 'pull-center';
+        tableRow.appendChild(logHead);
+
         tableRow.insertCell();
 
     }
@@ -310,6 +311,7 @@ require([
         var job;
         var kernel;
         var lab;
+        var logsNode;
         var result;
         var smallNode;
         var spanNode;
@@ -540,11 +542,65 @@ require([
         html.replaceContent(
             document.getElementById('dd-suite-test-time'),
             document.createTextNode(testTime.toCustomTime()));
+    }
 
-        // Test Log
-        // TODO Fix when defined
-        html.replaceContent(
-            document.getElementById('dd-suite-test-log'), html.nonavail());
+    function getBootLog(response) {
+        var bootLog;
+        var deferred;
+        var pathURI;
+        var result;
+        var serverURI;
+        var serverURL;
+        var translatedURI;
+        var lab;
+        // We only have one result.
+        result = response.result[0];
+        bootLog = null;
+
+        function bootLogDone(bootLog, bootResponse) {
+            var bootResult;
+
+            bootResult = bootResponse.result[0];
+            serverURL = result.file_server_url;
+            lab = result.lab_name;
+
+            if (!serverURL) {
+                serverURL = gFileServer;
+            }
+
+            translatedURI = u.createFileServerURL(serverURL, bootResult);
+            serverURI = translatedURI[0];
+            pathURI = translatedURI[1];
+
+            bootLog = tboot.createBootLog(
+                bootResult.boot_log,
+                bootResult.boot_log_html,
+                lab,
+                serverURI,
+                pathURI
+            );
+            gLogHref = u.getHref(serverURI, [
+                        pathURI,
+                        lab,
+                        bootResult.boot_log_html
+                    ]);
+            if (bootLog) {
+                html.replaceContent(
+                        document.getElementById('dd-suite-test-log'), bootLog);
+            } else {
+                html.replaceContent(
+                    document.getElementById('dd-suite-test-log'), html.nonavail());
+            }
+        }
+
+        // Boot & Test Log
+        if (result.boot_id) {
+            deferred = request.get('/_ajax/boot', {id: result.boot_id.$oid});
+            $.when(deferred)
+                .done(function(bootResponse) {
+                    bootLogDone(bootLog, bootResponse);
+                });
+        }
     }
 
     function getSuiteData() {
@@ -555,6 +611,7 @@ require([
                 )
             .done(
                 getSuiteDataDone,
+                getBootLog,
                 getTestSetAndCaseData
                 );
     }
