@@ -520,15 +520,13 @@ require([
     }
 
     function extendLabList(lab) {
-        gLabList.push(lab.value)
+        gLabList.push(lab.value);
     }
 
     Array.prototype.slice.call(document.querySelectorAll('input.lab-names'))
         .map(extendLabList);
-    if (gLabList) {
-        if (gLabList.length > 0) {
-            getTests();
-        }
+    if (gLabList.length > 0) {
+        getTests();
     }
 
     init.hotkeys();

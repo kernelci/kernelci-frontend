@@ -70,7 +70,6 @@ require([
         var cellNode;
         var rowNode;
         var caseName;
-        var logsNode;
         var measurements;
         var measureNode;
         var measureStr;
@@ -166,7 +165,6 @@ require([
         var tableHead;
         var tableBody;
         var tableRow;
-        var tableCell;
         var tableCaption;
 
         setId = data._id.$oid;
@@ -221,10 +219,6 @@ require([
 
     }
 
-    function getMultiSetsDataFail() {
-        // TODO
-    }
-
     function getMultiSetsDataDone(response) {
         var docFrag;
         var results;
@@ -269,7 +263,7 @@ require([
         // Get all the data first and then update it sequentially
         // To avoid having the case results before the sets table creation
         $.when(deferredSet, deferredCase)
-            .fail(error.error, getMultiSetsDataFail)
+            .fail(error.error, getTestSetAndCaseDataFail)
             .done(function(responseSet, responseCase) {
 
                 getMultiSetsDataDone(responseSet);
@@ -311,11 +305,9 @@ require([
         var job;
         var kernel;
         var lab;
-        var logsNode;
         var result;
         var smallNode;
         var spanNode;
-        var statusNode;
         var str;
         var suiteName;
         var testTime;
@@ -557,7 +549,7 @@ require([
         result = response.result[0];
         bootLog = null;
 
-        function bootLogDone(bootLog, bootResponse) {
+        function bootLogDone(bootResponse) {
             var bootResult;
 
             bootResult = bootResponse.result[0];
@@ -591,28 +583,26 @@ require([
                 html.replaceContent(
                     document.getElementById('dd-suite-test-log'), html.nonavail());
             }
+            setTimeout(getTestSetAndCaseData, 25);
         }
 
         // Boot & Test Log
         if (result.boot_id) {
             deferred = request.get('/_ajax/boot', {id: result.boot_id.$oid});
             $.when(deferred)
-                .done(function(bootResponse) {
-                    bootLogDone(bootLog, bootResponse);
-                });
+                .done(bootLogDone);
         }
     }
 
     function getSuiteData() {
         $.when(request.get('/_ajax/test/suite', {id: gSuiteId}))
-            .fail(error.error,
-                getSuiteDataFail,
-                getTestSetAndCaseDataFail
+            .fail(
+                error.error,
+                getSuiteDataFail
                 )
             .done(
                 getSuiteDataDone,
-                getBootLog,
-                getTestSetAndCaseData
+                getBootLog
                 );
     }
 
