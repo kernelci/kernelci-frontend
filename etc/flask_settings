@@ -1,0 +1,15 @@
+PREFERRED_URL_SCHEME = 'https'
+# Add the trailing slash!
+BACKEND_URL = "http://backend.host"
+BASE_URL = "http://frontend.host"
+BACKEND_TOKEN = "token"
+SECRET_KEY = "random_string"
+# Add the trailing slash!
+FILE_SERVER_URL = "http://storage.host"
+# GOOGLE_ANALYTICS_ID = '{{ google_analytics }}'
+DATE_RANGE = 14
+INFO_EMAIL = "luc.juggery@gmail.com"
+
+CACHE_TYPE = 'redis'
+DEBUG = True
+TESTING = DEBUG
