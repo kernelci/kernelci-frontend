@@ -672,7 +672,7 @@ define([
     if (document.getElementById('job-name') !== null) {
         gJob = document.getElementById('job-name').value;
     }
-    if (document.getElementById('job-name') !== null) {
+    if (document.getElementById('kernel-name') !== null) {
         gKernel = document.getElementById('kernel-name').value;
     }
     if (document.getElementById('soc-name') !== null) {
