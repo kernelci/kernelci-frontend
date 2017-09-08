@@ -53,6 +53,7 @@ require([
         batchOps.push({
             method: 'GET',
             resource: 'count',
+            distinct: 'name',
             document: 'test_suite',
             operation_id: 'count-suites',
             query: gBaseSelf
@@ -146,6 +147,7 @@ require([
         var suiteId;
         var suiteTree;
         var suiteBranch;
+        var suiteQuery;
         var queryStr;
         var queryData;
         var results;
@@ -154,6 +156,8 @@ require([
             suiteId = result._id;
             suiteTree = result.job;
             suiteBranch = result.git_branch;
+            suiteQuery = 'board=' + gBoard + '&git_branch=' + suiteBranch;
+            suiteQuery += '&job=' + suiteTree;
 
             if (suiteId) {
                 queryStr = 'test_suite_id=' + suiteId.$oid;
@@ -164,7 +168,7 @@ require([
                 operation_id: 'suites-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_suite',
-                query: 'git_branch=' + suiteBranch + '&job=' + suiteTree
+                query: suiteQuery
             });
             batchOps.push({
                 method: 'GET',
