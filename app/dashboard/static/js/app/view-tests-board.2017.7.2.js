@@ -53,6 +53,7 @@ require([
         batchOps.push({
             method: 'GET',
             resource: 'count',
+            distinct: 'name',
             document: 'test_suite',
             operation_id: 'count-suites',
             query: gBaseSelf
