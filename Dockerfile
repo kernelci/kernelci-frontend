@@ -36,13 +36,11 @@ RUN nodejs /app/dashboard/static/js/lib/r.js -o /app/dashboard/static/js/build.j
 # COPY maintenance page
 COPY html/maintenance.html /usr/share/nginx/html/kernelci/maintenance.html.not 
 
-#  Frontend configuration
-COPY etc/nginx-kernelci-frontend.conf /etc/nginx/conf.d/kernelci.conf
-
-# Nginx upstream definitions
-COPY etc/frontend-upstreams.conf /etc/nginx/conf.d/frontend-upstreams.conf
+#  Nginx configuration
+COPY etc/nginx.conf /etc/nginx/conf.d/kernelci.conf
+COPY etc/upstreams.conf /etc/nginx/conf.d/frontend-upstreams.conf
 
 ### uWSGI configuration
 
 # uWSGI configuration
-COPY etc/uwsgi-kernelci-frontend.ini /app/uwsgi.ini
+COPY etc/uwsgi.ini /app/uwsgi.ini
