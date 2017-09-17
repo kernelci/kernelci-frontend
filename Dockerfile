@@ -27,7 +27,7 @@ COPY etc/flask_settings /etc/linaro/kernelci-frontend.cfg
 
 # Create root directory
 RUN mkdir -p /usr/share/nginx/html/kernelci \
-    && chown www-data:www-data /usr/share/nginx/html/kernelci
+    && chown nginx:nginx /usr/share/nginx/html/kernelci
 
 # Copy and build static assets
 RUN nodejs /app/dashboard/static/js/lib/r.js -o /app/dashboard/static/js/build.js \
@@ -37,10 +37,9 @@ RUN nodejs /app/dashboard/static/js/lib/r.js -o /app/dashboard/static/js/build.j
 COPY html/maintenance.html /usr/share/nginx/html/kernelci/maintenance.html.not 
 
 #  Nginx configuration
-COPY etc/nginx.conf /etc/nginx/conf.d/kernelci.conf
-COPY etc/upstreams.conf /etc/nginx/conf.d/frontend-upstreams.conf
+COPY etc/nginx.conf /etc/nginx/nginx.conf
+COPY etc/kernelci.conf /etc/nginx/conf.d/kernelci.conf
 
 ### uWSGI configuration
 
-# uWSGI configuration
 COPY etc/uwsgi.ini /app/uwsgi.ini

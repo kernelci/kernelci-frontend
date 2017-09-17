@@ -8,7 +8,7 @@ SECRET_KEY = "random_string"
 FILE_SERVER_URL = "http://127.0.0.1/"
 # GOOGLE_ANALYTICS_ID = '{{ google_analytics }}'
 DATE_RANGE = 14
-INFO_EMAIL = "luc.juggery@gmail.com"
+INFO_EMAIL = "me@gmail.com"
 
 CACHE_TYPE = 'redis'
 DEBUG = True
