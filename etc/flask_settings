@@ -1,0 +1,9 @@
+# Add the trailing slash for URLs !
+BACKEND_URL = "http://proxy-backend/"
+BASE_URL = "http://127.0.0.1:5000/"
+BACKEND_TOKEN = "TO_REPLACE_WHEN_TOKEN_GENERATED_USING_API"
+SECRET_KEY = "random_string"
+FILE_SERVER_URL = "http://127.0.0.1/"
+DATE_RANGE = 14
+CACHE_TYPE = 'redis'
+CACHE_REDIS_HOST = 'redis'
