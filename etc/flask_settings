@@ -11,5 +11,6 @@ DATE_RANGE = 14
 INFO_EMAIL = "me@gmail.com"
 
 CACHE_TYPE = 'redis'
+CACHE_REDIS_HOST = 'redis'
 DEBUG = True
 TESTING = DEBUG
