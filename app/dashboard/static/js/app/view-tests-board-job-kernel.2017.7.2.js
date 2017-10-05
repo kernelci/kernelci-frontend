@@ -466,9 +466,9 @@ require([
     function getTests() {
         var data;
         var deferred;
-        var labTable;
 
         function getData(lab) {
+            var labTable;
             data.lab_name = lab;
 
             gLabTable.push(table({
