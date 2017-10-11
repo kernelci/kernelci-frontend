@@ -146,7 +146,7 @@ require([
 
         function _createOp(result) {
             suiteId = result._id;
-            suiteCommit = result.vcs_commit;
+            suiteCommit = result.kernel;
 
             if (suiteId) {
                 queryStr = 'test_suite_id=' + suiteId.$oid;
@@ -316,7 +316,7 @@ require([
                     className: 'commit-column'
                 },
                 {
-                    data: 'vcs_commit',
+                    data: 'kernel',
                     title: _casesColumnTitle(),
                     type: 'string',
                     orderable: false,
