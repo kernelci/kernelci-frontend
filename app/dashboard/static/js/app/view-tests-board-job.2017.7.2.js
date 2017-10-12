@@ -106,8 +106,13 @@ require([
         var results;
 
         function _parseOperationsResult(result) {
-            gTableCount[result.operation_id] =
-                parseInt(result.result[0].count, 10);
+            if (gTableCount[result.operation_id]) {
+                gTableCount[result.operation_id] +=
+                    parseInt(result.result[0].count, 10);
+            } else {
+                gTableCount[result.operation_id] =
+                    parseInt(result.result[0].count, 10);
+            }
         }
 
         function _updateTable(opId) {
@@ -186,15 +191,10 @@ require([
         }
 
         function _getTestSuiteDone(resultz) {
-            results = resultz.result;
-
-            if (results.length > 0) {
+            if (resultz.result) {
                 batchOps = [];
-                // Only one result, latest test suite
-                _createOp(results[0]);
-                deferred = request.post(
-                    '/_ajax/batch', JSON.stringify({batch: batchOps}));
-
+                resultz.result.forEach(_createOp);
+                deferred = request.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
                 $.when(deferred)
                     .fail(error.error, getSuitesCountFail)
                     .done(getSuitesCountDone);
@@ -211,7 +211,7 @@ require([
                 vcs_commit: result.vcs_commit,
                 sort: 'created_on',
                 sort_order: '-1',
-                limit: '1'
+                field: ['test_case', 'kernel']
             };
 
             // Get the latest test suite
