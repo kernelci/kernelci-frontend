@@ -4,11 +4,12 @@ require([
     'utils/init',
     'utils/format',
     'utils/html',
+    'utils/const',
     'utils/error',
     'utils/request',
     'utils/table',
     'tables/test'
-], function($, init, format, html, error, request, table, ttest) {
+], function($, init, format, html, appconst, error, request, table, ttest) {
     'use strict';
 
     var gBatchCountMissing,
@@ -18,6 +19,7 @@ require([
         gQueryStr,
         gSearchFilter,
         gBoard,
+        gDateRange,
         gTableCount;
 
     setTimeout(function() {
@@ -26,6 +28,7 @@ require([
 
     gTableCount = {};
     gBatchCountMissing = {};
+    gDateRange = appconst.MAX_DATE_RANGE;
 
     function updateCountDetail(result) {
         html.replaceContent(
@@ -344,7 +347,6 @@ require([
             gTestsTable
                 .columns(columns)
                 .data(results)
-                .paging(false)
                 .info(false)
                 .rowURL('/test/board/%(board)s/job/%(job)s/kernel/%(kernel)s/')
                 .rowURLElements(['board', 'job', 'kernel'])
@@ -360,7 +362,7 @@ require([
             '/_ajax/test/suite',
             {
                 aggregate: 'kernel',
-                limit: gNumberRange,
+                date_range: gDateRange,
                 field: [
                     'build_id',
                     'created_on',
@@ -389,13 +391,12 @@ require([
     if (document.getElementById('board-name') !== null) {
         gBoard = document.getElementById('board-name').value;
     }
-    if (document.getElementById('number-range') !== null) {
-        gNumberRange = document.getElementById('number-range').value;
-    }
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
     }
-
+    if (document.getElementById('date-range') !== null) {
+        gDateRange = document.getElementById('date-range').value;
+    }
     gQueryStr = 'board=' + gBoard + '&job=' + gJob;
     gTestsTable = table({
         tableId: 'tests-table',
