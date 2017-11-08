@@ -367,8 +367,16 @@ require([
 
     function getTests() {
         var deferred;
+        var reqData;
 
-        deferred = request.get('/_ajax/suite/distinct/board/', {});
+        reqData = {
+            sort: 'created_on',
+            sort_order: -1,
+            date_range: gDateRange,
+            limit: appconst.MAX_QUERY_LIMIT,
+        }
+
+        deferred = request.get('/_ajax/suite/distinct/board/', reqData);
         $.when(deferred)
             .fail(error.error, getTestsFail)
             .done(getTestsParse);
