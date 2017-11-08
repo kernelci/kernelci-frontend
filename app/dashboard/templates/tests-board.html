@@ -2,19 +2,14 @@
 {%- block meta -%}
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block head %}
 {{ super() }}
 <link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+<link href="/board/{{ board }}/feed.xml" rel="alternate" title="Recent Changes - Atom Feed" type="application/atom+xml">
 {%- endblock %}
-{%- block title %}{{ page_title|safe }}{%- endblock %}
 {%- block content %}
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-            <h3>{{ body_title|default('Latest Results')|safe }}</h3>
-        </div>
-    </div>
-</div>
+{%- include "date-range.html" %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
         <ul class="list-group">
