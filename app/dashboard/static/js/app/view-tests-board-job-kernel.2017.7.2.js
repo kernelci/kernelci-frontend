@@ -143,7 +143,7 @@ require([
                 operation_id: lab + '-cases-unknown-count-' + suiteId,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + suiteId + '&status=OFFLINE&status=UNKNOWN'
+                query: queryStr + suiteId + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 

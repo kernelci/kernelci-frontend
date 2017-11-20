@@ -189,7 +189,7 @@ require([
                 operation_id: 'cases-unknown-count-' + suiteCommit,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + '&status=OFFLINE&status=UNKNOWN'
+                query: queryStr + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 
