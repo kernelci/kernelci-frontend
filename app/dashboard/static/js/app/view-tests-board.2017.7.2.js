@@ -199,7 +199,7 @@ require([
                 operation_id: 'cases-unknown-count-' + suiteTree,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + '&status=OFFLINE&status=UNKNOWN'
+                query: queryStr + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 
