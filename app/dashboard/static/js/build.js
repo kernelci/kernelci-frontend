@@ -174,6 +174,11 @@
         {name: 'kci-socs-soc-job'},
         {name: 'kci-socs-soc-job-kernel'},
         {name: 'kci-sponsors'},
-        {name: 'kci-stats'}
+        {name: 'kci-stats'},
+        {name: 'kci-tests-all'},
+        {name: 'kci-tests-board'},
+        {name: 'kci-tests-board-job'},
+        {name: 'kci-tests-board-job-kernel'},
+        {name: 'kci-tests-suite-id'}
     ]
 })
