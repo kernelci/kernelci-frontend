@@ -1,20 +1,20 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * Copyright (c) 2017 BayLibre, SAS.
  * Author: Loys Ollivier <lollivier@baylibre.com>
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -176,7 +176,7 @@ require([
         tableNode.id = 'table-set-' + setId;
         tableCaption = tableNode.createCaption();
         tableCaption.innerHTML = 'Test set:&nbsp;' + setName;
-        
+
         tableBody = document.createElement('tbody');
         tableNode.appendChild(tableBody);
 
@@ -538,60 +538,47 @@ require([
 
     function getBootLog(response) {
         var bootLog;
-        var deferred;
         var pathURI;
         var result;
         var serverURI;
         var serverURL;
         var translatedURI;
         var lab;
-        // We only have one result.
-        result = response.result[0];
-        bootLog = null;
 
-        function bootLogDone(bootResponse) {
-            var bootResult;
+        result = response.result[0]; // We only have one result.
+        serverURL = result.file_server_url;
+        lab = result.lab_name;
 
-            bootResult = bootResponse.result[0];
-            serverURL = result.file_server_url;
-            lab = result.lab_name;
-
-            if (!serverURL) {
-                serverURL = gFileServer;
-            }
-
-            translatedURI = u.createFileServerURL(serverURL, bootResult);
-            serverURI = translatedURI[0];
-            pathURI = translatedURI[1];
-
-            bootLog = tboot.createBootLog(
-                bootResult.boot_log,
-                bootResult.boot_log_html,
-                lab,
-                serverURI,
-                pathURI
-            );
-            gLogHref = u.getHref(serverURI, [
-                        pathURI,
-                        lab,
-                        bootResult.boot_log_html
-                    ]);
-            if (bootLog) {
-                html.replaceContent(
-                        document.getElementById('dd-suite-test-log'), bootLog);
-            } else {
-                html.replaceContent(
-                    document.getElementById('dd-suite-test-log'), html.nonavail());
-            }
-            setTimeout(getTestSetAndCaseData, 25);
+        if (!serverURL) {
+            serverURL = gFileServer;
         }
 
-        // Boot & Test Log
-        if (result.boot_id) {
-            deferred = request.get('/_ajax/boot', {id: result.boot_id.$oid});
-            $.when(deferred)
-                .done(bootLogDone);
+        translatedURI = u.createFileServerURL(serverURL, result);
+        serverURI = translatedURI[0];
+        pathURI = translatedURI[1];
+
+        bootLog = tboot.createBootLog(
+            result.boot_log,
+            result.boot_log_html,
+            lab,
+            serverURI,
+            pathURI
+        );
+        gLogHref = u.getHref(serverURI, [
+            pathURI,
+            lab,
+            result.boot_log_html
+        ]);
+
+        if (bootLog) {
+            html.replaceContent(
+                document.getElementById('dd-suite-test-log'), bootLog);
+        } else {
+            html.replaceContent(
+                document.getElementById('dd-suite-test-log'), html.nonavail());
         }
+
+        setTimeout(getTestSetAndCaseData, 25);
     }
 
     function getSuiteData() {
