@@ -151,7 +151,7 @@ require([
             .fail(e.error, getBootsCountFail)
             .done(getBootsCountDone);
 
-        deferred = r.get('/_ajax/boot/distinct/board', data);
+        deferred = r.get('/_ajax/boot/distinct/board/', data);
 
         $.when(deferred)
             .fail(e.error, getDistinctBoardsFail)
