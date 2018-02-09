@@ -73,7 +73,7 @@ require.config({
             'app/view-jobs-job': 'app/view-jobs-job.2017.4',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2017.4',
             'app/view-socs-all': 'app/view-socs-all.2017.3.3',
-            'app/view-socs-soc': 'app/view-socs-soc.2017.3.3',
+            'app/view-socs-soc': 'app/view-socs-soc.2018.2',
             'app/view-socs-soc-job': 'app/view-socs-soc-job.2017.3.3',
             'app/view-socs-soc-job-kernel': 'app/view-socs-soc-job-kernel.2017.4',
             'app/view-sponsors': 'app/view-sponsors.2017.3.3',
@@ -82,7 +82,7 @@ require.config({
             'app/view-tests-board': 'app/view-tests-board.2017.12',
             'app/view-tests-board-job': 'app/view-tests-board-job.2017.12',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2017.12',
-            'app/view-tests-suite-id': 'app/view-tests-suite-id.2017.12',
+            'app/view-tests-suite-id': 'app/view-tests-suite-id.2018.2',
         }
     },
     shim: {
