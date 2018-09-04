@@ -177,9 +177,6 @@ def static_html_proxy(path):
     "/_ajax/test/suite",
     defaults={"api": "TEST_SUITE_API_ENDPOINT"}, methods=["GET"])
 @app.route(
-    "/_ajax/test/set",
-    defaults={"api": "TEST_SET_API_ENDPOINT"}, methods=["GET"])
-@app.route(
     "/_ajax/test/case",
     defaults={"api": "TEST_CASE_API_ENDPOINT"}, methods=["GET"])
 def ajax_get(api):

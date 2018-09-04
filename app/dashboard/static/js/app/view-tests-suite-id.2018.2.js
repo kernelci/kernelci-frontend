@@ -124,24 +124,14 @@ require([
         var docFrag;
         var results;
         var table;
-        var tableId;
-
+        var tableId = 'multiple-cases-table';
         docFrag = document.createDocumentFragment();
         // Because we have an aggregate of deferred
-        results = response[0].result;
-
+        results = response.result;
         // For each test case create a table row
         // And update the matching set table
         results.forEach(function(result) {
             addCaseTableRow(result, docFrag);
-
-            if(result.test_set_id) {
-                tableId = 'table-set-' + result.test_set_id.$oid;
-                table = document.getElementById(tableId);
-            } else {
-                // Cases that doesn't belong to a test set
-                tableId = 'multiple-cases-table';
-            }
 
             table = document.getElementById(tableId);
             html.removeClass(table, 'hidden');
@@ -149,7 +139,6 @@ require([
         });
 
         if (results.length === 0) {
-            tableId = 'multiple-cases-table';
             table = document.getElementById(tableId);
             setTimeout(
                 _tableMessage.bind(
@@ -158,132 +147,32 @@ require([
         }
     }
 
-    function createSetTable(data, docFrag) {
-        var setId;
-        var setName;
-        var tableNode;
-        var tableHead;
-        var tableBody;
-        var tableRow;
-        var tableCaption;
-
-        setId = data._id.$oid;
-        setName = data.name;
-
-        tableNode = document.createElement('table');
-        tableNode.className = 'table table-striped table-condensed';
-        tableNode.className += 'table-hover clickable-table hidden';
-        tableNode.id = 'table-set-' + setId;
-        tableCaption = tableNode.createCaption();
-        tableCaption.innerHTML = 'Test set:&nbsp;' + setName;
-
-        tableBody = document.createElement('tbody');
-        tableNode.appendChild(tableBody);
-
-        docFrag.appendChild(tableNode);
-
-        tableHead = tableNode.createTHead();
-        tableRow = tableHead.insertRow();
-
-        // Name.
-        var nameHead = document.createElement('th');
-        nameHead.innerHTML = 'Test Case Name';
-        nameHead.className = 'name-column';
-        tableRow.appendChild(nameHead);
-
-        // Measurements
-        var measurementHead = document.createElement('th');
-        measurementHead.innerHTML = 'Measurements';
-        measurementHead.className = 'measurement-column';
-        tableRow.appendChild(measurementHead);
-
-        // Date.
-        var dateHead = document.createElement('th');
-        dateHead.innerHTML = 'Date';
-        dateHead.className = 'date-column pull-center';
-        tableRow.appendChild(dateHead);
-
-        // Status.
-        var statusHead = document.createElement('th');
-        statusHead.innerHTML = 'Status';
-        statusHead.className = 'pull-center';
-        tableRow.appendChild(statusHead);
-
-        // The "select" cell, nothing to write as title.
-        var logHead = document.createElement('th');
-        logHead.innerHTML = 'Log';
-        logHead.className = 'pull-center';
-        tableRow.appendChild(logHead);
-
-        tableRow.insertCell();
-
-    }
-
-    function getMultiSetsDataDone(response) {
-        var docFrag;
-        var results;
-        var table;
-        var tableId;
-
-        tableId = 'sets-reports-div';
-        // Because we have an aggregate of deferred
-        results = response[0].result;
-        table = document.getElementById(tableId);
-
-        docFrag = document.createDocumentFragment();
-
-        // For each test set create a table
-        results.forEach(function(result) {
-            createSetTable(result, docFrag);
-        });
-
-        table.appendChild(docFrag);
-    }
-
-    function getTestSetAndCaseDataFail() {
-        html.removeChildren(
-            document.getElementById('sets-reports-loading-div'));
+    function getTestCaseDataFail() {
         html.replaceContent(
             document.getElementById('cases-reports-table-div'),
             html.errorDiv('Error loading data.'));
     }
 
-    function getTestSetAndCaseData() {
-        var deferredSet;
-        var resultSetLength;
+    function getTestCaseData() {
         var deferredCase;
         var resultCaseLength;
-
-        deferredSet =
-            request.get('/_ajax/test/set',{test_suite_id: gSuiteId});
 
         deferredCase =
             request.get('/_ajax/test/case',{test_suite_id: gSuiteId});
 
         // Get all the data first and then update it sequentially
-        // To avoid having the case results before the sets table creation
-        $.when(deferredSet, deferredCase)
-            .fail(error.error, getTestSetAndCaseDataFail)
-            .done(function(responseSet, responseCase) {
-
-                getMultiSetsDataDone(responseSet);
-                resultSetLength = responseSet[0].result.length;
-
+        $.when(deferredCase)
+            .fail(error.error, getTestCaseDataFail)
+            .done(function(responseCase) {
                 getMultiCasesDataDone(responseCase);
-                resultCaseLength = responseCase[0].result.length;
+                resultCaseLength = responseCase.result.length;
             });
 
-        //If there's no test set and case for this test suite update content
-        if ((resultSetLength === 0) && (resultCaseLength === 0)) {
-            html.removeChildren(
-                document.getElementById('sets-reports-loading-div'));
+        //If there are not any test case for this test suite update the content
+        if (resultCaseLength === 0) {
             html.replaceContent(
                 document.getElementById('cases-reports-table-div'),
                 html.errorDiv('No data available for this test suite.'));
-        }
-        else {
-            html.removeElement(
-                document.getElementById('sets-reports-loading-div'));
         }
 
     }
@@ -578,7 +467,7 @@ require([
                 document.getElementById('dd-suite-test-log'), html.nonavail());
         }
 
-        setTimeout(getTestSetAndCaseData, 25);
+        setTimeout(getTestCaseData, 25);
     }
 
     function getSuiteData() {
