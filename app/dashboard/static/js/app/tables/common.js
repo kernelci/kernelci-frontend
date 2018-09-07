@@ -367,6 +367,35 @@ define([
         return rendered;
     };
 
+	/**
+     * Render the GitUrl column on a table.
+     *
+     * @param {String} href: The link location.
+     * @param {String} type: The type of the display option.
+     * @param {String} data: The data for the tooltip.
+    **/
+    gTablesUtils.renderGitUrl = function(href, type, data) {
+        var aNode;
+        var rendered;
+        var tooltipNode;
+         rendered = null;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+			if(href){
+				tooltipNode.setAttribute('title', 'Go to git repository');// static title
+				aNode = document.createElement('a');
+				aNode.setAttribute('href', href);
+				aNode.setAttribute('target', '_blank');
+				aNode.appendChild(document.createTextNode(data));
+				tooltipNode.appendChild(aNode);
+			}else{
+				tooltipNode.appendChild(document.createTextNode(data));
+			}
+             rendered = tooltipNode.outerHTML;
+        }
+        return rendered;
+    };
+
     /**
      * Render the kernel column on a table.
      *
@@ -404,6 +433,45 @@ define([
             tooltipNode.remove();
         }
 
+        return rendered;
+    };
+
+    /**
+     * Render the Kernel column on a table.
+     *
+     * @param {String} data: The data for the tooltip.
+     * @param {String} type: The type of the display option.
+     * @param {String} href: The link location.
+    **/
+    gTablesUtils.renderKernelRelease = function(data, type, href) {
+        var aNode;
+        var rendered;
+        var tooltipNode;
+        
+        rendered = data;
+        if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', 'more info');// static title
+            
+             if (href) {
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                aNode.setAttribute('href', href);
+                
+                aNode.appendChild(document.createTextNode(data));
+                tooltipNode.appendChild(aNode);
+            } else {
+                tooltipNode.appendChild(document.createTextNode(data));
+            }
+            
+            rendered = tooltipNode.outerHTML;
+            // Remove the nodes.
+            if (aNode) {
+                aNode.remove();
+            }
+            tooltipNode.remove();
+        }
+        
         return rendered;
     };
 
