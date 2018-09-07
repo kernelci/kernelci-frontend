@@ -348,8 +348,12 @@ define([
                 tooltipNode.setAttribute('title', 'More info');
             }
 
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', href);
+            if (href) {
+                aNode = document.createElement('a');
+                aNode.setAttribute('href', href);
+            } else {
+                aNode = document.createElement('span');
+            }
 
             aNode.appendChild(html.search());
             tooltipNode.appendChild(aNode);
