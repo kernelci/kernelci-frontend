@@ -412,3 +412,9 @@ def init():
         view_func=vrelease.ReleasesKernelBoardView.as_view("release-kernel-board"),
         methods=["GET"]
     )
+
+    add_rule(
+       "/test-build/kernel/<string:kernel>/board/<string:board>/suite_name/<string:suite_name>/",
+       view_func=vrelease.ReleasesKernelBoardSuiteNameView.as_view("release-kernel-board-suite-name"),
+       methods=["GET"]
+    )
