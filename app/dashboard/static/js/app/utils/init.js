@@ -22,10 +22,11 @@
  */
 define([
     'jquery',
+    'utils/const',
     'bootstrap',
     'jquery.hotkeys',
     'jquery.hotkeymap'
-], function($) {
+], function($ , appconst) {
     'use strict';
     var init;
 
@@ -40,20 +41,54 @@ define([
         };
     }
 
-    function setTooltip() {
+    init.tooltip = function () {
         $('body').tooltip({
             selector: '[rel=tooltip]',
             html: true
         });
     }
 
-    function setPopover() {
+    init.activeElement = function(id) {
+        setTimeout(function() {
+            document.getElementById(id).setAttribute('class', 'active');
+        }, 15);
+    }
+
+    init.init = function(page) {
+
+        setTimeout( function( ) {
+            document.getElementById('li-'+ page ).setAttribute('class', 'active');
+        } , 15 );
+
+        this.hotkeys();
+        this.tooltip();
+        return this.domElements();
+    }
+
+    init.domElements = function() {
+
+        var gDateRange , gSearchFilter , gPageLen;
+
+        if (document.getElementById('date-range') !== null) {
+            gDateRange = document.getElementById('date-range').value = appconst.MAX_DATE_RANGE;
+        }
+        if (document.getElementById('search-filter') !== null) {
+            gSearchFilter = document.getElementById('search-filter').value || '';
+        }
+        if (document.getElementById('page-len') !== null) {
+            gPageLen = document.getElementById('page-len').value || 25;
+        }
+
+        return [ gDateRange , gSearchFilter , gPageLen ]
+    }
+
+    init.setPopover = function() {
         $('[data-toggle="popover"]').popover({
             html: true
         });
     }
 
-    function setHotKeys() {
+    init.hotkeys = function() {
         var goToBoot,
             goToBuild,
             goToCompare,
@@ -125,22 +160,10 @@ define([
         );
     }
 
-    init.hotkeys = function() {
-        setHotKeys();
-    };
-
-    init.tooltip = function() {
-        setTooltip();
-    };
-
-    init.popover = function() {
-        setPopover();
-    };
-
     init.all = function() {
-        setHotKeys();
-        setTooltip();
-        setPopover();
+        init.hotkeys();
+        init.tooltip();
+        init.setPopover();
     };
 
     return init;

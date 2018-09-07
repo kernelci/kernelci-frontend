@@ -32,6 +32,7 @@ import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 import dashboard.views.soc as vsoc
 import dashboard.views.test as vtest
+import dashboard.views.release as vrelease
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.boot as bootfeed
@@ -390,5 +391,36 @@ def init():
         "/test/board/<string:board>/job/<string:job>/kernel/<string:kernel>/",
         view_func=vtest.TestsBoardJobKernelView.
         as_view("tests-board-job-kernel-view"),
+        methods=["GET"]
+    )
+
+    # Tests by build views.
+    add_rule(
+        "/test-build/",
+        view_func=vrelease.ReleasesAllView.as_view("release-all-view"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/test-build/kernel/<string:kernel>/",
+        view_func=vrelease.ReleasesKernelView.as_view("release-kernel"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/test-build/kernel/<string:kernel>/board/<string:board>/",
+        view_func=vrelease.ReleasesKernelBoardView.as_view("release-kernel-board"),
+        methods=["GET"]
+    )
+
+    add_rule(
+       "/test-build/kernel/<string:kernel>/board/<string:board>/suite_name/<string:suite_name>/",
+       view_func=vrelease.ReleasesKernelBoardSuiteNameView.as_view("release-kernel-board-suite-name"),
+       methods=["GET"]
+    )
+
+    add_rule(
+        "/test-build/kernel/<string:kernel>/board/<string:board>/suite_name/<string:suite_name>/set_name/<string:set_name>/",
+        view_func=vrelease.ReleasesKernelBoardSetNameView.as_view("release-kernel-board-set-name"),
         methods=["GET"]
     )
