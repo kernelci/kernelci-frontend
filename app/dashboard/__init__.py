@@ -336,3 +336,20 @@ def ajax_distinct(resource, field):
             request, "/%s/distinct" % resource, doc_id=field, timeout=60 * 30)
     else:
         abort(403)
+
+
+@app.route(
+    "/_backend/<path:field>", methods=["GET" , "POST" , "OPTIONS"])
+def ajax_simple(field):
+    if( request.method == "GET" ):
+        if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+            return backend.ajax_get(
+                request , field , timeout=60 * 30
+            )
+    elif( request.method == "POST" ):
+        if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
+            return backend.ajax_batch_post(
+                request , field , timeout=60 * 30
+            )
+    else:
+        abort(403)
