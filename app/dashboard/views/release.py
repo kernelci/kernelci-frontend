@@ -69,3 +69,24 @@ class ReleasesKernelView(ReleaseGenericView):
             page_title=self.TESTS_PAGE_TITLE,
             search_filter=search_filter
         )
+
+# test by build for selected kernel and selected board view
+class ReleasesKernelBoardView(ReleaseGenericView):
+
+    def dispatch_request(self, **kwargs):
+        kernel = kwargs["kernel"]
+        board  = kwargs["board"]
+
+        body_title = "All Test Cases for Version &#171;<span rel='tooltip' data-toggle='tooltip' title='' data-original-title='Go back to "+kernel+" kernel'><a href='/test-build/kernel/"+kernel+"/'>"+kernel+"</a></span>&#187; for board &#171;"+board+"&#187;"
+
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "base-all.html",
+            table_id="release-table",
+            data_main="kci-releases-kernel-board",
+            body_title=body_title,
+            page_len=page_len,
+            page_title=self.TESTS_PAGE_TITLE,
+            search_filter=search_filter
+        )
