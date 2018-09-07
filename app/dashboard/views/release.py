@@ -50,3 +50,22 @@ class ReleasesAllView(ReleaseGenericView):
             page_title=self.TESTS_PAGE_TITLE,
             search_filter=search_filter
         )
+
+# test by build for selected kernel view
+class ReleasesKernelView(ReleaseGenericView):
+
+    def dispatch_request(self, **kwargs):
+        kernel = kwargs["kernel"]
+
+        body_title = "Test suites by board for Version &#171;"+kernel+"&#187;"
+        search_filter, page_len = get_search_parameters(request)
+
+        return render_template(
+            "base-all.html",
+            table_id="release-table",
+            data_main="kci-releases-kernel",
+            body_title=body_title,
+            page_len=page_len,
+            page_title=self.TESTS_PAGE_TITLE,
+            search_filter=search_filter
+        )

@@ -399,4 +399,10 @@ def init():
         "/test-build/",
         view_func=vrelease.ReleasesAllView.as_view("release-all-view"),
         methods=["GET"]
-   )
+    )
+
+    add_rule(
+        "/test-build/kernel/<string:kernel>/",
+        view_func=vrelease.ReleasesKernelView.as_view("release-kernel"),
+        methods=["GET"]
+    )

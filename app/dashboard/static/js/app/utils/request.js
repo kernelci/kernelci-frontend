@@ -21,8 +21,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 define([
-    'jquery'
-], function($) {
+    'jquery' ,
+    'utils/error',
+], function($ , error ) {
     'use strict';
     var request,
         settings;
@@ -58,6 +59,38 @@ define([
         settings.data = data;
 
         return $.ajax(url, settings);
+    }
+
+    /**
+     * @param {{}[]}      batchOps
+     * @param {Function}  success
+     * @param {Function}  fail
+     */
+    request.batch = function( batchOps , success , fail ) {
+        this.backend( 'post' , 'batch' , JSON.stringify( { batch: batchOps } ) , success , fail )
+    }
+
+    /**
+     * @param {{}[]}      batchOps
+     * @param {Function}  success
+     * @param {Function}  fail
+     */
+    request.api = function( api , params , success , fail ) {
+        this.backend( 'get' , api , $.param( params ) , success , fail )
+    }
+
+    /**
+     * @param {"get"|"post"}  method
+     * @param {string}    api
+     * @param {string}    params
+     * @param {Function}  success
+     * @param {Function}  fail
+     */
+    request.backend = function( method ,  api , params , success , fail ) {
+        var deferred = request[ method ]( '/_backend/'+ api , params );
+        $.when(deferred)
+            .fail( error.error,  fail )
+            .done( success );
     }
 
     request.get = function(url, data) {
