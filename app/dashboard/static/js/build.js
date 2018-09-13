@@ -86,7 +86,7 @@
             'app/view-tests-board': 'app/view-tests-board.2017.12',
             'app/view-tests-board-job': 'app/view-tests-board-job.2017.12',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2017.12',
-            'app/view-tests-suite-id': 'app/view-tests-suite-id.2018.2',
+            'app/view-tests-group-id': 'app/view-tests-group-id.2018.2',
         }
     },
     shim: {
@@ -143,7 +143,7 @@
         {name: 'app/view-tests-board.2017.12'},
         {name: 'app/view-tests-board-job.2017.12'},
         {name: 'app/view-tests-board-job-kernel.2017.12'},
-        {name: 'app/view-tests-suite-id.2018.2'},
+        {name: 'app/view-tests-group-id.2018.2'},
         {name: 'kci-boot-compare'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
@@ -179,6 +179,6 @@
         {name: 'kci-tests-board'},
         {name: 'kci-tests-board-job'},
         {name: 'kci-tests-board-job-kernel'},
-        {name: 'kci-tests-suite-id'}
+        {name: 'kci-tests-group-id'}
     ]
 })

@@ -6,7 +6,7 @@
 {%- block content %}
 <div class="row">
     <div class="page-header">
-    <h3 id="body-title">Test details for test suite&nbsp;</h3>
+    <h3 id="body-title">Test details for test group&nbsp;</h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
     <dl class="dl-horizontal" id="dl-right">
@@ -17,31 +17,31 @@
             </small>
         </dd>
         <dt>Board</dt>
-        <dd id="dd-suite-board" class="loading-content">
+        <dd id="dd-group-board" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Tree</dt>
-        <dd id="dd-suite-tree" class="loading-content">
+        <dd id="dd-group-tree" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Git branch<dt>
-        <dd id="dd-suite-branch" class="loading-content">
+        <dd id="dd-group-branch" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Git describe</dt>
-        <dd id="dd-suite-kernel" class="loading-content">
+        <dd id="dd-group-kernel" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Defconfig</dt>
-        <dd id="dd-suite-defconfig" class="loading-content dd-defconfig">
+        <dd id="dd-group-defconfig" class="loading-content dd-defconfig">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
@@ -57,37 +57,37 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
     <dl class="dl-horizontal" id="dl-left">
         <dt>Status</dt>
-        <dd id="dd-suite-status" class="loading-content">
+        <dd id="dd-group-status" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Architecture</dt>
-        <dd id="dd-suite-arch" class="loading-content">
+        <dd id="dd-group-arch" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Errors</dt>
-        <dd id="dd-suite-errors" class="loading-content">
+        <dd id="dd-group-errors" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Warnings</dt>
-        <dd id="dd-suite-warnings" class="loading-content">
+        <dd id="dd-group-warnings" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Test time</dt>
-        <dd id="dd-suite-test-time" class="loading-content">
+        <dd id="dd-group-test-time" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
         </dd>
         <dt>Boot &amp; Test log</dt>
-        <dd id="dd-suite-test-log" class="loading-content">
+        <dd id="dd-group-test-log" class="loading-content">
             <small>
                 <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
             </small>
@@ -103,8 +103,8 @@
     {%- include "other-multiple-case-reports.html" %}
 </div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
-<input type="hidden" id="suite-id" value="{{ suite_id }}">
+<input type="hidden" id="group-id" value="{{ group_id }}">
 {%- endblock %}
 {%- block scripts %}
-<script data-main="/static/js/kci-tests-suite-id" src="/static/js/lib/require.js"></script>
+<script data-main="/static/js/kci-tests-group-id" src="/static/js/lib/require.js"></script>
 {%- endblock %}

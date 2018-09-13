@@ -38,7 +38,7 @@ class TestGenericView(View):
 class TestsAllView(TestGenericView):
 
     def dispatch_request(self):
-        body_title = "Available Test Suite Reports"
+        body_title = "Available Test Group Reports"
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
@@ -113,7 +113,7 @@ class TestsBoardJobKernelView(TestGenericView):
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
 
         DISTINCT_LAB_NAMES_URL = "{:s}/distinct/lab_name/".format(
-            app.config.get("TEST_SUITE_API_ENDPOINT"))
+            app.config.get("TEST_GROUP_API_ENDPOINT"))
 
         payload = {
             "board": board,
@@ -141,10 +141,10 @@ class TestsBoardJobKernelView(TestGenericView):
             abort(status)
 
 
-class TestsSuiteIdView(TestGenericView):
+class TestsGroupIdView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
         return render_template(
-            "tests-suite-id.html",
-            suite_id=kwargs["uid"],
+            "tests-group-id.html",
+            group_id=kwargs["uid"],
             page_title=self.TESTS_PAGE_TITLE)

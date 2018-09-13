@@ -100,57 +100,57 @@ require([
     function getBatchCount(lab, labTable, response) {
         var batchOps;
         var deferred;
-        var suiteId;
+        var groupId;
         var queryStr;
         var results;
 
         function _createOp(result) {
-            suiteId = result._id.$oid;
+            groupId = result._id.$oid;
             // TODO When sorting check if more than 1 result print conflict error
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-sets-count-' + suiteId,
+                operation_id: lab + '-sets-count-' + groupId,
                 resource: 'count',
                 document: 'test_set',
-                query: queryStr + suiteId
+                query: queryStr + groupId
             });
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-cases-total-count-' + suiteId,
+                operation_id: lab + '-cases-total-count-' + groupId,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + suiteId
-            });
-
-            batchOps.push({
-                method: 'GET',
-                operation_id: lab + '-cases-success-count-' + suiteId,
-                resource: 'count',
-                document: 'test_case',
-                query: queryStr + suiteId + '&status=PASS'
+                query: queryStr + groupId
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-cases-fail-count-' + suiteId,
+                operation_id: lab + '-cases-success-count-' + groupId,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + suiteId + '&status=FAIL'
+                query: queryStr + groupId + '&status=PASS'
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-cases-unknown-count-' + suiteId,
+                operation_id: lab + '-cases-fail-count-' + groupId,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr + suiteId + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
+                query: queryStr + groupId + '&status=FAIL'
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: lab + '-cases-unknown-count-' + groupId,
+                resource: 'count',
+                document: 'test_case',
+                query: queryStr + groupId + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
-            queryStr = 'test_suite_id=';
+            queryStr = 'test_group_id=';
             results.forEach(_createOp);
 
             deferred = request.post(
@@ -229,7 +229,7 @@ require([
         // Internal wrapper to provide the href.
         function _renderDetails(data, type) {
             return ttest.renderDetails(
-                '/test/suite/' + data, type);
+                '/test/group/' + data, type);
         }
 
         /**
@@ -257,15 +257,15 @@ require([
             columns = [
                 {
                     data: 'name',
-                    title: 'Test suite name',
+                    title: 'Test group name',
                     type: 'string',
-                    className: 'test-suite-column'
+                    className: 'test-group-column'
                 },
                 {
                     data: '_id.$oid',
-                    title: 'Test suite ID',
+                    title: 'Test group ID',
                     type: 'string',
-                    className: 'test-suite-ID-column'
+                    className: 'test-group-ID-column'
                 },
                 {
                     data: '_id.$oid',
@@ -305,7 +305,7 @@ require([
                 .columns(columns)
                 .data(results)
                 .info(false)
-                .rowURL('/test/suite/%(_id)s/')
+                .rowURL('/test/group/%(_id)s/')
                 .rowURLElements(['_id'])
                 .order([5, 'desc'])
                 .draw();
@@ -477,7 +477,7 @@ require([
                 tableDivId: 'lab-table-div-' + lab
             }));
             labTable = gLabTable[gLabTable.length - 1];
-            deferred = request.get('/_ajax/test/suite', data);
+            deferred = request.get('/_ajax/test/group', data);
             $.when(deferred)
                 .done(function(response) {
                     getTestsDone(lab, labTable, response);
@@ -496,7 +496,7 @@ require([
             sort_order: '-1',
         };
         // Update the general details
-        deferred = request.get('/_ajax/test/suite', data);
+        deferred = request.get('/_ajax/test/group', data);
         $.when(deferred)
             .done(updateDetails);
         // Update each lab with the specific data

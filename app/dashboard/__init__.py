@@ -174,8 +174,8 @@ def static_html_proxy(path):
     "/_ajax/boot",
     defaults={"api": "BOOT_API_ENDPOINT"}, methods=["GET"])
 @app.route(
-    "/_ajax/test/suite",
-    defaults={"api": "TEST_SUITE_API_ENDPOINT"}, methods=["GET"])
+    "/_ajax/test/group",
+    defaults={"api": "TEST_GROUP_API_ENDPOINT"}, methods=["GET"])
 @app.route(
     "/_ajax/test/case",
     defaults={"api": "TEST_CASE_API_ENDPOINT"}, methods=["GET"])
@@ -315,9 +315,9 @@ def ajax_compare(doc_id, api):
     "/_ajax/<string:resource>/distinct/<string:field>/", methods=["GET"])
 def ajax_distinct(resource, field):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
-        # Workaround because the backend uses /test/suite/...
-        if (resource == "suite"):
-            resource = "test/suite"
+        # Workaround because the backend uses /test/group/...
+        if (resource == "group"):
+            resource = "test/group"
         return backend.ajax_get(
             request, "/%s/distinct" % resource, doc_id=field, timeout=60 * 30)
     else:

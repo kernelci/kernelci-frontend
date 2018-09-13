@@ -31,7 +31,7 @@ require([
     'utils/const'
 ], function($, init, error, request, u, bisect, ttest, tboot, html, appconst) {
     'use strict';
-    var gSuiteId;
+    var gGroupId;
     var gDateRange;
     var gFileServer;
     var gLogHref;
@@ -158,7 +158,7 @@ require([
         var resultCaseLength;
 
         deferredCase =
-            request.get('/_ajax/test/case',{test_suite_id: gSuiteId});
+            request.get('/_ajax/test/case',{test_group_id: gGroupId});
 
         // Get all the data first and then update it sequentially
         $.when(deferredCase)
@@ -168,22 +168,22 @@ require([
                 resultCaseLength = responseCase.result.length;
             });
 
-        //If there are not any test case for this test suite update the content
+        //If there are not any test case for this test group update the content
         if (resultCaseLength === 0) {
             html.replaceContent(
                 document.getElementById('cases-reports-table-div'),
-                html.errorDiv('No data available for this test suite.'));
+                html.errorDiv('No data available for this test group.'));
         }
 
     }
 
-    function getSuiteDataFail() {
+    function getGroupDataFail() {
         html.replaceByClassNode('loading-content', html.nonavail());
         document.getElementById('body-title')
             .insertAdjacentHTML('beforeend', '&hellip;');
     }
 
-    function getSuiteDataDone(response) {
+    function getGroupDataDone(response) {
         var aNode;
         var arch;
         var board;
@@ -198,7 +198,7 @@ require([
         var smallNode;
         var spanNode;
         var str;
-        var suiteName;
+        var groupName;
         var testTime;
         var tooltipNode;
 
@@ -213,14 +213,14 @@ require([
         defconfigFull = result.defconfig_full;
         arch = result.arch;
         lab = result.lab_name;
-        suiteName = result.name;
+        groupName = result.name;
 
         // Body title.
         docFrag = document.createDocumentFragment();
         spanNode = docFrag.appendChild(document.createElement('span'));
 
         spanNode.insertAdjacentHTML('beforeend', '&#171;');
-        spanNode.appendChild(document.createTextNode(suiteName));
+        spanNode.appendChild(document.createTextNode(groupName));
         spanNode.insertAdjacentHTML('beforeend', '&#187;');
         spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
@@ -267,7 +267,7 @@ require([
         aNode.appendChild(html.search());
 
         html.replaceContent(
-            document.getElementById('dd-suite-board'), docFrag);
+            document.getElementById('dd-group-board'), docFrag);
 
         // Tree.
         docFrag = document.createDocumentFragment();
@@ -300,11 +300,11 @@ require([
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.tree());
 
-        html.replaceContent(document.getElementById('dd-suite-tree'), docFrag);
+        html.replaceContent(document.getElementById('dd-group-tree'), docFrag);
 
         // Branch.
         html.replaceContent(
-            document.getElementById('dd-suite-branch'),
+            document.getElementById('dd-group-branch'),
             document.createTextNode(branch));
 
         // Kernel.
@@ -351,7 +351,7 @@ require([
         aNode.appendChild(html.build());
 
         html.replaceContent(
-            document.getElementById('dd-suite-kernel'), docFrag);
+            document.getElementById('dd-group-kernel'), docFrag);
 
         // Defconfig
         docFrag = document.createDocumentFragment();
@@ -389,7 +389,7 @@ require([
         }
 
         html.replaceContent(
-            document.getElementById('dd-suite-defconfig'), docFrag);
+            document.getElementById('dd-group-defconfig'), docFrag);
 
         // Date.
         docFrag = document.createDocumentFragment();
@@ -402,26 +402,26 @@ require([
         // Status.
         // TODO Fix when defined
         html.replaceContent(
-            document.getElementById('dd-suite-status'), html.nonavail());
+            document.getElementById('dd-group-status'), html.nonavail());
 
         // Errors
         // TODO Fix when defined
         html.replaceContent(
-            document.getElementById('dd-suite-errors'), html.nonavail());
+            document.getElementById('dd-group-errors'), html.nonavail());
 
         // Warnings
         // TODO Fix when defined
         html.replaceContent(
-            document.getElementById('dd-suite-warnings'), html.nonavail());
+            document.getElementById('dd-group-warnings'), html.nonavail());
 
         // Arch.
         html.replaceContent(
-            document.getElementById('dd-suite-arch'),
+            document.getElementById('dd-group-arch'),
             document.createTextNode(arch));
 
         // Time.
         html.replaceContent(
-            document.getElementById('dd-suite-test-time'),
+            document.getElementById('dd-group-test-time'),
             document.createTextNode(testTime.toCustomTime()));
     }
 
@@ -461,29 +461,29 @@ require([
 
         if (bootLog) {
             html.replaceContent(
-                document.getElementById('dd-suite-test-log'), bootLog);
+                document.getElementById('dd-group-test-log'), bootLog);
         } else {
             html.replaceContent(
-                document.getElementById('dd-suite-test-log'), html.nonavail());
+                document.getElementById('dd-group-test-log'), html.nonavail());
         }
 
         setTimeout(getTestCaseData, 25);
     }
 
-    function getSuiteData() {
-        $.when(request.get('/_ajax/test/suite', {id: gSuiteId}))
+    function getGroupData() {
+        $.when(request.get('/_ajax/test/group', {id: gGroupId}))
             .fail(
                 error.error,
-                getSuiteDataFail
+                getGroupDataFail
                 )
             .done(
-                getSuiteDataDone,
+                getGroupDataDone,
                 getBootLog
                 );
     }
 
-    if (document.getElementById('suite-id') !== null) {
-        gSuiteId = document.getElementById('suite-id').value;
+    if (document.getElementById('group-id') !== null) {
+        gGroupId = document.getElementById('group-id').value;
     }
     if (document.getElementById('file-server') !== null) {
         gFileServer = document.getElementById('file-server').value;
@@ -492,6 +492,6 @@ require([
         gDateRange = document.getElementById('date-range').value;
     }
 
-    setTimeout(getSuiteData, 10);
+    setTimeout(getGroupData, 10);
 
 });

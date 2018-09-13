@@ -82,7 +82,7 @@ require.config({
             'app/view-tests-board': 'app/view-tests-board.2017.12',
             'app/view-tests-board-job': 'app/view-tests-board-job.2017.12',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2017.12',
-            'app/view-tests-suite-id': 'app/view-tests-suite-id.2018.2',
+            'app/view-tests-group-id': 'app/view-tests-group-id.2018.2',
         }
     },
     shim: {
