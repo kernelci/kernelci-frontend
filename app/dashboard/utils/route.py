@@ -359,8 +359,8 @@ def init():
     )
 
     add_rule(
-        "/test/suite/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
-        view_func=vtest.TestsSuiteIdView.as_view("tests-suite-id"),
+        "/test/group/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
+        view_func=vtest.TestsGroupIdView.as_view("tests-group-id"),
         methods=["GET"]
     )
 

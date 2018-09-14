@@ -37,7 +37,7 @@ require([
     var gSearchFilter;
     var gPageLen;
     var gTestsTable;
-    var gSuitesCount;
+    var gGroupsCount;
     var gLabsCount;
     var gBatchOpBase;
     var gBatchCountMissing;
@@ -48,7 +48,7 @@ require([
     }, 15);
 
     gDateRange = appconst.MAX_DATE_RANGE;
-    gSuitesCount = {};
+    gGroupsCount = {};
     gLabsCount = {};
     gBatchOpBase = 'board=';
     gBatchCountMissing = {};
@@ -132,14 +132,14 @@ require([
         var deferred;
 
         function createBatchOp(value) {
-            var suite = value.board;
+            var group = value.board;
             var query = gBatchOpBase;
 
-            query += suite;
+            query += group;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'labs-count-' + suite,
-                resource: 'test_suite',
+                operation_id: 'labs-count-' + group,
+                resource: 'test_group',
                 distinct: 'lab_name',
                 query: query
             });
@@ -158,51 +158,51 @@ require([
         }
     }
 
-    function getSuitesCountFail() {
-        html.replaceByClassHTML('suites-count-badge', '&infin;');
+    function getGroupsCountFail() {
+        html.replaceByClassHTML('groups-count-badge', '&infin;');
     }
 
-    function getSuitesCountDone(response) {
+    function getGroupsCountDone(response) {
         var results;
 
         // Internally used to parse the results.
-        function _updateSuitesCount(result) {
+        function _updateGroupsCount(result) {
             var count;
             var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
-            gSuitesCount[opId] = count;
+            gGroupsCount[opId] = count;
 
             updateOrStageCount(opId, count);
         }
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_updateSuitesCount);
+            results.forEach(_updateGroupsCount);
             if (!gDrawEventBound) {
                 gDrawEventBound = true;
                 gTestsTable.addDrawEvent(updateTestsTable);
             }
         } else {
-            html.replaceByClassTxt('suites-count-badge', '?');
+            html.replaceByClassTxt('groups-count-badge', '?');
         }
     }
 
-    function getSuitesCount(response) {
+    function getGroupsCount(response) {
         var batchOps;
         var deferred;
 
         function createBatchOp(value) {
-            var suite = value.board;
+            var group = value.board;
             var query = gBatchOpBase;
 
-            query += suite;
+            query += group;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'suites-count-' + suite,
+                operation_id: 'groups-count-' + group,
                 resource: 'count',
-                document: 'test_suite',
+                document: 'test_group',
                 query: query
             });
         }
@@ -215,8 +215,8 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(error.error, getSuitesCountFail)
-                .done(getSuitesCountDone);
+                .fail(error.error, getGroupsCountFail)
+                .done(getGroupsCountDone);
         }
     }
 
@@ -229,7 +229,7 @@ require([
         }
 
         // Internal wrapper to provide the oreder count.
-        function _renderSuitesCount(data, type) {
+        function _renderGroupsCount(data, type) {
             var rendered;
 
             rendered = null;
@@ -237,12 +237,12 @@ require([
                 rendered = ttest.countBadge({
                     data: data,
                     type: 'default',
-                    idStart: 'suites-',
-                    extraClasses: ['suites-count-badge']
+                    idStart: 'groups-',
+                    extraClasses: ['groups-count-badge']
                 });
             } else if (type === 'sort') {
-                if (gSuitesCount.hasOwnProperty('suites-count-' + data)) {
-                    rendered = gSuitesCount['suites-count-' + data];
+                if (gGroupsCount.hasOwnProperty('groups-count-' + data)) {
+                    rendered = gGroupsCount['groups-count-' + data];
                 } else {
                     rendered = NaN;
                 }
@@ -289,11 +289,11 @@ require([
                 },
                 {
                     data: 'board',
-                    title: 'Total Test Suites',
+                    title: 'Total Test Groups',
                     type: 'num',
                     searchable: false,
                     className: 'pull-center',
-                    render: _renderSuitesCount
+                    render: _renderGroupsCount
                 },
                 {
                     data: 'board',
@@ -353,7 +353,7 @@ require([
             results = results.map(_toObject);
         }
         setTimeout(getTestsDone.bind(null, results), 25);
-        setTimeout(getSuitesCount.bind(null, results), 25);
+        setTimeout(getGroupsCount.bind(null, results), 25);
         setTimeout(getLabsCount.bind(null, results), 25);
         setTimeout(enableSearch, 25);
     }
@@ -376,7 +376,7 @@ require([
             limit: appconst.MAX_QUERY_LIMIT,
         }
 
-        deferred = request.get('/_ajax/suite/distinct/board/', reqData);
+        deferred = request.get('/_ajax/group/distinct/board/', reqData);
         $.when(deferred)
             .fail(error.error, getTestsFail)
             .done(getTestsParse);

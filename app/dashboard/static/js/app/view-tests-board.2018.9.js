@@ -54,15 +54,15 @@ require([
             method: 'GET',
             resource: 'count',
             distinct: 'name',
-            document: 'test_suite',
-            operation_id: 'count-suites',
+            document: 'test_group',
+            operation_id: 'count-groups',
             query: gBaseSelf
         });
         batchOps.push({
             method: 'GET',
             resource: 'count',
             distinct: 'build_id',
-            document: 'test_suite',
+            document: 'test_group',
             operation_id: 'count-builds',
             query: gBaseSelf
         });
@@ -144,35 +144,35 @@ require([
     function getBatchCount(response) {
         var batchOps;
         var deferred;
-        var suiteId;
-        var suiteTree;
-        var suiteBranch;
-        var suiteQuery;
+        var groupId;
+        var groupTree;
+        var groupBranch;
+        var groupQuery;
         var queryStr;
         var queryData;
         var results;
 
         function _createOp(result) {
-            suiteId = result._id;
-            suiteTree = result.job;
-            suiteBranch = result.git_branch;
-            suiteQuery = 'board=' + gBoard + '&git_branch=' + suiteBranch;
-            suiteQuery += '&job=' + suiteTree;
+            groupId = result._id;
+            groupTree = result.job;
+            groupBranch = result.git_branch;
+            groupQuery = 'board=' + gBoard + '&git_branch=' + groupBranch;
+            groupQuery += '&job=' + groupTree;
 
-            if (suiteId) {
-                queryStr = 'test_suite_id=' + suiteId.$oid;
+            if (groupId) {
+                queryStr = 'test_group_id=' + groupId.$oid;
             }
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'suites-count-' + suiteTree,
+                operation_id: 'groups-count-' + groupTree,
                 resource: 'count',
-                document: 'test_suite',
-                query: suiteQuery
+                document: 'test_group',
+                query: groupQuery
             });
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-total-count-' + suiteTree,
+                operation_id: 'cases-total-count-' + groupTree,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr
@@ -180,7 +180,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-success-count-' + suiteTree,
+                operation_id: 'cases-success-count-' + groupTree,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=PASS'
@@ -188,7 +188,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-fail-count-' + suiteTree,
+                operation_id: 'cases-fail-count-' + groupTree,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=FAIL'
@@ -196,19 +196,19 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-unknown-count-' + suiteTree,
+                operation_id: 'cases-unknown-count-' + groupTree,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 
-        function _getTestSuiteDone(resultz) {
+        function _getTestGroupDone(resultz) {
             results = resultz.result;
 
             if (results.length > 0) {
                 batchOps = [];
-                // Only one result, latest test suite
+                // Only one result, latest test group
                 _createOp(results[0]);
                 deferred = request.post(
                     '/_ajax/batch', JSON.stringify({batch: batchOps}));
@@ -219,8 +219,8 @@ require([
             }
         }
 
-        function _getTestSuite(result) {
-            // Query parameters to get the latest test suite
+        function _getTestGroup(result) {
+            // Query parameters to get the latest test group
             queryData = {
                 board: result.board,
                 job: result.job,
@@ -230,12 +230,12 @@ require([
                 limit: '1'
             }
 
-            // Get the latest test suite
-            deferred = request.get('/_ajax/test/suite', queryData);
+            // Get the latest test group
+            deferred = request.get('/_ajax/test/group', queryData);
             $.when(deferred)
-                .done(_getTestSuiteDone)
+                .done(_getTestGroupDone)
                 .fail(function() {
-                    document.getElementById('suites-count-'+ result.job)
+                    document.getElementById('groups-count-'+ result.job)
                         .innerHTML ='&infin;';
                     ttest.getCountFail(result.job)
                 });
@@ -243,7 +243,7 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_getTestSuite);
+            results.forEach(_getTestGroup);
         }
     }
 
@@ -278,7 +278,7 @@ require([
             results;
 
         // Internal wrapper to provide the href.
-        function _renderSuitesCount(data, type) {
+        function _renderGroupsCount(data, type) {
             var rendered;
 
             rendered = null;
@@ -286,12 +286,12 @@ require([
                 rendered = ttest.countBadge({
                     data: data,
                     type: 'default',
-                    idStart: 'suites-',
-                    extraClasses: ['suites-count-badge']
+                    idStart: 'groups-',
+                    extraClasses: ['groups-count-badge']
                 });
             } else if (type === 'sort') {
-                if (gTableCount.hasOwnProperty('suites-count-' + data)) {
-                    rendered = gTableCount['suites-count-' + data];
+                if (gTableCount.hasOwnProperty('groups-count-' + data)) {
+                    rendered = gTableCount['groups-count-' + data];
                 } else {
                     rendered = NaN;
                 }
@@ -355,10 +355,10 @@ require([
                 },
                 {
                     data: 'job',
-                    title: 'Total Test Suite',
+                    title: 'Total Test Group',
                     type: 'string',
-                    className: 'test-suite-column',
-                    render: _renderSuitesCount
+                    className: 'test-group-column',
+                    render: _renderGroupsCount
                 },
 
                 {
@@ -412,7 +412,7 @@ require([
         var deferred;
 
         deferred = request.get(
-            '/_ajax/test/suite',
+            '/_ajax/test/group',
             {
                 aggregate: 'job',
                 date_range: gDateRange,

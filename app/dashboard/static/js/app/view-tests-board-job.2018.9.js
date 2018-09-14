@@ -56,9 +56,9 @@ require([
         batchOps = [];
         batchOps.push({
             method: 'GET',
-            operation_id: 'suites-count',
+            operation_id: 'groups-count',
             resource: 'count',
-            document: 'test_suite',
+            document: 'test_group',
             query: gQueryStr
         });
 
@@ -66,7 +66,7 @@ require([
             method: 'GET',
             operation_id: 'labs-count',
             distinct: 'lab_name',
-            resource: 'test_suite',
+            resource: 'test_group',
             query: gQueryStr
         });
 
@@ -101,11 +101,11 @@ require([
         }
     }
 
-    function getSuitesCountFail() {
+    function getGroupsCountFail() {
         html.replaceByClassHTML('count-badge', '&infin;');
     }
 
-    function getSuitesCountDone(response) {
+    function getGroupsCountDone(response) {
         var results;
 
         function _parseOperationsResult(result) {
@@ -141,11 +141,11 @@ require([
         }
     }
 
-    function getSuitesCount(response) {
+    function getGroupsCount(response) {
         var batchOps;
         var deferred;
-        var suiteId;
-        var suiteCommit;
+        var groupId;
+        var groupCommit;
         var queryStr;
         var queryData;
         var results;
@@ -153,16 +153,16 @@ require([
         batchOps = [];
 
         function _createOp(result) {
-            suiteId = result._id;
-            suiteCommit = result.kernel;
+            groupId = result._id;
+            groupCommit = result.kernel;
 
-            if (suiteId) {
-                queryStr = 'test_suite_id=' + suiteId.$oid;
+            if (groupId) {
+                queryStr = 'test_group_id=' + groupId.$oid;
             }
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-total-count-' + suiteCommit,
+                operation_id: 'cases-total-count-' + groupCommit,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr
@@ -170,7 +170,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-success-count-' + suiteCommit,
+                operation_id: 'cases-success-count-' + groupCommit,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=PASS'
@@ -178,7 +178,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-fail-count-' + suiteCommit,
+                operation_id: 'cases-fail-count-' + groupCommit,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=FAIL'
@@ -186,26 +186,26 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'cases-unknown-count-' + suiteCommit,
+                operation_id: 'cases-unknown-count-' + groupCommit,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=OFFLINE&status=UNKNOWN&status=SKIP'
             });
         }
 
-        function _getTestSuiteDone(resultz) {
+        function _getTestGroupDone(resultz) {
             if (resultz.result) {
                 batchOps = [];
                 resultz.result.forEach(_createOp);
                 deferred = request.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
                 $.when(deferred)
-                    .fail(error.error, getSuitesCountFail)
-                    .done(getSuitesCountDone);
+                    .fail(error.error, getGroupsCountFail)
+                    .done(getGroupsCountDone);
             }
         }
 
-        function _getTestSuite(result) {
-            // Query parameters to get the latest test suite
+        function _getTestGroup(result) {
+            // Query parameters to get the latest test group
             queryData = {
                 board: result.board,
                 job: result.job,
@@ -214,13 +214,13 @@ require([
                 vcs_commit: result.vcs_commit,
                 sort: 'created_on',
                 sort_order: '-1',
-                field: ['test_case', 'kernel']
+                field: ['test_cases', 'kernel']
             };
 
-            // Get the latest test suite
-            deferred = request.get('/_ajax/test/suite', queryData);
+            // Get the latest test group
+            deferred = request.get('/_ajax/test/group', queryData);
             $.when(deferred)
-                .done(_getTestSuiteDone)
+                .done(_getTestGroupDone)
                 .fail(function() {
                     ttest.getCountFail(result.vcs_commit);
                 });
@@ -228,11 +228,11 @@ require([
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_getTestSuite);
+            results.forEach(_getTestGroup);
         }
     }
 
-    function getSuitesFail() {
+    function getGroupsFail() {
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('table-div'),
@@ -258,7 +258,7 @@ require([
         return filter;
     }
 
-    function getSuitesDone(response) {
+    function getGroupsDone(response) {
         var columns,
             results;
 
@@ -355,11 +355,11 @@ require([
         }
     }
 
-    function getSuites() {
+    function getGroups() {
         var deferred;
 
         deferred = request.get(
-            '/_ajax/test/suite',
+            '/_ajax/test/group',
             {
                 aggregate: 'kernel',
                 date_range: gDateRange,
@@ -381,8 +381,8 @@ require([
         );
 
         $.when(deferred)
-            .fail(error.error, getSuitesFail)
-            .done(getSuitesDone, getSuitesCount);
+            .fail(error.error, getGroupsFail)
+            .done(getGroupsDone, getGroupsCount);
     }
 
     if (document.getElementById('job-name') !== null) {
@@ -404,7 +404,7 @@ require([
         tableDivId: 'table-div'
     });
     getDetails();
-    getSuites();
+    getGroups();
 
     init.hotkeys();
     init.tooltip();

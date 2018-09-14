@@ -82,11 +82,11 @@
             'app/view-socs-soc-job-kernel': 'app/view-socs-soc-job-kernel.2017.4',
             'app/view-sponsors': 'app/view-sponsors.2017.3.3',
             'app/view-stats': 'app/view-stats.2017.3.3',
-            'app/view-tests-all': 'app/view-tests-all.2017.12',
-            'app/view-tests-board': 'app/view-tests-board.2017.12',
-            'app/view-tests-board-job': 'app/view-tests-board-job.2017.12',
-            'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2017.12',
-            'app/view-tests-suite-id': 'app/view-tests-suite-id.2018.2',
+            'app/view-tests-all': 'app/view-tests-all.2018.9',
+            'app/view-tests-board': 'app/view-tests-board.2018.9',
+            'app/view-tests-board-job': 'app/view-tests-board-job.2018.9',
+            'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
+            'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
         }
     },
     shim: {
@@ -139,11 +139,11 @@
         {name: 'app/view-socs-soc.2018.2'},
         {name: 'app/view-sponsors.2017.3.3'},
         {name: 'app/view-stats.2017.3.3'},
-        {name: 'app/view-tests-all.2017.12'},
-        {name: 'app/view-tests-board.2017.12'},
-        {name: 'app/view-tests-board-job.2017.12'},
-        {name: 'app/view-tests-board-job-kernel.2017.12'},
-        {name: 'app/view-tests-suite-id.2018.2'},
+        {name: 'app/view-tests-all.2018.9'},
+        {name: 'app/view-tests-board.2018.9'},
+        {name: 'app/view-tests-board-job.2018.9'},
+        {name: 'app/view-tests-board-job-kernel.2018.9'},
+        {name: 'app/view-tests-group-id.2018.9'},
         {name: 'kci-boot-compare'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
@@ -179,6 +179,6 @@
         {name: 'kci-tests-board'},
         {name: 'kci-tests-board-job'},
         {name: 'kci-tests-board-job-kernel'},
-        {name: 'kci-tests-suite-id'}
+        {name: 'kci-tests-group-id'}
     ]
 })
