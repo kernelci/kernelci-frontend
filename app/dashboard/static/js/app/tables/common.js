@@ -378,7 +378,7 @@ define([
         var aNode;
         var rendered;
         var tooltipNode;
-         rendered = null;
+        rendered = data;
         if (type === 'display') {
             tooltipNode = html.tooltip();
 			if(href){
