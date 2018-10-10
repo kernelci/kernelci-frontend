@@ -308,6 +308,7 @@ function($, init, format, html, error, request, appconst, table, ttest) {
                 data: 'job',
                 title: 'Tree',
                 type: 'string',
+                visible: false,
                 searchable: true,
                 orderable: true,
                 className: 'tree-column'
