@@ -82,6 +82,7 @@ td.kernel-column-nf,
 .commit-column,
 .board-column,
 .defconfig-column,
+.compiler-column,
 .kernel-column {
     overflow: hidden;
     text-overflow: ellipsis;
