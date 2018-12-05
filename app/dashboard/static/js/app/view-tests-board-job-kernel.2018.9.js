@@ -109,13 +109,6 @@ require([
             // TODO When sorting check if more than 1 result print conflict error
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-sets-count-' + groupId,
-                resource: 'count',
-                document: 'test_set',
-                query: queryStr + groupId
-            });
-            batchOps.push({
-                method: 'GET',
                 operation_id: lab + '-cases-total-count-' + groupId,
                 resource: 'count',
                 document: 'test_case',
@@ -196,25 +189,7 @@ require([
 
         // Internal wrapper to provide the href.
         function _renderSetsCount(data, type) {
-            var rendered;
-
-            rendered = null;
-            if (type === 'display') {
-                rendered = ttest.countBadge({
-                    data: data,
-                    type: 'default',
-                    idStart: lab + '-sets-',
-                    extraClasses: ['sets-count-badge']
-                });
-            } else if (type === 'sort') {
-                if (gTableCount.hasOwnProperty(lab + '-sets-count-' + data)) {
-                    rendered = gTableCount[lab + '-sets-count-' + data];
-                } else {
-                    rendered = NaN;
-                }
-            }
-
-            return rendered;
+            return NaN;
         }
 
         // Internal wrapper for the filter.
