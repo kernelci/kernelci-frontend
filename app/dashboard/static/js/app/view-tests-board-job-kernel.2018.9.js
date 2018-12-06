@@ -109,13 +109,6 @@ require([
             // TODO When sorting check if more than 1 result print conflict error
             batchOps.push({
                 method: 'GET',
-                operation_id: lab + '-sets-count-' + groupId,
-                resource: 'count',
-                document: 'test_set',
-                query: queryStr + groupId
-            });
-            batchOps.push({
-                method: 'GET',
                 operation_id: lab + '-cases-total-count-' + groupId,
                 resource: 'count',
                 document: 'test_case',
@@ -194,29 +187,6 @@ require([
         var columns,
             results;
 
-        // Internal wrapper to provide the href.
-        function _renderSetsCount(data, type) {
-            var rendered;
-
-            rendered = null;
-            if (type === 'display') {
-                rendered = ttest.countBadge({
-                    data: data,
-                    type: 'default',
-                    idStart: lab + '-sets-',
-                    extraClasses: ['sets-count-badge']
-                });
-            } else if (type === 'sort') {
-                if (gTableCount.hasOwnProperty(lab + '-sets-count-' + data)) {
-                    rendered = gTableCount[lab + '-sets-count-' + data];
-                } else {
-                    rendered = NaN;
-                }
-            }
-
-            return rendered;
-        }
-
         // Internal wrapper for the filter.
         function _renderCasesCount(data, type) {
             if (type === 'filter') {
@@ -269,14 +239,6 @@ require([
                 },
                 {
                     data: '_id.$oid',
-                    title: 'Total test sets',
-                    type: 'string',
-                    orderable: false,
-                    className: 'sets-count pull-center',
-                    render: _renderSetsCount
-                },
-                {
-                    data: '_id.$oid',
                     title: _casesColumnTitle(),
                     type: 'string',
                     orderable: false,
@@ -307,7 +269,7 @@ require([
                 .info(false)
                 .rowURL('/test/group/%(_id)s/')
                 .rowURLElements(['_id'])
-                .order([5, 'desc'])
+                .order([4, 'desc'])
                 .draw();
         }
     }
