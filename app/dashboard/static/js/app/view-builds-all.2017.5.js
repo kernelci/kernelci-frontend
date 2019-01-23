@@ -46,7 +46,7 @@ require([
     gBuildSearchFields = [
         '_id',
         'arch',
-        'compiler_version_ext',
+        'build_environment',
         'created_on',
         'defconfig_full',
         'git_branch',
@@ -200,10 +200,10 @@ require([
                     className: 'arch-column'
                 },
                 {
-                    data: 'compiler_version_ext',
+                    data: 'build_environment',
                     title: 'Compiler',
                     type: 'string',
-                    className: 'compiler-column'
+                    className: 'build_environment-column'
                 },
                 {
                     data: 'created_on',
