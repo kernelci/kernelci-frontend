@@ -466,8 +466,6 @@ require([
             html.replaceContent(
                 document.getElementById('dd-group-test-log'), html.nonavail());
         }
-
-        setTimeout(getTestCaseData, 25);
     }
 
     function getGroupData() {
@@ -478,6 +476,7 @@ require([
                 )
             .done(
                 getGroupDataDone,
+                getTestCaseData,
                 getBootLog
                 );
     }
