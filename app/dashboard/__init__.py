@@ -1,4 +1,17 @@
-# Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
+# Copyright (C) Linaro Limited 2014,2015,2016,2017,2019
+# Author: Matt Hart <matthew.hart@linaro.org>
+# Author: Milo Casagrande <milo.casagrande@linaro.org>
+#
+# Copyright (C) Collabora Limited 2018
+# Author: Ana Guerrero Lopez <ana.guerrero@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# Copyright (C) Foundries.io 2017
+# Author: Milo Casagrande <milo@opensourcefoundries.com>
+#
+# Copyright (C) Baylibre 2017
+# Author: lollivier <lollivier@baylibre.com>
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; either version 2.1 of the License, or (at your option)

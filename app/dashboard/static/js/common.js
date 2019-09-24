@@ -1,7 +1,19 @@
 /*!
+ * Copyright (C) Linaro Limited 2015,2016,2017,2019
+ * Author: Matt Hart <matthew.hart@linaro.org>
+ * Author: Milo Casagrande <milo.casagrande@linaro.org>
+ *
+ * Copyright (C) Collabora Limited 2018
+ * Author: Ana Guerrero Lopez <ana.guerrero@collabora.com>
+ *
+ * Copyright (C) Foundries.io 2018
+ * Author: Milo Casagrande <milo@opensourcefoundries.com>
+ *
+ * Copyright (C) Baylibre 2017
+ * Author: lollivier <lollivier@baylibre.com>
+ *
  * kernelci dashboard.
  * 
- * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
