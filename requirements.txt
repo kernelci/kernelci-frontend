@@ -1,6 +1,6 @@
 Flask-Cache
 Flask-WTF==0.11
-Flask==0.12.3
+Flask==1.0
 redis==2.10.5
 hiredis
 requests
