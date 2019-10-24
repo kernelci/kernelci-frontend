@@ -51,7 +51,7 @@ __versionfull__ = __version__
 
 CSRF_TOKEN_H = "X-Csrftoken"
 
-DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-frontend.cfg"
+DEFAULT_CONFIG_FILE = "/etc/kernelci/kernelci-frontend.cfg"
 # Name of the environment variable that will be lookep up for app
 # configuration parameters.
 APP_ENVVAR = "FLASK_SETTINGS"

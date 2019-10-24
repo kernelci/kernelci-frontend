@@ -23,10 +23,10 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 LOGGER_NAME = "kernelci-frontend"
-SESSION_COOKIE_NAME = "linarokernelci"
+SESSION_COOKIE_NAME = "kernelci.org"
 
 # Following keys should be defined in an external file and passed as an
-# environment variable called FLASK_SETTINGS, or in /etc/linaro in a file
+# environment variable called FLASK_SETTINGS, or in /etc/kernelci in a file
 # called kernelci-frontend.cfg.
 PREFERRED_URL_SCHEME = "http"
 # Add the trailing slash!
