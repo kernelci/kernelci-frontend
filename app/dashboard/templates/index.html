@@ -7,10 +7,23 @@
 {{ super() }}
 <style type="text/css">
     h1 {
-        font-size: 4em;
+        font-size: 3em;
+        text-align: center;
     }
     h3 {
         font-size: 2em;
+    }
+    div.lf-banner {
+        align: center;
+        height: 88px;
+        text-align: center;
+        padding: 12px;
+        border: solid #cccccc 1px;
+        font-size: 2.1em;
+    }
+    img#logo {
+        height: 100%;
+        padding: 0 12px 0 0;
     }
     div.welcome-title {
         margin-bottom: 1em;
@@ -33,6 +46,13 @@
 {%- block content %}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="lf-banner">
+            <img src="/static/img/kernelci-horizontal-color.svg" id="logo" />
+            is now a
+            <a href="https://foundation.kernelci.org" target="_blank">
+                Linux Foundation project
+            </a>
+        </div>
         <div class="welcome-title">
             <h1>
                 Welcome to kernelci.org!
