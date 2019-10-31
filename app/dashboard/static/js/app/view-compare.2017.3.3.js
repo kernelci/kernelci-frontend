@@ -31,5 +31,5 @@ require([
 
     init.hotkeys();
     init.tooltip();
-    init.popover();
+    init.setPopover();
 });

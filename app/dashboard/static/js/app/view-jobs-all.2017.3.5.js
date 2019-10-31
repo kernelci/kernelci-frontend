@@ -31,7 +31,7 @@ require([
     'tables/job',
     'utils/format',
     'utils/date'
-], function($, init, e, r, table, html, appconst, jobt, format) {
+], function($, init, error, r, table, html, appconst, jobt, format) {
     'use strict';
     var gBatchCountMissing;
     var gDateRange;
@@ -105,8 +105,8 @@ require([
                 data.operation_id, parseInt(data.result[0].count, 10));
         }
 
-        results = response[0].result;
-        if (results.length > 0) {
+        if (response !== undefined && response.length > 0) {
+            results = response[0].result;
             results.forEach(parseBatchData);
             if (!gDrawEventBound) {
                 gDrawEventBound = true;
@@ -248,7 +248,7 @@ require([
                 query: qHead
             });
         }
-
+        
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
@@ -333,6 +333,7 @@ require([
             nodeId = data;
             nodeId += '-';
             nodeId += object.git_branch;
+
             return jobt.renderBootCount({
                 data: nodeId,
                 type: type,
@@ -456,14 +457,13 @@ require([
 
     function getJobsDoneMulti(response) {
         $.when(getBatchCount(response), getJobsDoneD(response))
-            .fail(e.error, getBatchCountFail)
+            .fail(error.error, getBatchCountFail)
             .done(getBatchCountDone);
     }
 
     function getJobs() {
         var data;
         var deferred;
-
         data = {
             aggregate: ['job', 'git_branch'],
             sort: 'created_on',
@@ -476,10 +476,10 @@ require([
 
         deferred = r.get('/_ajax/job', data);
         $.when(deferred)
-            .fail(e.error, getJobsFail)
+            .fail(error.error, getJobsFail)
             .done(getJobsDoneMulti);
     }
-
+    
     if (document.getElementById('search-filter') !== null) {
         gSearchFilter = document.getElementById('search-filter').value;
     }

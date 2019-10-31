@@ -31,7 +31,7 @@ require([
     'utils/const',
     'tables/build',
     'utils/date'
-], function($, init, e, r, table, html, appconst, buildt) {
+], function($, init, error, request, table, html, appconst, buildt) {
     'use strict';
     var gBuildReqData;
     var gBuildSearchFields;
@@ -97,7 +97,7 @@ require([
         var totalReq;
 
         function getData(reqData) {
-            $.when(r.get('/_ajax/build', reqData))
+            $.when(request.get('/_ajax/build', reqData))
                 .done(getMoreBuildsDone);
         }
 
@@ -258,8 +258,8 @@ require([
             limit: appconst.MAX_QUERY_LIMIT,
             field: gBuildSearchFields
         };
-        $.when(r.get('/_ajax/build', reqData))
-            .fail(e.error, getBuildsFail)
+        $.when(request.get('/_ajax/build', reqData))
+            .fail(error.error, getBuildsFail)
             .done(getBuildsDone, getMoreBuilds);
     }
 

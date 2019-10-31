@@ -39,11 +39,11 @@ function($, init, router, format, error, request, table, html, appconst, treleas
     var page = 'test-build';
     var mPage = 'release'; // for nav li class = active
     var [ gDateRange , gSearchFilter , gPageLen ] = init.init( mPage );
-    setTimeout(getDataSuite, 10);
+    setTimeout(getDataGroup, 10);
 
     // Parsing of parameters to url
     let params = ( new router( ) )
-        .addRoute( page , page + '/$p' , { kernel : '[a-zA-Z0-9-_.]+' , board : '[a-zA-Z0-9-_.]+' , suite_name : '[a-zA-Z0-9-_.]+' , set_name : '[a-zA-Z0-9-_.]+' } )
+        .addRoute( page , page + '/$p' , { kernel : '[a-zA-Z0-9-_.]+' , board : '[a-zA-Z0-9-_.]+' , group_name : '[a-zA-Z0-9-_.]+' , set_name : '[a-zA-Z0-9-_.]+' } )
         .parse( )
         ;
     var logpath;
@@ -200,7 +200,7 @@ function($, init, router, format, error, request, table, html, appconst, treleas
     // Get test_case list
     function getDataCase(data){
         boot_log_html = data.result[0].boot_log_html;
-        logpath = '/test/suite/'+data.result[0]._id.$oid+'/'+data.result[0].job+'/'+data.result[0].git_branch+'/'+data.result[0].kernel+'/'+data.result[0].arch+'/'+data.result[0].defconfig_full+'/'+data.result[0].lab_name+'/'+data.result[0].boot_log_html;
+        logpath = '/test/group/'+data.result[0]._id.$oid+'/'+data.result[0].job+'/'+data.result[0].git_branch+'/'+data.result[0].kernel+'/'+data.result[0].arch+'/'+data.result[0].defconfig_full+'/'+data.result[0].lab_name+'/'+data.result[0].boot_log_html;
         // Set header
         updateDetails(data);
         let param  = {
@@ -213,7 +213,7 @@ function($, init, router, format, error, request, table, html, appconst, treleas
         batchOpsset.push({
             method: 'GET',
             operation_id: 'getallSet',
-            resource: 'test_set',
+            resource: 'test_case',
             query: 'field=_id&field=name&field=test_case'
         });
         var deferred = request.post( '/_backend/batch', JSON.stringify( { batch: batchOpsset } ) );
@@ -284,17 +284,17 @@ function($, init, router, format, error, request, table, html, appconst, treleas
             });
     }
 
-    // Get test_suite list
-    function getDataSuite(){
-        var page_header =  '<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7"><dl class="dl-horizontal"><dt>Kernel/Version</dt><dd>'+params.kernel+'</dd><dt>Board</dt><dd>'+params.board+'</dd><dt>Test suite name</dt><dd>'+params.suite_name+'</dd><dt>Test set name</dt><dd>'+params.set_name+'</dd><dt>Tree/Job</dt><dd class="loading-content" id="tree"></dd><dt>Git branch</dt><dd class="loading-content" id="git-branch"></dd><dt>Git describe</dt><dd class="loading-content" id="git-describe"></dd><dt>Git URL</dt><dd class="loading-content" id="git-url"></dd><dt>Git commit</dt><dd class="loading-content" id="git-commit"></dd><dt>Date</dt><dd class="loading-content" id="job-date"></dd></dl></div>';
+    // Get test_group list
+    function getDataGroup(){
+        var page_header =  '<div class="col-xs-12 col-sm-12 col-md-7 col-lg-7"><dl class="dl-horizontal"><dt>Kernel/Version</dt><dd>'+params.kernel+'</dd><dt>Board</dt><dd>'+params.board+'</dd><dt>Test group name</dt><dd>'+params.group_name+'</dd><dt>Test set name</dt><dd>'+params.set_name+'</dd><dt>Tree/Job</dt><dd class="loading-content" id="tree"></dd><dt>Git branch</dt><dd class="loading-content" id="git-branch"></dd><dt>Git describe</dt><dd class="loading-content" id="git-describe"></dd><dt>Git URL</dt><dd class="loading-content" id="git-url"></dd><dt>Git commit</dt><dd class="loading-content" id="git-commit"></dd><dt>Date</dt><dd class="loading-content" id="job-date"></dd></dl></div>';
         $(".page-header").parent().html($(".page-header").parent().html() + '<br>' + page_header);
         let param  = {
             kernel: params.kernel,
             board: params.board,
-            name: params.suite_name
+            name: params.group_name
         };
         request.api(
-            'tests/suites/',
+            'tests/group/',
             param,
             getDataCase,
             table.loadingError
@@ -304,8 +304,6 @@ function($, init, router, format, error, request, table, html, appconst, treleas
      * @param store
     **/
     function getDataDone(store) {
-		console.log('getDataDone->store');
-		console.log(store);
 		gTable
 			.data(store)
 			.columns(initColumns())
