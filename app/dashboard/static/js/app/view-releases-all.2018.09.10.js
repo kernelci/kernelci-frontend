@@ -8,6 +8,9 @@
  *
  * Copyright (c) 2018 BayLibre, SAS.
  * Author: Oussema Daoud <odaoud@baylibre.com>
+ *
+ * Copyright (C) Collabora Limited 2018
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -85,11 +88,13 @@ function($, init, format, html, error, request, appconst, table, ttest) {
     function _createOp(store) {
         var batchOps = [];
         store.forEach(function(element) {
-            batchOps.push({
-                method: 'GET',
-                operation_id: hash(element.git_branch + element.kernel),
-                resource: 'test_suite',
-                query: 'git_branch=' + element.git_branch + '&kernel=' + element.kernel
+            element.test_cases.forEach(function(testCase) {
+                batchOps.push({
+                    method: 'GET',
+                    operation_id: hash(testCase.$oid),
+                    resource: 'test_case', 
+                    query: '_id=ObjectId("'+testCase.$oid+'")&field=status'
+                });
             });
         });
         return batchOps;
@@ -180,7 +185,7 @@ function($, init, format, html, error, request, appconst, table, ttest) {
         }
     }
 
-    function getJobsFail() {
+    function getDataFail() {
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('jobs-table-div'),
@@ -206,13 +211,13 @@ function($, init, format, html, error, request, appconst, table, ttest) {
         return filter;
     }
 
-    function setCasesCount(allCases, data) {
+    function setCasesCount(data) {
         var batchOps = _createOp(data);
-        var deferred = request.post( '/_backend/batch', JSON.stringify( { batch: batchOps } ) );
+        var deferred = request.post( '/_ajax/batch', JSON.stringify( { batch: batchOps } ) );
         $.when(deferred)
             .fail(function(batch) {
                 data.forEach(function(element) {// git_branch + kernel
-                    var idCountCases = hash(element.git_branch + element.kernel);
+                    var idCountCases = hash(element.build_id);
                     gJobsTable.addDrawEvent(updateOrStageData('cases-total-count-'+idCountCases, null));
                     gJobsTable.addDrawEvent(updateOrStageData('cases-success-count-'+idCountCases, null));
                     gJobsTable.addDrawEvent(updateOrStageData('cases-fail-count-'+idCountCases, null));
@@ -226,8 +231,8 @@ function($, init, format, html, error, request, appconst, table, ttest) {
                     var skipCount=0;
                     var totalCount=0;
                     allCases.result[0].result[0].result.forEach(function(all) {
-                        element.result[0].result.forEach(function(suite) {
-                            suite.test_case.forEach(function(caseID) {
+                        element.result[0].result.forEach(function(group) {
+                            group.test_case.forEach(function(caseID) {
                                 if(all._id.$oid==caseID.$oid) {
                                     totalCount++;
                                     if(all.status=='PASS')
@@ -281,7 +286,7 @@ function($, init, format, html, error, request, appconst, table, ttest) {
         }
         // Render Cases Count
         function _renderCasesCount(a , type , data ) {
-            return ttest.renderCasesCount(hash(data.git_branch + data.kernel), type, 'cases-', '/test-build/kernel/' + data.kernel + '/');
+            return ttest.renderCasesCount(hash(data.build_id), type, 'cases-', '/test-build/kernel/' + data.kernel + '/');
         }
         // Render Git Url
         function _renderGitUrl(href, type, data) {
@@ -328,7 +333,7 @@ function($, init, format, html, error, request, appconst, table, ttest) {
                 type: 'string',
                 searchable: true,
                 orderable: true,
-                className: 'test-suite-column',
+                className: 'test-group-column',
                 render: _renderKernel
             },
             {
@@ -380,78 +385,51 @@ function($, init, format, html, error, request, appconst, table, ttest) {
         var batchOps = [];
         batchOps.push({
             method: 'GET',
-            operation_id: status,
-            resource: 'test_case',
-            query: 'field=status'
+            operation_id: 'status',
+            resource: 'test_group',
+            query: 'field=test_cases&aggregate=build_id'
         });
-        var deferred = request.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
-            $.when(deferred)
-                .fail(error.error, getBatchCountFail)
-                .done(function(allCases) {
-                    setCasesCount(allCases, results);
-                    global_allCases = allCases;
-                    global_results = results;
-                });
+        
+        setCasesCount(results);
+        //global_allCases = allCases;
+        //global_results = results;
+            
     }
 
-    function getJobsDone(response) {
-        var results = response.result;
-        if (results.length > 0) {
-            var fields = ['job' , 'kernel' , 'git_branch', 'image_type', 'created_on', 'git_url'];
-            var batchOps = [];
-            results.forEach(function(kernel) {
-                batchOps.push({
-                    method: 'GET',
-                    operation_id: 'kernel--' + kernel,
-                    resource: 'test_suite',
-                    query: 'kernel=' + kernel + '&aggregate=git_branch&field='+ fields.join( '&field=' )
-                });
-            });
-            var deferred = request.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
-            $.when(deferred)
-                .fail(error.error, getBatchCountFail)
-                .done(getDataDone);
-        } else {
-            html.removeElement(document.getElementById('table-loading'));
-            html.replaceContent(
-                document.getElementById('releases-table-div'),
-                html.errorDiv('No data found.'));
-        }
-    }
-
-    function getDataDone( response ) {
+    function getDataDone(response) {
         var store = [];
         response.result.forEach(function(kernelItems) {
-            kernelItems.result.forEach(function(branchItems) {
-                var _branch = branchItems.git_branch;
-                store.push({
-                    job: branchItems.job,
-                    image_type: branchItems.image_type,
-                    git_branch: _branch,
-                    git_url: branchItems.git_url,
-                    kernel: branchItems.kernel,
-                    created_on: branchItems.created_on
-                });
+            var _branch = kernelItems.git_branch;
+            store.push({
+                job: kernelItems.job,
+                image_type: kernelItems.image_type,
+                git_branch: _branch,
+                git_url: kernelItems.git_url,
+                kernel: kernelItems.kernel,
+                created_on: kernelItems.created_on,
+                test_cases: kernelItems.test_cases 
             });
         });
+        
         html.removeElement(document.getElementById('table-loading'));
         buildTable(store);
     }
-    function getJobs() {
+    function getTestsByBuild() {
         var deferred = request.get(
-            '/_ajax/suite/distinct/kernel/',
+            
+            '/_ajax/test/group',
             {
-                aggregate: 'job',
+                aggregate: 'build_id',
                 date_range: gDateRange,
                 sort: 'created_on',
                 sort_order: -1
             }
         );
         $.when(deferred)
-            .fail(error.error, getJobsFail)
-            .done(getJobsDone);
+            .fail(error.error, getDataFail)
+            .done(getDataDone);
     }
-    getJobs();
+    getTestsByBuild();
 
     /**
      *  Relode again Tests Results and Rate columns

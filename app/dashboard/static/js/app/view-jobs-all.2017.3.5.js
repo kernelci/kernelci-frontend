@@ -253,7 +253,7 @@ require([
         if (results.length > 0) {
             batchOps = [];
             results.forEach(createBatchOp);
-
+            
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
         }
