@@ -1,9 +1,9 @@
 /* globals onmessage: true, postMessage: true */
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -19,7 +19,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 /**
- * Count the status of build and boot reports for a passrate graph.
+ * Count the status of build and test reports for a passrate graph.
  * Return a message with an object whose keys are the kernel value.
  * Each key holds an object with the follwing keys:
  * . job
