@@ -4,8 +4,8 @@
  * Author: Milo Casagrande <milo.casagrande@linaro.org>
  *
  * kernelci dashboard.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -37,9 +37,9 @@ define([
         default: 'Unknown status'
     };
 
-    gJobUtils.renderBootCount = function(settings) {
+    gJobUtils.renderTestsCount = function(settings) {
         settings.extraClasses = ['extra-margin'];
-        settings.idStart = 'boot-';
+        settings.idStart = 'tests-';
         return tcommon.countAll(settings);
     };
 

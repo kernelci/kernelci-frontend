@@ -4,8 +4,8 @@
  * Author: Milo Casagrande <milo.casagrande@linaro.org>
  *
  * kernelci dashboard.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -198,19 +198,19 @@ require([
                 query: qHead
             });
 
-            // Get total boot reports count.
-            opId = 'boot-total-count-';
+            // Get total tests count.
+            opId = 'tests-total-count-';
             opId += opIdTail;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: qStr
             });
 
-            // Get successful boot reports count.
-            opId = 'boot-success-count-';
+            // Get successful tests count.
+            opId = 'tests-success-count-';
             opId += opIdTail;
             qHead = 'status=PASS&';
             qHead += qStr;
@@ -218,33 +218,31 @@ require([
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: qHead
             });
 
-            // Get failed boot reports count.
-            opId = 'boot-fail-count-';
+            // Get regressions count.
+            opId = 'tests-fail-count-';
             opId += opIdTail;
-            qHead = 'status=FAIL&';
-            qHead += qStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
-                query: qHead
+                document: 'test_regression',
+                query: qStr
             });
 
             // Get unknown boot reports count.
-            opId = 'boot-unknown-count-';
+            opId = 'tests-unknown-count-';
             opId += opIdTail;
-            qHead = 'status=OFFLINE&status=UNTRIED&status=UNKNOWN&';
+            qHead = 'status=FAIL&status=SKIP&regression_id=null&';
             qHead += qStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: qHead
             });
         }
@@ -288,17 +286,17 @@ require([
         }
 
         /**
-         * Create the table column title for the boots count.
+         * Create the table column title for the test results count.
         **/
-        function _bootColumnTitle() {
+        function _testsColumnTitle() {
             var tooltipNode;
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
                 'title',
-                'Total/Successful/Failed/Other boot reports for latest job');
+                'Total/Successful/Regressions/Other tests for latest job');
             tooltipNode.appendChild(
-                document.createTextNode('Latest Boot Status'));
+                document.createTextNode('Latest Test Results'));
 
             return tooltipNode.outerHTML;
         }
@@ -318,11 +316,11 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderBootCount(data, type, object) {
+        function _renderTestsCount(data, type, object) {
             var href;
             var nodeId;
 
-            href = '/boot/all/job/';
+            href = '/tests/all/job/';
             href += data;
             href += '/branch/';
             href += object.git_branch;
@@ -333,7 +331,7 @@ require([
             nodeId = data;
             nodeId += '-';
             nodeId += object.git_branch;
-            return jobt.renderBootCount({
+            return jobt.renderTestsCount({
                 data: nodeId,
                 type: type,
                 href: href
@@ -401,12 +399,12 @@ require([
                 },
                 {
                     data: 'job',
-                    title: _bootColumnTitle(),
+                    title: _testsColumnTitle(),
                     type: 'string',
                     searchable: false,
                     orderable: false,
                     className: 'pull-center',
-                    render: _renderBootCount
+                    render: _renderTestsCount
                 },
                 {
                     data: 'created_on',
