@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -51,17 +51,17 @@ require([
     // forward slash will not work with URLs.
     gBranchRegEx = new RegExp('/+', 'g');
 
-    function getBootStatsFail() {
+    function getTestStatsFail() {
         html.replaceContent(
-            document.getElementById('boot-pass-rate'),
-            html.errorDiv('Error loading boot data.'));
+            document.getElementById('test-pass-rate'),
+            html.errorDiv('Error loading test data.'));
     }
 
-    function getBootStatsDone(response) {
-        chart.bootpassrate('boot-pass-rate', response);
+    function getTestStatsDone(response) {
+        chart.testpassrate('test-pass-rate', response);
     }
 
-    function getBootStats(startDate, dateRange) {
+    function getTestStats(startDate, dateRange) {
         var data;
 
         data = {
@@ -74,9 +74,9 @@ require([
             nfield: ['_id']
         };
 
-        $.when(r.get('/_ajax/boot', data))
-            .fail(e.error, getBootStatsFail)
-            .done(getBootStatsDone);
+        $.when(r.get('/_ajax/test/case', data))
+            .fail(e.error, getTestStatsFail)
+            .done(getTestStatsDone);
     }
 
     function getBuildsStatsFail() {
@@ -126,23 +126,23 @@ require([
             }
 
             getBuildsStats(firstDate.toCustomISODate(), lDateRange);
-            getBootStats(firstDate.toCustomISODate(), lDateRange);
+            getTestStats(firstDate.toCustomISODate(), lDateRange);
         } else {
             html.replaceContent(
                 document.getElementById('build-pass-rate'),
                 html.errorDiv('No build data available.'));
 
             html.replaceContent(
-                document.getElementById('boot-pass-rate'),
-                html.errorDiv('No boot data available.'));
+                document.getElementById('test-pass-rate'),
+                html.errorDiv('No test data available.'));
         }
     }
 
-    function getBuildBootCountFail() {
+    function getBuildTestCountFail() {
         html.replaceByClass('count-badge', '&infin;');
     }
 
-    function getBuildBootCountDone(response) {
+    function getBuildTestCountDone(response) {
         var batchData;
 
         batchData = response.result;
@@ -162,7 +162,7 @@ require([
             .search(gSearchFilter);
     }
 
-    function getBuildBootCount(response) {
+    function getBuildTestCount(response) {
         var batchOps;
         var deferred;
         var kernel;
@@ -235,19 +235,19 @@ require([
                 query: qHead
             });
 
-            // Get total boot reports count.
-            opId = 'boot-total-count-';
+            // Get total tests count.
+            opId = 'test-total-count-';
             opId += opIdTail;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: queryStr
             });
 
-            // Get successful boot reports count.
-            opId = 'boot-success-count-';
+            // Get successful tests count.
+            opId = 'test-success-count-';
             opId += opIdTail;
             qHead = 'status=PASS&';
             qHead += queryStr;
@@ -255,33 +255,31 @@ require([
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: qHead
             });
 
-            // Get failed boot reports count.
-            opId = 'boot-fail-count-';
+            // Get regressions count.
+            opId = 'test-fail-count-';
             opId += opIdTail;
-            qHead = 'status=FAIL&';
+            batchOps.push({
+                method: 'GET',
+                operation_id: opId,
+                resource: 'count',
+                document: 'test_regression',
+                query: queryStr
+            });
+
+            // Get unknown test reports count.
+            opId = 'test-unknown-count-';
+            opId += opIdTail;
+            qHead = 'status=FAIL&status=SKIP&regression_id=null&';
             qHead += queryStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
-                document: 'boot',
-                query: qHead
-            });
-
-            // Get unknown boot reports count.
-            opId = 'boot-unknown-count-';
-            opId += opIdTail;
-            qHead = 'status=OFFLINE&status=UNTRIED&';
-            qHead += queryStr;
-            batchOps.push({
-                method: 'GET',
-                operation_id: opId,
-                resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: qHead
             });
         }
@@ -295,8 +293,8 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(e.error, getBuildBootCountFail)
-                .done(getBuildBootCountDone);
+                .fail(e.error, getBuildTestCountFail)
+                .done(getBuildTestCountDone);
         } else {
             html.replaceByClass('count-badge', '?');
         }
@@ -322,16 +320,16 @@ require([
         }
 
         /**
-         * Create the table column title for the boots count.
+         * Create the table column title for the tests count.
         **/
-        function _bootColumnTitle() {
+        function _testColumnTitle() {
             var tooltipNode;
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Failed/Other boot reports');
+                'title', 'Total/Successful/Regressions/Other test results');
             tooltipNode.appendChild(
-                document.createTextNode('Boot Status'));
+                document.createTextNode('Test Results'));
 
             return tooltipNode.outerHTML;
         }
@@ -353,7 +351,7 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderBootCount(data, type, object) {
+        function _renderTestCount(data, type, object) {
             var href;
             var nodeId;
 
@@ -367,7 +365,7 @@ require([
             nodeId = data;
             nodeId += '-';
             nodeId += object.git_branch;
-            return jobt.renderBootCount({
+            return jobt.renderTestCount({
                 data: nodeId,
                 type: type,
                 href: href
@@ -488,10 +486,10 @@ require([
                 },
                 {
                     data: 'kernel',
-                    title: _bootColumnTitle(),
+                    title: _testColumnTitle(),
                     type: 'string',
-                    className: 'boot-count pull-center',
-                    render: _renderBootCount
+                    className: 'test-count pull-center',
+                    render: _renderTestCount
                 },
                 {
                     data: 'created_on',
@@ -553,8 +551,8 @@ require([
         $.when(r.get('/_ajax/build', data))
             .fail(
                 e.error,
-                getBuildsFailed, getBuildsStatsFail, getBootStatsFail)
-            .done(getTrendsData, getBuildsDone, getBuildBootCount);
+                getBuildsFailed, getBuildsStatsFail, getTestStatsFail)
+            .done(getTrendsData, getBuildsDone, getBuildTestCount);
     }
 
     function getDetailsDone(response) {
@@ -625,10 +623,10 @@ require([
         });
 
         batchOps.push({
-            operation_id: 'boot-reports-count',
+            operation_id: 'test-results-count',
             method: 'GET',
             resource: 'count',
-            document: 'boot',
+            document: 'test_case',
             query: queryStr
         });
 

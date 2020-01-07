@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -34,9 +34,9 @@ define([
         default: 'Unknown status'
     };
 
-    gJobUtils.renderBootCount = function(settings) {
+    gJobUtils.renderTestCount = function(settings) {
         settings.extraClasses = ['extra-margin'];
-        settings.idStart = 'boot-';
+        settings.idStart = 'test-';
         return tcommon.countAll(settings);
     };
 
