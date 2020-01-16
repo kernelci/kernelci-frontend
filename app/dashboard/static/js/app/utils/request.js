@@ -79,20 +79,6 @@ define([
         this.backend( 'get' , api , $.param( params ) , success , fail )
     }
 
-    /**
-     * @param {"get"|"post"}  method
-     * @param {string}    api
-     * @param {string}    params
-     * @param {Function}  success
-     * @param {Function}  fail
-     */
-    request.backend = function( method ,  api , params , success , fail ) {
-        var deferred = request[ method ]( '/_backend/'+ api , params );
-        $.when(deferred)
-            .fail( error.error,  fail )
-            .done( success );
-    }
-
     request.get = function(url, data) {
         return _makeRequest('GET', url, data);
     };

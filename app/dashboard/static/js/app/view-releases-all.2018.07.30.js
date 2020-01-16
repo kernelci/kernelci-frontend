@@ -28,26 +28,18 @@
 require([
     'jquery',
     'utils/init',
-    'utils/format',
     'utils/html',
     'utils/error',
     'utils/request',
     'utils/const',
     'utils/table',
-    'utils/date',
     'tables/release'
 ],
-function($, init, format, html, error, request, appconst, table, buildt, tableRelease) {
+function($, init, html, error, request, appconst, table, tableRelease) {
     'use strict';
-    var page = 'test-build';
     var mPage = 'release'; // for nav li class = active
-    var gDateRange;
-    var gBoard;
     var gPageLen = 100;
     var gSearchFilter;
-    var gTableCount;
-    var gBatchCountMissing;
-
 
     var [ gDateRange , gSearchFilter , gPageLen ] = init.init( mPage );
 
@@ -64,221 +56,22 @@ function($, init, format, html, error, request, appconst, table, buildt, tableRe
     gDateRange = appconst.MAX_DATE_RANGE;
     gPageLen = 100;
     gSearchFilter = null;
-    gTableCount = {};
-    gBatchCountMissing = {};
-    // Rate config
-    var warning = 40;
-    var success = 85;
+    
     // To save data from backend
     var global_allCases;
     var global_results;
-    // hash int format
-    var hash = function(s) {
-        var a = 1, c = 0, h, o;
-        if (s) {
-            a = 0;
-            for (h = s.length - 1; h >= 0; h--) {
-                o = s.charCodeAt(h);
-                a = (a<<6&268435455) + o + (o<<14);
-                c = a & 266338304;
-                a = c!==0?a^c>>21:a;
-            }
-        }
-        return String(a);
-	}
-    function _createOp(store) {
-        var batchOps = [];
-        store.forEach(function(element) {
-            batchOps.push({
-                method: 'GET',
-                operation_id: hash(element.git_branch + element.kernel),
-                resource: 'test_suite',
-                query: 'git_branch=' + element.git_branch + '&kernel=' + element.kernel
-            });
-        });
-        return batchOps;
-    }
 
-    function updateOrStageCount(elementId, count) {
-        var element;
-        element = document.getElementById(elementId);
-        // If we do not have the element in the DOM, it means dataTables has
-        // yet to add it.
-        if(element) {
-            html.replaceContent(element, document.createTextNode(format.number(count)));
-        }else {
-            html.replaceContent(element, document.createTextNode('?'));
-        }
-    }
-
-    function updateOrStageRate(elementId, rate) {
-        var element;
-        element = document.getElementById(elementId);
-        if (element) {
-            if(rate == null)
-                html.replaceContent(element, document.createTextNode('no data'));
-            else
-                html.replaceContent(element, document.createTextNode(rate.toFixed(2)+'%'));
-        } else {
-            html.replaceContent(element, document.createTextNode(format.number('?')));
-        }
-    }
-    function updateOrStageData(elementId, data) {
-        var element;
-        element = document.getElementById(elementId);
-        if (element) {
-            html.replaceContent(element, document.createTextNode(data));
-        } else {
-            html.replaceContent(element, document.createTextNode('?'));
-        }
-    }
-    function updateOrStageClass(element) {
-        if (element) {
-            html.replaceContent(element, document.createTextNode(data));
-        } else {
-            html.replaceContent(element, document.createTextNode('?'));
-        }
-    }
-    /**
-     * Function to be bound to the draw event of the table.
-     * This is done to update dynamic elements that are not yet available
-     * in the DOM due to the derefer rendering of dataTables.
-    **/
-    function updateCasesCount() {
-        Object.keys(gBatchCountMissing).forEach(function(key) {
-            updateOrStageCount(key, gBatchCountMissing[key]);
-        });
-    }
-
-    function getBatchCountFail() {
-        html.replaceByClass('count-badge', '&infin;');
-    }
-
-    function getBatchCountDone(response) {
-        var results;
-        var id       = response.result[1].operation_id.split('cases-total-count-')[1]
-        var ctotal   = response.result[1].result[ 0 ].count
-        var csuccess = response.result[2].result[ 0 ].count
-        var percentage = (( csuccess / ctotal * 100 ));
-        $( '#rate-' + id ).html(percentage.toFixed(2) + '%')
-        function _parseOperationsResult(result) {
-            gTableCount[result.operation_id] =
-                parseInt(result.result[0].count, 10);
-        }
-        function _updateTable(opId) {
-            updateOrStageCount(opId, gTableCount[opId]);
-        }
-        results = response.result;
-        if (results.length > 0) {
-            // Parse all the results and update a global object with
-            // the operation IDs and the count found.
-            results.forEach(_parseOperationsResult);
-            // Invalidate the cells in column #2 before updating the DOM
-            // elements. In this way we have the correct 'filter' values in the
-            // global object that we can use to provide the search parameters.
-            gJobsTable.invalidateColumn(2);
-            // Now update the DOM with the results.
-            Object.keys(gTableCount).forEach(_updateTable);
-            // Bind a new function to the draw event of the table.
-            gJobsTable.addDrawEvent(updateCasesCount);
-        }
-    }
-
-    function getJobsFail() {
+    function getBuildFail() {
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('jobs-table-div'),
             html.errorDiv('Error loading data.'));
     }
 
-    function getFilterCasesCount(tree) {
-        var filter;
-
-        filter = '';
-        if (gTableCount.hasOwnProperty('cases-success-count-' + tree)) {
-            if (gTableCount['cases-success-count-' + tree]) {
-                filter += 'successfulpass';
-            }
-        }
-
-        if (gTableCount.hasOwnProperty('cases-fail-count-' + tree)) {
-            if (gTableCount['cases-fail-count-' + tree]) {
-                filter += 'failed';
-            }
-        }
-
-        return filter;
-    }
-
-    function setCasesCount(allCases, data) {
-        var batchOps = _createOp(data);
-        var deferred = request.post( '/_backend/batch', JSON.stringify( { batch: batchOps } ) );
-        $.when(deferred)
-            .fail(function(batch) {
-                data.forEach(function(element) {// git_branch + kernel
-                    var idCountCases = hash(element.git_branch + element.kernel);
-                    gJobsTable.addDrawEvent(updateOrStageData('cases-total-count-'+idCountCases, null));
-                    gJobsTable.addDrawEvent(updateOrStageData('cases-success-count-'+idCountCases, null));
-                    gJobsTable.addDrawEvent(updateOrStageData('cases-fail-count-'+idCountCases, null));
-                    gJobsTable.addDrawEvent(updateOrStageData('cases-unknown-count-'+idCountCases, null));
-                });
-            })
-            .done(function(batch) {
-                batch.result.forEach(function(element) {// git_branch + kernel
-                    var passCount=0;
-                    var failCount=0;
-                    var skipCount=0;
-                    var totalCount=0;
-                    allCases.result[0].result[0].result.forEach(function(all) {
-                        element.result[0].result.forEach(function(suite) {
-                            suite.test_case.forEach(function(caseID) {
-                                if(all._id.$oid==caseID.$oid) {
-                                    totalCount++;
-                                    if(all.status=='PASS')
-                                        passCount++;
-                                    if(all.status=='FAIL')
-                                        failCount++;
-                                    return true;
-                                }
-                            });
-                        });
-                    });
-                    var idCountCases = element.operation_id;
-                    skipCount = totalCount - passCount - failCount;
-                    // Set rate
-                    updateOrStageCount('cases-total-count-'+idCountCases, totalCount);
-                    gJobsTable.addDrawEvent(updateOrStageCount('cases-success-count-'+idCountCases, passCount));
-                    gJobsTable.addDrawEvent(updateOrStageCount('cases-fail-count-'+idCountCases, failCount));
-                    gJobsTable.addDrawEvent(updateOrStageCount('cases-unknown-count-'+idCountCases, skipCount));
-                    var percentage = 100;
-                    if(totalCount - skipCount > 0) {
-                        percentage = (( passCount / ( totalCount - skipCount ) * 100 ));
-                        gJobsTable.addDrawEvent(updateOrStageRate('rate-'+idCountCases, percentage));
-                        if(percentage>=success)
-                            gJobsTable.addDrawEvent($('#rate-'+idCountCases).addClass( "badge alert-success  count-badge extra-margin" ));
-                        if(percentage<success && percentage>=warning)
-                            gJobsTable.addDrawEvent($('#rate-'+idCountCases).addClass( "badge alert-warning  count-badge extra-margin" ));
-                        if(percentage<warning)
-                            gJobsTable.addDrawEvent($('#rate-'+idCountCases).addClass( "badge alert-danger count-badge extra-margin" ));
-                    }else{
-                        gJobsTable.addDrawEvent(updateOrStageRate('rate-'+idCountCases, null));
-                        gJobsTable.addDrawEvent($('#rate-'+idCountCases).addClass( "badge count-badge extra-margin" ));
-                    }
-                    // Row color
-                    if(percentage==0) {
-                        if(failCount==0)
-                            gJobsTable.addDrawEvent($('#rate-'+idCountCases).parent().parent().addClass( " alert-warning" ));
-                        else
-                            gJobsTable.addDrawEvent($('#rate-'+idCountCases).parent().parent().addClass( " alert-danger" ));
-                    }
-                });
-            });
-	}
-
     function buildTable ( results ) {
                 // Render Details
         function _renderDetails(href, type, data) {
-            return tableRelease.renderDetails('/test-build/kernel/'+data.kernel+'/', type, 'See the test group related to build '+data.build_type);
+            return tableRelease.renderDetails('/test-build/testgroup/'+data.build_id.$oid+'/', type, 'See the test group related to build '+data.build_type);
         }
         var columns = [
             {
@@ -365,7 +158,7 @@ function($, init, format, html, error, request, appconst, table, buildt, tableRe
         html.removeElement(document.getElementById('table-loading'));
         buildTable(store);
     }
-    function getJobs() {
+    function getBuilds() {
         var deferred = request.get(
             '/_ajax/build',
             {
@@ -375,10 +168,11 @@ function($, init, format, html, error, request, appconst, table, buildt, tableRe
             }
         );
         $.when(deferred)
-            .fail(error.error, getJobsFail)
+            .fail(error.error, getBuildFail)
             .done(getDataDone);
     }
-    getJobs();
+    console.log('hereeee');
+    getBuilds();
 
     /**
      *  Relode again Tests Results and Rate columns

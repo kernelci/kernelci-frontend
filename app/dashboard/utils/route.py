@@ -1,3 +1,6 @@
+# Copyright (C) Collabora Limited 2020
+# Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+#
 # Copyright (C) Linaro Limited 2014,2015,2016,2017,2019
 # Author: Matt Hart <matthew.hart@linaro.org>
 # Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -401,26 +404,3 @@ def init():
         methods=["GET"]
     )
 
-    add_rule(
-        "/test-build/kernel/<string:kernel>/",
-        view_func=vrelease.ReleasesKernelView.as_view("release-kernel"),
-        methods=["GET"]
-    )
-
-    add_rule(
-        "/test-build/kernel/<string:kernel>/board/<string:board>/",
-        view_func=vrelease.ReleasesKernelBoardView.as_view("release-kernel-board"),
-        methods=["GET"]
-    )
-
-    add_rule(
-       "/test-build/kernel/<string:kernel>/board/<string:board>/suite_name/<string:suite_name>/",
-       view_func=vrelease.ReleasesKernelBoardSuiteNameView.as_view("release-kernel-board-suite-name"),
-       methods=["GET"]
-    )
-
-    add_rule(
-        "/test-build/kernel/<string:kernel>/board/<string:board>/suite_name/<string:suite_name>/set_name/<string:set_name>/",
-        view_func=vrelease.ReleasesKernelBoardSetNameView.as_view("release-kernel-board-set-name"),
-        methods=["GET"]
-    )
