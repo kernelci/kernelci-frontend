@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -35,7 +35,7 @@ require([
     var gBatchCountMissing;
     var gBatchOpBase;
     var gBoardsCount;
-    var gBootsCount;
+    var gTestCount;
     var gDateRange;
     var gDrawEventBound;
     var gLabsCount;
@@ -50,7 +50,7 @@ require([
 
     gBatchOpBase = 'mach=';
     gDateRange = appconst.MAX_DATE_RANGE;
-    gBootsCount = {};
+    gTestCount = {};
     gBoardsCount = {};
     gLabsCount = {};
     gBatchCountMissing = {};
@@ -99,38 +99,38 @@ require([
         }
     }
 
-    function getBootsCountFail() {
-        html.replaceByClassHTML('boots-count-badge', '&infin;');
+    function getTestCountFail() {
+        html.replaceByClassHTML('test-count-badge', '&infin;');
     }
 
-    function getBootsCountDone(response) {
+    function getTestCountDone(response) {
         var results;
 
         // Internally used to parse the results.
-        function _updateBootsCount(result) {
+        function _updateTestCount(result) {
             var count;
             var opId;
 
             count = parseInt(result.result[0].count, 10);
             opId = result.operation_id;
-            gBootsCount[opId] = count;
+            gTestCount[opId] = count;
 
             updateOrStageCount(opId, count);
         }
 
         results = response.result;
         if (results.length > 0) {
-            results.forEach(_updateBootsCount);
+            results.forEach(_updateTestCount);
             if (!gDrawEventBound) {
                 gDrawEventBound = true;
                 gSocsTable.addDrawEvent(updateSocsTable);
             }
         } else {
-            html.replaceByClassTxt('boots-count-badge', '?');
+            html.replaceByClassTxt('test-count-badge', '?');
         }
     }
 
-    function getBootsCount(response) {
+    function getTestCount(response) {
         var batchOps;
         var deferred;
 
@@ -140,9 +140,9 @@ require([
             query += soc;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boots-count-' + soc,
+                operation_id: 'test-count-' + soc,
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: query
             });
         }
@@ -155,8 +155,8 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(error.error, getBootsCountFail)
-                .done(getBootsCountDone);
+                .fail(error.error, getTestCountFail)
+                .done(getTestCountDone);
         }
     }
 
@@ -202,7 +202,7 @@ require([
             batchOps.push({
                 method: 'GET',
                 operation_id: 'labs-count-' + soc,
-                resource: 'boot',
+                resource: 'test_group',
                 distinct: 'lab_name',
                 query: query
             });
@@ -264,8 +264,8 @@ require([
             batchOps.push({
                 method: 'GET',
                 operation_id: 'boards-count-' + soc,
-                resource: 'boot',
-                distinct: 'board',
+                resource: 'test_case',
+                distinct: 'device_type',
                 query: query
             });
         }
@@ -315,7 +315,7 @@ require([
         }
 
         // Internal wrapper to provide the oreder count.
-        function _renderBootsCount(data, type) {
+        function _renderTestCount(data, type) {
             var rendered;
 
             rendered = null;
@@ -323,12 +323,12 @@ require([
                 rendered = tsoc.countBadge({
                     data: data,
                     type: 'default',
-                    idStart: 'boots-',
-                    extraClasses: ['boots-count-badge']
+                    idStart: 'test-',
+                    extraClasses: ['test-count-badge']
                 });
             } else if (type === 'sort') {
-                if (gBootsCount.hasOwnProperty('boots-count-' + data)) {
-                    rendered = gBootsCount['boots-count-' + data];
+                if (gTestCount.hasOwnProperty('test-count-' + data)) {
+                    rendered = gTestCount['test-count-' + data];
                 } else {
                     rendered = NaN;
                 }
@@ -391,11 +391,11 @@ require([
                 },
                 {
                     data: 'mach',
-                    title: 'Total Boot Reports',
+                    title: 'Total Test Results',
                     type: 'num',
                     searchable: false,
                     className: 'pull-center',
-                    render: _renderBootsCount
+                    render: _renderTestCount
                 },
                 {
                     data: 'mach',
@@ -449,7 +449,7 @@ require([
 
         setTimeout(getSocsDone.bind(null, results), 25);
         setTimeout(getBoardsCount.bind(null, results), 75);
-        setTimeout(getBootsCount.bind(null, results), 100);
+        setTimeout(getTestCount.bind(null, results), 100);
         setTimeout(getLabsCount.bind(null, results), 125);
         setTimeout(enableSearch, 175);
     }
@@ -464,7 +464,7 @@ require([
     function getSocs() {
         var deferred;
 
-        deferred = request.get('/_ajax/boot/distinct/mach/', {});
+        deferred = request.get('/_ajax/test/distinct/mach/', {});
         $.when(deferred)
             .fail(error.error, getSocsFail)
             .done(getSocsParse);
@@ -474,7 +474,7 @@ require([
         window.addEventListener('beforeunload', function() {
             gSessionStorage
                 .addObjects({
-                    'boots_count': gBootsCount,
+                    'test_count': gTestCount,
                     'boards_count': gBoardsCount,
                     'labs_count': gLabsCount
                 })
@@ -483,8 +483,8 @@ require([
 
         gSessionStorage.load();
         if (gSessionStorage.objects) {
-            if (gSessionStorage.objects.hasOwnProperty('boots_count')) {
-                gBootsCount = gSessionStorage.objects.boots_count;
+            if (gSessionStorage.objects.hasOwnProperty('test_count')) {
+                gTestCount = gSessionStorage.objects.test_count;
             }
             if (gSessionStorage.objects.hasOwnProperty('boards_count')) {
                 gBoardsCount = gSessionStorage.objects.boards_count;

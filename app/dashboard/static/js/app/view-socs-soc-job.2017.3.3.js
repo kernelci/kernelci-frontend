@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -29,7 +29,7 @@ require([
 ], function($, init, format, html, table, request, error, tsoc) {
     'use strict';
     var gBatchCountMissing,
-        gBootsTable,
+        gTestsTable,
         gJob,
         gNumberRange,
         gQueryStr,
@@ -68,25 +68,26 @@ require([
         batchOps = [];
         batchOps.push({
             method: 'GET',
-            operation_id: 'boots-count',
+            operation_id: 'tests-count',
             resource: 'count',
-            document: 'boot',
+            document: 'test_case',
             query: gQueryStr
         });
 
         batchOps.push({
             method: 'GET',
-            operation_id: 'boards-count',
-            distinct: 'board',
-            resource: 'boot',
+            operation_id: 'devices-count',
+            distinct: 'device_type',
+            resource: 'test_case',
             query: gQueryStr
         });
 
+        console.log("queryStr: " + gQueryStr)
         batchOps.push({
             method: 'GET',
             operation_id: 'labs-count',
             distinct: 'lab_name',
-            resource: 'boot',
+            resource: 'test_group',
             query: gQueryStr
         });
 
@@ -121,11 +122,11 @@ require([
         }
     }
 
-    function getBootsCountFail() {
+    function getTestCountFail() {
         html.replaceByClassHTML('count-badge', '&infin;');
     }
 
-    function getBootsCountDone(response) {
+    function getTestCountDone(response) {
         var results;
 
         function _parseOperationsResult(result) {
@@ -145,60 +146,59 @@ require([
             // Invalidate the cells in column #3 before updating the DOM
             // elements. In this way we have the correct 'filter' values in the
             // global object that we can use to provide the search parameters.
-            gBootsTable.invalidateColumn(3);
+            gTestsTable.invalidateColumn(3);
             // Now update the DOM with the results.
             Object.keys(gTableCount).forEach(_updateTable);
 
-            gBootsTable
+            gTestsTable
                 .search(gSearchFilter);
         } else {
             html.replaceByClassTxt('count-badge', '?');
         }
     }
 
-    function getBootsCount(response) {
+    function getTestCount(response) {
         var batchOps,
             deferred,
-            kernel,
             results;
 
         batchOps = [];
 
         function _prepareBatchOps(result) {
-            kernel = result.kernel;
+            var kernel = result.kernel
+            var filter = '&kernel=' + kernel;
 
             batchOps.push({
-                operation_id: 'boot-total-count-' + kernel,
+                operation_id: 'test-total-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&kernel=' + kernel
+                document: 'test_case',
+                query: gQueryStr + filter
             });
 
             batchOps.push({
-                operation_id: 'boot-success-count-' + kernel,
+                operation_id: 'test-success-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&status=PASS&kernel=' + kernel
+                document: 'test_case',
+                query: gQueryStr + '&status=PASS' + filter
             });
 
             batchOps.push({
-                operation_id: 'boot-fail-count-' + kernel,
+                operation_id: 'test-fail-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
-                document: 'boot',
-                query: gQueryStr + '&status=FAIL&kernel=' + kernel
+                document: 'test_regression',
+                query: gQueryStr + filter
             });
 
             batchOps.push({
-                operation_id: 'boot-unknown-count-' + kernel,
+                operation_id: 'test-unknown-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
-                document: 'boot',
+                document: 'test_case',
                 query: gQueryStr +
-                    '&status=OFFLINE&status=UNKNOWN&status=UNTRIED&kernel=' +
-                    kernel
+                    '&status=FAIL&status=SKIP&regression_id=null' + filter
             });
         }
 
@@ -210,30 +210,30 @@ require([
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
             $.when(deferred)
-                .fail(error.error, getBootsCountFail)
-                .done(getBootsCountDone);
+                .fail(error.error, getTestCountFail)
+                .done(getTestCountDone);
         }
     }
 
-    function getBootsFail() {
+    function getTestsFail() {
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
             document.getElementById('table-div'),
             html.errorDiv('Error loading data.'));
     }
 
-    function getFilterBootCount(data) {
+    function getFilterTestCount(data) {
         var filter;
 
         filter = '';
-        if (gTableCount.hasOwnProperty('boot-success-count-' + data)) {
-            if (gTableCount['boot-success-count-' + data]) {
+        if (gTableCount.hasOwnProperty('test-success-count-' + data)) {
+            if (gTableCount['test-success-count-' + data]) {
                 filter += 'successfulpass';
             }
         }
 
-        if (gTableCount.hasOwnProperty('boot-fail-count-' + data)) {
-            if (gTableCount['boot-fail-count-' + data]) {
+        if (gTableCount.hasOwnProperty('test-fail-count-' + data)) {
+            if (gTableCount['test-fail-count-' + data]) {
                 filter += 'failed';
             }
         }
@@ -241,16 +241,17 @@ require([
         return filter;
     }
 
-    function getBootsDone(response) {
+    function getTestsDone(response) {
         var columns,
             results;
 
+        console.log(response)
         // Internal wrapper for the filter.
-        function _renderBootCount(data, type) {
+        function _renderTestCount(data, type) {
             if (type === 'filter') {
-                return getFilterBootCount(data);
+                return getFilterTestCount(data);
             } else {
-                return tsoc.renderBootCount(data, type);
+                return tsoc.renderTestCount(data, type);
             }
         }
 
@@ -261,16 +262,16 @@ require([
         }
 
         /**
-         * Create the table column title for the boots count.
+         * Create the table column title for the test count.
         **/
-        function _bootColumnTitle() {
+        function _testColumnTitle() {
             var tooltipNode;
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Failed/Other boot reports');
+                'title', 'Total/Successful/Regression/Other test results');
             tooltipNode.appendChild(
-                document.createTextNode('Boot Results'));
+                document.createTextNode('Test Results'));
 
             return tooltipNode.outerHTML;
         }
@@ -303,11 +304,11 @@ require([
                 },
                 {
                     data: 'kernel',
-                    title: _bootColumnTitle(),
+                    title: _testColumnTitle(),
                     type: 'string',
                     orderable: false,
-                    className: 'boot-count pull-center',
-                    render: _renderBootCount
+                    className: 'test-count pull-center',
+                    render: _renderTestCount
                 },
                 {
                     data: 'created_on',
@@ -327,7 +328,7 @@ require([
                 }
             ];
 
-            gBootsTable
+            gTestsTable
                 .columns(columns)
                 .data(results)
                 .paging(false)
@@ -339,21 +340,20 @@ require([
         }
     }
 
-    function getBoots() {
+    function getTests() {
         var deferred;
 
+        console.log("soc: " + gSoc + ",  job: " + gJob);
         deferred = request.get(
-            '/_ajax/boot',
+            '/_ajax/test/case',
             {
                 aggregate: 'kernel',
                 limit: gNumberRange,
                 field: [
-                    'build_id',
                     'created_on',
                     'git_branch',
                     'git_commit',
                     'job',
-                    'job_id',
                     'kernel',
                     'mach'
                 ],
@@ -365,8 +365,8 @@ require([
         );
 
         $.when(deferred)
-            .fail(error.error, getBootsFail)
-            .done(getBootsDone, getBootsCount);
+            .fail(error.error, getTestsFail)
+            .done(getTestsDone, getTestCount);
     }
 
     if (document.getElementById('job-name') !== null) {
@@ -383,13 +383,13 @@ require([
     }
 
     gQueryStr = 'mach=' + gSoc + '&job=' + gJob;
-    gBootsTable = table({
-        tableId: 'boots-table',
+    gTestsTable = table({
+        tableId: 'tests-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div'
     });
     getDetails();
-    getBoots();
+    getTests();
 
     init.hotkeys();
     init.tooltip();

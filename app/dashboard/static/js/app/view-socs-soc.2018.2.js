@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -74,7 +74,7 @@ require([
             columns = [
                 {
                     data: 'board',
-                    title: 'Board'
+                    title: 'Device type'
                 },
                 {
                     data: 'board',
@@ -95,7 +95,7 @@ require([
                 .data(tableResults)
                 .columns(columns)
                 .lengthMenu([5, 10, 25, 50])
-                .languageLengthMenu('boards per page')
+                .languageLengthMenu('device types per page')
                 .order([0, 'asc'])
                 .draw();
 
@@ -119,23 +119,23 @@ require([
             document.createTextNode(format.number(response.result.length)));
     }
 
-    function getBootsCountFail() {
+    function getTestCountFail() {
         html.replaceContentHTML(
-            document.getElementById('boots-count'), '&infin;');
+            document.getElementById('tests-count'), '&infin;');
     }
 
-    function getBootsCountDone(response) {
+    function getTestCountDone(response) {
         var results;
 
         results = response.result;
         if (results.length > 0) {
             html.replaceContent(
-                document.getElementById('boots-count'),
+                document.getElementById('tests-count'),
                 document.createTextNode(
                     format.number(parseInt(results[0].count, 10))));
         } else {
             html.replaceConten(
-                document.getElementById('boots-count'),
+                document.getElementById('tests-count'),
                 document.createTextNode('?'));
         }
     }
@@ -146,13 +146,13 @@ require([
 
         data = {mach: gSoc};
 
-        deferred = r.get('/_ajax/count/boot', data);
+        deferred = r.get('/_ajax/count/test_case', data);
 
         $.when(deferred)
-            .fail(e.error, getBootsCountFail)
-            .done(getBootsCountDone);
+            .fail(e.error, getTestCountFail)
+            .done(getTestCountDone);
 
-        deferred = r.get('/_ajax/boot/distinct/board/', data);
+        deferred = r.get('/_ajax/test/distinct/device_type/', data);
 
         $.when(deferred)
             .fail(e.error, getDistinctBoardsFail)
@@ -187,7 +187,7 @@ require([
      * This is done to update dynamic elements that are not yet available
      * in the DOM due to the derefer rendering of dataTables.
     **/
-    function updateBootCount() {
+    function updateTestCount() {
         Object.keys(gBatchCountMissing).forEach(function(key) {
             updateOrStageCount(key, gBatchCountMissing[key]);
         });
@@ -222,60 +222,51 @@ require([
             Object.keys(gTableCount).forEach(_updateTable);
 
             // Bind a new function to the draw event of the table.
-            gJobsTable.addDrawEvent(updateBootCount);
+            gJobsTable.addDrawEvent(updateTestCount);
         }
     }
 
     function getBatchCount(response) {
         var batchOps,
             deferred,
-            job,
-            jobId,
             queryStr,
             results;
 
         function _createOp(result) {
-            job = result.job;
-            jobId = result.job_id;
-
-            if (jobId) {
-                jobId = '&job_id=' + jobId.$oid;
-            } else {
-                // No job_id value, search only in the last X days.
-                jobId = '&date_range=' + gDateRange;
-            }
+            var job = result.job;
+            var filter = '&job=' + job + '&kernel=' + result.kernel;
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-total-count-' + job,
+                operation_id: 'test-total-count-' + job,
                 resource: 'count',
-                document: 'boot',
-                query: queryStr + '&job=' + job + jobId
+                document: 'test_case',
+                query: queryStr + filter
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-success-count-' + job,
+                operation_id: 'test-success-count-' + job,
                 resource: 'count',
-                document: 'boot',
-                query: queryStr + '&status=PASS&job=' + job + jobId
+                document: 'test_case',
+                query: queryStr + '&status=PASS' + filter
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-fail-count-' + job,
+                operation_id: 'test-fail-count-' + job,
                 resource: 'count',
-                document: 'boot',
-                query: queryStr + '&status=FAIL&job=' + job + jobId
+                document: 'test_regression',
+                query: queryStr + filter
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'boot-unknown-count-' + job,
+                operation_id: 'test-unknown-count-' + job,
                 resource: 'count',
-                document: 'boot',
-                query: queryStr + '&status=OFFLINE&status=UNKNOWN&job=' +
-                    job + jobId
+                document: 'test_case',
+                query: queryStr +
+                    '&status=FAIL&status=SKIP&regression_id=null' + filter
             });
         }
 
@@ -301,18 +292,18 @@ require([
             html.errorDiv('Error loading data.'));
     }
 
-    function getFilterBootCount(tree) {
+    function getFilterTestCount(tree) {
         var filter;
 
         filter = '';
-        if (gTableCount.hasOwnProperty('boot-success-count-' + tree)) {
-            if (gTableCount['boot-success-count-' + tree]) {
+        if (gTableCount.hasOwnProperty('test-success-count-' + tree)) {
+            if (gTableCount['test-success-count-' + tree]) {
                 filter += 'successfulpass';
             }
         }
 
-        if (gTableCount.hasOwnProperty('boot-fail-count-' + tree)) {
-            if (gTableCount['boot-fail-count-' + tree]) {
+        if (gTableCount.hasOwnProperty('test-fail-count-' + tree)) {
+            if (gTableCount['test-fail-count-' + tree]) {
                 filter += 'failed';
             }
         }
@@ -325,11 +316,11 @@ require([
             results;
 
         // Internal wrapper to provide the href.
-        function _renderBootCount(data, type) {
+        function _renderTestCount(data, type) {
             if (type === 'filter') {
-                return getFilterBootCount(data);
+                return getFilterTestCount(data);
             } else {
-                return tsoc.renderBootCount(
+                return tsoc.renderTestCount(
                     data, type, '/soc/' + gSoc + '/job/' + data + '/');
             }
         }
@@ -347,21 +338,23 @@ require([
         }
 
         /**
-         * Create the table column title for the boots count.
+         * Create the table column title for the test count.
         **/
-        function _bootColumnTitle() {
+        function _testColumnTitle() {
             var tooltipNode;
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Failed/Other boot reports');
+                'title', 'Total/Successful/Regressions/Other results');
             tooltipNode.appendChild(
-                document.createTextNode('Latest Boot Results'));
+                document.createTextNode('Latest Test Results'));
 
             return tooltipNode.outerHTML;
         }
 
         results = response.result;
+        console.log("results:")
+        console.log(results)
         if (results.length > 0) {
             columns = [
                 {
@@ -381,9 +374,9 @@ require([
                     data: 'job',
                     orderable: false,
                     type: 'string',
-                    title: _bootColumnTitle(),
+                    title: _testColumnTitle(),
                     className: 'pull-center',
-                    render: _renderBootCount
+                    render: _renderTestCount
                 },
                 {
                     data: 'created_on',
@@ -409,7 +402,7 @@ require([
                 .order([3, 'desc'])
                 .rowURL('/soc/%(mach)s/job/%(job)s/')
                 .rowURLElements(['mach', 'job'])
-                .languageLengthMenu('trees per page')
+                .languageLengthMenu('branches per page')
                 .draw();
 
             gJobsTable
@@ -427,12 +420,12 @@ require([
         var deferred;
 
         deferred = r.get(
-            '/_ajax/boot',
+            '/_ajax/test/case',
             {
                 aggregate: 'job',
                 date_range: gDateRange,
                 field: [
-                    'job', 'job_id', 'git_branch', 'created_on', 'mach'
+                    'job', 'git_branch', 'created_on', 'mach', 'kernel',
                 ],
                 mach: gSoc,
                 sort: 'created_on',
