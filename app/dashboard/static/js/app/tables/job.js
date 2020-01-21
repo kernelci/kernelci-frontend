@@ -47,40 +47,6 @@ define([
     };
 
     /**
-     * Function to render the boots count column on a table.
-     *
-     * @param {string} data: The actual data passed (tree or kernel).
-     * @param {string} type: The type of the display option.
-     * @param {string} href: The href to associate with the element.
-     * @return {string} The rendered element as a string.
-    **/
-    gJobUtils.renderTableBootCount = function(data, type, href) {
-        return tcommon.countAll({
-            data: data,
-            type: type,
-            extraClasses: ['extra-margin'],
-            idStart: 'boot-',
-            href: href
-        });
-    };
-
-    /**
-     * Function to render the builds count column on a table.
-     *
-     * @param {string} data: The actual data passed (tree or kernel).
-     * @param {string} type: The type of the display option.
-     * @return {string} The rendered element as a string.
-    **/
-    gJobUtils.renderTableBuildCount = function(data, type) {
-        return tcommon.countAll({
-            data: data,
-            type: type,
-            extraClasses: ['extra-margin'],
-            idStart: 'build-'
-        });
-    };
-
-    /**
      * Function to render the tree column on a table.
      *
      * @param {object} data: The name of the tree/job.
