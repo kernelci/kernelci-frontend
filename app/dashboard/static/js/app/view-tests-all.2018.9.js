@@ -1,12 +1,7 @@
 /*!
- * Copyright (C) Linaro Limited 2019
- * Author: Matt Hart <matthew.hart@linaro.org>
- *
- * Copyright (C) Collabora Limited 2018
- * Author: Ana Guerrero Lopez <ana.guerrero@collabora.com>
- *
  * kernelci dashboard.
  * 
+ * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * Copyright (c) 2017 BayLibre, SAS.
  * Author: Loys Ollivier <lollivier@baylibre.com>
  * 
