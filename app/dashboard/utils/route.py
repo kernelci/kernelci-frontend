@@ -1,3 +1,6 @@
+# Copyright (C) Collabora Limited 2020
+# Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+#
 # Copyright (C) Linaro Limited 2014,2015,2016,2017,2019
 # Author: Matt Hart <matthew.hart@linaro.org>
 # Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -32,6 +35,7 @@ import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 import dashboard.views.soc as vsoc
 import dashboard.views.test as vtest
+import dashboard.views.result as vresult
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.boot as bootfeed
@@ -388,7 +392,13 @@ def init():
 
     add_rule(
         "/test/board/<string:board>/job/<string:job>/kernel/<string:kernel>/",
-        view_func=vtest.TestsBoardJobKernelView.
-        as_view("tests-board-job-kernel-view"),
+        view_func=vtest.TestsBoardJobKernelView.as_view("tests-board-job-kernel-view"),
+        methods=["GET"]
+    )
+    
+    # Results views.
+    add_rule(
+        "/job/result/id/<string:tree>/<string:branch>/<string:kernel>/",
+        view_func=vresult.TestPlanAllView.as_view("all-test-plan"),
         methods=["GET"]
     )

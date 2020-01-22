@@ -1,0 +1,155 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+<link rel="stylesheet" type="text/css" href="/static/css/kci-graphs-2015.9.1.css">
+<link href="/build/{{ build }}/feed.xml" rel="alternate" title="Recent Changes - Atom Feed" type="application/atom+xml">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+        <h3 id="details">{{ body_title|default('Latest Results')|safe }}&nbsp;</h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd class="loading-content" id="tree">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git branch</dt>
+            <dd class="loading-content" id="git-branch">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git describe</dt>
+            <dd class="loading-content" id="git-describe">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Defconfig</dt>
+            <dd class="loading-content" id="build-defconfig">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git URL</dt>
+            <dd class="loading-content" id="git-url">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git commit</dt>
+            <dd class="loading-content" id="git-commit">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Date</dt>
+            <dd class="loading-content" id="build-date">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+        <dl class="dl-horizontal">
+            <dt>Status</dt>
+            <dd class="loading-content" id="build-status">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Architecture</dt>
+            <dd class="loading-content" id="build-arch">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Build errors</dt>
+            <dd class="loading-content" id="build-errors">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Build warnings</dt>
+            <dd class="loading-content" id="build-warnings">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Build time</dt>
+            <dd class="loading-content" id="build-time">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <dl class="dl-horizontal">
+            <dt>Compiler</dt>
+            <dd class="loading-content" id="compiler">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Compiler version</dt>
+            <dd class="loading-content" id="compiler-version">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Compiler string</dt>
+            <dd class="loading-content" id="compiler-version-full">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Cross-compile</dt>
+            <dd class="loading-content" id="cross-compile">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+</div> 
+<div class="page-header">
+    <h3>Available Test Plans</h3>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                &nbsp;retrieving test plan data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="testplantable">
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="tree-name" value="{{ tree_name }}">
+<input type="hidden" id="branch-name" value="{{ branch_name }}">
+<input type="hidden" id="kernel-name" value="{{ kernel_name }}">
+<input type="hidden" id="search-filter" value="{{ search_filter }}">
+<input type="hidden" id="page-len" value="{{ page_len }}">
+{%- endblock %}{# content block #}
+{%- block scripts %}
+<script data-main="/static/js/kci-test-plan-all" src="/static/js/lib/require.js"></script>
+{%- endblock %}

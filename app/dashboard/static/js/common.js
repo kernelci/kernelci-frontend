@@ -1,4 +1,7 @@
 /*!
+ * Copyright (C) Collabora Limited 2020
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+ * 
  * Copyright (C) Linaro Limited 2015,2016,2017,2019
  * Author: Matt Hart <matthew.hart@linaro.org>
  * Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -96,6 +99,7 @@ require.config({
             'app/view-tests-board-job': 'app/view-tests-board-job.2018.9',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
             'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
+            'app/view-test-plan-all': 'app/view-test-plan-all.2020.1.20',
         }
     },
     shim: {

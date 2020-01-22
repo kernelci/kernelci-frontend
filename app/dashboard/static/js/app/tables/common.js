@@ -231,7 +231,7 @@ define([
     gTablesUtils.renderTree = function(tree, type, href) {
         var aNode;
         var rendered;
-
+        
         rendered = tree;
         if (type === 'display') {
             if (href && href.length > 0) {
