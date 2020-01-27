@@ -13,8 +13,8 @@
  * Author: lollivier <lollivier@baylibre.com>
  *
  * kernelci dashboard.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -96,6 +96,7 @@ require.config({
             'app/view-tests-board-job': 'app/view-tests-board-job.2018.9',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
             'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
+            'app/view-tests-job-branch-kernel': 'app/view-tests-job-branch-kernel.2020.1',
         }
     },
     shim: {
