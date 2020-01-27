@@ -13,8 +13,8 @@
  * Author: lollivier <lollivier@baylibre.com>
  *
  * kernelci dashboard.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -100,6 +100,7 @@
             'app/view-tests-board-job': 'app/view-tests-board-job.2018.9',
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
             'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
+            'app/view-tests-job-branch-kernel': 'app/view-tests-job-branch-kernel.2020.1',
         }
     },
     shim: {
@@ -157,6 +158,7 @@
         {name: 'app/view-tests-board-job.2018.9'},
         {name: 'app/view-tests-board-job-kernel.2018.9'},
         {name: 'app/view-tests-group-id.2018.9'},
+        {name: 'app/view-tests-job-branch-kernel.2020.1'},
         {name: 'kci-boot-compare'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
@@ -192,6 +194,7 @@
         {name: 'kci-tests-board'},
         {name: 'kci-tests-board-job'},
         {name: 'kci-tests-board-job-kernel'},
+        {name: 'kci-tests-job-branch-kernel'},
         {name: 'kci-tests-group-id'}
     ]
 })

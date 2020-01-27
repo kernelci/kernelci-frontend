@@ -159,3 +159,24 @@ class TestsGroupIdView(TestGenericView):
             "tests-group-id.html",
             group_id=kwargs["uid"],
             page_title=self.TESTS_PAGE_TITLE)
+
+
+class TestJobBranchKernelView(TestGenericView):
+
+    def dispatch_request(self, **kwargs):
+        job, branch, kernel = (kwargs[k] for k in ['job', 'branch', 'kernel'])
+        page_title = "{} &mdash; {}/{} {}".format(
+            self.TESTS_PAGE_TITLE, job, branch, kernel)
+        body_title = (
+            "Test Results: &#171;{}&#187 - {} <small>({})</small>".format(
+                job, kernel, branch)
+        )
+
+        return render_template(
+            "tests-job-branch-kernel.html",
+            page_title=page_title,
+            body_title=body_title,
+            job=job,
+            branch=branch,
+            kernel=kernel
+        )
