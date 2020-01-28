@@ -134,5 +134,11 @@ define([
             .innerHTML ='&infin;';
     };
 
+    gTestTable.renderTestCount = function(settings) {
+        settings.extraClasses = ['extra-margin'];
+        settings.idStart = 'test-';
+        return tcommon.countAll(settings);
+    };
+
     return gTestTable;
 });
