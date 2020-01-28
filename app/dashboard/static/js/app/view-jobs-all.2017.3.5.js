@@ -317,7 +317,7 @@ require([
             var href;
             var nodeId;
 
-            href = '/boot/all/job/';
+            href = '/test/job/';
             href += data;
             href += '/branch/';
             href += object.git_branch;
