@@ -481,6 +481,8 @@ require([
                     data: 'kernel',
                     title: _buildColumTitle(),
                     type: 'string',
+                    orderable: false,
+                    searchable: false,
                     className: 'build-count pull-center',
                     render: _renderBuildCount
                 },
@@ -488,6 +490,8 @@ require([
                     data: 'kernel',
                     title: _testColumnTitle(),
                     type: 'string',
+                    orderable: false,
+                    searchable: false,
                     className: 'test-count pull-center',
                     render: _renderTestCount
                 },
