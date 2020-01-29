@@ -357,9 +357,13 @@ require([
             });
         }
 
-        function _renderTree(data, type) {
-            var href = '/job/';
+        function _renderTree(data, type, object) {
+            var href = '/job/result/id/';
             href += data;
+            href += '/';
+            href += object.git_branch;
+            href += '/';
+            href += object.kernel;
             href += '/';
             return jobt.renderTree(data, type, href);
         }
@@ -427,7 +431,7 @@ require([
                     render: _renderDetails
                 }
             ];
-
+            
             gJobsTable
                 .data(results)
                 .columns(columns)
