@@ -131,7 +131,10 @@ require([
         var qStr;
         var results;
 
-        function createBatchOp(result) {
+        function createBatchOp(results) {
+
+            var result = results.result;
+
             job = result.job;
             kernel = result.kernel;
             plan = result.name;
@@ -195,16 +198,13 @@ require([
                 query: qHead
             });
         }
-
         results = response.result;
         if (results.length > 0) {
             batchOps = [];
             results.forEach(createBatchOp);
-
             deferred = r.post(
                 '/_ajax/batch', JSON.stringify({batch: batchOps}));
         }
-
         return deferred;
     }
 
@@ -217,7 +217,6 @@ require([
     function getTestPlansDone(response) {
         var columns;
         var results;
-
         /**
          * Create the table column title for the builds count.
         **/
@@ -253,14 +252,14 @@ require([
             href = '/build/';
             href += data;
             href += '/plan/';
-            href += object.name;
+            href += object.result.name;
             href += '/kernel/';
-            href += object.kernel;
+            href += object.result.kernel;
             href += '/';
 
             nodeId = data;
             nodeId += '-';
-            nodeId += object.name;
+            nodeId += object.result.name;
             return resultt.renderTestCount({
                 data: nodeId,
                 type: type,
@@ -274,9 +273,8 @@ require([
             href += '/';
             return resultt.renderTree(data, type, href);
         }
-
         results = response.result;
-        getBuildDetails(results);
+        getBuildDetails(results[0].result);
 
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -286,14 +284,14 @@ require([
         } else {
             columns = [
                 {
-                    data: 'name',
+                    data: 'result.name',
                     title: 'Test Plan',
                     type: 'string',
                     className: 'tree-column',
                     render: _renderTree
                 },
                 {
-                    data: '_id.$oid',
+                    data: 'result._id.$oid',
                     title: 'Test Plan ID',
                     type: 'string',
                     searchable: false,
@@ -302,7 +300,7 @@ require([
                     render: _renderTree
                 },
                 {
-                    data: 'test_cases.length',
+                    data: 'result.test_cases.length',
                     title: 'Total Test Cases',
                     type: 'string',
                     searchable: false,
@@ -311,7 +309,7 @@ require([
                     render: _renderTree
                 },
                 {
-                    data: 'job',
+                    data: 'result.job',
                     title: _testPlanColumTitle(),
                     type: 'string',
                     searchable: false,
@@ -320,14 +318,15 @@ require([
                     render: _renderTestCount
                 },
                 {
-                    data: 'created_on',
+                    data: 'result.created_on',
                     title: 'Date',
                     type: 'date',
+                    searchable: false,
                     className: 'pull-center',
                     render: resultt.renderDate
                 },
                 {
-                    data: 'job',
+                    data: 'result.job',
                     title: '',
                     type: 'string',
                     searchable: false,
@@ -350,6 +349,7 @@ require([
     // A deferred version getTestPlansDone(of getTestPlansDone.
     function getTestPlansDoneD(response) {
         var deferred;
+        
         deferred = $.Deferred();
         deferred.resolve(getTestPlansDone(response));
 
@@ -363,137 +363,97 @@ require([
     }
 
     function getBuildDetails(results) {
+        
+        var createdOn;
+        var dateNode;
 
-        if (results[0].compiler) {
-            html.replaceContent(
-                document.getElementById('compiler'),
-                document.createTextNode(results[0].compiler));
-        } else {
-            html.replaceContent(
-                document.getElementById('compiler'), html.nonavail());
-        }
+        createdOn = new Date(results.created_on.$date);
+        dateNode = document.createElement('time');
+        dateNode.setAttribute('datetime', createdOn.toISOString());
+        dateNode.appendChild(
+            document.createTextNode(createdOn.toCustomISODate()));
 
-        if (results[0].job) {
+        if (results.job) {
             html.replaceContent(
                 document.getElementById('tree'),
-                document.createTextNode(results[0].job));
+                document.createTextNode(results.job));
         } else {
             html.replaceContent(
                 document.getElementById('tree'), html.nonavail());
         }
 
-        if (results[0].git_branch) {
+        if (results.git_branch) {
             html.replaceContent(
                 document.getElementById('git-branch'),
-                document.createTextNode(results[0].git_branch));
+                document.createTextNode(results.git_branch));
         } else {
             html.replaceContent(
                 document.getElementById('git-branch'), html.nonavail());
         }
 
-        if (results[0].git_describe) {
-            html.replaceContent(
-                document.getElementById('git-describe'),
-                document.createTextNode(results[0].git_describe));
-        } else {
-            html.replaceContent(
-                document.getElementById('git-describe'), html.nonavail());
-        }
-
-        if (results[0].git_url) {
+        if (results.git_url) {
             html.replaceContent(
                 document.getElementById('git-url'),
-                document.createTextNode(results[0].git_url));
+                document.createTextNode(results.git_url));
         } else {
             html.replaceContent(
                 document.getElementById('git-url'), html.nonavail());
         }
 
-        if (results[0].git_commit) {
+        if (results.git_commit) {
             html.replaceContent(
                 document.getElementById('git-commit'),
-                document.createTextNode(results[0].git_commit));
+                document.createTextNode(results.git_commit));
         } else {
             html.replaceContent(
                 document.getElementById('git-commit'), html.nonavail());
         }
 
-        if (results[0].status) {
+        if (results.status) {
             html.replaceContent(
                 document.getElementById('git-status'),
-                document.createTextNode(results[0].git_status));
+                document.createTextNode(results.git_status));
         } else {
             html.replaceContent(
                 document.getElementById('git-status'), html.nonavail());
         }
 
-        if (results[0].cross_compile) {
-            html.replaceContent(
-                document.getElementById('cross-compile'),
-                document.createTextNode(results[0].cross_compile));
-        } else {
-            html.replaceContent(
-                document.getElementById('cross-compile'), html.nonavail());
-        }
-
-        if (results[0].defconfig) {
-            html.replaceContent(
-                document.getElementById('build-defconfig'),
-                document.createTextNode(results[0].defconfig));
-        } else {
-            html.replaceContent(
-                document.getElementById('build-defconfig'), html.nonavail());
-        }
-
-        if (results[0].compiler_version) {
-            html.replaceContent(
-                document.getElementById('compiler-version'),
-                document.createTextNode(results[0].compiler_version));
-        } else {
-            html.replaceContent(
-                document.getElementById('compiler-version'),
-                html.nonavail());
-        }
-
-        if (results[0].compiler_version_full) {
-            html.replaceContent(
-                document.getElementById('compiler-version-full'),
-                document.createTextNode(results[0].compiler_version_full));
-        } else {
-            html.replaceContent(
-                document.getElementById('compiler-version-full'),
-                html.nonavail());
-        }
-
-        if (results[0].arch) {
+        if (results.arch) {
             html.replaceContent(
                 document.getElementById('build-arch'),
-                document.createTextNode(results[0].arch));
+                document.createTextNode(results.arch));
         } else {
             html.replaceContent(
                 document.getElementById('build-arch'), html.nonavail());
         }
 
-        html.replaceContent(
-            document.getElementById('build-errors'),
-            document.createTextNode(results[0].errors));
+        if (results.kernel) {
+            html.replaceContent(
+                document.getElementById('kernel'),
+                document.createTextNode(results.kernel));
+        } else {
+            html.replaceContent(
+                document.getElementById('kernel'), html.nonavail());
+        }
 
         html.replaceContent(
-            document.getElementById('build-warnings'),
-            document.createTextNode(results[0].warnings));
+            document.getElementById('build-date'), dateNode);
     }
 
     function getTestPlans() {
         var data;
         var deferred;
+        
         data = {
+            aggregate: 'name',
+            kernel: gKernel,
             tree: gTree,
             git_branch: gBranch,
-            //distinct: 'name',
             sort: 'created_on',
             sort_order: -1,
             date_range: gDateRange,
         };
+        
         deferred = r.get('/_ajax/test/group', data);
         $.when(deferred)
             .fail(e.error, getTestPlansFail)
