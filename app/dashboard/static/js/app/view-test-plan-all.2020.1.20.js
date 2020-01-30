@@ -274,13 +274,13 @@ require([
             return resultt.renderTree(data, type, href);
         }
         results = response.result;
-        getBuildDetails(results[0].result);
 
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
                 document.getElementById('table-div'),
                 html.errorDiv('No test plan data available.'));
+            updateDetails();
         } else {
             columns = [
                 {
@@ -335,6 +335,9 @@ require([
                     render: _renderDetails
                 }
             ];
+
+            getBuildDetails(results[0].result);
+
             gTestPlansTable
                 .data(results)
                 .columns(columns)
@@ -362,6 +365,33 @@ require([
             .done(getBatchCountDone);
     }
 
+    function updateDetails() {
+        
+        html.replaceContent(
+            document.getElementById('tree'), html.nonavail());
+
+        html.replaceContent(
+            document.getElementById('git-branch'), html.nonavail());
+        
+        html.replaceContent(
+            document.getElementById('git-url'), html.nonavail());
+
+        html.replaceContent(
+                document.getElementById('git-commit'), html.nonavail());
+        
+        html.replaceContent(
+                document.getElementById('git-status'), html.nonavail());
+        
+        html.replaceContent(
+                document.getElementById('build-arch'), html.nonavail());
+        
+        html.replaceContent(
+                document.getElementById('kernel'), html.nonavail());
+        
+        html.replaceContent(
+            document.getElementById('build-date'), html.nonavail());
+    }
+
     function getBuildDetails(results) {
         
         var createdOn;
@@ -373,68 +403,33 @@ require([
         dateNode.appendChild(
             document.createTextNode(createdOn.toCustomISODate()));
 
-        if (results.job) {
-            html.replaceContent(
-                document.getElementById('tree'),
-                document.createTextNode(results.job));
-        } else {
-            html.replaceContent(
-                document.getElementById('tree'), html.nonavail());
-        }
-
-        if (results.git_branch) {
-            html.replaceContent(
-                document.getElementById('git-branch'),
-                document.createTextNode(results.git_branch));
-        } else {
-            html.replaceContent(
-                document.getElementById('git-branch'), html.nonavail());
-        }
-
-        if (results.git_url) {
-            html.replaceContent(
-                document.getElementById('git-url'),
-                document.createTextNode(results.git_url));
-        } else {
-            html.replaceContent(
-                document.getElementById('git-url'), html.nonavail());
-        }
-
-        if (results.git_commit) {
-            html.replaceContent(
-                document.getElementById('git-commit'),
-                document.createTextNode(results.git_commit));
-        } else {
-            html.replaceContent(
-                document.getElementById('git-commit'), html.nonavail());
-        }
-
-        if (results.status) {
-            html.replaceContent(
-                document.getElementById('git-status'),
-                document.createTextNode(results.git_status));
-        } else {
-            html.replaceContent(
-                document.getElementById('git-status'), html.nonavail());
-        }
-
-        if (results.arch) {
-            html.replaceContent(
-                document.getElementById('build-arch'),
-                document.createTextNode(results.arch));
-        } else {
-            html.replaceContent(
-                document.getElementById('build-arch'), html.nonavail());
-        }
-
-        if (results.kernel) {
-            html.replaceContent(
-                document.getElementById('kernel'),
-                document.createTextNode(results.kernel));
-        } else {
-            html.replaceContent(
-                document.getElementById('kernel'), html.nonavail());
-        }
+        html.replaceContent(
+            document.getElementById('tree'),
+            document.createTextNode(results.job));
+        
+        html.replaceContent(
+            document.getElementById('git-branch'),
+            document.createTextNode(results.git_branch));
+        
+        html.replaceContent(
+            document.getElementById('git-url'),
+            document.createTextNode(results.git_url));
+        
+        html.replaceContent(
+            document.getElementById('git-commit'),
+            document.createTextNode(results.git_commit));
+        
+        html.replaceContent(
+            document.getElementById('git-status'),
+            document.createTextNode(results.git_status));
+        
+        html.replaceContent(
+            document.getElementById('build-arch'),
+            document.createTextNode(results.arch));
+        
+        html.replaceContent(
+            document.getElementById('kernel'),
+            document.createTextNode(results.kernel));
 
         html.replaceContent(
             document.getElementById('build-date'), dateNode);
