@@ -188,31 +188,6 @@
     </div>
     {%- include "other-multiple-boot-reports.html" %}
 </div>
-<div id="bisect" class="row hidden">
-    <div class="page-header">
-        <h3>Boot Bisect</h3>
-    </div>
-    <div id="bisect-div" class="hidden" >
-        <div id="bisect-default" class="other-header">
-            <h4>Default bisect</h4>
-            {# Placeholder for the show/hide button created dynamically #}
-            <span class="pull-right" id="bootb-showhide"></span>
-            <hr class="blurred subheader" />
-        </div>
-        <div id="view-bootb-showhide" class="pull-center"></div>
-        {%- include "other-bisect-content.html" %}
-    </div>
-    <div id="bisect-compare-div" class="hidden">
-        <div id="bisect-compared" class="other-header">
-            <h4>Compared to &#171;mainline&#187;</h4>
-            {# Placeholder for the show/hide button created dynamically #}
-            <span class="pull-right" id="bootb-compare-showhide"></span>
-            <hr class="blurred subheader" />
-        </div>
-        <div id="view-bootb-compare-showhide" class="pull-center"></div>
-        {%- include "other-bisect-compare-content.html" -%}
-    </div>
-</div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
 <input type="hidden" id="boot-id" value="{{ boot_id }}">
 {%- endblock %}
