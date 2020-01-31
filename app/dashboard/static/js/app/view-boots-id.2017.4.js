@@ -362,135 +362,6 @@ require([
             document.getElementById('boot-reports-compared-to-load'));
     }
 
-    function getBisectCompareToMainlineFail() {
-        html.removeElement(
-            document.getElementById('bisect-compare-loading-div'));
-        html.replaceContent(
-            document.getElementById('bisect-compare-content'),
-            html.errorDiv('Error loading bisect data.'));
-    }
-
-    function getBisectToMainline(bisectData, bBootId) {
-        var deferred;
-        var settings;
-
-        settings = {
-            showHideID: 'bootb-compare-showhide',
-            tableDivID: 'table-compare-div',
-            tableID: 'bisect-compare-table',
-            tableBodyID: 'bisect-compare-table-body',
-            contentDivID: 'bisect-compare-content',
-            loadingDivID: 'bisect-compare-loading-div',
-            loadingContentID: 'bisect-compare-loading-content',
-            loadingContentText: 'loading bisect data&hellip;',
-            badCommitID: null,
-            goodCommitID: null,
-            bisectScriptContainerID: 'dl-bisect-compare-script',
-            bisectScriptContentID: 'bisect-compare-script',
-            bisectCompareDescriptionID: 'bisect-compare-description',
-            prevBisect: bisectData,
-            bisectShowHideID: 'bisect-compare-hide-div',
-            isCompared: true
-        };
-
-        setTimeout(function() {
-            deferred = r.get(
-                '/_ajax/bisect?collection=boot&compare_to=mainline&boot_id=' +
-                bBootId,
-                {}
-            );
-
-            $.when(deferred)
-                .fail(e.error, getBisectCompareToMainlineFail)
-                .done(function(data) {
-                    settings.data = data;
-                    bisect(settings).draw();
-                });
-        }, 10);
-    }
-
-    function getBisectCompareTo(response) {
-        var bBootId;
-        var bisectData;
-        var result;
-
-        result = response.result;
-        if (result.length > 0) {
-            bisectData = result[0];
-            bBootId = bisectData.boot_id.$oid;
-
-            if (bisectData.job !== 'mainline') {
-                html.removeClass(
-                    document.getElementById('bisect-compare-div'), 'hidden');
-
-                getBisectToMainline(bisectData, bBootId);
-            } else {
-                html.removeElement(
-                    document.getElementById('bisect-compare-div'));
-            }
-        } else {
-            html.removeElement(document.getElementById('bisect-compare-div'));
-        }
-    }
-
-    function getBisectDataFail() {
-        html.removeElement(document.getElementById('bisect-loading-div'));
-        html.removeClass(document.getElementById('bisect-content'), 'hidden');
-        html.replaceContent(
-            document.getElementById('bisect-content'),
-            html.errorDiv('Error loading bisect data.'));
-    }
-
-    function getBisectData(response) {
-        var deferred;
-        var lBootId;
-        var result;
-        var settings;
-
-        lBootId = gBootId;
-        result = response.result[0];
-
-        if (result.status === 'FAIL') {
-            html.removeClass(document.getElementById('bisect'), 'hidden');
-            html.removeClass(document.getElementById('bisect-div'), 'hidden');
-
-            if (gBootId === 'None' || !gBootId) {
-                lBootId = result._id.$oid;
-            }
-
-            settings = {
-                showHideID: 'bootb-showhide',
-                tableDivID: 'table-div',
-                tableID: 'bisect-table',
-                tableBodyID: 'bisect-table-body',
-                contentDivID: 'bisect-content',
-                loadingDivID: 'bisect-loading-div',
-                loadingContentID: 'bisect-loading-content',
-                loadingContentText: 'loading bisect data&hellip;',
-                badCommitID: 'bad-commit',
-                goodCommitID: 'good-commit',
-                bisectScriptContainerID: 'dl-bisect-script',
-                bisectScriptContentID: 'bisect-script',
-                bisectCompareDescriptionID: null,
-                prevBisect: null,
-                bisectShowHideID: 'bisect-hide-div'
-            };
-
-            setTimeout(function() {
-                deferred = r.get(
-                    '/_ajax/bisect?collection=boot&boot_id=' + lBootId, {});
-
-                $.when(deferred)
-                    .fail(e.error, getBisectDataFail)
-                    .done(getBisectCompareTo)
-                    .done(function(data) {
-                        settings.data = data;
-                        bisect(settings).draw();
-                    });
-            }, 10);
-        }
-    }
-
     function _createModal(data) {
         var buttonNode;
         var divNode;
@@ -1129,7 +1000,7 @@ require([
             .fail(e.error, getBootDataFail, getMultiLabDataFail)
             .done(
                 getBootDataDone,
-                getMultiLabData, getCompareData, getBisectData);
+                getMultiLabData, getCompareData);
     }
 
     if (document.getElementById('boot-id') !== null) {
