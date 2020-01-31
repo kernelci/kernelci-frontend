@@ -176,7 +176,7 @@ require([
             .data(results)
             .columns(columns)
             .order([0, 'asc'])
-            .rowURL('/test/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/plan/%(name)s/')
+            .rowURL('/testcases/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/plan/%(name)s/')
             .rowURLElements(['job', 'git_branch', 'kernel', 'name'])
             .paging(false)
             .info(false)

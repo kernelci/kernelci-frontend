@@ -458,17 +458,15 @@ require([
     function getJobs() {
         var data;
         var deferred;
-
         data = {
             aggregate: ['job', 'git_branch'],
             sort: 'created_on',
             sort_order: -1,
-            date_range: gDateRange,
+            date_range: 200,
             field: [
                 'job', 'kernel', 'status', 'created_on', 'git_branch'
             ]
         };
-
         deferred = r.get('/_ajax/job', data);
         $.when(deferred)
             .fail(e.error, getJobsFail)

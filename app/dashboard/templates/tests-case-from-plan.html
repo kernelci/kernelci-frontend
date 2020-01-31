@@ -1,0 +1,159 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+    <h3 id="body-title">Test details for test plan&nbsp;</h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-right">
+        <dt>Lab name</dt>
+        <dd id="dd-lab-name" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Board</dt>
+        <dd id="dd-group-board" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Tree</dt>
+        <dd id="dd-group-tree" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git branch<dt>
+        <dd id="dd-group-branch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git describe</dt>
+        <dd id="dd-group-kernel" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Defconfig</dt>
+        <dd id="dd-group-defconfig" class="loading-content dd-defconfig">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Date</dt>
+        <dd id="dd-date" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+    </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-left">
+        <dt>Status</dt>
+        <dd id="dd-group-status" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Architecture</dt>
+        <dd id="dd-group-arch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Errors</dt>
+        <dd id="dd-group-errors" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Warnings</dt>
+        <dd id="dd-group-warnings" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Test time</dt>
+        <dd id="dd-group-test-time" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Boot &amp; Test log</dt>
+        <dd id="dd-group-test-log" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+    </dl>
+    </div>
+</div>
+<div id="other-details-div" class="row hidden"></div>
+<div class="row">
+    <div class="page-header">
+        <h3>Available Test Cases</h3>
+    </div>
+    <div class="buttons-row">
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div class="btn-group btn-group-sm">
+                <button id="all-btn" type="button" class="btn btn-default click-btn" disabled>All</button>
+                <button id="success-btn" type="button" class="btn btn-default click-btn" disabled>Successful</button>
+                <button id="fail-btn" type="button" class="btn btn-default click-btn" disabled>Failed</button>
+                <button id="unknown-btn" type="button" class="btn btn-default click-btn" disabled>Unknown</button>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <div id="search-area" class="input-group">
+                <span class="input-group-addon">
+                    <i class="fa fa-search"></i>
+                </span>
+                <input id="data-filter" type="search" class="form-control input-sm" placeholder="Filter the results">
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-2 col-md-offset-2 col-lg-2 col-lg-offset-2">
+            <div class="dropdown warn-err-dropdown">
+                <button id="warn-err-btn" type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="true" aria-haspopup="true" disabled>Show
+                <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right warn-err-menu" role="menu" aria-labelledby="warn-err-btn">
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="all">All</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings">Builds with warnings and no errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="errors">Builds with errors and no warnings</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="warnings-errors">Builds with warnings and errors</a></li>
+                    <li role="presentation"><a class="unselectable warn-err-btn" data-view="no-warnings-no-errors">Builds with no warnings and no errors</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="accordion-container">
+            <div class="panel-group" id="accordion">
+                <div class="pull-center">
+                    <small>
+                        <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;retrieving test cases data&hellip;
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="branch-name" value="{{ branch }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+<input type="hidden" id="plan-name" value="{{ plan }}">
+<input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
+<input type="hidden" id="group-id" value="{{ group_id }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-tests-case-from-plan.js" src="/static/js/lib/require.js"></script>
+{%- endblock %}
