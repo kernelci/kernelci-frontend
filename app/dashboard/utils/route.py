@@ -1,3 +1,6 @@
+# Copyright (C) Collabora Limited 2020
+# Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+# 
 # Copyright (C) Linaro Limited 2014,2015,2016,2017,2019
 # Author: Matt Hart <matthew.hart@linaro.org>
 # Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -26,7 +29,6 @@ from flask import current_app as app
 
 import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
-import dashboard.views.compare as vcompare
 import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
 import dashboard.views.job as vjob
@@ -302,27 +304,6 @@ def init():
         "/boot/<string:board>/job/<string:job>/feed.xml",
         "boot-board-job-feed",
         bootfeed.get_boot_board_job_feed,
-        methods=["GET"]
-    )
-
-    add_rule(
-        "/compare/",
-        view_func=vcompare.ChooseCompareView.as_view("choose-compare"),
-        methods=["GET"]
-    )
-    add_rule(
-        "/compare/job/<string:compare_id>/",
-        view_func=vcompare.JobCompareView.as_view("job-compare"),
-        methods=["GET"]
-    )
-    add_rule(
-        "/compare/build/<string:compare_id>/",
-        view_func=vcompare.BuildCompareView.as_view("build-compare"),
-        methods=["GET"]
-    )
-    add_rule(
-        "/compare/boot/<string:compare_id>/",
-        view_func=vcompare.BootCompareView.as_view("boot-compare"),
         methods=["GET"]
     )
 

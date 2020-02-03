@@ -1,4 +1,7 @@
 /*!
+ * Copyright (C) Collabora Limited 2020
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+ * 
  * Copyright (C) Linaro Limited 2015,2016,2017,2019
  * Author: Matt Hart <matthew.hart@linaro.org>
  * Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -54,7 +57,6 @@ require.config({
     },
     map: {
         '*': {
-            'app/view-boot-compare': 'app/view-boot-compare.2017.4',
             'app/view-boots-all': 'app/view-boots-all.2017.5',
             'app/view-boots-all-jb': 'app/view-boots-all-jb.2017.3.4',
             'app/view-boots-all-job': 'app/view-boots-all-job.2017.3.4',
@@ -71,17 +73,14 @@ require.config({
             'app/view-boots-id': 'app/view-boots-id.2017.4',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2017.4',
             'app/view-boots-regressions': 'app/view-boots-regressions.2017.3.3',
-            'app/view-build-compare': 'app/view-build-compare.2017.4',
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2017.4',
             'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2017.7.1',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2017.4',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2017.3.3',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.2017.4',
-            'app/view-compare': 'app/view-compare.2017.3.3',
             'app/view-index': 'app/view-index.2017.3.3',
             'app/view-info-faq': 'app/view-info-faq.2017.3.3',
-            'app/view-job-compare': 'app/view-job-compare.2017.4',
             'app/view-jobs-all': 'app/view-jobs-all.2017.3.5',
             'app/view-jobs-job': 'app/view-jobs-job.2017.4',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2017.4',
