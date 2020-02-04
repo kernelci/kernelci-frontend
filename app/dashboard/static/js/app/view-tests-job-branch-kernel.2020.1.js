@@ -150,6 +150,14 @@ require([
             return ttest.renderTestCount({data: data, type: type})
         }
 
+        function _renderPlanStatus(data, type) {
+            if (type == "display") {
+                var node = document.createElement('div');
+                node.id = "status-" + data;
+                return node.outerHTML;
+            }
+        }
+
         columns = [
             {
                 data: 'name',
@@ -167,11 +175,13 @@ require([
                 render: _renderTestCount,
             },
             {
-                data: 'created_on',
-                title: 'Date',
-                type: 'date',
-                className: 'date-column pull-center',
-                render: ttest.renderDate,
+                data: 'name',
+                title: 'Status',
+                type: 'string',
+                searchable: false,
+                orderable: false,
+                className: 'pull-center',
+                render: _renderPlanStatus,
             },
         ]
 
@@ -263,6 +273,56 @@ require([
             .done(getBatchCountDone)
     }
 
+    function getBatchStatusDone(response) {
+        function parseBatchData(data) {
+            var node = document.getElementById(data.operation_id);
+            var status = (data.result[0].count == 0 ? "PASS" : "FAIL");
+            node.appendChild(ttest.statusNode(status));
+        }
+
+        response.result.forEach(parseBatchData)
+    }
+
+    function getBatchStatusFailed() {
+        console.log("getBatchStatusFailed()");
+    }
+
+    function getBatchStatus(results) {
+        var batchOps;
+        var deferred;
+
+        function createBatchOp(result) {
+            var job = result.job;
+            var kernel = result.kernel;
+            var branch = result.git_branch;
+            var plan = result.name;
+            var qStr;
+
+            qStr = 'job=' + job;
+            qStr += '&kernel=' + kernel;
+            qStr += '&git_branch=' + branch;
+            qStr += '&plan=' + plan;
+
+            /* Number of test case regressions */
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'status-' + plan,
+                resource: 'count',
+                document: 'test_regression',
+                query: qStr,
+            });
+        }
+
+        batchOps = [];
+        results.forEach(createBatchOp)
+        deferred = request.post(
+            '/_ajax/batch', JSON.stringify({batch: batchOps}));
+
+        $.when(deferred)
+            .fail(error.error, getBatchStatusFailed)
+            .done(getBatchStatusDone)
+    }
+
     function getPlansFailed() {
         detailsFailed();
         plansFailed();
@@ -277,6 +337,7 @@ require([
         updateDetails(response.result[0])
         updatePlansTable(response.result)
         getBatchCount(response.result)
+        getBatchStatus(response.result)
     }
 
     function getPlans() {
