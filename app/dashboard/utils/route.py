@@ -383,3 +383,13 @@ def init():
         as_view("test-job-branch-kernel"),
         methods=["GET"]
     )
+
+    add_rule(
+        (
+            "/test/job/<string:job>/branch/<string:branch>/"
+            "kernel/<string:kernel>/plan/<string:plan>/"
+        ),
+        view_func=vtest.TestJobBranchKernelPlanView.
+        as_view("test-job-branch-kernel-plan"),
+        methods=["GET"]
+    )

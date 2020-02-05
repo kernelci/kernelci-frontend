@@ -1,7 +1,7 @@
 /*!
  * Copyright (C) Collabora Limited 2020
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
- * 
+ *
  * Copyright (C) Linaro Limited 2015,2016,2017,2019
  * Author: Matt Hart <matthew.hart@linaro.org>
  * Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -99,6 +99,7 @@
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
             'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
             'app/view-tests-job-branch-kernel': 'app/view-tests-job-branch-kernel.2020.1',
+            'app/view-tests-job-branch-kernel-plan': 'app/view-tests-job-branch-kernel-plan.2020.1',
         }
     },
     shim: {
@@ -153,6 +154,7 @@
         {name: 'app/view-tests-board-job-kernel.2018.9'},
         {name: 'app/view-tests-group-id.2018.9'},
         {name: 'app/view-tests-job-branch-kernel.2020.1'},
+        {name: 'app/view-tests-job-branch-kernel-plan.2020.1'},
         {name: 'kci-boots-all'},
         {name: 'kci-boots-all-job'},
         {name: 'kci-boots-all-job-kernel-defconfig'},
