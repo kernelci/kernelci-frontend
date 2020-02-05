@@ -180,3 +180,25 @@ class TestJobBranchKernelView(TestGenericView):
             branch=branch,
             kernel=kernel
         )
+
+class TestJobBranchKernelPlanView(TestGenericView):
+
+    def dispatch_request(self, **kwargs):
+        job, branch, kernel, plan = (
+            kwargs[k] for k in ['job', 'branch', 'kernel', 'plan'])
+        page_title = "{} &mdash; {}/{} {} {}".format(
+            self.TESTS_PAGE_TITLE, job, branch, kernel, plan)
+        body_title = (
+            "Details for {}: &#171;{}&#187 - {} <small>({})</small>".format(
+                plan, job, kernel, branch)
+        )
+
+        return render_template(
+            "tests-job-branch-kernel-plan.html",
+            page_title=page_title,
+            body_title=body_title,
+            job=job,
+            branch=branch,
+            kernel=kernel,
+            plan=plan
+        )
