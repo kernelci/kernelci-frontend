@@ -63,6 +63,7 @@ JOB_LOGS_ENPOINT = "/job/logs"
 JOB_ID_LOGS_ENPOINT = "/job/%s/logs"
 TEST_GROUP_API_ENDPOINT = "/test/group"
 TEST_CASE_API_ENDPOINT = "/test/case"
+TEST_REGRESSION_API_ENDPOINT = "/test/regression"
 
 # Default date range to show the results. The higher the value, the more
 # data will need to be loaded from the server and parsed. It can take time
