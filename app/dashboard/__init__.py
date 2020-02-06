@@ -193,6 +193,9 @@ def static_html_proxy(path):
 @app.route(
     "/_ajax/test/case",
     defaults={"api": "TEST_CASE_API_ENDPOINT"}, methods=["GET"])
+@app.route(
+    "/_ajax/test/regression",
+    defaults={"api": "TEST_REGRESSION_API_ENDPOINT"}, methods=["GET"])
 def ajax_get(api):
     if validate_csrf(request.headers.get(CSRF_TOKEN_H, None)):
         return backend.ajax_get(request, app_conf_get(api), timeout=60 * 20)
@@ -334,6 +337,8 @@ def ajax_distinct(resource, field):
             resource = "test/group"
         elif resource == "test":
             resource = "test/case"
+        elif resource == "regression":
+            resource = "test/regression"
         return backend.ajax_get(
             request, "/%s/distinct" % resource, doc_id=field, timeout=60 * 30)
     else:
