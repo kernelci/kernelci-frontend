@@ -64,7 +64,7 @@ require([
         kernel = results.kernel;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;"
+        treeNode.title = "Details for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -113,7 +113,7 @@ require([
             document.getElementById('git-branch'),
             document.createTextNode(results.git_branch));
         html.replaceContent(
-            document.getElementById('git-describe'), describeNode)
+            document.getElementById('git-describe'), describeNode);
         html.replaceContent(
             document.getElementById('git-url'), gitNode);
         html.replaceContent(  /* ToDo: link to commit when possible */
@@ -241,7 +241,6 @@ require([
         data = [];
         results.forEach(function(item) {
             var status;
-            var measurements;
 
             if (item.status == 'PASS')
                 status = 'PASS';
@@ -307,7 +306,7 @@ require([
     function getTestsDone(response) {
         if (response.result.length === 0) {
             getTestsFailed();
-            return
+            return;
         }
 
         updateTestsTable(response.result);
@@ -330,7 +329,7 @@ require([
             sort: 'test_case_path',
         };
 
-        deferred = request.get('/_ajax/test/case', data)
+        deferred = request.get('/_ajax/test/case', data);
         $.when(deferred)
             .fail(error.error, getTestsFailed)
             .done(getTestsDone);
@@ -371,7 +370,7 @@ require([
             plan: results.name,
         });
 
-        batchOps = []
+        batchOps = [];
 
         batchOps.push({
             method: 'GET',
@@ -428,7 +427,7 @@ require([
     function getPlan() {
         if (!gPlanId) {
             getPlanFailed();
-            return
+            return;
         }
 
         $.when(request.get('/_ajax/test/group', {id: gPlanId}))

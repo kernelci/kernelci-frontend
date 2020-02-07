@@ -70,7 +70,7 @@ require([
         commit = results.git_commit;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;"
+        treeNode.title = "Details for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -88,10 +88,10 @@ require([
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(buildsLink);
 
-        gitNode = document.createElement('a')
-        gitNode.appendChild(document.createTextNode(results.git_url))
-        gitNode.href = results.git_url
-        gitNode.title = "Git URL" /* ToDo: link to commit when possible */
+        gitNode = document.createElement('a');
+        gitNode.appendChild(document.createTextNode(results.git_url));
+        gitNode.href = results.git_url;
+        gitNode.title = "Git URL"; /* ToDo: link to commit when possible */
 
         createdOn = new Date(results.created_on.$date);
         dateNode = document.createElement('time');
@@ -105,7 +105,7 @@ require([
             document.getElementById('git-branch'),
             document.createTextNode(branch));
         html.replaceContent(
-            document.getElementById('git-describe'), describeNode)
+            document.getElementById('git-describe'), describeNode);
         html.replaceContent(
             document.getElementById('git-url'), gitNode);
         html.replaceContent(
@@ -143,7 +143,7 @@ require([
         var node;
 
         container = document.getElementById('accordion-container');
-        node = document.createElement('div')
+        node = document.createElement('div');
         node.className = 'pull-center';
         node.appendChild(document.createTextNode('No test data available'));
         html.replaceContent(container, node);
@@ -205,7 +205,7 @@ require([
             var lab = data.operation_id[0];
             var result = data.operation_id[1];
             var count = data.result[0].count;
-            labResults[lab][result] = count
+            labResults[lab][result] = count;
         }
         results.forEach(mapResults);
 
@@ -381,7 +381,7 @@ require([
         }
 
         batchOps = [];
-        results.forEach(createBatchOp)
+        results.forEach(createBatchOp);
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
@@ -511,7 +511,7 @@ require([
             'plan':  gPlan,
         });
 
-        batchOps = []
+        batchOps = [];
 
         batchOps.push({
             method: 'GET',
