@@ -59,7 +59,7 @@ require([
         kernel = results.kernel;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;"
+        treeNode.title = "Details for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -195,7 +195,7 @@ require([
             document.createTextNode(results.defconfig_full));
         defconfigPath = translatedURI[1] + "/kernel.config";
         defconfigLink.href =
-            translatedURI[0].path(defconfigPath).normalizePath().href()
+            translatedURI[0].path(defconfigPath).normalizePath().href();
         defconfigLink.title = "Defconfig URL";
         defconfigLink.insertAdjacentHTML('beforeend', '&nbsp;');
         defconfigLink.appendChild(html.external());
@@ -312,7 +312,7 @@ require([
                 className: 'pull-center',
                 render: _renderStatus,
             },
-        ]
+        ];
 
         gRegressionTable
             .data(data)
@@ -363,7 +363,7 @@ require([
     }
 
     function getCaseDone(response) {
-        var testCase = response.result[0]
+        var testCase = response.result[0];
 
         getGroup(testCase);
         getRegression(testCase);

@@ -18,6 +18,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
+
 require([
     'jquery',
     'utils/init',
@@ -68,10 +69,10 @@ require([
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(buildsLink);
 
-        gitNode = document.createElement('a')
-        gitNode.appendChild(document.createTextNode(results.git_url))
-        gitNode.href = results.git_url
-        gitNode.title = "Git URL" /* ToDo: link to commit when possible */
+        gitNode = document.createElement('a');
+        gitNode.appendChild(document.createTextNode(results.git_url));
+        gitNode.href = results.git_url;
+        gitNode.title = "Git URL"; /* ToDo: link to commit when possible */
 
         createdOn = new Date(results.created_on.$date);
         dateNode = document.createElement('time');
@@ -86,7 +87,7 @@ require([
             document.getElementById('git-branch'),
             document.createTextNode(branch));
         html.replaceContent(
-            document.getElementById('git-describe'), describeNode)
+            document.getElementById('git-describe'), describeNode);
         html.replaceContent(
             document.getElementById('git-url'), gitNode);
         html.replaceContent(
@@ -147,7 +148,7 @@ require([
         }
 
         function _renderTestCount(data, type) {
-            return ttest.renderTestCount({data: data, type: type})
+            return ttest.renderTestCount({data: data, type: type});
         }
 
         function _renderPlanStatus(data, type) {
@@ -183,7 +184,7 @@ require([
                 className: 'pull-center',
                 render: _renderPlanStatus,
             },
-        ]
+        ];
 
         gPlansTable
             .data(results)
@@ -207,7 +208,7 @@ require([
                 document.createTextNode(data.result[0].count));
         }
 
-        response.result.forEach(parseBatchData)
+        response.result.forEach(parseBatchData);
     }
 
     function getBatchCount(results) {
@@ -264,13 +265,13 @@ require([
         }
 
         batchOps = [];
-        results.forEach(createBatchOp)
+        results.forEach(createBatchOp);
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
             .fail(error.error, getBatchCountFailed)
-            .done(getBatchCountDone)
+            .done(getBatchCountDone);
     }
 
     function getBatchStatusDone(response) {
@@ -280,7 +281,7 @@ require([
             node.appendChild(ttest.statusNode(status));
         }
 
-        response.result.forEach(parseBatchData)
+        response.result.forEach(parseBatchData);
     }
 
     function getBatchStatusFailed() {
@@ -314,13 +315,13 @@ require([
         }
 
         batchOps = [];
-        results.forEach(createBatchOp)
+        results.forEach(createBatchOp);
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
             .fail(error.error, getBatchStatusFailed)
-            .done(getBatchStatusDone)
+            .done(getBatchStatusDone);
     }
 
     function getPlansFailed() {
@@ -331,13 +332,13 @@ require([
     function getPlansDone(response) {
         if (response.result.length === 0) {
             getPlansFailed();
-            return
+            return;
         }
 
-        updateDetails(response.result[0])
-        updatePlansTable(response.result)
-        getBatchCount(response.result)
-        getBatchStatus(response.result)
+        updateDetails(response.result[0]);
+        updatePlansTable(response.result);
+        getBatchCount(response.result);
+        getBatchStatus(response.result);
     }
 
     function getPlans() {
@@ -362,7 +363,7 @@ require([
             ],
         };
 
-        deferred = request.get('/_ajax/test/group', data)
+        deferred = request.get('/_ajax/test/group', data);
         $.when(deferred)
             .fail(error.error, getPlansFailed)
             .done(getPlansDone);
@@ -377,7 +378,7 @@ require([
         qStr += '&kernel=' + gKernel;
         qStr += '&git_branch=' + gBranch;
 
-        batchOps = []
+        batchOps = [];
 
         /* Total number of test cases */
         batchOps.push({
@@ -420,7 +421,7 @@ require([
 
         $.when(deferred)
             .fail(error.error, chartCountFailed)
-            .done(updateChart)
+            .done(updateChart);
     }
 
     if (document.getElementById('job-name') !== null) {
