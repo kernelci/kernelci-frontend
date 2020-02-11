@@ -413,6 +413,14 @@ define([
         colNode.appendChild(dlNode);
         rowNode.appendChild(colNode);
 
+        /* Regressions */
+        colNode = document.createElement('div');
+        colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';
+        divNode = document.createElement('div');
+        divNode.id = dataIndex + '-regression';
+        colNode.appendChild(divNode);
+        rowNode.appendChild(colNode);
+
         /* Detailed report link */
         colNode = document.createElement('div');
         colNode.className = 'col-xs-12 col-sm-12 col-md-12 col-lg-12';

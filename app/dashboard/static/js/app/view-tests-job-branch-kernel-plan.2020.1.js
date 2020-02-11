@@ -213,7 +213,7 @@ require([
             var res = labResults[lab];
 
             html.replaceContent(
-                document.getElementById('boot-count-' + lab),
+                document.getElementById('test-count-' + lab),
                 createLabResultsCount(res['total'], res['success'],
                                       res['regressions'], res['unknown'])
             );
@@ -236,6 +236,61 @@ require([
             statusNode = gPanel.createStatusNode(status);
             statusParent = document.getElementById(statusId);
             html.replaceContent(statusParent, statusNode);
+
+            function getKernelLink(kernel) {
+                var link;
+
+                link = document.createElement('a');
+                link.href =
+                    "/test/job/" + gJob +
+                    "/branch/" + gBranch +
+                    "/kernel/" + kernel +
+                    "/plan/" + gPlan;
+                link.appendChild(document.createTextNode(kernel));
+
+                return link;
+            }
+
+            function addRegressionInfo(regr) {
+                var nodeId = data.operation_id + '-regression';
+                var regrNode;
+                var regrInfo;
+                var dlNode;
+                var dtNode;
+                var testCase;
+
+                testCase = regr.test_case_path;
+
+                if (testCase.startsWith(gPlan)) {
+                    testCase = testCase.substr(gPlan.length + 1);
+                }
+
+                regrInfo = document.createElement('dd');
+                if (regr.regressions.length == 2) {
+                    regrInfo.appendChild(document.createTextNode(
+                        "New regression, "));
+                } else {
+                    regrInfo.appendChild(document.createTextNode(
+                        "first fail: "));
+                    regrInfo.appendChild(getKernelLink(
+                        regr.regressions[1].kernel));
+                    regrInfo.appendChild(document.createElement('br'));
+                }
+                regrInfo.appendChild(document.createTextNode("last pass: "));
+                regrInfo.appendChild(getKernelLink(regr.regressions[0].kernel));
+
+                regrNode = document.getElementById(nodeId);
+                regrNode.appendChild(document.createElement('hr'));
+                dlNode = document.createElement('dl');
+                dlNode.className = 'dl-horizontal';
+                dtNode = document.createElement('dt');
+                dtNode.appendChild(document.createTextNode(testCase));
+                dlNode.appendChild(dtNode);
+                dlNode.appendChild(regrInfo);
+                regrNode.appendChild(dlNode);
+            }
+
+            data.result[0].result.forEach(addRegressionInfo);
         }
 
         results.forEach(parseBatchData);
