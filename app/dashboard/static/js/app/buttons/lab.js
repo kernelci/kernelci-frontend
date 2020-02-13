@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -23,10 +23,10 @@ define([
     'sprintf'
 ], function($, html) {
     'use strict';
-    var gBootButtons,
+    var gLabButtons,
         gStrings;
 
-    gBootButtons = {};
+    gLabButtons = {};
 
     gStrings = {
         show_class: 'fa fa-eye',
@@ -37,7 +37,7 @@ define([
             'Use the <i class="fa fa-eye"></i> button to show it again.'
     };
 
-    gBootButtons.createShowHideLabBtn = function(element, action) {
+    gLabButtons.createShowHideLabBtn = function(element, action) {
         var elementClass,
             iNode,
             title,
@@ -69,7 +69,7 @@ define([
      *
      * @param {Event} event: The event that triggers this function.
     **/
-    gBootButtons.showHideLab = function(event) {
+    gLabButtons.showHideLab = function(event) {
         var accordion,
             element,
             elementId,
@@ -117,5 +117,5 @@ define([
         }
     };
 
-    return gBootButtons;
+    return gLabButtons;
 });
