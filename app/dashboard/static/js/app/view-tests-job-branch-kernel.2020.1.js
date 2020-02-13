@@ -28,7 +28,8 @@ require([
     'utils/table',
     'tables/test',
     'charts/passpie',
-], function($, init, html, error, request, table, ttest, chart) {
+    'URI',
+], function($, init, html, error, request, table, ttest, chart, URI) {
     'use strict';
     var gJob;
     var gBranch;
@@ -222,10 +223,12 @@ require([
             var plan = result.name;
             var qStr;
 
-            qStr = 'job=' + job;
-            qStr += '&kernel=' + kernel;
-            qStr += '&git_branch=' + branch;
-            qStr += '&plan=' + plan;
+            qStr = URI.buildQuery({
+                'job': job,
+                'kernel': kernel,
+                'git_branch': branch,
+                'plan': plan,
+            });
 
             /* Total number of test cases */
             batchOps.push({
@@ -299,10 +302,12 @@ require([
             var plan = result.name;
             var qStr;
 
-            qStr = 'job=' + job;
-            qStr += '&kernel=' + kernel;
-            qStr += '&git_branch=' + branch;
-            qStr += '&plan=' + plan;
+            qStr = URI.buildQuery({
+                'job': job,
+                'kernel': kernel,
+                'git_branch': branch,
+                'plan': plan,
+            });
 
             /* Number of test case regressions */
             batchOps.push({
@@ -374,9 +379,11 @@ require([
         var batchOps;
         var deferred;
 
-        qStr = 'job=' + gJob;
-        qStr += '&kernel=' + gKernel;
-        qStr += '&git_branch=' + gBranch;
+        qStr = URI.buildQuery({
+            'job': gJob,
+            'kernel': gKernel,
+            'git_branch': gBranch,
+        });
 
         batchOps = [];
 
