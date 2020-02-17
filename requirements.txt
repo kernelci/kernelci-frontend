@@ -4,3 +4,4 @@ Flask==1.0
 redis==2.10.5
 requests
 pymongo==3.9.0
+werkzeug==0.16
