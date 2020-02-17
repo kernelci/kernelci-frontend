@@ -49,6 +49,8 @@ require([
         var branch;
         var kernel;
         var commit;
+        var treeNode;
+        var jobLink;
         var describeNode;
         var buildsLink;
         var gitNode;
@@ -59,6 +61,15 @@ require([
         branch = results.git_branch;
         kernel = results.kernel;
         commit = results.git_commit;
+
+        treeNode = html.tooltip();
+        treeNode.title = "Details for tree &#171;" + job + "&#187;"
+        jobLink = document.createElement('a');
+        jobLink.href = "/job/" + job + "/";
+        jobLink.appendChild(html.tree());
+        treeNode.appendChild(document.createTextNode(job));
+        treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        treeNode.appendChild(jobLink);
 
         describeNode = html.tooltip();
         describeNode.title =
@@ -82,8 +93,7 @@ require([
             document.createTextNode(createdOn.toCustomISODate()));
 
         html.replaceContent(
-            document.getElementById('tree'),
-            document.createTextNode(job));
+            document.getElementById('tree'), treeNode);
         html.replaceContent(
             document.getElementById('git-branch'),
             document.createTextNode(branch));
