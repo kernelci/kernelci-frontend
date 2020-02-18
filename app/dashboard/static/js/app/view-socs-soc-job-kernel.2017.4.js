@@ -548,14 +548,6 @@ define([
         }
     }
 
-    function getBootDoneChart(response) {
-        chart.bootpie({
-            element: 'boot-chart',
-            response: response,
-            legend: true
-        });
-    }
-
     function getBoots() {
         var deferred;
 
@@ -595,7 +587,6 @@ define([
             .fail(error.error, getBootsFailed)
             .done(
                 getBootsDone,
-                getBootDoneChart,
                 updateDetails,
                 getBootDoneUnique,
                 getPlans,
