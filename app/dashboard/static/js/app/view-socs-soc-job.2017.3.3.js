@@ -43,11 +43,13 @@ require([
     gBatchCountMissing = {};
 
     function updateCountDetail(result) {
-        html.replaceContent(
-            document.getElementById(result.operation_id),
-            document.createTextNode(
-                format.number(parseInt(result.result[0].count, 10)))
-        );
+        if (result.result.length > 0) {
+            html.replaceContent(
+                document.getElementById(result.operation_id),
+                document.createTextNode(
+                    format.number(parseInt(result.result[0].count, 10)))
+            );
+        }
     }
 
     function getDetailsDone(response) {
@@ -82,7 +84,6 @@ require([
             query: gQueryStr
         });
 
-        console.log("queryStr: " + gQueryStr)
         batchOps.push({
             method: 'GET',
             operation_id: 'labs-count',
@@ -244,8 +245,6 @@ require([
     function getTestsDone(response) {
         var columns,
             results;
-
-        console.log(response)
         // Internal wrapper for the filter.
         function _renderTestCount(data, type) {
             if (type === 'filter') {
@@ -343,7 +342,6 @@ require([
     function getTests() {
         var deferred;
 
-        console.log("soc: " + gSoc + ",  job: " + gJob);
         deferred = request.get(
             '/_ajax/test/case',
             {
