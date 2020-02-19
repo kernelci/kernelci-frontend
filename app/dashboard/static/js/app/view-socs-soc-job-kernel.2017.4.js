@@ -20,17 +20,11 @@
 define([
     'jquery',
     'utils/init',
-    'utils/format',
     'utils/html',
     'utils/error',
     'utils/request',
     'utils/urls',
-    'utils/storage',
-    'utils/session',
     'charts/passpie',
-    'components/boot/unique',
-    'utils/filter',
-    'components/boot/view',
     'utils/table',
     'tables/test',
     'utils/date',
@@ -38,363 +32,29 @@ define([
 ], function(
         $,
         init,
-        format,
         html,
         error,
         request,
-        urls,
-        storage, session, chart, unique, filter, bootView, table, ttest) {
+        urls, 
+        chart, 
+        table, 
+        ttest) {
     'use strict';
     var gFileServer,
         gJob,
         gKernel,
         gResultFilter,
         gSearchFilter,
-        gSessionStorage,
         gSoc,
         gPlansTable;
 
     document.getElementById('li-soc').setAttribute('class', 'active');
-
-    function loadSavedSession() {
-        var isLoaded;
-
-        isLoaded = false;
-        gSessionStorage.load();
-
-        if (gSessionStorage.objects) {
-            isLoaded = session.load(gSessionStorage.objects);
-        }
-
-        return isLoaded;
-    }
-
-    function uniqueCountFail() {
-        html.replaceByClassHTML('unique-values', '&infin;');
-    }
-
-    function createOtherCount(totals) {
-        var archStr,
-            boardStr,
-            defconfigStr,
-            smallNode,
-            socStr,
-            tooltipNode;
-
-        tooltipNode = html.tooltip();
-        html.addClass(tooltipNode, 'default-cursor');
-        tooltipNode.setAttribute(
-            'title', 'Total unique architectures, boards, SoCs and defconfigs');
-
-        smallNode = document.createElement('small');
-        smallNode.appendChild(document.createTextNode('('));
-
-        if (totals.hasOwnProperty('arch')) {
-            if (totals.arch === 1) {
-                archStr = sprintf(
-                    '%s architecture', totals.arch);
-            } else {
-                archStr = sprintf(
-                    '%s architectures', totals.arch);
-            }
-
-            smallNode.appendChild(document.createTextNode(archStr));
-            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-        }
-
-        if (totals.hasOwnProperty('board')) {
-            if (totals.board === 1) {
-                boardStr = sprintf(
-                    '%s board', totals.board);
-            } else {
-                boardStr = sprintf(
-                    '%s boards', totals.board);
-            }
-
-            smallNode.appendChild(document.createTextNode(boardStr));
-            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-        }
-
-        if (totals.hasOwnProperty('soc')) {
-            if (totals.soc === 1) {
-                socStr = sprintf('%s SoC', totals.soc);
-            } else {
-                socStr = sprintf('%s SoCs', totals.soc);
-            }
-
-            smallNode.appendChild(document.createTextNode(socStr));
-            smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-        }
-
-        if (totals.hasOwnProperty('defconfig')) {
-            if (totals.defconfig === 1) {
-                defconfigStr = sprintf(
-                    '%s defconfig', totals.defconfig);
-            } else {
-                defconfigStr = sprintf(
-                    '%s defconfigs', totals.defconfig);
-            }
-
-            smallNode.appendChild(document.createTextNode(defconfigStr));
-        }
-
-        smallNode.appendChild(document.createTextNode(')'));
-        tooltipNode.appendChild(smallNode);
-
-        return tooltipNode;
-    }
-
-    function createLabBootCount(total, pass, fail, unknown) {
-        var smallNode,
-            spanNode,
-            tooltipNode;
-
-        tooltipNode = html.tooltip();
-        html.addClass(tooltipNode, 'default-cursor');
-        tooltipNode.setAttribute(
-            'title',
-            'Total, passed, failed and unknown boot reports count ' +
-            'for this lab'
-        );
-
-        smallNode = document.createElement('small');
-        smallNode.appendChild(document.createTextNode('('));
-        smallNode.appendChild(
-            document.createTextNode(format.number(total)));
-        smallNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-
-        spanNode = document.createElement('span');
-        spanNode.className = 'green-font';
-        spanNode.appendChild(document.createTextNode(format.number(pass)));
-
-        smallNode.appendChild(spanNode);
-        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-
-        spanNode = document.createElement('span');
-        spanNode.className = 'red-font';
-        spanNode.appendChild(document.createTextNode(format.number(fail)));
-
-        smallNode.appendChild(spanNode);
-        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-
-        spanNode = document.createElement('span');
-        spanNode.className = 'yellow-font';
-        spanNode.appendChild(
-            document.createTextNode(format.number(unknown)));
-
-        smallNode.appendChild(spanNode);
-        smallNode.appendChild(document.createTextNode(')'));
-
-        tooltipNode.appendChild(smallNode);
-
-        return tooltipNode;
-    }
-
-    function uniqueCountDone(builds, distincts) {
-        var failCount,
-            lab,
-            labStatus,
-            localLab,
-            passCount,
-            tooltipNode,
-            totalBuilds,
-            totalCount,
-            uniqueLab,
-            uniqueTotal,
-            unknownCount;
-
-        totalBuilds = builds[0].result[0].count;
-        uniqueTotal = distincts[0];
-        uniqueLab = distincts[1];
-
-        if (Object.getOwnPropertyNames(uniqueTotal.totals).length > 0) {
-            if (uniqueTotal.totals.board > 0) {
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute(
-                    'title', 'Total number of unique boards tested');
-                tooltipNode.appendChild(
-                    document.createTextNode(
-                        format.number(uniqueTotal.totals.board)));
-                html.replaceContent(
-                    document.getElementById('unique-boards'), tooltipNode);
-            } else {
-                html.replaceContent(
-                    document.getElementById('unique-boards'), html.nonavail());
-            }
-
-            if (uniqueTotal.totals.soc > 0) {
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute(
-                    'title', 'Total number of unique SoC families tested');
-                tooltipNode.appendChild(
-                    document.createTextNode(
-                        format.number(uniqueTotal.totals.soc)));
-                html.replaceContent(
-                    document.getElementById('unique-socs'), tooltipNode);
-            } else {
-                html.replaceContent(
-                    document.getElementById('unique-socs'), html.nonavail());
-            }
-
-            if (uniqueTotal.totals.defconfig > 0) {
-                tooltipNode = html.tooltip();
-                tooltipNode.setAttribute(
-                    'title', 'Total number of unique defconfigs tested');
-
-                if (totalBuilds > 0) {
-                    tooltipNode.appendChild(
-                        document.createTextNode(
-                            sprintf(
-                                '%s out of %s',
-                                format.number(
-                                    uniqueTotal.totals.defconfig),
-                                format.number(totalBuilds)))
-                    );
-                } else {
-                    tooltipNode.appendChild(
-                        document.createTextNode(
-                            format.number(uniqueTotal.totals.defconfig)));
-                }
-
-                html.replaceContent(
-                    document.getElementById('unique-defconfigs'), tooltipNode);
-            } else {
-                html.replaceContent(
-                    document.getElementById('unique-defconfigs'),
-                    html.nonavail());
-            }
-        } else {
-            html.replaceByClassNode('unique-values', html.nonavail());
-        }
-
-        if (Object.getOwnPropertyNames(uniqueLab).length > 0) {
-            for (lab in uniqueLab) {
-                if (uniqueLab.hasOwnProperty(lab)) {
-                    localLab = uniqueLab[lab];
-                    labStatus = localLab.status;
-
-                    if (labStatus.hasOwnProperty('fail')) {
-                        failCount = labStatus.fail;
-                    } else {
-                        failCount = 0;
-                    }
-
-                    if (labStatus.hasOwnProperty('pass')) {
-                        passCount = labStatus.pass;
-                    } else {
-                        passCount = 0;
-                    }
-
-                    if (labStatus.hasOwnProperty('unknown')) {
-                        unknownCount = labStatus.unknown;
-                    } else {
-                        unknownCount = 0;
-                    }
-
-                    totalCount = passCount + failCount + unknownCount;
-
-                    html.replaceContent(
-                        document.getElementById('boot-count-' + lab),
-                        createLabBootCount(
-                            totalCount, passCount, failCount, unknownCount)
-                    );
-
-                    html.replaceContent(
-                        document.getElementById('unique-count-' + lab),
-                        createOtherCount(localLab.totals));
-                }
-            }
-        }
-    }
-
-    function getBootDoneUnique(response) {
-        var deferred;
-
-        if (response.count > 0) {
-            deferred = request.get(
-                '/_ajax/count/build', {
-                    job: gJob,
-                    kernel: gKernel
-                });
-
-            $.when(deferred, unique.countD(response))
-                .fail(error.error, uniqueCountFail)
-                .done(uniqueCountDone);
-        } else {
-            html.replaceByClassTxt('unique-values', '?');
-        }
-    }
 
     function getBootsFailed() {
         html.replaceContent(
             document.getElementById('accordion-container'),
             html.errorDiv('Error loading data.'));
         html.replaceByClassHTML('loading-content', '&infin;');
-    }
-
-    function getBootsDone(response) {
-        var bootPanel,
-            failButton,
-            results;
-
-        results = response.result;
-        if (results.length === 0) {
-            html.replaceContent(
-                document.getElementById('accordion-container'),
-                html.errorDiv('No data found.'));
-        } else {
-            bootPanel = bootView(results, gFileServer).draw();
-
-            if (gSearchFilter && gSearchFilter.length > 0) {
-                switch (gSearchFilter) {
-                    case 'fail':
-                        document.getElementById('#fail-cell').click();
-                        break;
-                    case 'success':
-                        document.getElementById('#success-cell').click();
-                        break;
-                    case 'unknown':
-                        document.getElementById('#unknown-cell').click();
-                        break;
-                }
-            } else if (!loadSavedSession()) {
-                if (bootPanel.hasFail) {
-                    // If there is no saved session, show only the failed ones.
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-failed'),
-                        function(element) {
-                            element.style.setProperty('display', 'block');
-                        }
-                    );
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-success'),
-                        function(element) {
-                            element.style.setProperty('display', 'none');
-                        }
-                    );
-                    Array.prototype.forEach.call(
-                        document.getElementsByClassName('df-unknown'),
-                        function(element) {
-                            element.style.setProperty('display', 'none');
-                        }
-                    );
-
-                    failButton = document.getElementById('fail-btn');
-                    Array.prototype.forEach.call(
-                        failButton.parentElement.children, function(element) {
-                            if (element === failButton) {
-                                html.addClass(element, 'active');
-                            } else {
-                                html.removeClass(element, 'active');
-                            }
-                        }
-                    );
-                } else {
-                    html.addClass(
-                        document.getElementById('all-btn'), 'active');
-                }
-            }
-        }
     }
 
     function updateDetails(response) {
@@ -558,24 +218,12 @@ define([
                     '_id',
                     'arch',
                     'board',
-                    'boot_log',
-                    'boot_log_html',
                     'created_on',
-                    'defconfig_full',
-                    'endian',
-                    'file_server_resource',
-                    'file_server_url',
                     'git_branch',
                     'git_commit',
                     'git_url',
                     'job',
-                    'kernel',
-                    'kernel_image',
-                    'lab_name',
-                    'mach',
-                    'time',
-                    'status',
-                    'warnings'
+                    'kernel'
                 ],
                 mach: gSoc,
                 job: gJob,
@@ -586,9 +234,7 @@ define([
         $.when(deferred)
             .fail(error.error, getBootsFailed)
             .done(
-                getBootsDone,
                 updateDetails,
-                getBootDoneUnique,
                 getPlans,
                 getTestCount
             );
@@ -624,61 +270,6 @@ define([
             html.errorDiv('No test data available.')
         );
     }
-
-    function updatePlanDetails(results) {
-        var job;
-        var branch;
-        var kernel;
-        var commit;
-        var describeNode;
-        var buildsLink;
-        var gitNode;
-        var createdOn;
-        var dateNode;
-
-        job = results.job;
-        branch = results.git_branch;
-        kernel = results.kernel;
-        commit = results.git_commit;
-
-        describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
-        buildsLink.href = "/build/" + job + "/kernel/" + kernel;
-        buildsLink.appendChild(html.build());
-        describeNode.appendChild(document.createTextNode(kernel));
-        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
-
-        gitNode = document.createElement('a')
-        gitNode.appendChild(document.createTextNode(results.git_url))
-        gitNode.href = results.git_url
-        gitNode.title = "Git URL" /* ToDo: link to commit when possible */
-
-        createdOn = new Date(results.created_on.$date);
-        dateNode = document.createElement('time');
-        dateNode.setAttribute('datetime', createdOn.toISOString());
-        dateNode.appendChild(
-            document.createTextNode(createdOn.toCustomISODate()));
-
-        html.replaceContent(
-            document.getElementById('tree'),
-            document.createTextNode(job));
-        html.replaceContent(
-            document.getElementById('git-branch'),
-            document.createTextNode(branch));
-        html.replaceContent(
-            document.getElementById('git-describe'), describeNode)
-        html.replaceContent(
-            document.getElementById('git-url'), gitNode);
-        html.replaceContent(
-            document.getElementById('git-commit'),
-            document.createTextNode(commit));
-        html.replaceContent(
-            document.getElementById('job-date'), dateNode);
-    }
-
 
     function updatePlansTable(results) {
 
@@ -762,7 +353,6 @@ define([
     function getBatchStatusFailed() {
         console.log("getBatchStatusFailed()");
     }
-
 
     function getBatchCountDone(response) {
         function parseBatchData(data) {
@@ -892,7 +482,6 @@ define([
             return
         }
     
-        updatePlanDetails(response.result[0])
         updatePlansTable(response.result)
         getBatchCount(response.result)
         getBatchStatus(response.result)
@@ -981,78 +570,6 @@ define([
             .done(updateChart)
     }
 
-    function registerEvents() {
-        window.addEventListener('beforeunload', function() {
-            var pageState;
-
-            pageState = {};
-
-            function _saveElementState(element) {
-                pageState['#' + element.id] = [
-                    {
-                        type: 'class',
-                        name: 'class',
-                        value: element.getAttribute('class')
-                    },
-                    {
-                        type: 'attr',
-                        name: 'aria-expanded',
-                        value: element.getAttribute('aria-expanded')
-                    }
-                ];
-            }
-
-            gResultFilter.unload();
-
-            pageState['.df-success'] = {
-                type: 'attr',
-                name: 'style',
-                value: html.attrBySelector('.df-success', 'style')
-            };
-            pageState['.df-failed'] = {
-                type: 'attr',
-                name: 'style',
-                value: html.attrBySelector('.df-failed', 'style')
-            };
-            pageState['.df-unknown'] = {
-                type: 'attr',
-                name: 'style',
-                value: html.attrBySelector('.df-unknown', 'style')
-            };
-            pageState['#all-btn'] = {
-                type: 'class',
-                name: 'class',
-                value: html.attrById('all-btn', 'class')
-            };
-            pageState['#success-btn'] = {
-                type: 'class',
-                name: 'class',
-                value: html.attrById('success-btn', 'class')
-            };
-            pageState['#fail-btn'] = {
-                type: 'class',
-                name: 'class',
-                value: html.attrById('fail-btn', 'class')
-            };
-            pageState['#unknown-btn'] = {
-                type: 'class',
-                name: 'class',
-                value: html.attrById('unknown-btn', 'class')
-            };
-
-
-            Array.prototype.forEach.call(
-                document.querySelectorAll('[id^="panel-boot-"]'),
-                _saveElementState);
-
-            Array.prototype.forEach.call(
-                document.querySelectorAll('[id^="collapse-boot-"]'),
-                _saveElementState);
-
-            gSessionStorage.addObjects(pageState).save();
-        });
-    }
-
     if (document.getElementById('job-name') !== null) {
         gJob = document.getElementById('job-name').value;
     }
@@ -1091,10 +608,7 @@ define([
         tableDivId: 'table-div',
     });
 
-    gSessionStorage = storage('soc-' + gSoc + '-' + gJob + '-' + gKernel);
-    gResultFilter = filter('data-filter');
     getBoots();
-    registerEvents();
 
     init.hotkeys();
     init.tooltip();

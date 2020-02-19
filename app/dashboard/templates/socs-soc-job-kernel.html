@@ -65,26 +65,6 @@
                 </small>
             </dd>
         </dl>
-        <dl class="dl-horizontal">
-            <dt>Unique boards</dt>
-            <dd id="unique-boards" class="loading-content unique-values">
-                <small>
-                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt >Unique SoCs</dt>
-            <dd id="unique-socs" class="loading-content unique-values">
-                <small>
-                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-            <dt>Unique defconfigs</dt>
-            <dd id="unique-defconfigs" class="loading-content unique-values">
-                <small>
-                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
-                </small>
-            </dd>
-        </dl>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
         <div id="pie-chart" class="chart-div pull-center">
@@ -92,34 +72,24 @@
         </div>
     </div>
 </div>
-{%- include "conflicts-row.html" %}
-<div class="row">
+<div class="row">   
     <div class="page-header">
-        <h3>Boards Tested</h3>
+        <h3>Available Test Plans</h3>
     </div>
-    {%- include "boots-buttons-row.html" %}
-</div>
-{%- include "accordion-container-row.html" %}
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="page-header">
-            <h3>Available Test Plans</h3>
-        </div>
-        <div id="table-loading" class="pull-center">
-            <small>
-                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
-                &nbsp;retrieving test data&hellip;
-            </small>
-        </div>
-    {%- if is_mobile %}
-        <div class="table-responsive" id="table-div">
-    {%- else %}
-        <div class="table" id="table-div">
-    {%- endif %}
-            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="planstable">
-            </table>
-        </div>
+    <div id="table-loading" class="pull-center">
+        <small>
+            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+            &nbsp;retrieving test data&hellip;
+        </small>
     </div>
+{%- if is_mobile %}
+    <div class="table-responsive" id="table-div">
+{%- else %}
+    <div class="table" id="table-div">
+{%- endif %}
+        <table class="table table-hover table-striped table-condensed clickable-table big-table" id="planstable">
+        </table>
+        </div>
 </div>
 <input type="hidden" id="job-name" value="{{ job }}">
 <input type="hidden" id="kernel-name" value="{{ kernel }}">
