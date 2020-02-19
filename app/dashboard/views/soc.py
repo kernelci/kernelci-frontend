@@ -105,7 +105,7 @@ class SocsSocJobKernelView(SocsGeneralView):
         kernel = kwargs["kernel"]
 
         body_title = (
-            "Details for Tree &#171;%s&#187; - %s" % (job, kernel))
+            "Details SoC &#171;%s&#187; for Tree &#171;%s&#187; - %s" % (soc, job, kernel))
         page_title = "%s SoC: %s - %s" % (soc, job, kernel)
         page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
 
