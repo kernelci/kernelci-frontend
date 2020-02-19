@@ -1,6 +1,10 @@
 /*!
  * kernelci dashboard.
  *
+ * Copyright (C) 2020 Collabora Limited
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+ * Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+ * 
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  *
  * This program is free software; you can redistribute it and/or modify it under
