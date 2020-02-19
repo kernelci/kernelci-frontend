@@ -1,5 +1,8 @@
 /*!
  * kernelci dashboard.
+ *
+ * Copyright (C) 2020 Collabora Limited
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
  * 
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * 
@@ -373,12 +376,14 @@ define([
             var kernel = result.kernel;
             var branch = result.git_branch;
             var plan = result.name;
+            var mach = gSoc;
             var qStr;
 
             qStr = 'job=' + job;
             qStr += '&kernel=' + kernel;
             qStr += '&git_branch=' + branch;
             qStr += '&plan=' + plan;
+            qStr += '&mach=' + mach;
 
             /* Number of test case regressions */
             batchOps.push({
@@ -409,16 +414,19 @@ define([
         var deferred;
 
         function createBatchOp(result) {
+            
             var job = result.job;
             var kernel = result.kernel;
             var branch = result.git_branch;
             var plan = result.name;
+            var mach = gSoc;
             var qStr;
 
             qStr = 'job=' + job;
             qStr += '&kernel=' + kernel;
             qStr += '&git_branch=' + branch;
             qStr += '&plan=' + plan;
+            qStr += '&mach=' + mach;
 
             /* Total number of test cases */
             batchOps.push({
@@ -520,7 +528,7 @@ define([
         var batchOps;
         var deferred;
 
-        qStr = 'soc=' + gSoc;
+        qStr = 'mach=' + gSoc;
         qStr += '&job=' + gJob;
         qStr += '&kernel=' + gKernel;
 
