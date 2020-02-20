@@ -1,6 +1,6 @@
 # Copyright (C) Collabora Limited 2020
 # Author: Alexandra Pereira <alexandra.pereira@collabora.com>
-# 
+#
 # Copyright (C) Linaro Limited 2014,2015,2016,2017,2019
 # Author: Matt Hart <matthew.hart@linaro.org>
 # Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -352,6 +352,12 @@ def init():
     add_rule(
         "/test/group/<regex(\"[A-Za-z0-9]{24}\"):uid>/",
         view_func=vtest.TestsGroupIdView.as_view("tests-group-id"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/test/plan/id/<regex(\"[0-9a-f]{24}\"):uid>/",
+        view_func=vtest.TestsPlanIdView.as_view("tests-plan-id"),
         methods=["GET"]
     )
 

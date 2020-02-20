@@ -1,0 +1,17 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+    <h3 id="body-title">Test details for test plan&nbsp;</h3>
+    </div>
+</div>
+<input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
+<input type="hidden" id="plan-id" value="{{ plan_id }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-tests-plan-id" src="/static/js/lib/require.js"></script>
+{%- endblock %}
