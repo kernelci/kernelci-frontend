@@ -30,8 +30,7 @@ define([
     'charts/passpie',
     'utils/table',
     'tables/test',
-    'utils/date',
-    'sprintf'
+    'URI'
 ], function(
         $,
         init,
@@ -41,7 +40,8 @@ define([
         urls, 
         chart, 
         table, 
-        ttest) {
+        ttest,
+        URI) {
     'use strict';
     var gFileServer,
         gJob,
@@ -53,15 +53,7 @@ define([
 
     document.getElementById('li-soc').setAttribute('class', 'active');
 
-    function getBootsFailed() {
-        html.replaceContent(
-            document.getElementById('accordion-container'),
-            html.errorDiv('Error loading data.'));
-        html.replaceByClassHTML('loading-content', '&infin;');
-    }
-
     function updateDetails(response) {
-        results = response.result;
         var aNode,
             createdOn,
             domNode,
@@ -69,18 +61,15 @@ define([
             gitCommit,
             gitURL,
             gitURLs,
-            results,
             tooltipNode;
 
-        if (results.length === 0) {
+        if (response.length === 0) {
             html.replaceByClassTxt('loading-content', '?');
         } else {
-            results = results[0];
-
-            gitBranch = results.git_branch;
-            gitCommit = results.git_commit;
-            gitURL = results.git_url;
-            createdOn = new Date(results.created_on.$date);
+            gitBranch = response.git_branch;
+            gitCommit = response.git_commit;
+            gitURL = response.git_url;
+            createdOn = new Date(response.created_on.$date);
 
             gitURLs = urls.translateCommit(gitURL, gitCommit);
 
@@ -170,19 +159,12 @@ define([
                 document.getElementById('git-describe'), domNode);
 
             // Git URL.
-            if (gitURLs[0]) {
-                aNode = document.createElement('a');
-                aNode.setAttribute('href', gitURLs[0]);
-                aNode.appendChild(document.createTextNode(gitURL));
-                aNode.insertAdjacentHTML('beforeend', '&nbsp;');
-                aNode.appendChild(html.external());
-            } else {
-                if (gitURL && gitURL !== undefined) {
-                    aNode = document.createTextNode(gitURL);
-                } else {
-                    aNode = html.nonavail();
-                }
-            }
+            aNode = document.createElement('a');
+            aNode.setAttribute('href', gitURL);
+            aNode.appendChild(document.createTextNode(gitURL));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+            
             html.replaceContent(document.getElementById('git-url'), aNode);
 
             // Git commit.
@@ -209,38 +191,6 @@ define([
             html.replaceContent(
                 document.getElementById('job-date'), domNode);
         }
-    }
-
-    function getBoots() {
-        var deferred;
-
-        deferred = request.get(
-            '/_ajax/boot',
-            {
-                field: [
-                    '_id',
-                    'arch',
-                    'board',
-                    'created_on',
-                    'git_branch',
-                    'git_commit',
-                    'git_url',
-                    'job',
-                    'kernel'
-                ],
-                mach: gSoc,
-                job: gJob,
-                kernel: gKernel
-            }
-        );
-
-        $.when(deferred)
-            .fail(error.error, getBootsFailed)
-            .done(
-                updateDetails,
-                getPlans,
-                getTestCount
-            );
     }
 
     function updateChart(response) {
@@ -372,18 +322,17 @@ define([
         var deferred;
 
         function createBatchOp(result) {
-            var job = result.job;
-            var kernel = result.kernel;
-            var branch = result.git_branch;
-            var plan = result.name;
-            var mach = gSoc;
+            
             var qStr;
+            var plan = result.name;
 
-            qStr = 'job=' + job;
-            qStr += '&kernel=' + kernel;
-            qStr += '&git_branch=' + branch;
-            qStr += '&plan=' + plan;
-            qStr += '&mach=' + mach;
+            qStr = URI.buildQuery({
+                'job': result.job,
+                'kernel': result.kernel,
+                'git_branch': result.git_branch,
+                'plan': plan,
+                'mach': gSoc,
+            });
 
             /* Number of test case regressions */
             batchOps.push({
@@ -415,18 +364,16 @@ define([
 
         function createBatchOp(result) {
             
-            var job = result.job;
-            var kernel = result.kernel;
-            var branch = result.git_branch;
-            var plan = result.name;
-            var mach = gSoc;
             var qStr;
+            var plan = result.name;
 
-            qStr = 'job=' + job;
-            qStr += '&kernel=' + kernel;
-            qStr += '&git_branch=' + branch;
-            qStr += '&plan=' + plan;
-            qStr += '&mach=' + mach;
+            qStr = URI.buildQuery({
+                'job': result.job,
+                'kernel': result.kernel,
+                'git_branch': result.git_branch,
+                'plan': plan,
+                'mach': gSoc,
+            });
 
             /* Total number of test cases */
             batchOps.push({
@@ -490,9 +437,11 @@ define([
             return
         }
     
-        updatePlansTable(response.result)
-        getBatchCount(response.result)
-        getBatchStatus(response.result)
+        updateDetails(response.result[0]);
+        updatePlansTable(response.result);
+        getBatchCount(response.result);
+        getBatchStatus(response.result);
+
     }
 
     function getPlans() {
@@ -528,9 +477,11 @@ define([
         var batchOps;
         var deferred;
 
-        qStr = 'mach=' + gSoc;
-        qStr += '&job=' + gJob;
-        qStr += '&kernel=' + gKernel;
+        qStr = URI.buildQuery({
+            'job': gJob,
+            'kernel': gKernel,
+            'mach': gSoc
+        });
 
         batchOps = []
 
@@ -616,7 +567,8 @@ define([
         tableDivId: 'table-div',
     });
 
-    getBoots();
+    getPlans();
+    getTestCount();
 
     init.hotkeys();
     init.tooltip();
