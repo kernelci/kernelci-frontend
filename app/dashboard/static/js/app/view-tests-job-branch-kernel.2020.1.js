@@ -438,7 +438,7 @@ require([
     }
 
     gPlansTable = table({
-        tableId: 'planstable',
+        tableId: 'plans-table',
         tableLoadingDivId: 'table-loading',
         tableDivId: 'table-div',
     });
