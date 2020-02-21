@@ -321,3 +321,8 @@ div.qemu-command {
     overflow-wrap: break-word;
     word-break: break-word;
 }
+ul.measurements {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
