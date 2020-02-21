@@ -347,6 +347,8 @@ require([
     }
 
     function getRegressionsDone(response) {
+        console.log("getRegressionsDone");
+        console.log(response);
         updateRegressions(response.result);
         updateButtons(gPanel);
     }
