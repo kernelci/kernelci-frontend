@@ -196,20 +196,18 @@ require([
     function updateLabs(results) {
         var labResults = {};
 
-        function initLab(lab) {
+        Object.keys(gPanel.allLabs).forEach(function(lab) {
             labResults[lab] = {};
-        }
-        Object.keys(gPanel.allLabs).forEach(initLab);
+        });
 
-        function mapResults(data) {
+        results.forEach(function(data) {
             var lab = data.operation_id[0];
             var result = data.operation_id[1];
             var count = data.result[0].count;
             labResults[lab][result] = count;
-        }
-        results.forEach(mapResults);
+        });
 
-        function updateLab(lab) {
+        Object.keys(gPanel.allLabs).forEach(function(lab) {
             var res = labResults[lab];
 
             html.replaceContent(
@@ -217,8 +215,7 @@ require([
                 createLabResultsCount(res['total'], res['success'],
                                       res['regressions'], res['unknown'])
             );
-        }
-        Object.keys(gPanel.allLabs).forEach(updateLab);
+        });
     }
 
     function updateRegressions(results) {
