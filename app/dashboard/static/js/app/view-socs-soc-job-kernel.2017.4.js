@@ -254,8 +254,8 @@ define([
             .data(results)
             .columns(columns)
             .order([0, 'asc'])
-            .rowURL('/soc/%(soc)s/job/%(job)s/kernel/%(kernel)s/plan/%(name)s/')
-            .rowURLElements(['job', 'git_branch', 'kernel', 'name'])
+            .rowURL('/soc/%(mach)s/job/%(job)s/kernel/%(kernel)s/plan/%(name)s/')
+            .rowURLElements(['mach', 'job', 'kernel', 'name'])
             .paging(false)
             .info(false)
             .draw();
@@ -420,7 +420,6 @@ define([
     function getPlans() {
         var data;
         var deferred;
-
         data = {
             aggregate: 'name',
             job: gJob,
@@ -432,7 +431,7 @@ define([
                 'name',
                 'created_on',
                 'job',
-                'git_branch',
+                'mach',
                 'git_commit',
                 'git_url',
                 'kernel',
@@ -543,6 +542,6 @@ define([
     setTimeout(getPlans, 10);
     setTimeout(getTestCount, 10);
 
-    init.hotkeys();
-    init.tooltip();
+    setTimeout(init.hotkeys, 50);
+    setTimeout(init.tooltip, 50);
 });
