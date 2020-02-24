@@ -21,17 +21,20 @@
 
 require([
     'jquery',
-    'utils/init',
-    'utils/request',
-    'utils/error',
-    'utils/html',
-    'utils/urls',
     'components/test/common',
-], function($, init, request, error, html, urls, tcommon) {
+    'tables/test',
+    'utils/error',
+    'utils/init',
+    'utils/html',
+    'utils/request',
+    'utils/table',
+    'utils/urls',
+], function($, tcommon, ttable, error, init, html, request, table, urls) {
     'use strict';
 
     var gPlanId;
     var gFileServer;
+    var gTestsTable;
 
     setTimeout(function() {
         document.getElementById('li-test').setAttribute('class', 'active');
@@ -128,12 +131,116 @@ require([
             document.getElementById('job-log'), logNode);
     }
 
+    function updateTestsTable(results) {
+        var columns;
+        var data;
+
+        function _renderStatus(data, type) {
+            if (type == "display") {
+                var node = document.createElement('div');
+                node.appendChild(ttable.statusNode(data));
+                return node.outerHTML;
+            } else {
+                return data;
+            }
+        }
+
+        data = [];
+        results.forEach(function(item) {
+            var status;
+
+            if (item.status == 'PASS')
+                status = 'PASS';
+            else if (item.regression_id)
+                status = 'FAIL';
+            else
+                status = 'UNKNOWN';
+
+            data.push({
+                'test_case_path': item.test_case_path,
+                'status': status,
+                '_id': item._id,
+            });
+        });
+
+        columns = [
+            {
+                title: 'Test case path',
+                data: 'test_case_path',
+                type: 'string',
+                className: 'test-group-column',
+            },
+            {
+                title: 'Status',
+                data: 'status',
+                type: 'string',
+                className: 'pull-center',
+                searchable: true,
+                orderable: false,
+                render: _renderStatus,
+            },
+        ];
+
+        gTestsTable
+            .data(data)
+            .columns(columns)
+            .order([0, 'asc'])
+            .rowURL('/test/case/id/%(_id)s/')
+            .rowURLElements(['_id'])
+            .paging(true)
+            .info(false)
+            .draw();
+    }
+
+    function getTestsFailed() {
+        html.removeElement(document.getElementById('table-loading'));
+        html.replaceContent(
+            document.getElementById('table-div'),
+            html.errorDiv('No test data available.')
+        );
+    }
+
+    function getTestsDone(response) {
+        if (response.result.length === 0) {
+            getTestsFailed();
+            return
+        }
+
+        updateTestsTable(response.result);
+    }
+
+    function getTests(results) {
+        var data;
+        var deferred;
+
+        data = {
+            arch: results.arch,
+            build_environment: results.build_environment,
+            defconfig_full: results.defconfig_full,
+            device_type: results.device_type,
+            git_branch: results.git_branch,
+            job: results.job,
+            kernel: results.kernel,
+            lab_name: results.lab_name,
+            plan: results.name,
+            sort: 'test_case_path',
+        };
+
+        deferred = request.get('/_ajax/test/case', data)
+        $.when(deferred)
+            .fail(error.error, getTestsFailed)
+            .done(getTestsDone);
+    }
+
     function getPlanFailed() {
         detailsFailed();
     }
 
     function getPlanDone(response) {
-        updateDetails(response.result[0]);
+        var results = response.result[0];
+
+        updateDetails(results);
+        getTests(results);
     }
 
     function getPlan() {
@@ -153,6 +260,12 @@ require([
     if (document.getElementById('file-server') !== null) {
         gFileServer = document.getElementById('file-server').value;
     }
+
+    gTestsTable = table({
+        tableId: 'tests-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+    });
 
     setTimeout(getPlan, 10);
 
