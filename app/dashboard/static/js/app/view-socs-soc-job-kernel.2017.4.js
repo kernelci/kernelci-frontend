@@ -413,6 +413,8 @@ define([
         getBatchCount(response.result);
         getBatchStatus(response.result);
 
+        gPlansTable
+            .search(gSearchFilter);
     }
 
     function getPlans() {
