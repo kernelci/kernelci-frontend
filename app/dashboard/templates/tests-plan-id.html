@@ -3,6 +3,10 @@
     <meta name="csrf-token" content="{{ csrf_token_r() }}">
 {%- endblock %}
 {%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+{%- endblock %}
 {%- block content %}
 <div class="row">
     <div class="page-header">
@@ -71,6 +75,27 @@
             </small>
         </dd>
     </dl>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h4>Test Results</h4>
+        </div>
+        <div id="table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                &nbsp;retrieving test data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="tests-table">
+            </table>
+        </div>
     </div>
 </div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
