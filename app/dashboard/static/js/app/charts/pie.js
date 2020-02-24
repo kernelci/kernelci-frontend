@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -94,21 +94,42 @@ define([
                     .text(piechart.settings().text);
 
                 if (piechart.settings().legend) {
-                    $('#success-cell')
+                    var ids = piechart.settings().legendIds;
+                    var titles = piechart.settings().legendTitles;
+
+                    if (!ids) {
+                        ids = {
+                            'pass': '#success-cell',
+                            'fail': '#fail-cell',
+                            'unknown': '#unknown-cell',
+                        };
+                    }
+
+                    if (!titles) {
+                        titles = {
+                            'pass': 'Successful',
+                            'fail': 'Failed',
+                            'unknown': 'Unknown',
+                        };
+                    }
+
+                    $(ids['pass'])
                         .empty()
                         .append(
                             p.sprintf(
-                                sTooltipFmt, 'Successful', data.values[0]))
+                                sTooltipFmt, titles['pass'], data.values[0]))
                         .css('border-bottom-color', color[0]);
-                    $('#fail-cell')
+                    $(ids['fail'])
                         .empty()
                         .append(
-                            p.sprintf(sTooltipFmt, 'Failed', data.values[1]))
+                            p.sprintf(
+                                sTooltipFmt, titles['fail'], data.values[1]))
                         .css('border-bottom-color', color[1]);
-                    $('#unknown-cell')
+                    $(ids['unknown'])
                         .empty()
                         .append(
-                            p.sprintf(sTooltipFmt, 'Unknown', data.values[2]))
+                            p.sprintf(
+                                sTooltipFmt, titles['unknown'], data.values[2]))
                         .css('border-bottom-color', color[2]);
                 }
             });
