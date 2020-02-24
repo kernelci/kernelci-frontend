@@ -6,7 +6,71 @@
 {%- block content %}
 <div class="row">
     <div class="page-header">
-    <h3 id="body-title">Test details for test plan&nbsp;</h3>
+    <h3 id="body-title">Test plan run: «<span id="plan-name">&hellip;</span>» on «<span id="device-type">&hellip;</span>» <small>(<span id="lab-name">&hellip;</span>)</small></h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <dl class="dl-horizontal" id="dl-right">
+        <dt>Tree</dt>
+        <dd id="tree" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git branch<dt>
+        <dd id="git-branch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git describe</dt>
+        <dd id="git-describe" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Git URL</dt>
+        <dd id="git-url" class="loading-content">
+          <small>
+            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+          </small>
+        </dd>
+        <dt>Git commit</dt>
+        <dd class="loading-content" id="git-commit">
+          <small>
+            <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+          </small>
+        </dd>
+        <dt>Architecture</dt>
+        <dd id="arch" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Compiler</dt>
+        <dd id="compiler" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Defconfig</dt>
+        <dd id="defconfig" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Date</dt>
+        <dd id="job-date" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+        <dt>Job log</dt>
+        <dd id="job-log" class="loading-content">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+            </small>
+        </dd>
+    </dl>
     </div>
 </div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
