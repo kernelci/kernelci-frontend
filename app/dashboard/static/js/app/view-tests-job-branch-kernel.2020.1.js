@@ -203,13 +203,11 @@ require([
     }
 
     function getBatchCountDone(response) {
-        function parseBatchData(data) {
+        response.result.forEach(function(data) {
             html.replaceContent(
                 document.getElementById(data.operation_id),
                 document.createTextNode(data.result[0].count));
-        }
-
-        response.result.forEach(parseBatchData);
+        });
     }
 
     function getBatchCount(results) {
@@ -278,13 +276,11 @@ require([
     }
 
     function getBatchStatusDone(response) {
-        function parseBatchData(data) {
+        response.result.forEach(function(data) {
             var node = document.getElementById(data.operation_id);
             var status = (data.result[0].count == 0 ? "PASS" : "FAIL");
             node.appendChild(ttest.statusNode(status));
-        }
-
-        response.result.forEach(parseBatchData);
+        });
     }
 
     function getBatchStatusFailed() {
