@@ -149,6 +149,17 @@ require([
             element: 'test-chart',
             countFunc: countTests,
             response: response,
+            legend: true,
+            legendIds: {
+                'pass': '#show-pass',
+                'fail': '#show-fail',
+                'unknown': '#show-unknown',
+            },
+            legendTitles: {
+                'pass': 'Successful',
+                'fail': 'Regressions',
+                'unknown': 'Unknown',
+            },
             size: {
                 height: 200,
                 width: 200,
