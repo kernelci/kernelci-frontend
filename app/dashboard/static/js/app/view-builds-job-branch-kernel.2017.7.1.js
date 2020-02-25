@@ -189,6 +189,8 @@ require([
         var aNode;
         var arch;
         var archLabelNode;
+        var compiler;
+        var compilerLabelNode;
         var branch;
         var cls;
         var colNode;
@@ -280,6 +282,7 @@ require([
             job = result.job;
             kernel = result.kernel;
             arch = result.arch;
+            compiler = result.build_environment;
             fileServerURL = result.file_server_url;
             fileServerResource = result.file_server_resource;
             errorsCount = result.errors;
@@ -326,6 +329,13 @@ require([
                 archLabelNode.appendChild(document.createTextNode(arch));
             }
 
+            hNode.insertAdjacentHTML(
+                'beforeend', '&nbsp;&dash;&nbsp;');
+            compilerLabelNode = hNode.appendChild(
+                document.createElement('span'));
+            compilerLabelNode.setAttribute('class', 'build-env-label');
+            compilerLabelNode.appendChild(document.createTextNode(compiler));
+            
             switch (status) {
                 case 'FAIL':
                     hasFailed = true;
