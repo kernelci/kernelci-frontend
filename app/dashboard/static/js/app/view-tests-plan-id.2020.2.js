@@ -134,21 +134,18 @@ require([
             document.getElementById('job-log'), logNode);
     }
 
-    function updateChart(response) {
-        function countTests(response) {
-            var results = response.result;
-            var total = results[0].result[0].count;
-            var pass = results[1].result[0].count;
-            var regressions = results[2].result[0].count;
-            var unknown = results[3].result[0].count;
-
-            return [total, [pass, regressions, unknown]];
+    function updateChart(testCount) {
+        function countTests(tc) {
+            return [
+                tc['total'],
+                [tc['pass'], tc['regressions'], tc['unknown']]
+            ];
         }
 
         pieChart.testpie({
             element: 'test-chart',
             countFunc: countTests,
-            response: response,
+            response: testCount,
             legend: true,
             legendIds: {
                 'pass': '#show-pass',
@@ -165,6 +162,43 @@ require([
                 width: 200,
             },
             radius: {inner: -30, outer: -42},
+        });
+    }
+
+    function listenForTableEvents(testCount) {
+        var btnList = ['total', 'pass', 'regressions', 'unknown'];
+
+        function _tableFilter(event) {
+            var activeId = event.target.id;
+            var status = activeId.substring('btn-'.length);
+
+            if (status == 'total') {
+                status = '';
+            } else if (status == 'regressions') {
+                status = 'fail';
+            }
+
+            gTestsTable.table.column(2).search(status).draw();
+
+            btnList.forEach(function(id) {
+                var btnId = 'btn-' + id;
+                var ele = document.getElementById(btnId);
+
+                if (btnId == activeId) {
+                    html.addClass(ele, 'active');
+                } else {
+                    html.removeClass(ele, 'active');
+                }
+            });
+        }
+
+        btnList.forEach(function(id) {
+            var ele = document.getElementById('btn-' + id);
+            ele.addEventListener('click', _tableFilter, true);
+            if (testCount[id])
+                ele.removeAttribute('disabled');
+            if (id == 'total')
+                html.addClass(ele, 'active');
         });
     }
 
@@ -307,7 +341,17 @@ require([
     }
 
     function testCountDone(response) {
-        updateChart(response);
+        var results = response.result;
+        var testCount;
+
+        testCount = {
+            'total': results[0].result[0].count,
+            'pass': results[1].result[0].count,
+            'regressions': results[2].result[0].count,
+            'unknown': results[3].result[0].count,
+        };
+        updateChart(testCount);
+        listenForTableEvents(testCount);
     }
 
     function getTestCount(results) {
