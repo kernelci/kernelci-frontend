@@ -13,8 +13,8 @@
  * Author: lollivier <lollivier@baylibre.com>
  *
  * kernelci dashboard.
- * 
- * 
+ *
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -78,7 +78,7 @@
             'app/view-build-compare': 'app/view-build-compare.2017.4',
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2017.4',
-            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2017.7.1',
+            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2020.2.1',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2017.4',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2017.3.3',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.2017.4',
@@ -135,7 +135,7 @@
         {name: 'app/view-build-compare.2017.4'},
         {name: 'app/view-builds-all.2017.5'},
         {name: 'app/view-builds-id.2017.4'},
-        {name: 'app/view-builds-job-branch-kernel.2017.7.1'},
+        {name: 'app/view-builds-job-branch-kernel.2020.2.1'},
         {name: 'app/view-builds-job-kernel-defconfig-logs.2017.4'},
         {name: 'app/view-builds-job-kernel-defconfig.2017.3.3'},
         {name: 'app/view-builds-job-kernel.2017.4'},
