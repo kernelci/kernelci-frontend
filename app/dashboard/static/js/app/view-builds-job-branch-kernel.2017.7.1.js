@@ -335,7 +335,7 @@ require([
                 document.createElement('span'));
             compilerLabelNode.setAttribute('class', 'build-env-label');
             compilerLabelNode.appendChild(document.createTextNode(compiler));
-            
+
             switch (status) {
                 case 'FAIL':
                     hasFailed = true;
