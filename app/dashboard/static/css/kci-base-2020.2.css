@@ -236,7 +236,7 @@ div.dataTables_filter {
 .footer > ul {
     margin-bottom: 0;
 }
-.arch-label {
+.arch-label, .build-env-label {
     font-size: 88%;
     font-weight: normal;
 }
