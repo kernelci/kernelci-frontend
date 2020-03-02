@@ -1,3 +1,6 @@
+# Copyright (C) Collabora Limited 2020
+# Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+#
 # Copyright (C) Linaro Limited 2016,2019
 # Author: Matt Hart <matthew.hart@linaro.org>
 # Author: Milo Casagrande <milo.casagrande@linaro.org>
@@ -49,7 +52,7 @@ class TestGenericView(View):
 class TestsAllView(TestGenericView):
 
     def dispatch_request(self):
-        body_title = "Available Test Group Reports"
+        body_title = "Available Test Results"
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(

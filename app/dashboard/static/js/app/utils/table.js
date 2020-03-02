@@ -1,6 +1,9 @@
 /*!
  * kernelci dashboard.
  * 
+ * Copyright (C) Collabora Limited 2020
+ * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * 
  * This program is free software; you can redistribute it and/or modify it under
@@ -69,8 +72,8 @@ define([
         table: null,
         inputNode: null,
         selectNode: null,
-        _rowURL: '/build/%(job)s/kernel/%(kernel)s/',
-        _rowURLElements: ['job', 'kernel'],
+        _rowURL: null,
+        _rowURLElements: null,
         _clickFunction: null,
         _drawFunction: null,
         _lengthMenu: [25, 50, 75, 100],
@@ -374,32 +377,34 @@ define([
         if (that._clickFunction) {
             that.table.on('click', 'tbody tr', that._clickFunction);
         } else {
-            that.table.on('click', 'tbody tr', function() {
-                var elementVal;
-                var location;
-                var rowData;
-                var substitutions;
+            if(that._rowURL !== null && that._rowURL !== undefined) {
+                that.table.on('click', 'tbody tr', function() {
+                    var elementVal;
+                    var location;
+                    var rowData;
+                    var substitutions;
 
-                rowData = that.table.row(this).data();
-                location = '#';
-                substitutions = {};
+                    rowData = that.table.row(this).data();
+                    location = '#';
+                    substitutions = {};
 
-                if (rowData) {
-                    that._rowURLElements.forEach(function(element) {
-                        if (element === '_id') {
-                            elementVal = rowData[element].$oid || null;
-                        } else if (element === 'created_on') {
-                            elementVal = rowData[element].$date || null;
-                        } else {
-                            elementVal = rowData[element] || null;
-                        }
-                        substitutions[element] = elementVal;
-                    });
+                    if (rowData) {
+                        that._rowURLElements.forEach(function(element) {
+                            if (element === '_id') {
+                                elementVal = rowData[element].$oid || null;
+                            } else if (element === 'created_on') {
+                                elementVal = rowData[element].$date || null;
+                            } else {
+                                elementVal = rowData[element] || null;
+                            }
+                            substitutions[element] = elementVal;
+                        });
 
-                    location = sprintf(that._rowURL, substitutions);
-                }
-                window.location = location;
-            });
+                        location = sprintf(that._rowURL, substitutions);
+                    }
+                    window.location = location;
+                });
+            }
         }
 
         return this;

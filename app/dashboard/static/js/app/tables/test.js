@@ -123,6 +123,10 @@ define([
         return tcommon.renderTree(tree, type, href);
     };
 
+    gTestTable.renderKernel = function(data, type, href) {
+        return tcommon.renderKernel(data, type, href);
+    };
+
     gTestTable.getCountFail = function(idStart) {
         document.getElementById('cases-total-count-'+ idStart)
             .innerHTML ='&infin;';
