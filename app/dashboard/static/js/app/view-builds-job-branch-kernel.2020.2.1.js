@@ -61,13 +61,13 @@ require([
             function(value) {
                 value.addEventListener(
                     'click', commonBtns.showHideElements, true);
-        });
+            });
         Array.prototype.forEach.call(
             document.getElementsByClassName('warn-err-btn'),
             function(value) {
                 value.addEventListener(
                     'click', buildBtns.showHideWarnErr, true);
-        });
+            });
     }
 
     function loadSavedSession() {
@@ -691,16 +691,14 @@ require([
                     .getElementById('unknown-btn').removeAttribute('disabled');
             }
 
-            setTimeout(function() {
-                if (!loadSavedSession()) {
-                    if (hasFailed) {
-                        showFailedOnly();
-                    } else {
-                        html.addClass(
-                            document.getElementById('all-btn'), 'active');
-                    }
+            setTimeout(function () {
+                if (hasFailed) {
+                    showFailedOnly();
+                } else if (!loadSavedSession()) {
+                    html.addClass(
+                        document.getElementById('all-btn'), 'active');
                 }
-            }, 0);
+            }, 1000);
 
             // Bind buttons to the correct function.
             setTimeout(bindDetailButtons, 0);
