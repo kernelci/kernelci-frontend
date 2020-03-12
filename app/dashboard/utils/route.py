@@ -252,11 +252,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/all/job/<string:job>/",
-        view_func=vboot.BootJobView.as_view("boot-job"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/all/job/<string:job>/branch/<string:branch>/",
         view_func=vboot.BootAllJBView.as_view("boot-all-jb"),
         methods=["GET"]
