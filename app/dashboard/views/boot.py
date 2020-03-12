@@ -168,16 +168,6 @@ class BootBoardLabView(BootGeneralView):
                 lab_name=kwargs["lab_name"]
             )
 
-
-class BootIdView(BootGeneralView):
-
-    def dispatch_request(self, *args, **kwargs):
-
-        return render_template(
-            "boots-id.html",
-            page_title=self.BOOT_PAGES_TITLE, boot_id=kwargs["uid"])
-
-
 class BootJobKernelView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
