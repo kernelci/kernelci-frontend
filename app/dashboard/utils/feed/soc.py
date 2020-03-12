@@ -50,7 +50,6 @@ FRONTEND_SOC_JOB_URL = BASE_URL + u"/soc/%(mach)s/job/%(job)s/"
 FRONTEND_JOB_URL = BASE_URL + u"/job/%(job)s/"
 
 BOOT_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/kernel/%(kernel)s/"
-BOOT_JOB_REPORTS_URL = BASE_URL + u"/boot/all/job/%(job)s/"
 
 # Some base categories for the feed.
 FEED_CATEGORIES = [
@@ -318,9 +317,6 @@ def soc_feed(soc):
         "content_links": [
             {
                 "href": FRONTEND_SOC_JOB_URL, "label": u"SoC boot reports"
-            },
-            {
-                "href": BOOT_JOB_REPORTS_URL, "label": u"All boot reports"
             },
             {
                 "href": FRONTEND_JOB_URL, "label": u"Job details"

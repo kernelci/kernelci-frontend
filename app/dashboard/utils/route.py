@@ -291,11 +291,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/<string:board>/job/<string:job>/",
-        view_func=vboot.BootBoardJobView.as_view("boot-board-job"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/<string:board>/job/<string:job>/feed.xml",
         "boot-board-job-feed",
         bootfeed.get_boot_board_job_feed,

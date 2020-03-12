@@ -303,22 +303,3 @@ class BootBoardView(BootGeneralView):
             page_len=page_len,
             search_filter=search_filter
         )
-
-
-class BootBoardJobView(BootGeneralView):
-    def dispatch_request(self, **kwargs):
-        board = kwargs["board"]
-        job = kwargs["job"]
-        body_title = (
-            "Boot reports for board&nbsp;&#171;%s" +
-            "&#187;&nbsp;<small>(%s)</small>") % (board, job)
-        body_title += \
-            self.RSS_LINK % ("/boot/%s/job/%s/feed.xml" % (board, job))
-
-        return render_template(
-            "boots-board-job.html",
-            page_title=self.BOOT_PAGES_TITLE,
-            body_title=body_title,
-            job=kwargs["job"],
-            board=kwargs["board"]
-        )
