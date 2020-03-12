@@ -253,7 +253,6 @@ require([
                 .lengthMenu([5, 10, 25, 50])
                 .order([0, 'asc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
         }

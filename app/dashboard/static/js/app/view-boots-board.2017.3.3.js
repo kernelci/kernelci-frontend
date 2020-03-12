@@ -199,7 +199,6 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([7, 'desc'])
-                .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
 

@@ -49,7 +49,6 @@ require([
     function getBootsDone(response) {
         var columns;
         var results;
-        var rowURLFmt;
 
         /**
          * Wrapper to inject the server URL.
@@ -67,7 +66,6 @@ require([
                 document.getElementById('table-div'),
                 html.errorDiv('No data found.'));
         } else {
-            rowURLFmt = '/boot/id/%(_id)s/';
 
             columns = [
                 {
@@ -126,7 +124,6 @@ require([
                 .data(results)
                 .columns(columns)
                 .order([4, 'desc'])
-                .rowURL(rowURLFmt)
                 .rowURLElements(['_id'])
                 .draw();
         }
