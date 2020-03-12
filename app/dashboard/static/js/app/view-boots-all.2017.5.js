@@ -139,17 +139,6 @@ require([
         var columns;
         var results;
 
-        /**
-         * Wrapper to provide the href.
-        **/
-        function _renderTree(data, type) {
-            var href = '/boot/all/job/';
-            href += data;
-            href += '/';
-
-            return tboot.renderTree(data, type, href);
-        }
-
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -162,8 +151,7 @@ require([
                     data: 'job',
                     title: 'Tree',
                     type: 'string',
-                    className: 'tree-column',
-                    render: _renderTree
+                    className: 'tree-column'
                 },
                 {
                     data: 'git_branch',
