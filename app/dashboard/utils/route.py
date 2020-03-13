@@ -271,12 +271,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/",
-        view_func=vboot.BootBoardJobKernelView.as_view(
-            "boot-board-job-kernel"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/<string:board>/",
         view_func=vboot.BootBoardView.as_view("boot-board"),
         methods=["GET"]
