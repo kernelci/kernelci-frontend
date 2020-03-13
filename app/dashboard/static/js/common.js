@@ -64,7 +64,6 @@ require.config({
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.2017.3.3',
             'app/view-boots-all-lab': 'app/view-boots-all-lab.2017.3.5',
             'app/view-boots-board': 'app/view-boots-board.2017.3.3',
-            'app/view-boots-board-jbkd': 'app/view-boots-board-jbkd.2017.3.3',
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.2017.3.3',
             'app/view-boots-board-lab': 'app/view-boots-board-lab.2017.3.3',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2017.4',

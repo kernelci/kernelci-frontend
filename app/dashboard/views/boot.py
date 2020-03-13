@@ -99,29 +99,6 @@ class BootAllJBKDView(BootGeneralView):
             page_len=page_len
         )
 
-
-class BootBoardJBKDView(BootGeneralView):
-
-    def dispatch_request(self, **kwargs):
-
-        page_title = (
-            self.BOOT_PAGES_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" %
-            kwargs)
-        body_title = (
-            "Boot Reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
-
-        return render_template(
-            "boots-board-jbkd.html",
-            page_title=page_title,
-            body_title=body_title,
-            board=kwargs["board"],
-            job=kwargs["job"],
-            kernel=kwargs["kernel"],
-            branch=kwargs["branch"],
-            defconfig=kwargs["defconfig"],
-        )
-
-
 class BootDefconfigView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):

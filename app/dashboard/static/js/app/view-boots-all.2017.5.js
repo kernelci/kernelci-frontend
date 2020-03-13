@@ -176,8 +176,7 @@ require([
                     data: 'defconfig_full',
                     title: 'Defconfig',
                     type: 'string',
-                    className: 'defconfig-column',
-                    render: tboot.renderDefconfig
+                    className: 'defconfig-column'
                 },
                 {
                     data: 'arch',
