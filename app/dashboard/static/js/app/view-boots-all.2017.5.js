@@ -170,8 +170,7 @@ require([
                     data: 'board',
                     title: 'Board Model',
                     type: 'string',
-                    className: 'board-column',
-                    render: tboot.renderBoard
+                    className: 'board-column'
                 },
                 {
                     data: 'defconfig_full',
