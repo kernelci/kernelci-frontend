@@ -362,6 +362,12 @@ def init():
     )
 
     add_rule(
+        "/test/case/id/<regex(\"[0-9a-f]{24}\"):uid>/",
+        view_func=vtest.TestsCaseIdView.as_view("tests-case-id"),
+        methods=["GET"]
+    )
+
+    add_rule(
         "/test/board/<string:board>/",
         view_func=vtest.TestsBoardView.as_view("tests-board-view"),
         methods=["GET"]

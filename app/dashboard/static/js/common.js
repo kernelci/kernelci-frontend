@@ -96,6 +96,7 @@ require.config({
             'app/view-tests-board-job-kernel': 'app/view-tests-board-job-kernel.2018.9',
             'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
             'app/view-tests-plan-id': 'app/view-tests-plan-id.2020.2',
+            'app/view-tests-case-id': 'app/view-tests-case-id.2020.3',
             'app/view-tests-job-branch-kernel': 'app/view-tests-job-branch-kernel.2020.1',
             'app/view-tests-job-branch-kernel-plan': 'app/view-tests-job-branch-kernel-plan.2020.1',
         }
