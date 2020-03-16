@@ -170,6 +170,15 @@ class TestsPlanIdView(TestGenericView):
             page_title=self.TESTS_PAGE_TITLE)
 
 
+class TestsCaseIdView(TestGenericView):
+
+    def dispatch_request(self, **kwargs):
+        return render_template(
+            "tests-case-id.html",
+            case_id=kwargs["uid"],
+            page_title=self.TESTS_PAGE_TITLE)
+
+
 class TestJobBranchKernelView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
