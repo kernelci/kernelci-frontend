@@ -6,10 +6,6 @@
 {%- block head %}
 {{ super() }}
 <style type="text/css">
-    h1 {
-        font-size: 3em;
-        text-align: center;
-    }
     h3 {
         font-size: 2em;
     }
@@ -24,9 +20,6 @@
         height: 62px;
         padding: 0 6px 0 0;
     }
-    div.welcome-title {
-        margin-bottom: 1em;
-    }
     div.welcome-text {
         margin-top: 1em;
         text-align: justify;
@@ -40,6 +33,10 @@
     .welcome-choice > .list-unstyled > li {
         padding-bottom: 0.5em;
     }
+    img#member-logo {
+        height: 80px;
+        padding: 0 10px 0 0;
+    }
 </style>
 {%- endblock %}
 {%- block content %}
@@ -51,23 +48,19 @@
             <a href="https://foundation.kernelci.org" target="_blank">
                 Linux Foundation project
             </a>
+            supported by:
+            <div class="pull-center" style="margin-top: 1em;">
+                <p>
+                    <a href="https://baylibre.com/" target="blank"><img src="/static/img/baylibre-horizontal-color.svg" alt="BayLibre logo" id="member-logo"></a>
+                    <a href="https://www.cip-project.org/" target="blank"><img src="/static/img/cip-stacked-color.svg" alt="CIP Project logo" id="member-logo"></a>
+                    <a href="https://www.collabora.com/" target="blank"><img src="/static/img/collabora-stacked-color.svg" alt="Collabra logo" id="member-logo"></a>
+                    <a href="https://foundries.io/" target="blank"><img src="/static/img/foundries-io-stacked-color.svg" alt="Foundries.io logo" id="member-logo"></a>
+                    <a href="https://www.google.com/" target="blank"><img src="/static/img/google-color.svg" alt="Google logo" id="member-logo"></a>
+                    <a href="https://www.microsoft.com/" target="blank"><img src="/static/img/microsoft-color.svg" alt="Microsoft logo" id="member-logo"></a>
+                    <a href="https://www.redhat.com/" target="blank"><img src="/static/img/redhat-color.svg" alt="RedHat logo" id="member-logo"></a>
+                </p>
+            </div>
         </div>
-        <div class="welcome-title">
-            <h1>
-                Welcome to kernelci.org!
-            </h1>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pull-center">
-        <img src="/static/img/kci-welcome-640.jpg"
-             id="welcome-image"
-             alt="Welcome to KernelCi"
-             sizes="(min-width: 960px) 960px, 70vw"
-             srcset="/static/img/kci-welcome-1024.jpg 1024w,
-                     /static/img/kci-welcome-960.jpg 960w,
-                     /static/img/kci-welcome-640.jpg 640w,
-                     /static/img/kci-welcome-320.jpg 320w,
-                     /static/img/kci-welcome-160.jpg 160w">
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="pull-center" style="margin-top: 1em;">
