@@ -57,7 +57,6 @@ require.config({
     },
     map: {
         '*': {
-            'app/view-boots-all': 'app/view-boots-all.2017.5',
             'app/view-boots-all-jb': 'app/view-boots-all-jb.2017.3.4',
             'app/view-boots-all-job-branch-kernel': 'app/view-boots-all-job-branch-kernel.2017.4',
             'app/view-boots-all-job-branch-kernel-defconfig': 'app/view-boots-all-job-branch-kernel-defconfig.2017.3.3',

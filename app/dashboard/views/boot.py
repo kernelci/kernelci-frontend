@@ -36,25 +36,6 @@ class BootGeneralView(View):
         "<i class=\"fa fa-rss\"></i></a><span>"
     )
 
-
-class BootAllView(BootGeneralView):
-
-    def dispatch_request(self):
-
-        body_title = "Available Boot Reports"
-        search_filter, page_len = get_search_parameters(request)
-
-        return render_template(
-            "base-all.html",
-            table_id="bootstable",
-            data_main="kci-boots-all",
-            page_len=page_len,
-            page_title=self.BOOT_PAGES_TITLE,
-            body_title=body_title,
-            search_filter=search_filter
-        )
-
-
 class BootAllJobKernelDefconfigView(BootGeneralView):
     def dispatch_request(self, **kwargs):
 
