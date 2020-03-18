@@ -176,16 +176,6 @@ def init():
 
     # Boots related URLs.
     add_rule(
-        "/boot/",
-        view_func=vboot.BootAllView.as_view("boots"),
-        methods=["GET"]
-    )
-    add_rule(
-        "/boot/all/",
-        view_func=vboot.BootAllView.as_view("all-boots"),
-        methods=["GET"]
-    )
-    add_rule(
         (
             "/boot/all/job/<string:job>/kernel/<string:kernel>/"
             "defconfig/<string:defconfig>/"
