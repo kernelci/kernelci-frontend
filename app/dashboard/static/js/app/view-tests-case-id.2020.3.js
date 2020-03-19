@@ -123,6 +123,28 @@ require([
             document.getElementById('status'), ttable.statusNode(status));
     }
 
+    function updateMeasurements(testCase) {
+        var mesDiv;
+        var mesList;
+
+        mesDiv = document.getElementById("measurements");
+        mesList = document.createElement('dl');
+        mesList.className = 'dl-horizontal';
+        mesDiv.appendChild(mesList);
+
+        testCase.measurements.forEach(function(data) {
+            var unit = document.createElement('dt');
+            var value = document.createElement('dd');
+
+            unit.appendChild(document.createTextNode(data['unit']));
+            mesList.appendChild(unit);
+            value.appendChild(document.createTextNode(data['value']));
+            mesList.appendChild(value);
+        });
+
+        html.removeClass(mesDiv, 'hidden');
+    }
+
     function updateGroupDetails(results) {
         var translatedURI;
         var gitNode;
@@ -235,6 +257,9 @@ require([
 
         getGroup(testCase);
         updateCaseDetails(testCase);
+
+        if (testCase.measurements.length)
+            updateMeasurements(testCase);
     }
 
     function getCase() {
