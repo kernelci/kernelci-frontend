@@ -78,11 +78,11 @@ require([
                 'board': result.board,
                 'plan': plan,
             });
-
+            
             /* Number of test case regressions */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'status-' + result.kernel,
+                operation_id: 'status-' + result._id.$oid,
                 resource: 'count',
                 document: 'test_regression',
                 query: qStr,
@@ -101,10 +101,59 @@ require([
 
     function updateTestTable(response) {
         var columns;
-
         function _renderDetails(data, type) {
             return ttest.renderDetails(
                 '/test/plan/id/' + data, type);
+        }
+
+        function _renderTree(data, type) {
+            return ttest.renderTree(
+                data, type, '/job/' + data + '/');
+        }
+
+        function _renderKernel(data, type, object) {
+            var href = '/test/job/';
+            href += object.job;
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/kernel/';
+            href += data;
+            href += '/plan/';
+            href += object.name;
+            href += '/';
+            return ttest.renderKernel(data, type, href);
+        }
+
+        function _renderBranch(data, type, object) {
+            var rendered;
+            var aNode;
+            var href;
+            
+            rendered = data;
+            if (type === 'display') {
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                href = '/job/';
+                href += object.job;
+                href += '/branch/';
+                href += object.git_branch;
+                href += '/';
+                aNode.setAttribute('href', href);
+                
+                aNode.appendChild(document.createTextNode(data));
+                rendered = aNode.outerHTML;
+                aNode.remove();
+            }
+            return rendered;
+        }
+
+        function _renderStatus(data, type) {
+            if (type == "display") {
+                var node = document.createElement('div');
+                node.id = 'status-' + data;
+                node.appendChild(ttest.statusNode(gTestStatus[node.id]));
+                return node.outerHTML;
+            }
         }
 
         if (response.length === 0) {
@@ -119,48 +168,21 @@ require([
                     title: 'Tree',
                     type: 'string',
                     className: 'tree-column',
+                    render: _renderTree
                 },
                 {
                     data: 'git_branch',
                     title: 'Branch',
                     type: 'string',
                     className: 'branch-column',
+                    render: _renderBranch
                 },
                 {
                     data: 'kernel',
                     title: 'Kernel',
                     type: 'string',
                     className: 'kernel-column',
-                },
-                {
-                    data: 'defconfig_full',
-                    title: 'Defconfig',
-                    type: 'string',
-                    className: 'defconfig-column',
-                },
-                {
-                    data: 'build_environment',
-                    title: 'Compiler',
-                    type: 'string',
-                    className: 'build-column',
-                },
-                {
-                    data: 'arch',
-                    title: 'Architecture',
-                    type: 'string',
-                    className: 'type-column',
-                },
-                {
-                    data: 'device_type',
-                    title: 'Device Type',
-                    type: 'string',
-                    className: 'device-column',
-                },
-                {
-                    data: 'lab_name',
-                    title: 'Lab',
-                    type: 'string',
-                    className: 'lab-column',
+                    render: _renderKernel
                 },
                 {
                     data: 'name',
@@ -176,12 +198,13 @@ require([
                     render: ttest.renderDate
                 },
                 {
-                    data: 'kernel',
+                    data: '_id.$oid',
                     title: 'Status',
                     type: 'string',
                     searchable: false,
                     orderable: false,
                     className: 'plan-center',
+                    render: _renderStatus
                 },
                 {
                     data: '_id.$oid',
@@ -197,7 +220,7 @@ require([
             gTestsTable
                 .data(response)
                 .columns(columns)
-                .order([9, 'desc'])
+                .order([4, 'desc'])
                 .languageLengthMenu('Tests per page')
                 .draw();
         }
@@ -216,7 +239,6 @@ require([
 
     function getTestsParse(response) {
         var results;
-
         // Internal filter function to check valid test values.
         function _isValidBoard(data) {
             if (data && data !== null && data !== undefined) {
@@ -250,13 +272,13 @@ require([
         var reqData;
 
         reqData = {
+            aggregate: ['name', 'kernel'],
+            parent_id: 'null',
             sort: 'created_on',
             sort_order: -1,
             date_range: gDateRange,
             limit: appconst.MAX_QUERY_LIMIT,
-            parent_id: 'null',
-            distinct: 'board',
-            aggregate: ['kernel', 'board'],
+            distinct: ['board', 'kernel'],
         }
 
         deferred = request.get('/_ajax/test/group', reqData);
