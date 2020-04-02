@@ -128,6 +128,19 @@
   <div class="page-header">Log lines</div>
   <div id="log-lines-content"></div>
 </div>
+<div class="row" id="regression">
+  <div class="page-header hidden" id="regr-title">
+    Regression history
+  </div>
+  {%- if is_mobile %}
+  <div class="table-responsive" id="table-div">
+  {%- else %}
+  <div class="table" id="table-div">
+  {%- endif %}
+    <table class="table table-hover table-striped table-condensed clickable-table big-table" id="new-regression-table">
+    </table>
+  </div>
+</div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
 <input type="hidden" id="case-id" value="{{ case_id }}">
 {%- endblock %}

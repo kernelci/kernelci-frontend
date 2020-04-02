@@ -27,12 +27,14 @@ require([
     'utils/html',
     'utils/init',
     'utils/request',
+    'utils/table',
     'utils/urls',
-], function($, tcommon, ttable, error, html, init, request, urls) {
+], function($, tcommon, ttable, error, html, init, request, table, urls) {
     'use strict';
 
     var gCaseId;
     var gFileServer;
+    var gRegressionTable;
 
     setTimeout(function() {
         document.getElementById('li-test').setAttribute('class', 'active');
@@ -251,6 +253,69 @@ require([
             document.getElementById('dtb'), dtbNode);
     }
 
+    function addRegressionHistory(results) {
+        var data;
+        var columns;
+
+        data = [];
+        results.regressions.reverse().forEach(function(item) {
+            data.push({
+                'kernel': item.kernel,
+                'created_on': item.created_on,
+                'status': item.status,
+                'test_case_id': item.test_case_id.$oid,
+            });
+        });
+
+        function _renderStatus(data, type) {
+            if (type == "display") {
+                return ttable.statusNode(data).outerHTML;
+            } else {
+                return data;
+            }
+        }
+
+        /* ToDo: highlight current revision row, and show "future" regressions
+         * when looking at other revisions (needs database schema changes).
+         */
+        columns = [
+            {
+                data: 'kernel',
+                title: 'Kernel',
+                type: 'string',
+                className: 'kernel-column',
+            },
+            {
+                data: 'created_on',
+                title: 'Date',
+                type: 'date',
+                orderable: false,
+                className: 'date-column-count pull-center',
+                render: ttable.renderDate,
+            },
+            {
+                data: 'status',
+                title: 'Status',
+                type: 'string',
+                searchable: false,
+                orderable: false,
+                className: 'pull-center',
+                render: _renderStatus,
+            },
+        ]
+
+        gRegressionTable
+            .data(data)
+            .columns(columns)
+            .languageLengthMenu('Revisions per page')
+            .lengthMenu([10, 25, 50, 75, 100])
+            .rowURL('/test/case/id/%(test_case_id)s')
+            .rowURLElements(['test_case_id'])
+            .draw();
+
+        html.removeClass(document.getElementById('regr-title'), 'hidden');
+    }
+
     function getGroupFailed() {
         detailsFailed();
     }
@@ -266,6 +331,23 @@ require([
             .done(getGroupDone);
     }
 
+    function getRegressionFailed() {
+        /* The regression row will not be shown */
+    }
+
+    function getRegressionDone(response) {
+        addRegressionHistory(response.result[0]);
+    }
+
+    function getRegression(results) {
+        if (results.regression_id) {
+            $.when(request.get('/_ajax/test/regression',
+                               {id: results.regression_id.$oid}))
+                .fail(error.error, getRegressionFailed)
+                .done(getRegressionDone);
+        }
+    }
+
     function getCaseFailed() {
         detailsFailed();
     }
@@ -274,6 +356,7 @@ require([
         var testCase = response.result[0]
 
         getGroup(testCase);
+        getRegression(testCase);
         updateCaseDetails(testCase);
 
         if (testCase.measurements.length)
@@ -300,6 +383,12 @@ require([
     if (document.getElementById('file-server') !== null) {
         gFileServer = document.getElementById('file-server').value;
     }
+
+    gRegressionTable = table({
+        tableId: 'new-regression-table',
+        tableLoadingDivId: 'table-loading',
+        tableDivId: 'table-div',
+    });
 
     setTimeout(getCase, 10);
 
