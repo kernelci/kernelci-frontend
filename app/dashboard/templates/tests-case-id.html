@@ -124,6 +124,10 @@
   </div>
   <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 hidden" id="measurements"></div>
 </div>
+<div class="row hidden" id="log-lines">
+  <div class="page-header">Log lines</div>
+  <div id="log-lines-content"></div>
+</div>
 <input type="hidden" id="file-server" value='{{ config["FILE_SERVER_URL"] }}'>
 <input type="hidden" id="case-id" value="{{ case_id }}">
 {%- endblock %}
