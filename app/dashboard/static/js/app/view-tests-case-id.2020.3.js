@@ -145,6 +145,24 @@ require([
         html.removeClass(mesDiv, 'hidden');
     }
 
+    function updateLogLines(testCase) {
+        var logLines;
+        var logBlock;
+        var logText;
+
+        logLines = document.getElementById('log-lines-content');
+        logBlock = document.createElement('pre');
+        logText = document.createTextNode('');
+        logBlock.appendChild(logText);
+        logLines.appendChild(logBlock);
+
+        testCase.log_lines.forEach(function(line) {
+            logText.data += line.msg + '\n';
+        });
+
+        html.removeClass(document.getElementById('log-lines'), 'hidden');
+    }
+
     function updateGroupDetails(results) {
         var translatedURI;
         var gitNode;
@@ -260,6 +278,9 @@ require([
 
         if (testCase.measurements.length)
             updateMeasurements(testCase);
+
+        if (testCase.log_lines.length)
+            updateLogLines(testCase);
     }
 
     function getCase() {
