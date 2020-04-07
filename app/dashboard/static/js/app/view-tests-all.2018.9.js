@@ -73,9 +73,7 @@ require([
             var plan = result.name;
 
             qStr = URI.buildQuery({
-                'job': result.job,
                 'kernel': result.kernel,
-                'board': result.board,
                 'plan': plan,
             });
             
@@ -101,9 +99,12 @@ require([
 
     function updateTestTable(response) {
         var columns;
-        function _renderDetails(data, type) {
-            return ttest.renderDetails(
-                '/test/plan/id/' + data, type);
+        function _renderPlan(data, type, object) {
+            return ttest.renderKernel(data, type, 
+                '/test/job/'+object.job+
+                '/branch/'+object.git_branch+
+                '/kernel/'+object.kernel+
+                '/plan/'+data);
         }
 
         function _renderTree(data, type) {
@@ -118,8 +119,6 @@ require([
             href += object.git_branch;
             href += '/kernel/';
             href += data;
-            href += '/plan/';
-            href += object.name;
             href += '/';
             return ttest.renderKernel(data, type, href);
         }
@@ -189,6 +188,7 @@ require([
                     title: 'Test Plan',
                     type: 'string',
                     className: 'plan-column',
+                    render: _renderPlan
                 },
                 {
                     data: 'created_on',
@@ -203,17 +203,8 @@ require([
                     type: 'string',
                     searchable: false,
                     orderable: false,
-                    className: 'plan-center',
+                    className: 'plan-center pull-center',
                     render: _renderStatus
-                },
-                {
-                    data: '_id.$oid',
-                    title: 'More Details',
-                    type: 'string',
-                    orderable: false,
-                    searchable: false,
-                    className: 'select-column pull-center',
-                    render: _renderDetails
                 }
             ];
 
