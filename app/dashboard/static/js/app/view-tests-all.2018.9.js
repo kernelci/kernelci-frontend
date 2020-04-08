@@ -213,6 +213,8 @@ require([
                 .columns(columns)
                 .order([4, 'desc'])
                 .languageLengthMenu('Tests per page')
+                .rowURL('/test/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/plan/%(name)s/')
+                .rowURLElements(['job', 'git_branch', 'kernel', 'name'])
                 .draw();
         }
     }
