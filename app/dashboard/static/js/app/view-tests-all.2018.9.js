@@ -76,7 +76,7 @@ require([
                 'kernel': result.kernel,
                 'plan': plan,
             });
-            
+
             /* Number of test case regressions */
             batchOps.push({
                 method: 'GET',
@@ -192,8 +192,8 @@ require([
                 },
                 {
                     data: 'created_on',
+                    type: 'datetime',
                     title: 'Date',
-                    type: 'date',
                     className: 'date-column',
                     render: ttest.renderDate
                 },
