@@ -231,18 +231,22 @@ define([
     gTablesUtils.renderTree = function(tree, type, href) {
         var aNode;
         var rendered;
+        var tooltipNode;
 
         rendered = tree;
         if (type === 'display') {
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute('title', tree);
             if (href && href.length > 0) {
                 aNode = document.createElement('a');
                 aNode.className = 'table-link';
                 aNode.setAttribute('href', href);
                 aNode.appendChild(document.createTextNode(tree));
-                rendered = aNode.outerHTML;
-                // Remove the node.
-                aNode.remove();
+                tooltipNode.appendChild(aNode);
+            } else {
+                tooltipNode.appendChild(document.createTextNode(data));
             }
+            rendered = tooltipNode.outerHTML;
         }
 
         return rendered;

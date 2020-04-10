@@ -32,10 +32,11 @@ require([
     'utils/html',
     'utils/const',
     'tables/test',
+    'tables/job',
     'URI'
 ], function(
         $,
-        init, format, error, request, table, html, appconst, ttest, URI) {
+        init, format, error, request, table, html, appconst, ttest, jobt, URI) {
     'use strict';
 
     var gDateRange;
@@ -99,14 +100,7 @@ require([
 
     function updateTestTable(response) {
         var columns;
-        function _renderPlan(data, type, object) {
-            return ttest.renderKernel(data, type, 
-                '/test/job/'+object.job+
-                '/branch/'+object.git_branch+
-                '/kernel/'+object.kernel+
-                '/plan/'+data);
-        }
-
+        
         function _renderTree(data, type) {
             return ttest.renderTree(
                 data, type, '/job/' + data + '/');
@@ -120,30 +114,19 @@ require([
             href += '/kernel/';
             href += data;
             href += '/';
-            return ttest.renderKernel(data, type, href);
+            return jobt.renderKernel(data, type, href);
         }
 
         function _renderBranch(data, type, object) {
-            var rendered;
-            var aNode;
             var href;
             
-            rendered = data;
-            if (type === 'display') {
-                aNode = document.createElement('a');
-                aNode.className = 'table-link';
-                href = '/job/';
-                href += object.job;
-                href += '/branch/';
-                href += object.git_branch;
-                href += '/';
-                aNode.setAttribute('href', href);
-                
-                aNode.appendChild(document.createTextNode(data));
-                rendered = aNode.outerHTML;
-                aNode.remove();
-            }
-            return rendered;
+            href = '/job/';
+            href += object.job;
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/';
+            
+            return jobt.renderKernel(data, type, href);
         }
 
         function _renderStatus(data, type) {
@@ -188,7 +171,6 @@ require([
                     title: 'Test Plan',
                     type: 'string',
                     className: 'plan-column',
-                    render: _renderPlan
                 },
                 {
                     data: 'created_on',
