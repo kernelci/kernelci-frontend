@@ -171,6 +171,8 @@ require([
         var logNode;
         var defconfigNode;
         var defconfigPath;
+        var defconfigLink;
+        var buildLink;
         var kernelNode;
         var kernelPath;
         var modulesNode;
@@ -187,15 +189,23 @@ require([
             results.boot_log, results.boot_log_html, results.lab_name,
             translatedURI[0], translatedURI[1]);
 
-        defconfigNode = document.createElement('a');
-        defconfigNode.appendChild(
+        defconfigNode = html.tooltip();
+        defconfigLink = document.createElement('a');
+        defconfigLink.appendChild(
             document.createTextNode(results.defconfig_full));
         defconfigPath = translatedURI[1] + "/kernel.config";
-        defconfigNode.href =
+        defconfigLink.href =
             translatedURI[0].path(defconfigPath).normalizePath().href()
-        defconfigNode.title = "Defconfig URL";
-        defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;');
-        defconfigNode.appendChild(html.external());
+        defconfigLink.title = "Defconfig URL";
+        defconfigLink.insertAdjacentHTML('beforeend', '&nbsp;');
+        defconfigLink.appendChild(html.external());
+        defconfigNode.appendChild(defconfigLink);
+        buildLink = document.createElement('a');
+        buildLink.href = "/build/id/" + results.build_id.$oid;
+        buildLink.appendChild(html.build());
+        buildLink.title = "Build details";
+        defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        defconfigNode.appendChild(buildLink);
 
         if (!results.dtb || results.dtb == 'None') {
             dtbNode = html.nonavail();
