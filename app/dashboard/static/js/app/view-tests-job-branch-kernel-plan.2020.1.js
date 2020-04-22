@@ -395,7 +395,7 @@ require([
         updateLabs(response.result);
     }
 
-    function getLabResults(results) {
+    function getLabResults() {
         var batchOps;
         var deferred;
         var params;
@@ -465,7 +465,7 @@ require([
         updateDetails(response.result[0]);
         updateRuns(response.result);
         getRegressions(response.result);
-        getLabResults(response.result);
+        getLabResults();
     }
 
     function getRuns() {
