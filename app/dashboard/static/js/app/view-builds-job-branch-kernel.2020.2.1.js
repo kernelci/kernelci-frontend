@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -228,7 +228,7 @@ require([
         var warnErrTooltip;
         var warningString;
         var warningsCount;
-        var docFrag;
+        var accordion;
 
         hasFailed = false;
         hasSuccess = false;
@@ -296,7 +296,7 @@ require([
 
             translatedURI = u.createFileServerURL(fileServerURL, result);
 
-            panelNode = docFrag.appendChild(document.createElement('div'));
+            panelNode = accordion.appendChild(document.createElement('div'));
 
             // Set the data-index attribute to filter the results.
             panelNode.setAttribute('data-index', _createDataIndex(result));
@@ -669,10 +669,10 @@ require([
                 document.getElementById('accordion-container'),
                 html.errorDiv('No data available'));
         } else {
-            docFrag = document.createDocumentFragment();
+            accordion = document.getElementById('accordion');
+            while (accordion.firstChild)
+                accordion.removeChild(accordion.firstChild);
             results.forEach(_parseResult);
-            // Append everything at the end.
-            html.replaceContent(document.getElementById('accordion'), docFrag);
 
             document
                 .getElementById('all-btn').removeAttribute('disabled');
@@ -691,19 +691,17 @@ require([
                     .getElementById('unknown-btn').removeAttribute('disabled');
             }
 
-            setTimeout(function() {
-                if (!loadSavedSession()) {
-                    if (hasFailed) {
-                        showFailedOnly();
-                    } else {
-                        html.addClass(
-                            document.getElementById('all-btn'), 'active');
-                    }
+            if (!loadSavedSession()) {
+                if (hasFailed) {
+                    showFailedOnly();
+                } else {
+                    html.addClass(
+                        document.getElementById('all-btn'), 'active');
                 }
-            }, 0);
+            }
 
             // Bind buttons to the correct function.
-            setTimeout(bindDetailButtons, 0);
+            bindDetailButtons();
         }
     }
 
