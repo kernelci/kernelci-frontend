@@ -39,7 +39,6 @@ require([
     var gBranch;
     var gKernel;
     var gPlan;
-    var gResultFilter;
     var gFileServer;
     var gPanel;
 
@@ -566,7 +565,7 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
 
-    gResultFilter = filter('data-filter');
+    filter('data-filter');
 
     Array.prototype.forEach.call(
         document.querySelectorAll('.btn-group > .btn'),
