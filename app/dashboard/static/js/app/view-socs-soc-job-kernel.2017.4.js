@@ -3,9 +3,9 @@
  *
  * Copyright (C) 2020 Collabora Limited
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -37,9 +37,9 @@ define([
         html,
         error,
         request,
-        urls, 
-        chart, 
-        table, 
+        urls,
+        chart,
+        table,
         ttest,
         URI) {
     'use strict';
@@ -137,7 +137,7 @@ define([
         aNode.appendChild(document.createTextNode(gitURL));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.external());
-        
+
         html.replaceContent(document.getElementById('git-url'), aNode);
 
         // Git commit.
@@ -293,7 +293,7 @@ define([
         var batchOps;
         var deferred;
 
-        function createBatchOp(result) { 
+        function createBatchOp(result) {
             var qStr;
             var plan = result.name;
 
@@ -334,7 +334,7 @@ define([
         var deferred;
 
         function createBatchOp(result) {
-            
+
             var qStr;
             var plan = result.name;
 
@@ -407,7 +407,7 @@ define([
             getPlansFailed();
             return
         }
-    
+
         updateDetails(response.result[0]);
         updatePlansTable(response.result);
         getBatchCount(response.result);
