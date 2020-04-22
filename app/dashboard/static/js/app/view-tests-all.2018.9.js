@@ -1,13 +1,13 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2020 Collabora Limited
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  * Copyright (c) 2017 BayLibre, SAS.
  * Author: Loys Ollivier <lollivier@baylibre.com>
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -100,7 +100,7 @@ require([
 
     function updateTestTable(response) {
         var columns;
-        
+
         function _renderTree(data, type) {
             return ttest.renderTree(
                 data, type, '/job/' + data + '/');
@@ -119,13 +119,13 @@ require([
 
         function _renderBranch(data, type, object) {
             var href;
-            
+
             href = '/job/';
             href += object.job;
             href += '/branch/';
             href += object.git_branch;
             href += '/';
-            
+
             return jobt.renderKernel(data, type, href);
         }
 
@@ -282,5 +282,4 @@ require([
 
     setTimeout(init.hotkeys, 50);
     setTimeout(init.tooltip, 50);
-
 });

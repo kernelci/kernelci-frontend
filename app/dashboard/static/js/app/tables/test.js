@@ -122,7 +122,7 @@ define([
     gTestTable.renderTree = function(tree, type, href) {
         return tcommon.renderTree(tree, type, href);
     };
-        
+
     gTestTable.getCountFail = function(idStart) {
         document.getElementById('cases-total-count-'+ idStart)
             .innerHTML ='&infin;';
