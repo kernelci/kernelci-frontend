@@ -368,12 +368,6 @@ def init():
     )
 
     add_rule(
-        "/test/board/<string:board>/",
-        view_func=vtest.TestsBoardView.as_view("tests-board-view"),
-        methods=["GET"]
-    )
-
-    add_rule(
         "/test/board/<string:board>/job/<string:job>/",
         view_func=vtest.TestsBoardJobView.as_view("tests-board-job-view"),
         methods=["GET"]

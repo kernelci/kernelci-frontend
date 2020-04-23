@@ -65,30 +65,6 @@ class TestsAllView(TestGenericView):
             search_filter=search_filter
         )
 
-
-class TestsBoardView(TestGenericView):
-
-    def dispatch_request(self, **kwargs):
-        board = kwargs["board"]
-
-        body_title = "Test details for board &#171;%s&#187;" % board
-        body_title += self.RSS_LINK % ("/test/board/" + board + "/feed.xml")
-
-        page_title = "%s tests" % board
-        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
-
-        search_filter, page_len = get_search_parameters(request)
-
-        return render_template(
-            "tests-board.html",
-            body_title=body_title,
-            page_len=page_len,
-            page_title=page_title,
-            search_filter=search_filter,
-            board=board
-        )
-
-
 class TestsBoardJobView(TestGenericView):
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]

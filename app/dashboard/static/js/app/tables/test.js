@@ -17,41 +17,6 @@ define([
     };
 
     /**
-     * Function to render the Board column on a table.
-     *
-     * @param {string} board: The Board value.
-     * @param {string} type: The type of the display option.
-     * @return {string} The rendered element as string.
-    **/
-    gTestTable.renderBoard = function(board, type) {
-        var aNode,
-            rendered,
-            tooltipNode;
-
-        if (type === 'display') {
-            tooltipNode = html.tooltip();
-            tooltipNode.setAttribute(
-                'title', 'Test reports for board&nbsp;' + board);
-
-            aNode = document.createElement('a');
-            aNode.setAttribute('href', '/test/board/' + board + '/');
-            aNode.className = 'table-link';
-            aNode.appendChild(document.createTextNode(board));
-
-            tooltipNode.appendChild(aNode);
-            rendered = tooltipNode.outerHTML;
-
-            // Remove the nodes.
-            aNode.remove();
-            tooltipNode.remove();
-        } else {
-            rendered = board;
-        }
-
-        return rendered;
-    };
-
-    /**
      * Function to render the date.
      *
      * @param {object} date: The date object.
