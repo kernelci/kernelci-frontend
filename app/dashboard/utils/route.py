@@ -374,13 +374,6 @@ def init():
     )
 
     add_rule(
-        "/test/board/<string:board>/job/<string:job>/kernel/<string:kernel>/",
-        view_func=vtest.TestsBoardJobKernelView.
-        as_view("tests-board-job-kernel-view"),
-        methods=["GET"]
-    )
-
-    add_rule(
         (
             "/test/job/<string:job>/branch/<string:branch>/"
             "kernel/<string:kernel>/"
