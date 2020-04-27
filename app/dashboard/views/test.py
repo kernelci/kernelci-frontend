@@ -91,46 +91,6 @@ class TestsBoardJobView(TestGenericView):
         )
 
 
-class TestsBoardJobKernelView(TestGenericView):
-    def dispatch_request(self, **kwargs):
-        board = kwargs["board"]
-        job = kwargs["job"]
-        kernel = kwargs["kernel"]
-
-        body_title = (
-            "Details for Tree &#171;%s&#187; - %s" % (job, kernel))
-        page_title = "%s tests: %s - %s" % (board, job, kernel)
-        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
-
-        DISTINCT_LAB_NAMES_URL = "{:s}/distinct/lab_name/".format(
-            app.config.get("TEST_GROUP_API_ENDPOINT"))
-
-        payload = {
-            "board": board,
-            "job": job,
-            "kernel": kernel,
-        }
-
-        data, status, headers = backend.request_get(
-            backend.create_url(DISTINCT_LAB_NAMES_URL),
-            params=payload, timeout=60*5)
-
-        if status == 200:
-            json_data = backend.extract_gzip_data(data, headers)
-
-            return render_template(
-                "tests-board-job-kernel.html",
-                body_title=body_title,
-                page_title=page_title,
-                board=board,
-                job=job,
-                kernel=kernel,
-                lab_names=json_data["result"]
-            )
-        else:
-            abort(status)
-
-
 class TestsGroupIdView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
