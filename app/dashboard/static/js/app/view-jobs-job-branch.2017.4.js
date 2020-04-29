@@ -448,7 +448,7 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .languageLengthMenu('builds per page')
-                .rowURL('/build/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
+                .rowURL('/test/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
                 .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
