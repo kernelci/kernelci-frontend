@@ -358,18 +358,18 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderTestCount(data, type) {
-            var href = '/test/job/';
+            return jobt.renderTestCount({data: data, type: type});
+        }
+
+        function _renderBuildCount(data, type) {
+            var href = '/build/';
             href += gJobName;
             href += '/branch/';
             href += gBranchName;
             href += '/kernel/';
             href += data;
             href += '/';
-            return jobt.renderTestCount({data: data, type: type, href: href});
-        }
-
-        function _renderBuildCount(data, type) {
-            return jobt.renderBuildCount({data: data, type: type});
+            return jobt.renderBuildCount({data: data, type: type, href: href});
         }
 
         /**

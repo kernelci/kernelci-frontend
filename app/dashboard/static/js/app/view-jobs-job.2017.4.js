@@ -351,30 +351,6 @@ require([
         /**
          * Wrapper to provide the href.
         **/
-        function _renderTestCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-
-            nodeId = data;
-            nodeId += '-';
-            nodeId += object.git_branch;
-            return jobt.renderTestCount({
-                data: nodeId,
-                type: type,
-                href: href
-            });
-        }
-
-        /**
-         * Wrapper to provide the href.
-        **/
         function _renderKernel(data, type, object) {
             var href = '/build/';
             href += gJobName;
@@ -492,8 +468,7 @@ require([
                     type: 'string',
                     orderable: false,
                     searchable: false,
-                    className: 'test-count pull-center',
-                    render: _renderTestCount
+                    className: 'test-count pull-center'
                 },
                 {
                     data: 'created_on',
