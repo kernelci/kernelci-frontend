@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -27,9 +27,12 @@ require([
     'utils/bisect',
     'utils/html',
     'utils/table',
-    'tables/boot',
-    'utils/date'
-], function($, init, format, e, r, urls, bisect, html, table, tboot) {
+    'tables/test',
+    'tables/job',
+    'utils/date',
+    'URI',
+], function($, init, format, e, r, urls, bisect, html, table, ttest, jobt,
+            date, URI) {
     'use strict';
     var gFileServer;
     var gBuildId;
@@ -171,134 +174,285 @@ require([
         }
     }
 
-    function getBootsFail() {
+    function testsTable(data) {
+        var countClasses = [
+            ['total', ''],
+            ['success', 'alert-success'],
+            ['fail', 'alert-danger'],
+            ['unknown', 'alert-warning']
+        ];
+        var columns;
+
+        function _testColumnTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Total/Successful/Regressions/Other test results');
+            tooltipNode.appendChild(
+                document.createTextNode('Test Results'));
+
+            return tooltipNode.outerHTML;
+        }
+
+        function _renderTestCount(data, type) {
+            if (type == 'display') {
+                var divNode;
+
+                divNode = document.createElement('div');
+
+                countClasses.forEach(function(count) {
+                    var value = data[count[0]];
+                    var className = count[1];
+                    var spanNode;
+
+                    spanNode = document.createElement('span');
+                    spanNode.className = "badge count-badge " + className;
+                    spanNode.appendChild(document.createTextNode(value));
+                    divNode.appendChild(spanNode);
+                });
+
+                return divNode.outerHTML;
+            }
+
+            return data;
+        }
+
+        function _renderPlanStatus(data, type) {
+            if (type == "display") {
+                return ttest.statusNode(data).outerHTML;
+            }
+
+            return data;
+        }
+
+        columns = [
+            {
+                data: 'name',
+                title: 'Test Plan',
+                type: 'string',
+                className: 'plan-column',
+            },
+            {
+                data: 'device_type',
+                title: 'Device Type',
+                type: 'string',
+                className: 'device-type-column',
+            },
+            {
+                data: 'counts',
+                title: _testColumnTitle(),
+                type: 'string',
+                searchable: false,
+                orderable: false,
+                className: 'test-count pull-center',
+                render: _renderTestCount,
+            },
+            {
+                data: 'status',
+                title: 'Status',
+                type: 'string',
+                searchable: false,
+                orderable: false,
+                className: 'pull-center',
+                render: _renderPlanStatus,
+            },
+        ];
+
+        table({
+            tableId: 'tests-table',
+            tableLoadingDivId: 'table-loading',
+            tableDivId: 'tests-table-div'
+        })
+            .data(data)
+            .columns(columns)
+            .order([0, 'asc'])
+            .languageLengthMenu('Tests per page')
+            .rowURL('/test/plan/id/%(id)s/')
+            .rowURLElements(['id'])
+            .draw();
+    }
+
+    function testDataDone(runResults, countResults, statusResults) {
+        var runs = runResults;
+        var counts = countResults[0].result;
+        var status = statusResults[0].result;
+        var dataMap = {};
+
+        runs.forEach(function(run) {
+            var id = run._id.$oid;
+            var datum = {
+                'id': run._id.$oid,
+                'name': run.name,
+                'device_type': run.device_type,
+                'counts': {},
+                'status': 'UNKNOWN',
+            };
+
+            dataMap[id] = datum;
+        });
+
+        counts.forEach(function(count) {
+            var opId = count.operation_id;
+            var planId = opId[0];
+            var countId = opId[1];
+
+            dataMap[planId]['counts'][countId] = count.result[0].count;
+        });
+
+        status.forEach(function(stat) {
+            var planId = stat.operation_id[0];
+
+            dataMap[planId]['status'] = stat.result[0].count ? "FAIL" : "PASS";
+        });
+
+        testsTable(Object.values(dataMap));
+    }
+
+    function getBatchTestStatus(results) {
+        var batchOps;
+
+        function createBatchOp(result) {
+            var qStr;
+
+            qStr = URI.buildQuery({
+                'job': result.job,
+                'kernel': result.kernel,
+                'git_branch': result.git_branch,
+                'plan': result.name,
+                'device_type': result.device_type,
+                'lab_name': result.lab_name,
+                'build_environment': result.build_environment,
+                'defconfig_full': result.defconfig_full,
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [result._id.$oid, 'status'],
+                resource: 'count',
+                document: 'test_regression',
+                query: qStr,
+            });
+        }
+
+        batchOps = [];
+        results.forEach(createBatchOp);
+
+        return r.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
+    }
+
+    function getBatchTestCount(results) {
+        var batchOps;
+
+        function createBatchOp(result) {
+            var qStr;
+
+            qStr = URI.buildQuery({
+                'job': result.job,
+                'kernel': result.kernel,
+                'git_branch': result.git_branch,
+                'plan': result.name,
+                'device_type': result.device_type,
+                'lab_name': result.lab_name,
+                'build_environment': result.build_environment,
+                'defconfig_full': result.defconfig_full,
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [result._id.$oid, 'total'],
+                resource: 'count',
+                document: 'test_case',
+                query: qStr,
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [result._id.$oid, 'success'],
+                resource: 'count',
+                document: 'test_case',
+                query: qStr + '&status=PASS',
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [result._id.$oid, 'fail'],
+                resource: 'count',
+                document: 'test_regression',
+                query: qStr,
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [result._id.$oid, 'unknown'],
+                resource: 'count',
+                document: 'test_case',
+                query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+            });
+        }
+
+        batchOps = [];
+        results.forEach(createBatchOp);
+        return r.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
+    }
+
+    function testsError(msg) {
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
-            document.getElementById('table-div'),
-            html.errorDiv('Error loading boot reports data.')
+            document.getElementById('tests-table-div'),
+            html.errorDiv(msg)
         );
     }
 
-    function getBootsDone(response) {
-        var bootsTable;
-        var columns;
-        var results;
-
-        function _renderBootLog(data, type, object) {
-            object.default_file_server = gFileServer;
-            return tboot.renderBootLogs(data, type, object);
-        }
-
-        results = response.result;
-
-        if (results.length === 0) {
-            html.removeElement(document.getElementById('table-loading'));
-            html.replaceContent(
-                document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reports available.'));
-        } else {
-            bootsTable = table({
-                tableId: 'bootstable',
-                tableLoadingDivId: 'table-loading',
-                tableDivId: 'boots-table-div'
-            });
-
-            columns = [
-                {
-                    data: 'board',
-                    title: 'Board Model',
-                    type: 'string',
-                    className: 'board-column'
-                },
-                {
-                    data: 'lab_name',
-                    title: 'Lab Name',
-                    className: 'lab-column'
-                },
-                {
-                    data: 'boot_result_description',
-                    title: 'Failure Reason',
-                    className: 'failure-column',
-                    render: tboot.renderResultDescription
-                },
-                {
-                    data: 'file_server_url',
-                    title: 'Boot Log',
-                    searchable: false,
-                    orderable: false,
-                    className: 'log-column pull-center',
-                    render: _renderBootLog
-                },
-                {
-                    data: 'status',
-                    title: 'Status',
-                    type: 'string',
-                    className: 'pull-center',
-                    render: tboot.renderStatus
-                },
-                {
-                    data: '_id',
-                    title: '',
-                    type: 'string',
-                    orderable: false,
-                    searchable: false,
-                    className: 'select-column pull-center',
-                    render: tboot.renderDetails
-                }
-            ];
-
-            bootsTable
-                .data(results)
-                .columns(columns)
-                .lengthMenu([5, 10, 25, 50])
-                .order([0, 'asc'])
-                .languageLengthMenu('boot reports per page')
-                .rowURL('/boot/id/%(_id)s/')
-                .rowURLElements(['_id'])
-                .draw();
-        }
+    function getTestsFail() {
+        testsError("Error loading test results.");
     }
 
-    function getBoots(response) {
-        var data;
-        var results;
-
-        results = response.result;
+    function getTestsDone(response) {
+        var results = response.result;
 
         if (results.length === 0) {
-            html.removeElement(document.getElementById('table-loading'));
-            html.replaceContent(
-                document.getElementById('boots-table-div'),
-                html.errorDiv('No boot reports found.'));
-        } else {
-            results = response.result[0];
-
-            if (results._id !== null) {
-                data = {
-                    build_id: results._id.$oid,
-                };
-            } else {
-                data = {
-                    defconfig: results.defconfig,
-                    defconfig_full: results.defconfig_full,
-                    job: results.job,
-                    kernel: results.kernel
-                };
-            }
-
-            setTimeout(function() {
-                $.when(r.get('/_ajax/boot', data))
-                    .fail(e.error, getBootsFail)
-                    .done(getBootsDone);
-            }, 10);
+            testsError("No test results found.");
+            return;
         }
+
+        $.when(
+            results,
+            getBatchTestCount(results),
+            getBatchTestStatus(results)
+        ).fail(e.error, getTestsFail).then(testDataDone);
+    }
+
+    function getTests(response) {
+        var build;
+        var deferred;
+        var reqData;
+
+        if (response.result.length === 0) {
+            getTestsFail();
+            return;
+        }
+
+        build = response.result[0];
+
+        reqData = {
+            parent_id: 'null',
+            sort: 'created_on',
+            sort_order: -1,
+            build_id: build._id.$oid,
+        };
+
+        deferred = r.get('/_ajax/test/group', reqData);
+        $.when(deferred)
+            .fail(e.error, getTestsFail)
+            .done(getTestsDone);
     }
 
     function getBuildsFail() {
         html.removeElement(document.getElementById('bisect-div'));
         html.removeElement(document.getElementById('table-loading'));
         html.replaceContent(
-            document.getElementById('boots-table-div'),
+            document.getElementById('tests-table-div'),
             html.errorDiv('Error loading data.'));
         html.replaceByClassNode('loading-content', html.nonavail());
     }
@@ -372,7 +526,7 @@ require([
             html.removeElement('bisect-div');
             html.removeElement(document.getElementById('table-loading'));
             html.replaceContent(
-                document.getElementById('boots-table-div'),
+                document.getElementById('tests-table-div'),
                 html.errorDiv('No data available.'));
             html.replaceByClassTxt('loading-content', '?');
         } else {
@@ -940,7 +1094,7 @@ require([
         $.when(
             r.get('/_ajax/build', {id: gBuildId, nfield: ['dtb_dir_data']}))
                 .fail(e.error, getBuildsFail)
-                .done(getBuildsDone, getBoots, getBisect);
+                .done(getBuildsDone, getTests, getBisect);
     }
 
     if (document.getElementById('file-server') !== null) {
