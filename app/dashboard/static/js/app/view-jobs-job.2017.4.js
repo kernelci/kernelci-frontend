@@ -338,7 +338,7 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type, object) {
-            var href = '/build/';
+            var href = '/test/job/';
             href += gJobName;
             href += '/branch/';
             href += object.git_branch;
@@ -376,7 +376,7 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderKernel(data, type, object) {
-            var href = '/build/';
+            var href = '/test/job/';
             href += gJobName;
             href += '/branch/';
             href += object.git_branch;
@@ -518,7 +518,7 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .rowURL(
-                    '/build/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
+                    '/test/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
                 .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
