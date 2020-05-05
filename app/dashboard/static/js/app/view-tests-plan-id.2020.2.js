@@ -49,11 +49,15 @@ require([
 
     function updateDetails(results) {
         var job;
+        var branch;
         var kernel;
         var treeNode;
         var jobLink;
         var describeNode;
+        var buildsNode;
         var buildsLink;
+        var testsNode;
+        var testsLink;
         var gitNode;
         var createdOn;
         var dateNode;
@@ -61,6 +65,7 @@ require([
         var logNode;
 
         job = results.job;
+        branch = results.git_branch;
         kernel = results.kernel;
 
         treeNode = html.tooltip();
@@ -72,15 +77,27 @@ require([
         treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         treeNode.appendChild(jobLink);
 
-        describeNode = html.tooltip();
-        describeNode.title =
+        describeNode = document.createElement('span')
+        buildsNode = html.tooltip();
+        buildsNode.title =
             "Build reports for &#171;" + job + "&#187; - " + kernel;
         buildsLink = document.createElement('a');
         buildsLink.href = "/build/" + job + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
-        describeNode.appendChild(document.createTextNode(kernel));
+        buildsNode.appendChild(document.createTextNode(kernel));
+        buildsNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        buildsNode.appendChild(buildsLink);
+        testsNode = html.tooltip();
+        testsNode.title =
+            "Test reports for &#171;" + job + "&#187; - " + kernel;
+        testsLink = document.createElement('a');
+        testsLink.href =
+            "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
+        testsLink.appendChild(html.boot());
+        testsNode.appendChild(testsLink);
+        describeNode.appendChild(buildsNode);
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
+        describeNode.appendChild(testsNode);
 
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
