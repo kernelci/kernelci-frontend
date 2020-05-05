@@ -803,11 +803,11 @@ require([
 
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
-                'title', 'Boot reports for ' + job);
+                'title', 'Test reports for ' + job);
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
-                'href', u.createPathHref(['/boot/all/job/', job, '/']));
+                'href', u.createPathHref(['/job/', job, '/']));
             aNode.appendChild(html.boot());
 
             html.replaceContent(document.getElementById('tree'), docFrag);
@@ -829,7 +829,7 @@ require([
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
-                'Boot reports for ' + job + '&nbsp;&ndash;&nbsp;' +
+                'Test reports for ' + job + '&nbsp;&ndash;&nbsp;' +
                 kernel +
                 '&nbsp;(' + branch + ')'
             );
@@ -837,7 +837,7 @@ require([
             aNode.setAttribute(
                 'href',
                 u.createPathHref([
-                    '/boot/all/job/',
+                    '/test/job/',
                     job,
                     'branch',
                     branch,

@@ -615,13 +615,13 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Boot reports for tree';
+            str = 'Test reports for tree';
             str += '&nbsp;';
             str += job;
             tooltipNode.setAttribute('title', str);
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/boot/all/job/';
+            str = '/job/';
             str += job;
             str += '/';
             aNode.setAttribute('href', str);
@@ -637,43 +637,25 @@ require([
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
 
+            // Describe.
             tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Build details for';
-            str +='&nbsp;';
-            str += job;
-            str += '&nbsp;&ndash;&nbsp;';
-            str += kernel;
-            str += '&nbsp;(';
-            str += branch;
-            str += ')';
-            tooltipNode.setAttribute('title', str);
-
-            aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/build/';
-            str += job;
-            str += '/branch/';
-            str += branch;
-            str += '/kernel/';
-            str += kernel;
-            str += '/';
-            aNode.setAttribute('href', str);
-            aNode.appendChild(document.createTextNode(kernel));
+            tooltipNode.title =
+                "Build reports for &#171;" + job + "&#187; - " + kernel;
+            aNode = document.createElement('a');
+            aNode.href = "/build/" + job + "/kernel/" + kernel;
+            aNode.appendChild(html.build());
+            tooltipNode.appendChild(document.createTextNode(kernel));
+            tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            tooltipNode.appendChild(aNode);
 
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Boot reports for';
-            str += '&nbsp;';
-            str += job;
-            str += '&nbsp;&ndash;&nbsp;';
-            str += kernel;
-            str += '&nbsp;(';
-            str += branch;
-            str += ')';
-            tooltipNode.setAttribute('title', str);
+            tooltipNode.title =
+               "Test reports for &#171;" + job + "&#187; - " + kernel;
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/boot/all/job/';
+            str = '/test/job/';
             str += job;
             str += '/branch/';
             str += branch;
@@ -798,33 +780,6 @@ require([
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
             spanNode.appendChild(document.createTextNode(defconfigFull));
-
-            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Boot reports for';
-            str += '&nbsp;';
-            str += job;
-            str += '&nbsp;&ndash;&nbsp;';
-            str += kernel;
-            str += '&nbsp;(';
-            str += branch;
-            str += '&nbsp;&ndash;&nbsp';
-            str += defconfigFull;
-            str += ')';
-            tooltipNode.setAttribute('title', str);
-
-            aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/boot/all/job/';
-            str += job;
-            str += '/branch/';
-            str += branch;
-            str += '/kernel/';
-            str += kernel;
-            str += '/defconfig/';
-            str += defconfigFull;
-            str += '/';
-            aNode.setAttribute('href', str);
-            aNode.appendChild(html.boot());
 
             html.replaceContent(
                 document.getElementById('build-defconfig'), docFrag);
