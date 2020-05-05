@@ -334,7 +334,7 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderKernel(data, type) {
-            var href = '/build/';
+            var href = '/test/job/';
             href += gJobName;
             href += '/branch/';
             href += gBranchName;
@@ -369,14 +369,21 @@ require([
         }
 
         function _renderBuildCount(data, type) {
-            return jobt.renderBuildCount({data: data, type: type});
+            var href = '/build/';
+            href += gJobName;
+            href += '/branch/';
+            href += gBranchName;
+            href += '/kernel/';
+            href += data;
+            href += '/';
+            return jobt.renderBuildCount({data: data, type: type, href: href});
         }
 
         /**
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type) {
-            var href = '/build/';
+            var href = '/test/job/';
             href += gJobName;
             href += '/branch/';
             href += gBranchName;
@@ -448,7 +455,7 @@ require([
                 .columns(columns)
                 .order([5, 'desc'])
                 .languageLengthMenu('builds per page')
-                .rowURL('/build/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
+                .rowURL('/test/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/')
                 .rowURLElements(['job', 'git_branch', 'kernel'])
                 .paging(false)
                 .info(false)
