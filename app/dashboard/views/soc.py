@@ -120,3 +120,26 @@ class SocsSocJobKernelView(SocsGeneralView):
             kernel=kernel,
             search_filter=search_filter[0]
         )
+
+
+class SocsSocJobKernelPlanView(SocsGeneralView):
+    def dispatch_request(self, **kwargs):
+        soc, job, kernel, plan = (
+            kwargs[k] for k in ['soc', 'job', 'kernel', 'plan'])
+        body_title = (
+            "Details SoC &#171;%s&#187; for Tree &#171;%s&#187; - %s" % (soc, job, kernel))
+        page_title = "%s SoC: %s - %s" % (soc, job, kernel)
+        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, page_title)
+
+        search_filter = get_search_parameters(request)
+
+        return render_template(
+            "socs-soc-job-kernel-plan.html",
+            body_title=body_title,
+            page_title=page_title,
+            soc=soc,
+            job=job,
+            kernel=kernel,
+            plan=plan,
+            search_filter=search_filter[0]
+        )
