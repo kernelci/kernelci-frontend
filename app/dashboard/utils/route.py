@@ -341,6 +341,12 @@ def init():
             "socs-soc-job-kernel-view"),
         methods=["GET"]
     )
+    add_rule(
+        "/soc/<string:soc>/job/<string:job>/kernel/<string:kernel>/plan/<string:plan>/",
+        view_func=vsoc.SocsSocJobKernelPlanView.as_view(
+            "socs-soc-job-kernel-plan-view"),
+        methods=["GET"]
+    )
 
     # Tests views.
     add_rule(
