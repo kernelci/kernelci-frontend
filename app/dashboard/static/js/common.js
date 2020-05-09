@@ -92,7 +92,6 @@ require.config({
             'app/view-sponsors': 'app/view-sponsors.2017.3.3',
             'app/view-stats': 'app/view-stats.2017.3.3',
             'app/view-tests-all': 'app/view-tests-all.2018.9',
-            'app/view-tests-group-id': 'app/view-tests-group-id.2018.9',
             'app/view-tests-plan-id': 'app/view-tests-plan-id.2020.2',
             'app/view-tests-case-id': 'app/view-tests-case-id.2020.3',
             'app/view-tests-job-branch-kernel': 'app/view-tests-job-branch-kernel.2020.1',
