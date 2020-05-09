@@ -66,15 +66,6 @@ class TestsAllView(TestGenericView):
         )
 
 
-class TestsGroupIdView(TestGenericView):
-
-    def dispatch_request(self, **kwargs):
-        return render_template(
-            "tests-group-id.html",
-            group_id=kwargs["uid"],
-            page_title=self.TESTS_PAGE_TITLE)
-
-
 class TestsPlanIdView(TestGenericView):
 
     def dispatch_request(self, **kwargs):
