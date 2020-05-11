@@ -45,7 +45,7 @@ class BootAllView(BootGeneralView):
         search_filter, page_len = get_search_parameters(request)
 
         return render_template(
-            "base-all.html",
+            "boots-all.html",
             table_id="bootstable",
             data_main="kci-boots-all",
             page_len=page_len,

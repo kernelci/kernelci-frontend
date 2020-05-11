@@ -326,3 +326,8 @@ ul.measurements {
     margin: 0;
     padding: 0;
 }
+.boot-deprecation {
+    align: center;
+    text-align: justified;
+    border: 2px solid red;
+}
