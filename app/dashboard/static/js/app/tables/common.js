@@ -278,9 +278,6 @@ define([
             if (type === 'display') {
                 node = _dateNode(date).firstElementChild;
                 rendered = node.outerHTML;
-            } if (type === 'sort') {
-                created = new Date(date.$date);
-                rendered = created.toCustomISODateTime();
             } else {
                 created = new Date(date.$date);
                 rendered = created.toCustomISODate();
