@@ -51,40 +51,86 @@ require([
 
     gDateRange = appconst.MAX_DATE_RANGE;
 
-    function getBatchStatusDone(results) {
+    function getBatchTestStatusDone(results) {
+        var batchData;
+
+        batchData = results.result;
+
         function parseBatchData(data) {
-            gTestStatus[data.operation_id] = (data.result[0].count == 0 ? "PASS" : "FAIL");
-            var node = document.getElementById(data.operation_id);
-            if (node != null){
-                node.firstChild.replaceWith(ttest.statusNode(gTestStatus[data.operation_id]));
-            }
+            html.replaceContent(
+                document.getElementById(data.operation_id),
+                document.createTextNode(data.result[0].count));
         }
-        results.result.forEach(parseBatchData);
+
+        if (batchData.length > 0) {
+            batchData.forEach(parseBatchData);
+        }
     }
 
-    function getBatchStatusFailed() {
-        console.log("getBatchStatusFailed()");
+    function getBatchTestStatusFailed() {
+        console.log("getBatchTestStatusFailed()");
     }
 
-    function getBatchStatus(results) {
+    function getBatchTestStatus(results) {
         var batchOps;
         var deferred;
         function createBatchOp(result) {
             var qStr;
-            var plan = result.name;
+            var qHead;
+            var opId;
+            var opIdTail = result._id.$oid;
 
             qStr = URI.buildQuery({
                 'kernel': result.kernel,
-                'plan': plan,
+                'plan': result.name,
             });
 
-            /* Number of test case regressions */
+            // Get total tests count.
+            opId = 'test-total-count-';
+            opId += opIdTail;
             batchOps.push({
                 method: 'GET',
-                operation_id: 'status-' + result._id.$oid,
+                operation_id: opId,
+                resource: 'count',
+                document: 'test_case',
+                query: qStr
+            });
+
+            // Get successful tests count.
+            opId = 'test-success-count-';
+            opId += opIdTail;
+            qHead = 'status=PASS&';
+            qHead += qStr;
+            batchOps.push({
+                method: 'GET',
+                operation_id: opId,
+                resource: 'count',
+                document: 'test_case',
+                query: qHead
+            });
+
+            // Get regressions count.
+            opId = 'test-fail-count-';
+            opId += opIdTail;
+            batchOps.push({
+                method: 'GET',
+                operation_id: opId,
                 resource: 'count',
                 document: 'test_regression',
-                query: qStr,
+                query: qStr
+            });
+
+            // Get unknown test reports count.
+            opId = 'test-unknown-count-';
+            opId += opIdTail;
+            qHead = 'status=FAIL&status=SKIP&regression_id=null&';
+            qHead += qStr;
+            batchOps.push({
+                method: 'GET',
+                operation_id: opId,
+                resource: 'count',
+                document: 'test_case',
+                query: qHead
             });
         }
 
@@ -94,8 +140,8 @@ require([
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
-            .fail(error.error, getBatchStatusFailed)
-            .done(getBatchStatusDone)
+            .fail(error.error, getBatchTestStatusFailed)
+            .done(getBatchTestStatusDone)
     }
 
     function updateTestTable(response) {
@@ -129,13 +175,34 @@ require([
             return jobt.renderKernel(data, type, href);
         }
 
-        function _renderStatus(data, type) {
-            if (type == "display") {
-                var node = document.createElement('div');
-                node.id = 'status-' + data;
-                node.appendChild(ttest.statusNode(gTestStatus[node.id]));
-                return node.outerHTML;
-            }
+        /**
+        * Create the table column title for the tests count.
+        **/
+        function _testColumnTitle() {
+            var tooltipNode;
+
+            tooltipNode = html.tooltip();
+            tooltipNode.setAttribute(
+                'title', 'Total/Successful/Regressions/Other test results');
+            tooltipNode.appendChild(
+                document.createTextNode('Test Results'));
+
+            return tooltipNode.outerHTML;
+        }
+
+        /**
+         * Wrapper to provide the href.
+         **/
+        function _renderTestCount(data, type, object) {
+            var href;
+            var nodeId;
+
+            nodeId = data;
+            return ttest.renderTestCount({
+                data: nodeId,
+                type: type,
+                href: href
+            });
         }
 
         if (response.length === 0) {
@@ -181,12 +248,12 @@ require([
                 },
                 {
                     data: '_id.$oid',
-                    title: 'Status',
+                    title: _testColumnTitle(),
                     type: 'string',
                     searchable: false,
                     orderable: false,
-                    className: 'plan-center pull-center',
-                    render: _renderStatus
+                    className: 'test-count pull-center',
+                    render: _renderTestCount
                 }
             ];
 
@@ -209,7 +276,7 @@ require([
 
     function getTestsDone(response){
         updateTestTable(response);
-        getBatchStatus(response);
+        getBatchTestStatus(response);
     }
 
     function getTestsParse(response) {
