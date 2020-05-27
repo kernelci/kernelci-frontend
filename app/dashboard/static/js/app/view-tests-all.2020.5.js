@@ -43,7 +43,7 @@ require([
     var gSearchFilter;
     var gPageLen;
     var gTestsTable;
-    var gTestStatus = {};
+    var gTestCount = {};
 
     setTimeout(function() {
         document.getElementById('li-test').setAttribute('class', 'active');
@@ -51,12 +51,13 @@ require([
 
     gDateRange = appconst.MAX_DATE_RANGE;
 
-    function getBatchTestStatusDone(results) {
+    function getBatchTestCountDone(results) {
         var batchData;
 
         batchData = results.result;
 
         function parseBatchData(data) {
+            gTestCount[data.operation_id] = data.result[0].count;
             html.replaceContent(
                 document.getElementById(data.operation_id),
                 document.createTextNode(data.result[0].count));
@@ -67,11 +68,11 @@ require([
         }
     }
 
-    function getBatchTestStatusFailed() {
-        console.log("getBatchTestStatusFailed()");
+    function getBatchTestCountFailed() {
+        console.log("getBatchTestCountFailed()");
     }
 
-    function getBatchTestStatus(results) {
+    function getBatchTestCount(results) {
         var batchOps;
         var deferred;
         function createBatchOp(result) {
@@ -140,8 +141,8 @@ require([
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
-            .fail(error.error, getBatchTestStatusFailed)
-            .done(getBatchTestStatusDone)
+            .fail(error.error, getBatchTestCountFailed)
+            .done(getBatchTestCountDone)
     }
 
     function updateTestTable(response) {
@@ -198,11 +199,20 @@ require([
             var nodeId;
 
             nodeId = data;
-            return ttest.renderTestCount({
+            var testDiv = ttest.renderTestCount({
                 data: nodeId,
                 type: type,
                 href: href
             });
+
+            var node = $(testDiv)[0];
+            node.childNodes.forEach(function(span){
+                if (gTestCount[span.id] != undefined){
+                    span.removeChild(span.firstElementChild);
+                    span.appendChild(document.createTextNode(gTestCount[span.id]));
+                }
+            })
+            return node.outerHTML;
         }
 
         if (response.length === 0) {
@@ -276,7 +286,7 @@ require([
 
     function getTestsDone(response){
         updateTestTable(response);
-        getBatchTestStatus(response);
+        getBatchTestCount(response);
     }
 
     function getTestsParse(response) {
