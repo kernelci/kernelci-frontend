@@ -198,6 +198,16 @@ require([
             var href;
             var nodeId;
 
+            href = '/test/job/';
+            href += object.job;
+            href += '/branch/';
+            href += object.git_branch;
+            href += '/kernel/';
+            href += object.kernel;
+            href += '/plan/';
+            href += object.name;
+            href += '/';
+
             nodeId = data;
             var testDiv = ttest.renderTestCount({
                 data: nodeId,
@@ -205,14 +215,16 @@ require([
                 href: href
             });
 
-            var node = $(testDiv)[0];
-            node.childNodes.forEach(function(span){
+            var div = $(testDiv)[0];
+            var spans = div.getElementsByTagName('span');
+
+            Array.from(spans).forEach(function(span){
                 if (gTestCount[span.id] != undefined){
                     span.removeChild(span.firstElementChild);
                     span.appendChild(document.createTextNode(gTestCount[span.id]));
                 }
             })
-            return node.outerHTML;
+            return div.outerHTML;
         }
 
         if (response.length === 0) {
@@ -250,13 +262,6 @@ require([
                     className: 'plan-column',
                 },
                 {
-                    data: 'created_on',
-                    type: 'datetime',
-                    title: 'Date',
-                    className: 'date-column',
-                    render: ttest.renderDate
-                },
-                {
                     data: '_id.$oid',
                     title: _testColumnTitle(),
                     type: 'string',
@@ -264,13 +269,20 @@ require([
                     orderable: false,
                     className: 'test-count pull-center',
                     render: _renderTestCount
+                },
+                {
+                    data: 'created_on',
+                    type: 'datetime',
+                    title: 'Date',
+                    className: 'date-column',
+                    render: ttest.renderDate
                 }
             ];
 
             gTestsTable
                 .data(response)
                 .columns(columns)
-                .order([4, 'desc'])
+                .order([5, 'desc'])
                 .languageLengthMenu('Tests per page')
                 .rowURL('/test/job/%(job)s/branch/%(git_branch)s/kernel/%(kernel)s/plan/%(name)s/')
                 .rowURLElements(['job', 'git_branch', 'kernel', 'name'])
