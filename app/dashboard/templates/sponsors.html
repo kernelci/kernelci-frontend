@@ -3,10 +3,9 @@
 {%- block head %}
 {{ super() }}
 <style type="text/css">
-    div.sponsor {
-        text-align: center;
-        vertical-align: middle;
-        width: 20%;
+    .sponsor {
+        height: 80px;
+        padding: 0 40px 0 0;
     }
 </style>
 {%- endblock %}
@@ -42,45 +41,39 @@
         <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
             <ul>
                 <li>
-                    Kevin Hilman (<a title="lab-baylibre-seattle boot reports" href="/boot/all/lab/lab-baylibre-seattle/">lab-baylibre-seattle</a>)
+                    Baylibre
                 </li>
                 <li>
-                    Tyler Baker (<a title="lab-tbaker boot reports" href="/boot/all/lab/lab-tbaker/">lab-tbaker</a>)
+                    Kevin Hilman
                 </li>
                 <li>
-                    Matt Hart (<a title="lab-mhart" href="/boot/all/lab/lab-mhart/">lab-mhart</a>)
-                </li>
-            </ul>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-            <ul>
-                <li>
-                    Linaro (<a title="lab-cambridge boot reports" href="/boot/all/lab/lab-cambridge/">lab-cambridge</a>)
-                </li>
-                <li>
-                    Collabora (<a title="lab-collabora boot reports" href="/boot/all/lab/lab-collabora/">lab-collabora</a>)
-                </li>
-                <li>
-                    EmbeddedBits (<a title="lab-embeddedbits boot reports" href="/boot/all/lab/lab-embeddedbits/">lab-embeddedbits</a>)
-                </li>
-                <li>
-                    Jan-Simon M&#246;ller (<a title="lab-jsmoeller boot reports" href="/boot/all/lab/lab-jsmoeller/">lab-jsmoeller</a>)
+                    Corentin Labbé
                 </li>
             </ul>
         </div>
         <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
             <ul>
                 <li>
-                    Baylibre (<a title="lab-baylibre boot reports" href="/boot/all/lab/lab-baylibre/">lab-baylibre</a>)
+                    Collabora
                 </li>
                 <li>
-                    Pengutronix (<a title="lab-pengutronix boot reports" href="/boot/all/lab/lab-pengutronix/">lab-pengutronix</a>)
+                    NXP
                 </li>
                 <li>
-                    Free Electrons (<a title="lab-free-electrons boot reports" href="/boot/all/lab/lab-free-electrons/">lab-free-electrons</a>)
+                    Qualcomm
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+            <ul>
+                <li>
+                    Pengutronix
                 </li>
                 <li>
-                    Mark Brown (<a title="lab-mhart" href="/boot/all/lab/lab-broonie/">lab-broonie</a>)
+                    Bootlin
+                </li>
+                <li>
+                    Theobrama Systems
                 </li>
             </ul>
         </div>
@@ -89,14 +82,6 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <h4>Community Sponsors</h4>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="sponsor">
-            <a href="http://www.linaro.org">
-                <img src="/static/img/linaro-logo.jpg" alt="Linaro">
-            </a>
-            Engineering &amp; Hosting
-        </div>
     </div>
 </div>
 <div class="row">
@@ -148,26 +133,28 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <h4>Server Donations</h4>
-        <p>
-            Servers being used to build the Linux kernel trees donated by:
-        </p>
     </div>
 </div>
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <div class="sponsor">
-            <a href="https://www.hpe.com">
-                <img src="/static/img/3rd/hpe.svg" width="256" alt="Hewlett Packard Enterprise">
-            </a>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
-        <div class="sponsor">
-            <a href="https://www.collabora.com/">
-                <img src="/static/img/3rd/collabora.svg" width="256" alt="Collabora">
-            </a>
-        </div>
-    </div>
+  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <p>
+        <a href="http://www.linaro.org">
+          <img src="/static/img/linaro-logo.jpg" alt="Linaro logo" class="sponsor">
+        </a>
+        <a href="https://baylibre.com/">
+          <img src="/static/img/baylibre-horizontal-color.svg" alt="BayLibre logo" class="sponsor">
+        </a>
+        <a href="https://www.collabora.com/">
+          <img src="/static/img/collabora-stacked-color.svg" alt="Collabra logo" class="sponsor">
+        </a>
+        <a href="https://www.microsoft.com/">
+          <img src="/static/img/microsoft-color.svg" alt="Microsoft logo" class="sponsor">
+        </a>
+        <a href="https://www.google.com/">
+          <img src="/static/img/google-color.svg" alt="Google logo" class="sponsor">
+        </a>
+      </p>
+  </div>
 </div>
 {%- endblock %}{# content block #}
 {%- block scripts %}
