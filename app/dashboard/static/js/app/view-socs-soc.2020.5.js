@@ -30,7 +30,6 @@ require([
 ], function($, init, format, r, e, appconst, html, tsoc, table) {
     'use strict';
     var gBatchCountMissing,
-        gBoardsTable,
         gDateRange,
         gJobsTable,
         gPageLen,
@@ -45,68 +44,6 @@ require([
     gPageLen = null;
     gSearchFilter = null;
     gTableCount = {};
-
-    function getDistinctBoardsTable(response) {
-        var columns,
-            results,
-            tableResults;
-
-        /**
-         * Internally used to remap an array of strings into an array of
-         * objects whose key is 'board'.
-         *
-         * @param {string} element: The element from the array.
-         * @return {object} An object with key 'board' and value the passed
-         * one.
-        **/
-        function _remapResults(element) {
-            return {board: element};
-        }
-
-        // Internal wrapper to provide the href and title.
-        function _boardDetails(data, type) {
-            return tsoc.renderDetails(
-                '/boot/' + data + '/', type, 'View boot reports');
-        }
-
-        results = response.result;
-        if (results.length > 0) {
-            columns = [
-                {
-                    data: 'board',
-                    title: 'Device type'
-                },
-                {
-                    data: 'board',
-                    title: '',
-                    orderable: false,
-                    searchable: false,
-                    className: 'select-column pull-center',
-                    render: _boardDetails
-                }
-            ];
-
-            // Remap the distinct results into an array of objets.
-            tableResults = results.map(_remapResults);
-
-            gBoardsTable
-                .rowURL('/boot/%(board)s/')
-                .rowURLElements(['board'])
-                .data(tableResults)
-                .columns(columns)
-                .lengthMenu([5, 10, 25, 50])
-                .languageLengthMenu('device types per page')
-                .order([0, 'asc'])
-                .draw();
-
-        } else {
-            html.removeElement(
-                document.getElementById('boards-table-loading'));
-            html.replaceContent(
-                document.getElementById('boards-table-div'),
-                html.errorDiv('No data found.'));
-        }
-    }
 
     function getDistinctBoardsFail() {
         html.replaceContentHTML(
@@ -156,7 +93,7 @@ require([
 
         $.when(deferred)
             .fail(e.error, getDistinctBoardsFail)
-            .done(getDistinctBoardsCount, getDistinctBoardsTable);
+            .done(getDistinctBoardsCount);
     }
 
     function updateOrStageCount(elementId, count) {
@@ -455,12 +392,6 @@ require([
         tableId: 'jobs-table',
         tableDivId: 'jobs-table-div',
         tableLoadingDivId: 'jobs-table-loading'
-    });
-
-    gBoardsTable = table({
-        tableId: 'boards-table',
-        tableDivId: 'boards-table-div',
-        tableLoadingDivId: 'boards-table-loading'
     });
 
     getDetails();
