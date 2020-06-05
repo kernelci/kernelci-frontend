@@ -85,7 +85,7 @@ require.config({
             'app/view-jobs-job': 'app/view-jobs-job.2020.5',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2020.5',
             'app/view-socs-all': 'app/view-socs-all.2020.5',
-            'app/view-socs-soc': 'app/view-socs-soc.2020.5',
+            'app/view-socs-soc': 'app/view-socs-soc.2020.6',
             'app/view-socs-soc-job': 'app/view-socs-soc-job.2020.5',
             'app/view-socs-soc-job-kernel': 'app/view-socs-soc-job-kernel.2020.5',
             'app/view-socs-soc-job-kernel-plan': 'app/view-socs-soc-job-kernel-plan.2020.5',
