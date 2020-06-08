@@ -792,11 +792,8 @@ require([
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.setAttribute('title', 'Details for tree ' + job);
 
-            aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', u.createPathHref(['/job/', job, '/']));
-            aNode.appendChild(document.createTextNode(job));
+            aNode = tooltipNode.appendChild(document.createTextNode(job));
 
             spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
