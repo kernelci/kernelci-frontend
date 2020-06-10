@@ -47,6 +47,7 @@ require([
     function updateCaseDetails(results) {
         var job;
         var kernel;
+        var branch;
         var treeNode;
         var jobLink;
         var describeNode;
@@ -54,9 +55,12 @@ require([
         var createdOn;
         var dateNode;
         var status;
+        var branchNode;
+        var branchLink;
 
         job = results.job;
         kernel = results.kernel;
+        branch = results.git_branch;
 
         treeNode = html.tooltip();
         treeNode.title = "Details for tree &#171;" + job + "&#187;";
@@ -76,6 +80,17 @@ require([
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(buildsLink);
+
+        // Branch.
+        branchNode = html.tooltip();
+        branchNode.title =
+            "Branch reports for &#171;" + job + "&#187; - " + branch;
+        branchLink = document.createElement('a');
+        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.appendChild(html.tree());
+        branchNode.appendChild(document.createTextNode(branch));
+        branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        branchNode.appendChild(branchLink);
 
         createdOn = new Date(results.created_on.$date);
         dateNode = document.createElement('time');
@@ -109,8 +124,7 @@ require([
         html.replaceContent(
             document.getElementById('tree'), treeNode);
         html.replaceContent(
-            document.getElementById('git-branch'),
-            document.createTextNode(results.git_branch));
+            document.getElementById('git-branch'), branchNode);
         html.replaceContent(
             document.getElementById('git-describe'), describeNode);
         html.replaceContent(  /* ToDo: link to commit when possible */
