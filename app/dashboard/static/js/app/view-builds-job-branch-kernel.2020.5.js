@@ -844,7 +844,7 @@ require([
             aNode.setAttribute(
                 'href',
                 u.createPathHref([
-                    '/test/job/',
+                    '/build/',
                     job,
                     'branch',
                     branch,
@@ -852,7 +852,7 @@ require([
                     kernel,
                     '/'
                 ]));
-            aNode.appendChild(html.boot());
+            aNode.appendChild(html.build());
 
             html.replaceContent(
                 document.getElementById('git-describe'), docFrag);

@@ -87,7 +87,7 @@ require([
         describeNode.title =
             "Build reports for &#171;" + job + "&#187; - " + kernel;
         buildsLink = document.createElement('a');
-        buildsLink.href = "/build/" + job + "/kernel/" + kernel;
+        buildsLink.href = "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
