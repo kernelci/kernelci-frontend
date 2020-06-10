@@ -505,6 +505,8 @@ require([
         var vmlinuxFileSize;
         var branchNode;
         var branchLink;
+        var defconfigLink;
+        var defconfigNode;
 
         results = response.result;
 
@@ -782,12 +784,18 @@ require([
             }
 
             // Defconfig.
-            docFrag = document.createDocumentFragment();
-            spanNode = docFrag.appendChild(document.createElement('span'));
-            spanNode.appendChild(document.createTextNode(defconfigFull));
+            defconfigNode = html.tooltip();
+            defconfigNode.title =
+                "defconfig reports for &#171;" + job + "&#187; - " + defconfigFull;
+            defconfigLink = document.createElement('a');
+            defconfigLink.href = "/build/id/" + results._id.$oid;
+            defconfigLink.appendChild(html.build());
+            defconfigNode.appendChild(document.createTextNode(defconfigFull));
+            defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            defconfigNode.appendChild(defconfigLink);
 
             html.replaceContent(
-                document.getElementById('build-defconfig'), docFrag);
+                document.getElementById('build-defconfig'), defconfigNode);
 
             // Date.
             docFrag = document.createDocumentFragment();

@@ -65,10 +65,14 @@ require([
         var logNode;
         var branchNode;
         var branchLink;
+        var defconfigFull;
+        var defconfigLink;
+        var defconfigNode;
 
         job = results.job;
         branch = results.git_branch;
         kernel = results.kernel;
+        defconfigFull = results.defconfig_full;
 
         treeNode = html.tooltip();
         treeNode.title = "Details for tree &#171;" + job + "&#187;";
@@ -112,6 +116,17 @@ require([
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(testsNode);
 
+        // Defconfig.
+        defconfigNode = html.tooltip();
+        defconfigNode.title =
+            "defconfig reports for &#171;" + job + "&#187; - " + defconfigFull;
+        defconfigLink = document.createElement('a');
+        defconfigLink.href = "/build/id/" + results._id.$oid;
+        defconfigLink.appendChild(html.build());
+        defconfigNode.appendChild(document.createTextNode(defconfigFull));
+        defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        defconfigNode.appendChild(defconfigLink);
+
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
         gitNode.href = results.git_url;
@@ -152,8 +167,7 @@ require([
             document.getElementById('arch'),
             document.createTextNode(results.arch));
         html.replaceContent(
-            document.getElementById('defconfig'),
-            document.createTextNode(results.defconfig_full));
+            document.getElementById('defconfig'), defconfigNode);
         html.replaceContent(
             document.getElementById('compiler'),
             document.createTextNode(results.compiler_version_full));
