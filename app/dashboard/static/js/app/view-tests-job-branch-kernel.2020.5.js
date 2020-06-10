@@ -53,6 +53,8 @@ require([
         var jobLink;
         var describeNode;
         var buildsLink;
+        var branchNode;
+        var branchLink;
         var gitNode;
         var createdOn;
         var dateNode;
@@ -70,6 +72,16 @@ require([
         treeNode.appendChild(document.createTextNode(job));
         treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         treeNode.appendChild(jobLink);
+
+        branchNode = html.tooltip();
+        branchNode.title =
+            "Branch reports for &#171;" + job + "&#187; - " + branch;
+        branchLink = document.createElement('a');
+        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.appendChild(html.tree());
+        branchNode.appendChild(document.createTextNode(branch));
+        branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        branchNode.appendChild(branchLink);
 
         describeNode = html.tooltip();
         describeNode.title =
@@ -95,8 +107,7 @@ require([
         html.replaceContent(
             document.getElementById('tree'), treeNode);
         html.replaceContent(
-            document.getElementById('git-branch'),
-            document.createTextNode(branch));
+            document.getElementById('git-branch'), branchNode);
         html.replaceContent(
             document.getElementById('git-describe'), describeNode);
         html.replaceContent(
