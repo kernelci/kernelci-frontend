@@ -126,12 +126,11 @@ define([
         domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         tooltipNode = html.tooltip();
-        tooltipNode.setAttribute(
-            'title',
-            'Build reports for &#171;' + gJob + '&#187; - ' + gKernel);
+        tooltipNode.title =
+            "Build reports for &#171;" + gJob + "&#187; - " + gKernel;
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href', '/build/' + gJob + '/kernel/' + gKernel);
+        aNode.href =
+            "/build/" + gJob + "/branch/" + gitBranch + "/kernel/" + gKernel;
         aNode.appendChild(html.build());
         tooltipNode.appendChild(aNode);
 

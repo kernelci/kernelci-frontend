@@ -639,7 +639,8 @@ require([
             tooltipNode.title =
                 "Build reports for &#171;" + job + "&#187; - " + kernel;
             aNode = document.createElement('a');
-            aNode.href = "/build/" + job + "/kernel/" + kernel;
+            aNode.href =
+                "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
             aNode.appendChild(html.build());
             tooltipNode.appendChild(document.createTextNode(kernel));
             tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
