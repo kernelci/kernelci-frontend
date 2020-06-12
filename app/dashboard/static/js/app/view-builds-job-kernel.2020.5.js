@@ -211,12 +211,12 @@ require([
 
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
-                'title', 'Test reports for ' + job);
+                'title', 'Job reports for tree &#171;' + job + '&#187;');
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href', u.createPathHref(['/job/', job, '/']));
-            aNode.appendChild(html.boot());
+            aNode.appendChild(html.tree());
 
             html.replaceContent(document.getElementById('tree'), docFrag);
 

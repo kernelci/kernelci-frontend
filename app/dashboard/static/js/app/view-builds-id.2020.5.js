@@ -613,9 +613,10 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Test reports for ';
-            str += '&nbsp;';
+            str = 'Test reports for tree';
+            str += '&nbsp&#171;';
             str += job;
+            str += '&#187;';
             tooltipNode.setAttribute('title', str);
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
@@ -630,7 +631,7 @@ require([
             // Branch.
             branchNode = html.tooltip();
             branchNode.title =
-                "Branch reports for &#171;" + job + "&#187; - " + branch;
+                "Build reports for branch &#171;" + job + "&#187; - " + branch;
             branchLink = document.createElement('a');
             branchLink.href = "/job/" + job + "/branch/" + branch;
             branchLink.appendChild(html.tree());

@@ -48,6 +48,7 @@ require([
         var job;
         var kernel;
         var branch;
+        var plan;
         var treeNode;
         var jobLink;
         var describeNode;
@@ -59,10 +60,13 @@ require([
         var status;
         var branchNode;
         var branchLink;
+        var planNode;
+        var testLink;
 
         job = results.job;
         kernel = results.kernel;
         branch = results.git_branch;
+        plan = results.plan;
 
         treeNode = html.tooltip();
         treeNode.title = "Details for tree &#171;" + job + "&#187;";
@@ -124,7 +128,7 @@ require([
         // Branch.
         branchNode = html.tooltip();
         branchNode.title =
-            "Branch reports for &#171;" + job + "&#187; - " + branch;
+            "Test reports for branch &#171;" + job + "&#187; - " + branch;
         branchLink = document.createElement('a');
         branchLink.href = "/job/" + job + "/branch/" + branch;
         branchLink.appendChild(html.tree());
@@ -138,6 +142,15 @@ require([
         dateNode.appendChild(
             document.createTextNode(createdOn.toCustomISODate()));
 
+        planNode = html.tooltip();
+        planNode.title = "Tests runs for plan &#171;" + plan + "&#187;";
+        testLink = document.createElement('a');
+        testLink.href = "/test/plan/id/" + results.test_group_id.$oid + "/";
+        testLink.appendChild(html.stethoscope());
+        planNode.appendChild(document.createTextNode(results.test_case_path));
+        planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        planNode.appendChild(testLink)
+
         if (results.status == 'PASS')
             status = 'PASS';
         else if (results.regression_id)
@@ -146,8 +159,7 @@ require([
             status = 'UNKNOWN';
 
         html.replaceContent(
-            document.getElementById('test-case-path-title'),
-            document.createTextNode(results.test_case_path));
+            document.getElementById('test-case-path-title'), planNode);
         html.replaceContent(
             document.getElementById('device-type-title'),
             document.createTextNode(results.device_type));

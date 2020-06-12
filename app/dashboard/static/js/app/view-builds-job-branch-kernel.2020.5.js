@@ -802,7 +802,7 @@ require([
 
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
-                'title', 'Test reports for ' + job);
+                'title', 'Job reports for tree &#171;' + job + '&#187;');
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
@@ -814,7 +814,7 @@ require([
             // Branch.
             branchNode = html.tooltip();
             branchNode.title =
-                "Branch reports for &#171;" + job + "&#187; - " + branch;
+                "Build reports for branch &#171;" + job + "&#187; - " + branch;
             branchLink = document.createElement('a');
             branchLink.href = "/job/" + job + "/branch/" + branch;
             branchLink.appendChild(html.tree());

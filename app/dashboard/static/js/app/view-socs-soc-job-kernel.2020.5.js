@@ -111,7 +111,7 @@ define([
         // Branch.
         branchNode = html.tooltip();
         branchNode.title =
-            "Branch reports for &#171;" + gJob + "&#187; - " + gitBranch;
+            "Job reports for branch &#171;" + gJob + "&#187; - " + gitBranch;
         branchLink = document.createElement('a');
         branchLink.href = "/job/" + gJob + "/branch/" + gitBranch;
         branchLink.appendChild(html.tree());
