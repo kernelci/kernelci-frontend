@@ -361,7 +361,7 @@ require([
             str += kernel;
             str += '/';
             aNode.setAttribute('href', str);
-            aNode.appendChild(html.boot());
+            aNode.appendChild(html.stethoscope());
 
             html.replaceContent(
                 document.getElementById('git-describe'), docFrag);

@@ -232,7 +232,7 @@ require([
             tooltipNode = spanNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title',
-                'Test reports for ' + job + '&nbsp;&ndash;&nbsp;' + kernel
+                'Build reports for ' + job + '&nbsp;&ndash;&nbsp;' + kernel
             );
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
@@ -247,6 +247,23 @@ require([
                     '/'
                 ]));
             aNode.appendChild(html.build());
+
+            spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+            tooltipNode = spanNode.appendChild(html.tooltip());
+            tooltipNode.title =
+                "Test reports for &#171;" + job + "&#187; - " + kernel;
+
+            aNode = tooltipNode.appendChild(document.createElement('a'));
+            var str = '/test/job/';
+            str += job;
+            str += '/branch/';
+            str += branch;
+            str += '/kernel/';
+            str += kernel;
+            str += '/';
+            aNode.setAttribute('href', str);
+            aNode.appendChild(html.stethoscope());
 
             html.replaceContent(
                 document.getElementById('git-describe'), docFrag);
