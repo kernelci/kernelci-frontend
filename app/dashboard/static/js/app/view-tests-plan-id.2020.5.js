@@ -51,6 +51,7 @@ require([
         var job;
         var branch;
         var kernel;
+        var plan;
         var treeNode;
         var jobLink;
         var describeNode;
@@ -68,11 +69,14 @@ require([
         var defconfigFull;
         var defconfigLink;
         var defconfigNode;
+        var planNode;
+        var testLink;
 
         job = results.job;
         branch = results.git_branch;
         kernel = results.kernel;
         defconfigFull = results.defconfig_full;
+        plan = results.name;
 
         treeNode = html.tooltip();
         treeNode.title = "Details for tree &#171;" + job + "&#187;";
@@ -138,6 +142,15 @@ require([
         dateNode.appendChild(
             document.createTextNode(createdOn.toCustomISODate()));
 
+        planNode = html.tooltip();
+        planNode.title = "Test runs of plan &#171;" + plan + "&#187;";
+        testLink = document.createElement('a');
+        testLink.href = "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel + "/plan/" + plan + "/";
+        testLink.appendChild(html.stethoscope());
+        planNode.appendChild(document.createTextNode(plan));
+        planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        planNode.appendChild(testLink)
+
         translatedURI = urls.createFileServerURL(gFileServer, results);
         logNode = tcommon.logsNode(
             results.boot_log, results.boot_log_html, results.lab_name,
@@ -147,8 +160,7 @@ require([
             document.getElementById('lab-name'),
             document.createTextNode(results.lab_name));
         html.replaceContent(
-            document.getElementById('plan-name'),
-            document.createTextNode(results.name));
+            document.getElementById('plan-name'), planNode);
         html.replaceContent(
             document.getElementById('device-type'),
             document.createTextNode(results.device_type));
