@@ -51,6 +51,7 @@ require([
         var job;
         var branch;
         var kernel;
+        var plan;
         var treeNode;
         var jobLink;
         var describeNode;
@@ -70,11 +71,14 @@ require([
         var defconfigPath;
         var defconfigLink;
         var buildLink;
+        var planNode;
+        var planLink;
 
         job = results.job;
         branch = results.git_branch;
         kernel = results.kernel;
         defconfigFull = results.defconfig_full;
+        plan = results.name;
 
         translatedURI = urls.createFileServerURL(gFileServer, results);
 
@@ -147,6 +151,17 @@ require([
         dateNode.appendChild(
             document.createTextNode(createdOn.toCustomISODate()));
 
+        planNode = html.tooltip();
+        planNode.title = "All results for plan &#171;" + plan + "&#187;";
+        planLink = document.createElement('a');
+        planLink.href =
+            "/test/job/" + job + "/branch/" + branch +
+            "/kernel/" + kernel + "/plan/" + plan + "/";
+        planLink.appendChild(html.test());
+        planNode.appendChild(document.createTextNode(plan));
+        planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        planNode.appendChild(planLink)
+
         logNode = tcommon.logsNode(
             results.boot_log, results.boot_log_html, results.lab_name,
             translatedURI[0], translatedURI[1]);
@@ -171,6 +186,8 @@ require([
         html.replaceContent(  /* ToDo: link to commit when possible */
             document.getElementById('git-commit'),
             document.createTextNode(results.git_commit));
+        html.replaceContent(
+            document.getElementById('plan'), planNode);
         html.replaceContent(
             document.getElementById('arch'),
             document.createTextNode(results.arch));
