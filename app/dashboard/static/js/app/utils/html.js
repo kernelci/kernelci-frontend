@@ -227,6 +227,24 @@ define([
         return frag;
     };
 
+    html.stethoscope = function (extraClass) {
+        var frag;
+        var iNode;
+        var spanNode;
+
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
+        spanNode.className = 'label label-success label-status';
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
+        iNode = spanNode.appendChild(document.createElement('i'));
+        iNode.className = 'fa fa-stethoscope';
+
+        return frag;
+    };
+
     html.unknown = function(extraClass) {
         var frag;
         var iNode;

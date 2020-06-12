@@ -135,6 +135,25 @@ define([
         tooltipNode.appendChild(aNode);
 
         domNode.appendChild(tooltipNode);
+        domNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = domNode.appendChild(html.tooltip());
+        tooltipNode.title =
+            "Test reports for &#171;" + gJob + "&#187; - " + gKernel;
+
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        var str = '/test/job/';
+        str += gJob;
+        str += '/branch/';
+        str += gitBranch;
+        str += '/kernel/';
+        str += gKernel;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(html.stethoscope());
+
+        tooltipNode.appendChild(aNode);
+        domNode.appendChild(tooltipNode);
 
         html.replaceContent(
             document.getElementById('git-describe'), domNode);
