@@ -110,7 +110,7 @@ require([
         testsLink = document.createElement('a');
         testsLink.href =
             "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
-        testsLink.appendChild(html.boot());
+        testsLink.appendChild(html.stethoscope());
         testsNode.appendChild(testsLink);
         describeNode.appendChild(buildsNode);
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');

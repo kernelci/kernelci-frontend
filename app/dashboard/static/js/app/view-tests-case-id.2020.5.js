@@ -51,7 +51,9 @@ require([
         var treeNode;
         var jobLink;
         var describeNode;
-        var buildsLink;
+        var spanNode;
+        var tooltipNode;
+        var aNode;
         var createdOn;
         var dateNode;
         var status;
@@ -71,15 +73,53 @@ require([
         treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         treeNode.appendChild(jobLink);
 
-        describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
-        buildsLink.href = "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
-        buildsLink.appendChild(html.build());
-        describeNode.appendChild(document.createTextNode(kernel));
-        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
+        // Git describe.
+        describeNode = document.createDocumentFragment();
+        spanNode = describeNode.appendChild(document.createElement('span'));
+
+        spanNode.appendChild(document.createTextNode(kernel));
+
+        spanNode.insertAdjacentHTML(
+            'beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.setAttribute(
+            'title',
+            'Build reports for ' + job + '&nbsp;&ndash;&nbsp;' + kernel
+        );
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute(
+            'href',
+            urls.createPathHref([
+                '/build/',
+                job,
+                'branch',
+                branch,
+                'kernel',
+                kernel,
+                '/'
+            ]));
+        aNode.appendChild(html.build());
+
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.title =
+            "Test reports for &#171;" + job + "&#187; - " + kernel;
+
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute(
+            'href',
+            urls.createPathHref([
+                '/test/job/',
+                job,
+                '/branch/',
+                branch,
+                '/kernel/',
+                kernel,
+                '/'
+            ]));
+        aNode.appendChild(html.stethoscope());
 
         // Branch.
         branchNode = html.tooltip();

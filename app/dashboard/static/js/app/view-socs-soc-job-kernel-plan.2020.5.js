@@ -28,7 +28,8 @@ require([
     'utils/request',
     'components/test/view',
     'URI',
-], function($, error, format, html, init, request, testView, URI) {
+    'utils/urls',
+], function($, error, format, html, init, request, testView, URI, u) {
     'use strict';
     var gSoc;
     var gJob;
@@ -53,13 +54,15 @@ require([
         var commit;
         var treeNode;
         var jobLink;
-        var describeNode;
-        var buildsLink;
         var gitNode;
         var createdOn;
         var dateNode;
         var branchNode;
         var branchLink;
+        var docFrag;
+        var aNode;
+        var spanNode;
+        var tooltipNode;
 
         soc = results.mach;
         job = results.job;
@@ -90,15 +93,50 @@ require([
         html.replaceContent(
             document.getElementById('git-branch'), branchNode);
 
-        describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
-        buildsLink.href = "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
-        buildsLink.appendChild(html.build());
-        describeNode.appendChild(document.createTextNode(kernel));
-        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
+        // Git describe.
+        docFrag = document.createDocumentFragment();
+        spanNode = docFrag.appendChild(document.createElement('span'));
+
+        spanNode.appendChild(document.createTextNode(kernel));
+
+        spanNode.insertAdjacentHTML(
+            'beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.setAttribute(
+            'title',
+            'Build reports for ' + job + '&nbsp;&ndash;&nbsp;' + kernel
+        );
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        aNode.setAttribute(
+            'href',
+            u.createPathHref([
+                '/build/',
+                job,
+                'branch',
+                branch,
+                'kernel',
+                kernel,
+                '/'
+            ]));
+        aNode.appendChild(html.build());
+
+        spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+
+        tooltipNode = spanNode.appendChild(html.tooltip());
+        tooltipNode.title =
+            "Test reports for &#171;" + job + "&#187; - " + kernel;
+
+        aNode = tooltipNode.appendChild(document.createElement('a'));
+        var str = '/test/job/';
+        str += job;
+        str += '/branch/';
+        str += branch;
+        str += '/kernel/';
+        str += kernel;
+        str += '/';
+        aNode.setAttribute('href', str);
+        aNode.appendChild(html.stethoscope());
 
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
@@ -117,7 +155,7 @@ require([
         html.replaceContent(
             document.getElementById('tree'), treeNode);
         html.replaceContent(
-            document.getElementById('git-describe'), describeNode);
+            document.getElementById('git-describe'), docFrag);
         html.replaceContent(
             document.getElementById('git-url'), gitNode);
         html.replaceContent(
