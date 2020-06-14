@@ -208,6 +208,7 @@ define([
         var translatedURI;
         var txtLog;
         var warnings;
+        var testCaseId;
 
         job = result.job;
         kernel = result.kernel;
@@ -224,6 +225,7 @@ define([
         kernelImage = result.kernel_image;
         kernelImageSize = result.kernel_image_size;
         mach = result.mach;
+        testCaseId = result.test_cases[0].$oid;
         dataIndex = this.createDataIndex(result);
 
         if (!serverURL) {
@@ -412,6 +414,35 @@ define([
 
         colNode.appendChild(dlNode);
         rowNode.appendChild(colNode);
+
+        /* Test Case */
+        dtNode = document.createElement('dt');
+        dtNode.appendChild(document.createTextNode('Test Case'));
+        ddNode = document.createElement('dd');
+        if (result.test_cases) {
+            aNode = document.createElement('a');
+            aNode.setAttribute(
+                    'href', urls.createPathHref(['/test/case/id/', testCaseId, '/']));
+            aNode.appendChild(
+                document.createTextNode('Test Case'));
+            aNode.insertAdjacentHTML('beforeend', '&nbsp;');
+            aNode.appendChild(html.external());
+            ddNode.appendChild(aNode);
+        } else {
+            ddNode.appendChild(html.nonavail());
+        }
+
+        dlNode.appendChild(dtNode);
+        dlNode.appendChild(ddNode);
+
+        colNode.appendChild(dlNode);
+        rowNode.appendChild(colNode);
+
+        colNode = document.createElement('div');
+        colNode.className = 'col-xs-6 col-sm-6 col-md-6 col-lg-6';
+
+        dlNode = document.createElement('dl');
+        dlNode.className = 'dl-horizontal';
 
         /* Regressions */
         colNode = document.createElement('div');
