@@ -109,7 +109,6 @@ define([
         var divNode;
         var dlNode;
         var docFrag;
-        var failBootURL;
         var failBuildURL;
         var failRegr;
         var gitCommit;
@@ -141,9 +140,6 @@ define([
 
         failBuildURL = urls
             .createPathHref(['/build/id/', failRegr.build_id.$oid, '/']);
-
-        failBootURL = urls
-            .createPathHref(['/boot/id/', failRegr._id.$oid, '/']);
 
         docFrag = document.createDocumentFragment();
 
@@ -235,11 +231,6 @@ define([
 
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
             aNode = spanNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', urls.createPathHref([
-                '/boot/id/',
-                data.first_fail._id.$oid,
-                '/'
-            ]));
             tooltipNode = aNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'First failure boot report details');
@@ -262,7 +253,6 @@ define([
 
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
             aNode = spanNode.appendChild(document.createElement('a'));
-            aNode.setAttribute('href', failBootURL);
             tooltipNode = aNode.appendChild(html.tooltip());
             tooltipNode.setAttribute(
                 'title', 'First failure boot report details');
@@ -384,7 +374,6 @@ define([
         aNode.appendChild(document.createTextNode('More info'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
-        aNode.setAttribute('href', failBootURL);
 
         // Last good status.
         colNode = rowNode.appendChild(document.createElement('div'));
@@ -481,12 +470,6 @@ define([
         aNode.appendChild(document.createTextNode('More info'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
-
-        aNode.setAttribute('href', urls.createPathHref([
-            '/boot/id/',
-            passRegr._id.$oid,
-            '/'
-        ]));
 
         return docFrag;
     };

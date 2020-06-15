@@ -435,8 +435,6 @@ define([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute('title', 'Boot report details');
         aNode = document.createElement('a');
-        aNode.setAttribute(
-            'href', urls.createPathHref(['/boot/id/', docId, '/']));
         aNode.appendChild(document.createTextNode('More info'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());

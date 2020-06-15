@@ -205,15 +205,6 @@ require([
                     type: 'string',
                     className: 'pull-center',
                     render: tboot.renderStatus
-                },
-                {
-                    data: '_id',
-                    title: '',
-                    type: 'string',
-                    orderable: false,
-                    searchable: false,
-                    className: 'select-column pull-center',
-                    render: tboot.renderDetails
                 }
             ];
 
@@ -222,7 +213,6 @@ require([
                 .columns(columns)
                 .order([7, 'desc'])
                 .languageLengthMenu('boot reports per page')
-                .rowURL('/boot/id/%(_id)s/')
                 .rowURLElements(['_id'])
                 .draw();
 

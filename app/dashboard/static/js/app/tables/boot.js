@@ -455,12 +455,6 @@ define([
         tooltipNode = html.tooltip();
         tooltipNode.setAttribute('title', 'More info');
 
-        aNode = document.createElement('a');
-        str = '/boot/id/';
-        str += object._id.$oid;
-        str += '/';
-        aNode.setAttribute('href', str);
-
         aNode.appendChild(html.search());
         tooltipNode.appendChild(aNode);
 
@@ -477,9 +471,7 @@ define([
      * @return {string} The rendered element as a string.
     **/
     gBootUtils.renderDetails = function(data, type) {
-        var href = '/boot/id/';
-        href += data.$oid;
-        href += '/';
+        var href = '/';
         return tcommon.renderDetails(href, type);
     };
 
