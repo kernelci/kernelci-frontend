@@ -346,8 +346,6 @@ define([
             aNode.appendChild(document.createTextNode(gitDescribe));
 
             if (type === 'boot') {
-                aNode.setAttribute('href', '/boot/id/' + docId + '/');
-
                 tooltipNode.setAttribute(
                     'title',
                     sprintf(gStrings.boot_tooltip, job, gitDescribe));
