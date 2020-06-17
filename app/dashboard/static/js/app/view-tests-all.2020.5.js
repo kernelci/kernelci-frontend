@@ -44,6 +44,7 @@ require([
     var gPageLen;
     var gTestsTable;
     var gTestCount = {};
+    var gDrawEventBound = false;
 
     setTimeout(function() {
         document.getElementById('li-test').setAttribute('class', 'active');
@@ -51,20 +52,56 @@ require([
 
     gDateRange = appconst.MAX_DATE_RANGE;
 
+    function updateOrStageCount(opId, count) {
+        var element;
+
+        element = document.getElementById(opId);
+        // If we do not have the element in the DOM, it means dataTables has
+        // yet to add it.
+        if (element) {
+            html.replaceContent(
+                element, document.createTextNode(format.number(count)));
+
+            // Check if the data structure holding the data to update the
+            // elements still holds the element.
+            if (gTestCount.hasOwnProperty(opId)) {
+                delete gTestCount[opId];
+            }
+        } else {
+            // Store it in a dictionary for later access.
+            if (!gTestCount.hasOwnProperty(opId)) {
+                gTestCount[opId] = count;
+            }
+        }
+    }
+
+    function updateTestTable(){
+        var key;
+
+        if (Object.keys(gTestCount).length > 0) {
+            for (key in gTestCount) {
+                if (gTestCount.hasOwnProperty(key)) {
+                    updateOrStageCount(key, gTestCount[key]);
+                }
+            }
+        }
+    }
+
     function getBatchTestCountDone(results) {
         var batchData;
-
-        batchData = results.result;
+        batchData = results[0].result;
 
         function parseBatchData(data) {
-            gTestCount[data.operation_id] = data.result[0].count;
-            html.replaceContent(
-                document.getElementById(data.operation_id),
-                document.createTextNode(data.result[0].count));
+            updateOrStageCount(
+                data.operation_id, parseInt(data.result[0].count, 10));
         }
 
         if (batchData.length > 0) {
             batchData.forEach(parseBatchData);
+            if (!gDrawEventBound) {
+                gDrawEventBound = true;
+                gTestsTable.addDrawEvent(updateTestTable);
+            }
         }
     }
 
@@ -94,7 +131,7 @@ require([
                 operation_id: opId,
                 resource: 'count',
                 document: 'test_case',
-                query: qStr
+                query: qStr,
             });
 
             // Get successful tests count.
@@ -107,7 +144,7 @@ require([
                 operation_id: opId,
                 resource: 'count',
                 document: 'test_case',
-                query: qHead
+                query: qHead,
             });
 
             // Get regressions count.
@@ -118,7 +155,7 @@ require([
                 operation_id: opId,
                 resource: 'count',
                 document: 'test_regression',
-                query: qStr
+                query: qStr,
             });
 
             // Get unknown test reports count.
@@ -131,21 +168,22 @@ require([
                 operation_id: opId,
                 resource: 'count',
                 document: 'test_case',
-                query: qHead
+                query: qHead,
             });
         }
 
-        batchOps = [];
-        results.forEach(createBatchOp);
-        deferred = request.post(
-            '/_ajax/batch', JSON.stringify({batch: batchOps}));
+        if (results.length > 0) {
+            batchOps = []
+            results.forEach(createBatchOp);
 
-        $.when(deferred)
-            .fail(error.error, getBatchTestCountFailed)
-            .done(getBatchTestCountDone)
+            deferred = request.post(
+                '/_ajax/batch', JSON.stringify({batch: batchOps}));
+        }
+
+        return deferred;
     }
 
-    function updateTestTable(response) {
+    function getTestTableDone(response) {
         var columns;
 
         function _renderTree(data, type) {
@@ -209,22 +247,11 @@ require([
             href += '/';
 
             nodeId = data;
-            var testDiv = ttest.renderTestCount({
+            return ttest.renderTestCount({
                 data: nodeId,
                 type: type,
                 href: href
             });
-
-            var div = $(testDiv)[0];
-            var spans = div.getElementsByTagName('span');
-
-            Array.from(spans).forEach(function(span){
-                if (gTestCount[span.id] != undefined){
-                    span.removeChild(span.firstElementChild);
-                    span.appendChild(document.createTextNode(gTestCount[span.id]));
-                }
-            })
-            return div.outerHTML;
         }
 
         if (response.length === 0) {
@@ -296,9 +323,20 @@ require([
             .search(gSearchFilter);
     }
 
+    function getTestTableDoneD(response) {
+        var deferred;
+
+        deferred = $.Deferred();
+        deferred.resolve(getTestTableDone(response));
+
+        return deferred.promise();
+    }
+
     function getTestsDone(response){
-        updateTestTable(response);
-        getBatchTestCount(response);
+
+        $.when(getBatchTestCount(response), getTestTableDoneD(response))
+        .fail(error.error, getBatchTestCountFailed)
+        .done(getBatchTestCountDone);
     }
 
     function getTestsParse(response) {
