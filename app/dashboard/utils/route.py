@@ -228,11 +228,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/all/job/<string:job>/branch/<string:branch>/",
-        view_func=vboot.BootAllJBView.as_view("boot-all-jb"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/all/job/<string:job>/feed.xml",
         "boot-all-job-feed",
         bootfeed.get_boot_all_job_feed,

@@ -145,23 +145,6 @@ class BootAllJBKView(BootGeneralView):
         )
 
 
-class BootAllJBView(BootGeneralView):
-    def dispatch_request(self, **kwargs):
-        body_title = (
-            "Boot Reports: &#171;{job:s}&#187;&nbsp;"
-            "<small>({branch:s})</small>").format(**kwargs)
-
-        search_filter, _ = get_search_parameters(request)
-
-        return render_template(
-            "boots-all-jb.html",
-            page_title=self.BOOT_PAGES_TITLE,
-            body_title=body_title,
-            job=kwargs["job"],
-            branch=kwargs["branch"],
-            search_filter=search_filter
-        )
-
 class BootLab(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
