@@ -55,27 +55,6 @@ class BootAllView(BootGeneralView):
         )
 
 
-class BootDefconfigView(BootGeneralView):
-
-    def dispatch_request(self, **kwargs):
-
-        page_title = (
-            self.BOOT_PAGES_TITLE + "&nbsp;&dash;Board&nbsp;%(board)s" %
-            kwargs)
-        body_title = (
-            "Boot Reports for board&nbsp;&#171;%(board)s&#187;" % kwargs)
-
-        return render_template(
-            "boots-board-job-kernel-defconfig.html",
-            page_title=page_title,
-            body_title=body_title,
-            board=kwargs["board"],
-            job=kwargs["job"],
-            kernel=kwargs["kernel"],
-            defconfig=kwargs["defconfig"],
-        )
-
-
 class BootBoardLabView(BootGeneralView):
     def dispatch_request(self, *args, **kwargs):
 
