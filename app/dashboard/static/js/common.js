@@ -58,7 +58,6 @@ require.config({
     map: {
         '*': {
             'app/view-boots-all-job-branch-kernel-defconfig': 'app/view-boots-all-job-branch-kernel-defconfig.2017.3.3',
-            'app/view-boots-board-lab': 'app/view-boots-board-lab.2017.3.3',
             'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2017.4',
             'app/view-boots-regressions': 'app/view-boots-regressions.2017.3.3',
             'app/view-builds-all': 'app/view-builds-all.2017.5',

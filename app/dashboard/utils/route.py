@@ -181,14 +181,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        (
-            "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
-            "defconfig/<string:defconfig>/lab/<string:lab_name>/"
-        ),
-        view_func=vboot.BootBoardLabView.as_view("boot-board-lab"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/all/job/<string:job>/kernel/<string:kernel>/",
         view_func=vboot.BootJobKernelView.as_view("boot-job-kernel"),
         methods=["GET"]

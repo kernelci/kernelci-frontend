@@ -55,31 +55,6 @@ class BootAllView(BootGeneralView):
         )
 
 
-class BootBoardLabView(BootGeneralView):
-    def dispatch_request(self, *args, **kwargs):
-
-        boot_id = request.args.get("_id", None)
-        if boot_id:
-            return redirect(url_for("boot-id", **{"uid": boot_id}), code=301)
-        else:
-            page_title = (
-                self.BOOT_PAGES_TITLE +
-                "&nbsp;&dash;Board&nbsp;%(board)s&nbsp;(%(lab_name)s)" %
-                kwargs)
-            body_title = (
-                "Boot Reports for board &#171;%(board)s&#187;&nbsp;"
-                "<small>(%(lab_name)s)</small>" % kwargs)
-            return render_template(
-                "boots-board-lab.html",
-                page_title=page_title,
-                body_title=body_title,
-                board=kwargs["board"],
-                job=kwargs["job"],
-                kernel=kwargs["kernel"],
-                defconfig=kwargs["defconfig"],
-                lab_name=kwargs["lab_name"]
-            )
-
 class BootJobKernelView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
