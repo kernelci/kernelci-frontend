@@ -36,7 +36,6 @@ import dashboard.views.soc as vsoc
 import dashboard.views.test as vtest
 
 import dashboard.utils.feed.job as jobfeed
-import dashboard.utils.feed.boot as bootfeed
 import dashboard.utils.feed.soc as socfeed
 
 
@@ -178,30 +177,6 @@ def init():
     add_rule(
         "/boot/",
         view_func=vboot.BootAllView.as_view("boots"),
-        methods=["GET"]
-    )
-    add_rule(
-        "/boot/all/job/<string:job>/feed.xml",
-        "boot-all-job-feed",
-        bootfeed.get_boot_all_job_feed,
-        methods=["GET"]
-    )
-    add_rule(
-        "/boot/all/lab/<string:lab_name>/feed.xml",
-        "boot-all-lab-feed",
-        bootfeed.get_boot_all_lab_feed,
-        methods=["GET"]
-    )
-    add_rule(
-        "/boot/<string:board>/feed.xml",
-        "boot-board-feed",
-        bootfeed.get_boot_board_feed,
-        methods=["GET"]
-    )
-    add_rule(
-        "/boot/<string:board>/job/<string:job>/feed.xml",
-        "boot-board-job-feed",
-        bootfeed.get_boot_board_job_feed,
         methods=["GET"]
     )
 
