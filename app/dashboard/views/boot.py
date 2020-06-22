@@ -145,29 +145,6 @@ class BootAllJBKView(BootGeneralView):
         )
 
 
-class BootLab(BootGeneralView):
-
-    def dispatch_request(self, **kwargs):
-
-        lab_name = kwargs["lab_name"]
-        common_title = (
-            "Boot reports for lab&nbsp;&#171;%s&#187;" % lab_name)
-
-        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, common_title)
-        body_title = common_title + self.RSS_LINK % (
-            "/boot/all/lab/" + lab_name + "/feed.xml")
-
-        search_filter, page_len = get_search_parameters(request)
-
-        return render_template(
-            "boots-lab.html",
-            page_title=page_title,
-            body_title=body_title,
-            lab_name=lab_name,
-            page_len=page_len,
-            search_filter=search_filter
-        )
-
 class BootBoardView(BootGeneralView):
     def dispatch_request(self, **kwargs):
         board = kwargs["board"]

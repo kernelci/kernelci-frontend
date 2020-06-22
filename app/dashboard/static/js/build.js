@@ -60,7 +60,6 @@
     },
     map: {
         '*': {
-            'app/view-boots-all-lab': 'app/view-boots-all-lab.2017.3.5',
             'app/view-boots-board': 'app/view-boots-board.2017.3.3',
             'app/view-boots-board-job-kernel-defconfig': 'app/view-boots-board-job-kernel-defconfig.2017.3.3',
             'app/view-boots-board-lab': 'app/view-boots-board-lab.2017.3.3',
@@ -104,7 +103,6 @@
         }
     },
     modules: [
-        {name: 'app/view-boots-all-lab.2017.3.5'},
         {name: 'app/view-boots-board-job-kernel-defconfig.2017.3.3'},
         {name: 'app/view-boots-board-lab.2017.3.3'},
         {name: 'app/view-boots-board.2017.3.3'},
@@ -133,7 +131,6 @@
         {name: 'app/view-tests-case-id.2020.5'},
         {name: 'app/view-tests-job-branch-kernel.2020.5'},
         {name: 'app/view-tests-job-branch-kernel-plan.2020.5'},
-        {name: 'kci-boots-all-lab'},
         {name: 'kci-boots-board'},
         {name: 'kci-boots-board-job-kernel-defconfig'},
         {name: 'kci-boots-board-lab'},
