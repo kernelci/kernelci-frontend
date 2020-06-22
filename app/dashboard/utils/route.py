@@ -182,14 +182,6 @@ def init():
     )
     add_rule(
         (
-            "/boot/all/job/<string:job>/branch/<string:branch>/"
-            "kernel/<string:kernel>/defconfig/<string:defconfig>/"
-        ),
-        view_func=vboot.BootAllJBKDView.as_view("boot-all-jbkd"),
-        methods=["GET"]
-    )
-    add_rule(
-        (
             "/boot/<string:board>/job/<string:job>/kernel/<string:kernel>/"
             "defconfig/<string:defconfig>/"
         ),
