@@ -154,7 +154,6 @@
         {name: 'kci-boots-board-job-kernel'},
         {name: 'kci-boots-board-job-kernel-defconfig'},
         {name: 'kci-boots-board-lab'},
-        {name: 'kci-boots-id'},
         {name: 'kci-boots-job-kernel'},
         {name: 'kci-builds-all'},
         {name: 'kci-builds-id'},
