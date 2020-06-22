@@ -60,7 +60,6 @@
     },
     map: {
         '*': {
-            'app/view-boots-job-kernel': 'app/view-boots-job-kernel.2017.4',
             'app/view-boots-regressions': 'app/view-boots-regressions.2017.3.3',
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2020.5',
@@ -100,7 +99,6 @@
         }
     },
     modules: [
-        {name: 'app/view-boots-job-kernel.2017.4'},
         {name: 'app/view-boots-regressions.2017.3.3'},
         {name: 'app/view-builds-all.2017.5'},
         {name: 'app/view-builds-id.2020.5'},
@@ -125,7 +123,6 @@
         {name: 'app/view-tests-case-id.2020.5'},
         {name: 'app/view-tests-job-branch-kernel.2020.5'},
         {name: 'app/view-tests-job-branch-kernel-plan.2020.5'},
-        {name: 'kci-boots-job-kernel'},
         {name: 'kci-builds-all'},
         {name: 'kci-builds-id'},
         {name: 'kci-builds-job-kernel'},
