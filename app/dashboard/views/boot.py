@@ -55,27 +55,6 @@ class BootAllView(BootGeneralView):
         )
 
 
-class BootJobKernelView(BootGeneralView):
-
-    def dispatch_request(self, **kwargs):
-        job = kwargs.get("job")
-        kernel = kwargs.get("kernel")
-
-        body_title = (
-            "Boot Reports: &#171;{:s}&#187;&nbsp;&dash;&nbsp;".format(job))
-
-        search_filter, _ = get_search_parameters(request)
-
-        return render_template(
-            "boots-job-kernel.html",
-            page_title=self.BOOT_PAGES_TITLE,
-            body_title=body_title,
-            job=job,
-            kernel=kernel,
-            search_filter=search_filter
-        )
-
-
 class BootAllJBKView(BootGeneralView):
 
     def dispatch_request(self, **kwargs):
