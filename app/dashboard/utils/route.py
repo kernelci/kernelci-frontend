@@ -232,11 +232,6 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/boot/<string:board>/",
-        view_func=vboot.BootBoardView.as_view("boot-board"),
-        methods=["GET"]
-    )
-    add_rule(
         "/boot/<string:board>/feed.xml",
         "boot-board-feed",
         bootfeed.get_boot_board_feed,
