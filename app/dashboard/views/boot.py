@@ -143,23 +143,3 @@ class BootAllJBKView(BootGeneralView):
             kernel=kernel,
             search_filter=search_filter
         )
-
-
-class BootBoardView(BootGeneralView):
-    def dispatch_request(self, **kwargs):
-        board = kwargs["board"]
-        body_title = \
-            "Boot reports for board&nbsp;&#171;%s&#187;" % board
-        body_title += \
-            self.RSS_LINK % ("/boot/" + board + "/feed.xml")
-
-        search_filter, page_len = get_search_parameters(request)
-
-        return render_template(
-            "boots-board.html",
-            page_title=self.BOOT_PAGES_TITLE,
-            body_title=body_title,
-            board=board,
-            page_len=page_len,
-            search_filter=search_filter
-        )
