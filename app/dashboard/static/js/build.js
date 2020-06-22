@@ -60,7 +60,6 @@
     },
     map: {
         '*': {
-            'app/view-boots-regressions': 'app/view-boots-regressions.2017.3.3',
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2020.5',
             'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2020.5',
@@ -99,7 +98,6 @@
         }
     },
     modules: [
-        {name: 'app/view-boots-regressions.2017.3.3'},
         {name: 'app/view-builds-all.2017.5'},
         {name: 'app/view-builds-id.2020.5'},
         {name: 'app/view-builds-job-branch-kernel.2020.5'},
