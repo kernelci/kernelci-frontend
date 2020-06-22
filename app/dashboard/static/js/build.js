@@ -61,7 +61,6 @@
     map: {
         '*': {
             'app/view-boots-all-jb': 'app/view-boots-all-jb.2017.3.4',
-            'app/view-boots-all-job-branch-kernel-defconfig': 'app/view-boots-all-job-branch-kernel-defconfig.2017.3.3',
             'app/view-boots-all-job-kernel-defconfig': 'app/view-boots-all-job-kernel-defconfig.2017.3.3',
             'app/view-boots-all-lab': 'app/view-boots-all-lab.2017.3.5',
             'app/view-boots-board': 'app/view-boots-board.2017.3.3',
@@ -107,7 +106,6 @@
         }
     },
     modules: [
-        {name: 'app/view-boots-all-job-branch-kernel-defconfig.2017.3.3'},
         {name: 'app/view-boots-all-job-kernel-defconfig.2017.3.3'},
         {name: 'app/view-boots-all-lab.2017.3.5'},
         {name: 'app/view-boots-all-jb.2017.3.4'},
