@@ -150,7 +150,7 @@ define([
         str += gKernel;
         str += '/';
         aNode.setAttribute('href', str);
-        aNode.appendChild(html.stethoscope());
+        aNode.appendChild(html.test());
 
         tooltipNode.appendChild(aNode);
         domNode.appendChild(tooltipNode);
