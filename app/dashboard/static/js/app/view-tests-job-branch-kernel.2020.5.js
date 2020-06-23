@@ -63,7 +63,7 @@ require([
         commit = results.git_commit;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;"
+        treeNode.title = "All results for tree &#171;" + job + "&#187;"
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
