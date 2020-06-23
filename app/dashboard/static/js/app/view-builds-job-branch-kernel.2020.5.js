@@ -764,8 +764,6 @@ require([
         var spanNode;
         var tURLs;
         var tooltipNode;
-        var branchNode;
-        var branchLink;
 
         results = response.result;
         if (results.length === 0) {
@@ -809,17 +807,17 @@ require([
             html.replaceContent(document.getElementById('tree'), docFrag);
 
             // Branch.
-            branchNode = html.tooltip();
-            branchNode.title =
-                "Branch reports for &#171;" + job + "&#187; - " + branch;
-            branchLink = document.createElement('a');
-            branchLink.href = "/job/" + job + "/branch/" + branch;
-            branchLink.appendChild(html.tree());
-            branchNode.appendChild(document.createTextNode(branch));
-            branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            branchNode.appendChild(branchLink);
+            tooltipNode = html.tooltip();
+            tooltipNode.title =
+                "All results for branch &#171;" + branch + "&#187;";
+            aNode = document.createElement('a');
+            aNode.href = "/job/" + job + "/branch/" + branch;
+            aNode.appendChild(html.tree());
+            tooltipNode.appendChild(document.createTextNode(branch));
+            tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+            tooltipNode.appendChild(aNode);
             html.replaceContent(
-                document.getElementById('git-branch'), branchNode);
+                document.getElementById('git-branch'), tooltipNode);
 
             // Git describe.
             docFrag = document.createDocumentFragment();

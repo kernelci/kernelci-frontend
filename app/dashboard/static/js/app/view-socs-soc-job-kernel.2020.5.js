@@ -61,9 +61,7 @@ define([
             gitCommit,
             gitURL,
             gitURLs,
-            tooltipNode,
-            branchNode,
-            branchLink;
+            tooltipNode;
 
         gitBranch = results.git_branch;
         gitCommit = results.git_commit;
@@ -109,18 +107,18 @@ define([
         html.replaceContent(document.getElementById('tree'), domNode);
 
         // Branch.
-        branchNode = html.tooltip();
-        branchNode.title =
-            "Branch reports for &#171;" + gJob + "&#187; - " + gitBranch;
-        branchLink = document.createElement('a');
-        branchLink.href = "/job/" + gJob + "/branch/" + gitBranch;
-        branchLink.appendChild(html.tree());
-        branchNode.appendChild(document.createTextNode(gitBranch));
-        branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        branchNode.appendChild(branchLink);
+        tooltipNode = html.tooltip();
+        tooltipNode.title =
+            "All results for branch &#171;" + gitBranch + "&#187;";
+        aNode = document.createElement('a');
+        aNode.href = "/job/" + gJob + "/branch/" + gitBranch;
+        aNode.appendChild(html.tree());
+        tooltipNode.appendChild(document.createTextNode(gitBranch));
+        tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        tooltipNode.appendChild(aNode);
 
         html.replaceContent(
-            document.getElementById('git-branch'), branchNode);
+            document.getElementById('git-branch'), tooltipNode);
 
         // Git describe.
         domNode = document.createElement('div');
