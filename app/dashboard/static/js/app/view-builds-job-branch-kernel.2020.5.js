@@ -824,31 +824,6 @@ require([
             spanNode = docFrag.appendChild(document.createElement('span'));
 
             spanNode.appendChild(document.createTextNode(kernel));
-
-            spanNode.insertAdjacentHTML(
-                'beforeend', '&nbsp;&mdash;&nbsp;');
-
-            tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.setAttribute(
-                'title',
-                'Build reports for ' + job + '&nbsp;&ndash;&nbsp;' +
-                kernel +
-                '&nbsp;(' + branch + ')'
-            );
-            aNode = tooltipNode.appendChild(document.createElement('a'));
-            aNode.setAttribute(
-                'href',
-                u.createPathHref([
-                    '/build/',
-                    job,
-                    'branch',
-                    branch,
-                    'kernel',
-                    kernel,
-                    '/'
-                ]));
-            aNode.appendChild(html.build());
-
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
