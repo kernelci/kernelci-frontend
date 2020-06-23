@@ -503,8 +503,6 @@ require([
         var translatedUri;
         var txtSize;
         var vmlinuxFileSize;
-        var defconfigLink;
-        var defconfigNode;
 
         results = response.result;
 
@@ -777,18 +775,12 @@ require([
             }
 
             // Defconfig.
-            defconfigNode = html.tooltip();
-            defconfigNode.title =
-                "defconfig reports for &#171;" + job + "&#187; - " + defconfigFull;
-            defconfigLink = document.createElement('a');
-            defconfigLink.href = "/build/id/" + results._id.$oid;
-            defconfigLink.appendChild(html.build());
-            defconfigNode.appendChild(document.createTextNode(defconfigFull));
-            defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-            defconfigNode.appendChild(defconfigLink);
+            docFrag = document.createDocumentFragment();
+            spanNode = docFrag.appendChild(document.createElement('span'));
+            spanNode.appendChild(document.createTextNode(defconfigFull));
 
             html.replaceContent(
-                document.getElementById('build-defconfig'), defconfigNode);
+                document.getElementById('build-defconfig'), docFrag);
 
             // Date.
             docFrag = document.createDocumentFragment();
