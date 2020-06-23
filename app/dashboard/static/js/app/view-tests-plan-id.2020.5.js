@@ -66,13 +66,17 @@ require([
         var branchNode;
         var branchLink;
         var defconfigFull;
-        var defconfigLink;
         var defconfigNode;
+        var defconfigPath;
+        var defconfigLink;
+        var buildLink;
 
         job = results.job;
         branch = results.git_branch;
         kernel = results.kernel;
         defconfigFull = results.defconfig_full;
+
+        translatedURI = urls.createFileServerURL(gFileServer, results);
 
         treeNode = html.tooltip();
         treeNode.title = "All results for tree &#171;" + job + "&#187;";
@@ -115,14 +119,22 @@ require([
 
         // Defconfig.
         defconfigNode = html.tooltip();
-        defconfigNode.title =
-            "defconfig reports for &#171;" + job + "&#187; - " + defconfigFull;
         defconfigLink = document.createElement('a');
-        defconfigLink.href = "/build/id/" + results._id.$oid;
-        defconfigLink.appendChild(html.build());
-        defconfigNode.appendChild(document.createTextNode(defconfigFull));
-        defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        defconfigLink.appendChild(
+            document.createTextNode(results.defconfig_full));
+        defconfigPath = translatedURI[1] + "/kernel.config";
+        defconfigLink.href =
+            translatedURI[0].path(defconfigPath).normalizePath().href();
+        defconfigLink.title = "Defconfig URL";
+        defconfigLink.insertAdjacentHTML('beforeend', '&nbsp;');
+        defconfigLink.appendChild(html.external());
         defconfigNode.appendChild(defconfigLink);
+        buildLink = document.createElement('a');
+        buildLink.href = "/build/id/" + results._id.$oid;
+        buildLink.appendChild(html.build());
+        buildLink.title = "Build details";
+        defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        defconfigNode.appendChild(buildLink);
 
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
@@ -135,7 +147,6 @@ require([
         dateNode.appendChild(
             document.createTextNode(createdOn.toCustomISODate()));
 
-        translatedURI = urls.createFileServerURL(gFileServer, results);
         logNode = tcommon.logsNode(
             results.boot_log, results.boot_log_html, results.lab_name,
             translatedURI[0], translatedURI[1]);
