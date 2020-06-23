@@ -83,10 +83,10 @@ require([
         branchNode.appendChild(branchLink);
 
         describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
+        describeNode.title = "Build results for &#171;" + kernel + "&#187; - ";
         buildsLink = document.createElement('a');
-        buildsLink.href = "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+        buildsLink.href =
+            "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');

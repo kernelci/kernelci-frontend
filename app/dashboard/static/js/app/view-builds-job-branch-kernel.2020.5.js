@@ -852,8 +852,7 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.title =
-                "Test reports for &#171;" + job + "&#187; - " + kernel;
+            tooltipNode.title = "Test results for &#171;" + kernel + "&#187;";
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.href =
