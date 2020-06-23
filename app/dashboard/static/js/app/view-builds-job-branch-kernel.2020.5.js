@@ -791,21 +791,18 @@ require([
             // Tree.
             docFrag = document.createDocumentFragment();
             spanNode = docFrag.appendChild(document.createElement('span'));
-            tooltipNode = spanNode.appendChild(html.tooltip());
-
-            aNode = tooltipNode.appendChild(document.createTextNode(job));
+            spanNode.appendChild(document.createTextNode(job));
 
             spanNode.insertAdjacentHTML(
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.setAttribute(
-                'title', 'Test reports for ' + job);
+            tooltipNode.title = "All results for tree &#171;" + job + "&#187;"
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
                 'href', u.createPathHref(['/job/', job, '/']));
-            aNode.appendChild(html.boot());
+            aNode.appendChild(html.tree());
 
             html.replaceContent(document.getElementById('tree'), docFrag);
 

@@ -609,17 +609,11 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            str = 'Test reports for ';
-            str += '&nbsp;';
-            str += job;
-            tooltipNode.setAttribute('title', str);
+            tooltipNode.title = "All results for tree &#171;" + job + "&#187;"
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            str = '/job/';
-            str += job;
-            str += '/';
-            aNode.setAttribute('href', str);
-            aNode.appendChild(html.boot());
+            aNode.href = "/job/" + job + "/";
+            aNode.appendChild(html.tree());
 
             html.replaceContent(document.getElementById('tree'), docFrag);
 
