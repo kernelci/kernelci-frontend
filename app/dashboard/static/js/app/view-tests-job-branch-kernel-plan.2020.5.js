@@ -58,7 +58,10 @@ require([
         var treeNode;
         var jobLink;
         var describeNode;
+        var buildsNode
         var buildsLink;
+        var testsNode;
+        var testsLink;
         var gitNode;
         var createdOn;
         var dateNode;
@@ -71,7 +74,7 @@ require([
         commit = results.git_commit;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;";
+        treeNode.title = "All results for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -79,7 +82,6 @@ require([
         treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         treeNode.appendChild(jobLink);
 
-        // Branch.
         branchNode = html.tooltip();
         branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
@@ -89,16 +91,25 @@ require([
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         branchNode.appendChild(branchLink);
 
-        describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
+        describeNode = document.createElement('span');
+        buildsNode = html.tooltip();
+        buildsNode.title = "Build results for &#171;" + kernel + "&#187;";
+        buildsLink = buildsNode.appendChild(document.createElement('a'));
         buildsLink.href =
             "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
+        testsNode = html.tooltip();
+        testsNode.title = "Test results for &#171;" + kernel + "&#187;";
+        testsLink = testsNode.appendChild(document.createElement('a'));
+        testsLink.href =
+            "/test/job/" + job + "/branch/" + branch +
+            "/kernel/" + kernel + "/";
+        testsLink.appendChild(html.test());
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
+        describeNode.appendChild(buildsNode);
+        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        describeNode.appendChild(testsNode);
 
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
