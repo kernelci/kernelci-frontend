@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -127,6 +127,19 @@ define([
         return frag;
     };
 
+    html.test = function (extraClass) {
+        var frag;
+        var iNode;
+        var spanNode;
+
+        frag = document.createDocumentFragment();
+
+        iNode = frag.appendChild(document.createElement('i'));
+        iNode.className = 'fa fa-stethoscope';
+
+        return frag;
+    };
+
     html.soc = function() {
         var frag;
         var iNode;
@@ -223,24 +236,6 @@ define([
         }
         iNode = spanNode.appendChild(document.createElement('i'));
         iNode.className = 'fa fa-check';
-
-        return frag;
-    };
-
-    html.stethoscope = function (extraClass) {
-        var frag;
-        var iNode;
-        var spanNode;
-
-        frag = document.createDocumentFragment();
-
-        spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-success label-status';
-        if (extraClass && extraClass.trim().length > 0) {
-            spanNode.className += ' ' + extraClass;
-        }
-        iNode = spanNode.appendChild(document.createElement('i'));
-        iNode.className = 'fa fa-stethoscope';
 
         return frag;
     };

@@ -255,15 +255,10 @@ require([
                 "Test reports for &#171;" + job + "&#187; - " + kernel;
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
-            var str = '/test/job/';
-            str += job;
-            str += '/branch/';
-            str += branch;
-            str += '/kernel/';
-            str += kernel;
-            str += '/';
-            aNode.setAttribute('href', str);
-            aNode.appendChild(html.stethoscope());
+            aNode.href =
+                "/test/job/" + job + "/branch/" + branch +
+                "/kernel/" + kernel + "/";
+            aNode.appendChild(html.test());
 
             html.replaceContent(
                 document.getElementById('git-describe'), docFrag);

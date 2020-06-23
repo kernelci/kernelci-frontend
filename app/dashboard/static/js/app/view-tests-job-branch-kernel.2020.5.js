@@ -131,7 +131,7 @@ require([
                 kernel,
                 '/'
             ]));
-        aNode.appendChild(html.stethoscope());
+        aNode.appendChild(html.test());
 
         gitNode = document.createElement('a');
         gitNode.appendChild(document.createTextNode(results.git_url));
