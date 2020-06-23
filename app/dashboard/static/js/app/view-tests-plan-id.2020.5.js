@@ -89,25 +89,22 @@ require([
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         branchNode.appendChild(branchLink);
 
-        describeNode = document.createElement('span')
+        describeNode = document.createElement('span');
         buildsNode = html.tooltip();
-        buildsNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
+        buildsNode.title = "Build results for &#171;" + kernel + "&#187;";
+        buildsLink = buildsNode.appendChild(document.createElement('a'));
         buildsLink.href =
             "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
-        buildsNode.appendChild(document.createTextNode(kernel));
-        buildsNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        buildsNode.appendChild(buildsLink);
         testsNode = html.tooltip();
-        testsNode.title =
-            "Test reports for &#171;" + job + "&#187; - " + kernel;
-        testsLink = document.createElement('a');
+        testsNode.title = "Test results for &#171;" + kernel + "&#187;";
+        testsLink = testsNode.appendChild(document.createElement('a'));
         testsLink.href =
             "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
         testsLink.appendChild(html.boot());
         testsNode.appendChild(testsLink);
+        describeNode.appendChild(document.createTextNode(kernel));
+        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(buildsNode);
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         describeNode.appendChild(testsNode);
