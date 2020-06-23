@@ -48,22 +48,29 @@ require([
         var job;
         var kernel;
         var branch;
+        var plan;
         var treeNode;
         var jobLink;
         var describeNode;
+        var buildsNode;
         var buildsLink;
+        var testsNode;
+        var testsLink;
         var createdOn;
         var dateNode;
         var status;
         var branchNode;
         var branchLink;
+        var planNode;
+        var planLink;
 
         job = results.job;
         kernel = results.kernel;
         branch = results.git_branch;
+        plan = results.plan;
 
         treeNode = html.tooltip();
-        treeNode.title = "Details for tree &#171;" + job + "&#187;";
+        treeNode.title = "All results for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -71,16 +78,36 @@ require([
         treeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
         treeNode.appendChild(jobLink);
 
-        describeNode = html.tooltip();
-        describeNode.title =
-            "Build reports for &#171;" + job + "&#187; - " + kernel;
-        buildsLink = document.createElement('a');
+        describeNode = document.createElement('span');
+        buildsNode = html.tooltip();
+        buildsNode.title = "Build reports for &#171;" + kernel + "&#187;";
+        buildsLink = buildsNode.appendChild(document.createElement('a'));
         buildsLink.href =
             "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
         buildsLink.appendChild(html.build());
+        testsNode = html.tooltip();
+        testsNode.title = "Test results for &#171;" + kernel + "&#187;";
+        testsLink = document.createElement('a');
+        testsLink.href =
+            "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
+        testsLink.appendChild(html.test());
+        testsNode.appendChild(testsLink);
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        describeNode.appendChild(buildsLink);
+        describeNode.appendChild(buildsNode);
+        describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        describeNode.appendChild(testsNode);
+
+        planNode = html.tooltip();
+        planNode.title = "All results for plan &#171;" + plan + "&#187;";
+        planLink = document.createElement('a');
+        planLink.href =
+            "/test/job/" + job + "/branch/" + branch +
+            "/kernel/" + kernel + "/plan/" + plan + "/";
+        planLink.appendChild(html.test());
+        planNode.appendChild(document.createTextNode(plan));
+        planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
+        planNode.appendChild(planLink)
 
         // Branch.
         branchNode = html.tooltip();
@@ -130,6 +157,8 @@ require([
         html.replaceContent(  /* ToDo: link to commit when possible */
             document.getElementById('git-commit'),
             document.createTextNode(results.git_commit));
+        html.replaceContent(
+            document.getElementById('plan'), planNode);
         html.replaceContent(
             document.getElementById('arch'),
             document.createTextNode(results.arch));
