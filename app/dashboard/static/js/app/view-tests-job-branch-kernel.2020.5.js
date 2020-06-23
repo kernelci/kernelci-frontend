@@ -74,8 +74,7 @@ require([
         treeNode.appendChild(jobLink);
 
         branchNode = html.tooltip();
-        branchNode.title =
-            "Branch reports for &#171;" + job + "&#187; - " + branch;
+        branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
         branchLink.href = "/job/" + job + "/branch/" + branch;
         branchLink.appendChild(html.tree());
