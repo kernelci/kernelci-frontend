@@ -34,7 +34,7 @@ class GeneralBuildsView(View):
     """Generic view for all the build ones."""
 
     PAGE_TITLE = app.config.get("DEFAULT_PAGE_TITLE")
-    BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Reports")
+    BUILD_PAGES_TITLE = u"%s &mdash; %s" % (PAGE_TITLE, "Build Results")
     FEED_LINK = u"<a href=\"feed.xml\"><i class=\"fa fa-rss\"></i></a>"
 
 
@@ -91,7 +91,7 @@ class BuildsJobBranchKernelView(GeneralBuildsView):
         kernel = kwargs["kernel"]
 
         body_title = \
-            "Build Reports: &#171;{}&#187; &ndash;&nbsp;".format(tree)
+            "Build Results: &#171;{}&#187;".format(kernel)
 
         return render_template(
             "builds-job-branch-kernel.html",
@@ -112,7 +112,7 @@ class BuildsJobKernelDefconfigView(GeneralBuildsView):
             return redirect(url_for("build-id", **{"uid": build_id}), code=301)
         else:
             body_title = (
-                u"Build Reports: &#171;{job:s}&#187; &ndash; {kernel:s}"
+                u"Build Results: &#171;{job:s}&#187; &ndash; {kernel:s}"
             ).format(**kwargs)
 
             return render_template(
