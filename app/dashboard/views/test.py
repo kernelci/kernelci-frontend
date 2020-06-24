@@ -91,8 +91,8 @@ class TestJobBranchKernelView(TestGenericView):
         page_title = "{} &mdash; {}/{} {}".format(
             self.TESTS_PAGE_TITLE, job, branch, kernel)
         body_title = (
-            "Test Results: &#171;{}&#187 - {} <small>({})</small>".format(
-                job, kernel, branch)
+            "Test Results: &#171;{}&#187 <small>({} / {})</small>".format(
+                kernel, job, branch)
         )
 
         return render_template(
@@ -112,8 +112,8 @@ class TestJobBranchKernelPlanView(TestGenericView):
         page_title = "{} &mdash; {}/{} {} {}".format(
             self.TESTS_PAGE_TITLE, job, branch, kernel, plan)
         body_title = (
-            "Details for {}: &#171;{}&#187 - {} <small>({})</small>".format(
-                plan, job, kernel, branch)
+            "Results for {}: &#171;{}&#187 <small>({} / {})</small>".format(
+                plan, kernel, job, branch)
         )
 
         return render_template(

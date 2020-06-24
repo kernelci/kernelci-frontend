@@ -167,14 +167,20 @@ require([
             translatedURI[0], translatedURI[1]);
 
         html.replaceContent(
-            document.getElementById('lab-name'),
-            document.createTextNode(results.lab_name));
-        html.replaceContent(
-            document.getElementById('plan-name'),
+            document.getElementById('plan-title'),
             document.createTextNode(results.name));
         html.replaceContent(
-            document.getElementById('device-type'),
+            document.getElementById('kernel-title'),
+            document.createTextNode(kernel));
+        html.replaceContent(
+            document.getElementById('device-type-title'),
             document.createTextNode(results.device_type));
+        html.replaceContent(
+            document.getElementById('tree-title'),
+            document.createTextNode(job));
+        html.replaceContent(
+            document.getElementById('branch-title'),
+            document.createTextNode(branch));
         html.replaceContent(
             document.getElementById('tree'), treeNode);
         html.replaceContent(
