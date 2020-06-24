@@ -780,10 +780,9 @@ require([
 
             // The kernel name in the title.
             spanNode = document.createElement('span');
-            spanNode.appendChild(document.createTextNode(kernel));
-            spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
             smallNode = spanNode.appendChild(document.createElement('small'));
-            smallNode.appendChild(document.createTextNode('(' + branch + ')'));
+            smallNode.appendChild(document.createTextNode(
+                "(" + job + " / " + branch + ")"));
 
             html.replaceContent(
                 document.getElementById('kernel-title'), spanNode);

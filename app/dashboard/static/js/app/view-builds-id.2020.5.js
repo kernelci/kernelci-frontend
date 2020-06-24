@@ -571,20 +571,16 @@ require([
             spanNode = docFrag.appendChild(document.createElement('span'));
 
             spanNode.insertAdjacentHTML('beforeend', '&#171;');
-            spanNode.appendChild(document.createTextNode(job));
+            spanNode.appendChild(document.createTextNode(kernel));
             spanNode.insertAdjacentHTML('beforeend', '&#187;');
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&ndash;&nbsp;');
-            spanNode.appendChild(document.createTextNode(kernel));
+            spanNode.appendChild(document.createTextNode(defconfig));
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;');
 
             defconfigNode = spanNode.appendChild(
                 document.createElement('small'));
-            str = '(';
-            str += branch;
-            str += '&nbsp;&ndash;&nbsp;';
-            str += defconfig;
-            str += ')';
-            defconfigNode.insertAdjacentHTML('beforeend', str);
+            defconfigNode.insertAdjacentHTML(
+                'beforeend', "(" + job + " / " + branch + ")");
 
             document.getElementById('details').appendChild(docFrag);
 
