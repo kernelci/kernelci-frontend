@@ -433,7 +433,7 @@ define([
         aNode = document.createElement('a');
         aNode.setAttribute(
             'href', urls.createPathHref(['/test/plan/id/', docId, '/']));
-        aNode.appendChild(document.createTextNode('More info'));
+        aNode.appendChild(document.createTextNode('Full results'));
         aNode.insertAdjacentHTML('beforeend', '&nbsp;');
         aNode.appendChild(html.search());
         tooltipNode.appendChild(aNode);
