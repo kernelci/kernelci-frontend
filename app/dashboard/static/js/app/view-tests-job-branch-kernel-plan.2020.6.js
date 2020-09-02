@@ -58,7 +58,7 @@ require([
         var treeNode;
         var jobLink;
         var describeNode;
-        var buildsNode
+        var buildsNode;
         var buildsLink;
         var testsNode;
         var testsLink;
@@ -274,6 +274,8 @@ require([
                 var nodeId = data.operation_id + '-regression';
                 var regrNode;
                 var regrInfo;
+                var regrCase;
+                var regrLink;
                 var dlNode;
                 var dtNode;
                 var testCase;
@@ -302,8 +304,14 @@ require([
                 regrNode.appendChild(document.createElement('hr'));
                 dlNode = document.createElement('dl');
                 dlNode.className = 'dl-horizontal';
+                regrLink = document.createElement('a');
+                regrCase = regr.regressions[regr.regressions.length - 1];
+                regrLink.href = '/test/case/id/' + regrCase.test_case_id.$oid;
+                regrLink.appendChild(document.createTextNode(testCase));
                 dtNode = document.createElement('dt');
-                dtNode.appendChild(document.createTextNode(testCase));
+                dtNode.appendChild(html.fail());
+                dtNode.insertAdjacentHTML('beforeend', '&nbsp;&nbsp;');
+                dtNode.appendChild(regrLink);
                 dlNode.appendChild(dtNode);
                 dlNode.appendChild(regrInfo);
                 regrNode.appendChild(dlNode);
