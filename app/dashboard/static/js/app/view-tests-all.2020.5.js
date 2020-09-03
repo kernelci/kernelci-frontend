@@ -173,7 +173,7 @@ require([
         }
 
         if (results.length > 0) {
-            batchOps = []
+            batchOps = [];
             results.forEach(createBatchOp);
 
             deferred = request.post(
@@ -192,25 +192,17 @@ require([
         }
 
         function _renderKernel(data, type, object) {
-            var href = '/test/job/';
-            href += object.job;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + object.job +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + data + '/';
             return jobt.renderKernel(data, type, href);
         }
 
         function _renderBranch(data, type, object) {
-            var href;
-
-            href = '/job/';
-            href += object.job;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/';
-
+            var href =
+                '/job/' + object.job +
+                '/branch/' + URI.encode(object.git_branch) + '/';
             return jobt.renderKernel(data, type, href);
         }
 
@@ -233,20 +225,12 @@ require([
          * Wrapper to provide the href.
          **/
         function _renderTestCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/test/job/';
-            href += object.job;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += object.kernel;
-            href += '/plan/';
-            href += object.name;
-            href += '/';
-
-            nodeId = data;
+            var href =
+                '/test/job/' + object.job +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + object.kernel +
+                '/plan/' + object.name + '/';
+            var nodeId = data;
             return ttest.renderTestCount({
                 data: nodeId,
                 type: type,
@@ -381,7 +365,7 @@ require([
             date_range: gDateRange,
             limit: appconst.MAX_QUERY_LIMIT,
             distinct: ['board', 'kernel'],
-        }
+        };
 
         deferred = request.get('/_ajax/test/group', reqData);
         $.when(deferred)

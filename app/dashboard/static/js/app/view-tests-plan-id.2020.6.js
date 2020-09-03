@@ -50,6 +50,7 @@ require([
     function updateDetails(results) {
         var job;
         var branch;
+        var branchURI;
         var kernel;
         var plan;
         var treeNode;
@@ -66,7 +67,6 @@ require([
         var logNode;
         var branchNode;
         var branchLink;
-        var defconfigFull;
         var defconfigNode;
         var defconfigPath;
         var defconfigLink;
@@ -76,8 +76,8 @@ require([
 
         job = results.job;
         branch = results.git_branch;
+        branchURI = URI.encode(branch);
         kernel = results.kernel;
-        defconfigFull = results.defconfig_full;
         plan = results.name;
 
         translatedURI = urls.createFileServerURL(gFileServer, results);
@@ -95,7 +95,7 @@ require([
         branchNode = html.tooltip();
         branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
-        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.href = "/job/" + job + "/branch/" + branchURI + '/';
         branchLink.appendChild(html.tree());
         branchNode.appendChild(document.createTextNode(branch));
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -106,13 +106,15 @@ require([
         buildsNode.title = "Build results for &#171;" + kernel + "&#187;";
         buildsLink = buildsNode.appendChild(document.createElement('a'));
         buildsLink.href =
-            "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/build/" + job + "/branch/" + branchURI +
+            "/kernel/" + kernel + '/';
         buildsLink.appendChild(html.build());
         testsNode = html.tooltip();
         testsNode.title = "Test results for &#171;" + kernel + "&#187;";
         testsLink = testsNode.appendChild(document.createElement('a'));
         testsLink.href =
-            "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/test/job/" + job + "/branch/" + branchURI +
+            "/kernel/" + kernel + '/';
         testsLink.appendChild(html.test());
         testsNode.appendChild(testsLink);
         describeNode.appendChild(document.createTextNode(kernel));
@@ -155,12 +157,12 @@ require([
         planNode.title = "All results for plan &#171;" + plan + "&#187;";
         planLink = document.createElement('a');
         planLink.href =
-            "/test/job/" + job + "/branch/" + branch +
+            "/test/job/" + job + "/branch/" + branchURI +
             "/kernel/" + kernel + "/plan/" + plan + "/";
         planLink.appendChild(html.test());
         planNode.appendChild(document.createTextNode(plan));
         planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        planNode.appendChild(planLink)
+        planNode.appendChild(planLink);
 
         logNode = tcommon.logsNode(
             results.boot_log, results.boot_log_html, results.lab_name,

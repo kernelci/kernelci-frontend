@@ -28,10 +28,9 @@ require([
     'charts/passrate',
     'utils/html',
     'tables/job',
-    'utils/date'
-], function($, init, format, r, e, table, u, chart, html, jobt) {
+    'URI',
+], function($, init, format, r, e, table, u, chart, html, jobt, URI) {
     'use strict';
-    var gBranchRegEx;
     var gBuildsTable;
     var gJobName;
     var gNumberRange;
@@ -47,9 +46,6 @@ require([
     gSearchFilter = null;
 
     gNumberRange = 20;
-    // Needed to translate git branch refnames from x/y into x:y or the
-    // forward slash will not work with URLs.
-    gBranchRegEx = new RegExp('/+', 'g');
 
     function getTestStatsFail() {
         html.replaceContent(
@@ -174,16 +170,13 @@ require([
 
         function createBatchOp(result) {
             kernel = result.kernel;
-            queryStr = 'job=';
-            queryStr += gJobName;
-            queryStr += '&kernel=';
-            queryStr += kernel;
-            queryStr += '&git_branch=';
-            queryStr += result.git_branch;
+            queryStr = URI.buildQuery({
+                'job': gJobName,
+                'kernel': kernel,
+                'git_branch': result.git_branch,
+            });
 
-            opIdTail = result.kernel;
-            opIdTail += '-';
-            opIdTail += result.git_branch;
+            opIdTail = result.kernel + '-' + result.git_branch;
 
             // Get total build count.
             opId = 'build-total-count-';
@@ -338,13 +331,10 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type, object) {
-            var href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + data + '/';
             return jobt.renderDetails(href, type);
         }
 
@@ -352,23 +342,15 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderTestCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-
-            nodeId = data;
-            nodeId += '-';
-            nodeId += object.git_branch;
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + data + '/';
+            var nodeId = data + '-' + object.git_branch;
             return jobt.renderTestCount({
                 data: nodeId,
                 type: type,
-                href: href
+                href: href,
             });
         }
 
@@ -376,13 +358,10 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderKernel(data, type, object) {
-            var href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + data + '/';
             return jobt.renderKernel(data, type, href);
         }
 
@@ -398,12 +377,9 @@ require([
 
         function _renderBranch(data, type) {
             var aNode;
-            var branch;
             var rendered;
             var tooltipNode;
-            var href;
 
-            branch = data.replace(gBranchRegEx, ':', 'g');
             rendered = data;
             if (type === 'display') {
                 tooltipNode = html.tooltip();
@@ -411,13 +387,8 @@ require([
 
                 aNode = document.createElement('a');
                 aNode.className = 'table-link';
-                href = '/job/';
-                href += gJobName;
-                href += '/branch/';
-                href += branch;
-                href += '/';
-                aNode.setAttribute('href', href);
-
+                aNode.href =
+                    '/job/' + gJobName + '/branch/' + URI.encode(data) + '/';
                 aNode.appendChild(document.createTextNode(data));
                 tooltipNode.appendChild(aNode);
 
@@ -428,23 +399,15 @@ require([
         }
 
         function _renderBuildCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/build/';
-            href += object.job;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += data;
-
-            nodeId = data;
-            nodeId += '-';
-            nodeId += object.git_branch;
+            var href =
+                '/build/' + gJobName +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + data + '/';
+            var nodeId = data + '-' + object.git_branch;
             return jobt.renderBuildCount({
                 data: nodeId,
                 type: type,
-                href: href
+                href: href,
             });
         }
 

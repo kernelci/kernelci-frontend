@@ -31,13 +31,9 @@ require([
     'utils/storage',
     'utils/session',
     'utils/filter',
-    'utils/date'
-], function(
-        $,
-        init,
-        format,
-        e,
-        r, u, commonBtns, buildBtns, chart, html, storage, session, filter) {
+    'URI',
+], function($, init, format, e, r, u, commonBtns, buildBtns, chart, html,
+            storage, session, filter, URI) {
     'use strict';
     var gBranch;
     var gFileServer;
@@ -191,7 +187,6 @@ require([
         var archLabelNode;
         var compiler;
         var compilerLabelNode;
-        var branch;
         var cls;
         var colNode;
         var collapseBodyNode;
@@ -277,7 +272,6 @@ require([
 
         function _parseResult(result, idx) {
             docId = result._id.$oid;
-            branch = result.git_branch;
             defconfigFull = result.defconfig_full;
             job = result.job;
             kernel = result.kernel;
@@ -796,7 +790,7 @@ require([
                 'beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.title = "All results for tree &#171;" + job + "&#187;"
+            tooltipNode.title = "All results for tree &#171;" + job + "&#187;";
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.setAttribute(
@@ -810,7 +804,7 @@ require([
             tooltipNode.title =
                 "All results for branch &#171;" + branch + "&#187;";
             aNode = document.createElement('a');
-            aNode.href = "/job/" + job + "/branch/" + branch;
+            aNode.href = "/job/" + job + "/branch/" + URI.encode(branch) + '/';
             aNode.appendChild(html.tree());
             tooltipNode.appendChild(document.createTextNode(branch));
             tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -830,7 +824,7 @@ require([
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.href =
-                "/test/job/" + job + "/branch/" + branch +
+                "/test/job/" + job + "/branch/" + URI.encode(branch) +
                 "/kernel/" + kernel + "/";
             aNode.appendChild(html.test());
 
@@ -1061,7 +1055,7 @@ require([
                 {
                     job: results.job,
                     kernel: results.kernel,
-                    git_branch: results.git_branch
+                    git_branch: URI.encode(results.git_branch),
                 }))
             .fail(e.error, getLogsFail)
             .done(getLogsDone);
@@ -1077,7 +1071,7 @@ require([
 
         data = {
             job: job,
-            git_branch: branch
+            git_branch: branch,
         };
 
         if (kernel) {
@@ -1184,7 +1178,7 @@ require([
         gFileServer = document.getElementById('file-server').value;
     }
     if (document.getElementById('branch-name') !== null) {
-        gBranch = document.getElementById('branch-name').value;
+        gBranch = URI.decode(document.getElementById('branch-name').value);
     }
     if (document.getElementById('tree-name') !== null) {
         gTree = document.getElementById('tree-name').value;

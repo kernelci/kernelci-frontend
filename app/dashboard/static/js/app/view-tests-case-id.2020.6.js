@@ -29,7 +29,8 @@ require([
     'utils/request',
     'utils/table',
     'utils/urls',
-], function($, tcommon, ttable, error, html, init, request, table, urls) {
+    'URI',
+], function($, tcommon, ttable, error, html, init, request, table, urls, URI) {
     'use strict';
 
     var gCaseId;
@@ -48,6 +49,7 @@ require([
         var job;
         var kernel;
         var branch;
+        var branchURI;
         var plan;
         var treeNode;
         var jobLink;
@@ -67,6 +69,7 @@ require([
         job = results.job;
         kernel = results.kernel;
         branch = results.git_branch;
+        branchURI = URI.encode(branch);
         plan = results.plan;
 
         treeNode = html.tooltip();
@@ -83,13 +86,15 @@ require([
         buildsNode.title = "Build reports for &#171;" + kernel + "&#187;";
         buildsLink = buildsNode.appendChild(document.createElement('a'));
         buildsLink.href =
-            "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/build/" + job + "/branch/" + branchURI +
+            "/kernel/" + kernel + '/';
         buildsLink.appendChild(html.build());
         testsNode = html.tooltip();
         testsNode.title = "Test results for &#171;" + kernel + "&#187;";
         testsLink = document.createElement('a');
         testsLink.href =
-            "/test/job/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/test/job/" + job + "/branch/" + branchURI +
+            "/kernel/" + kernel + '/';
         testsLink.appendChild(html.test());
         testsNode.appendChild(testsLink);
         describeNode.appendChild(document.createTextNode(kernel));
@@ -102,18 +107,18 @@ require([
         planNode.title = "All results for plan &#171;" + plan + "&#187;";
         planLink = document.createElement('a');
         planLink.href =
-            "/test/job/" + job + "/branch/" + branch +
+            "/test/job/" + job + "/branch/" + branchURI +
             "/kernel/" + kernel + "/plan/" + plan + "/";
         planLink.appendChild(html.test());
         planNode.appendChild(document.createTextNode(plan));
         planNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
-        planNode.appendChild(planLink)
+        planNode.appendChild(planLink);
 
         // Branch.
         branchNode = html.tooltip();
         branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
-        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.href = "/job/" + job + "/branch/" + branchURI + '/';
         branchLink.appendChild(html.tree());
         branchNode.appendChild(document.createTextNode(branch));
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
