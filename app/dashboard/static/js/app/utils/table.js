@@ -1,11 +1,11 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) Collabora Limited 2020
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
  *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -22,10 +22,11 @@
  */
 define([
     'jquery',
+    'URI',
     'sprintf',
     'datatables.net',
-    'datatables.bootstrap'
-], function($) {
+    'datatables.bootstrap',
+], function($, URI) {
     'use strict';
     var gMenuFmt,
         gSearchLanguage,
@@ -397,7 +398,7 @@ define([
                             } else {
                                 elementVal = rowData[element] || null;
                             }
-                            substitutions[element] = elementVal;
+                            substitutions[element] = URI.encode(elementVal);
                         });
 
                         location = sprintf(that._rowURL, substitutions);
