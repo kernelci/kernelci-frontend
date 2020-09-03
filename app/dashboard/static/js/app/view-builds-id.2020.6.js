@@ -461,6 +461,7 @@ require([
         var aNode;
         var arch;
         var branch;
+        var branchURI;
         var bssSize;
         var buildLog;
         var buildLogSize;
@@ -535,6 +536,7 @@ require([
             job = results.job;
             kernel = results.kernel;
             branch = results.git_branch;
+            branchURI = URI.encode(branch);
             gitURL = results.git_url;
             gitCommit = results.git_commit;
             createdOn = new Date(results.created_on.$date);
@@ -605,7 +607,7 @@ require([
             spanNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
             tooltipNode = spanNode.appendChild(html.tooltip());
-            tooltipNode.title = "All results for tree &#171;" + job + "&#187;"
+            tooltipNode.title = "All results for tree &#171;" + job + "&#187;";
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.href = "/job/" + job + "/";
@@ -618,7 +620,7 @@ require([
             tooltipNode.title =
                 "All results for branch &#171;" + branch + "&#187;";
             aNode = document.createElement('a');
-            aNode.href = "/job/" + job + "/branch/" + branch;
+            aNode.href = "/job/" + job + "/branch/" + branchURI + '/';
             aNode.appendChild(html.tree());
             tooltipNode.appendChild(document.createTextNode(branch));
             tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -635,7 +637,8 @@ require([
             tooltipNode.title = "Build results for &#171;" + kernel + "&#187;";
             aNode = document.createElement('a');
             aNode.href =
-                "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+                "/build/" + job + "/branch/" + branchURI +
+                "/kernel/" + kernel + '/';
             aNode.appendChild(html.build());
             tooltipNode.appendChild(document.createTextNode(kernel));
             tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -648,7 +651,7 @@ require([
 
             aNode = tooltipNode.appendChild(document.createElement('a'));
             aNode.href =
-                "/test/job/" + job + "/branch/" + branch +
+                "/test/job/" + job + "/branch/" + branchURI +
                 "/kernel/" + kernel + "/";
             aNode.appendChild(html.test());
 

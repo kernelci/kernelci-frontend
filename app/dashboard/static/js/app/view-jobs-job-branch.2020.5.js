@@ -28,8 +28,8 @@ require([
     'charts/passrate',
     'utils/html',
     'tables/job',
-    'utils/date'
-], function($, init, format, r, e, table, u, chart, html, jobt) {
+    'URI',
+], function($, init, format, r, e, table, u, chart, html, jobt, URI) {
     'use strict';
     var gBranchName;
     var gBuildsTable;
@@ -174,12 +174,11 @@ require([
 
         function createBatchOp(result) {
             kernel = result.kernel;
-            queryStr = 'job=';
-            queryStr += gJobName;
-            queryStr += '&kernel=';
-            queryStr += kernel;
-            queryStr += '&git_branch=';
-            queryStr += gBranchName;
+            queryStr = URI.buildQuery({
+                'job': gJobName,
+                'kernel': kernel,
+                'git_branch': gBranchName,
+            });
 
             // Get total build count.
             opId = 'build-total-count-';
@@ -334,13 +333,10 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderKernel(data, type) {
-            var href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += gBranchName;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(gBranchName) +
+                '/kernel/' + data + '/';
             return jobt.renderKernel(data, type, href);
         }
 
@@ -358,24 +354,18 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderTestCount(data, type) {
-            var href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += gBranchName;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(gBranchName) +
+                '/kernel/' + data + '/';
             return jobt.renderTestCount({data: data, type: type, href: href});
         }
 
         function _renderBuildCount(data, type) {
-            var href = '/build/';
-            href += gJobName;
-            href += '/branch/';
-            href += gBranchName;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/build/' + gJobName +
+                '/branch/' + URI.encode(gBranchName) +
+                '/kernel/' + data + '/';
             return jobt.renderBuildCount({data: data, type: type, href: href});
         }
 
@@ -383,13 +373,10 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type) {
-            var href = '/test/job/';
-            href += gJobName;
-            href += '/branch/';
-            href += gBranchName;
-            href += '/kernel/';
-            href += data;
-            href += '/';
+            var href =
+                '/test/job/' + gJobName +
+                '/branch/' + URI.encode(gBranchName) +
+                '/kernel/' + data + '/';
             return jobt.renderDetails(href, type);
         }
 
@@ -591,7 +578,7 @@ require([
         gJobName = document.getElementById('job-name').value;
     }
     if (document.getElementById('branch-name') !== null) {
-        gBranchName = document.getElementById('branch-name').value;
+        gBranchName = URI.decode(document.getElementById('branch-name').value);
     }
     if (document.getElementById('page-len') !== null) {
         gPageLen = document.getElementById('page-len').value;

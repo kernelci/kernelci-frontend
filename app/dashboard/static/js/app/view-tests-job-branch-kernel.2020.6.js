@@ -47,6 +47,7 @@ require([
     function updateDetails(results) {
         var job;
         var branch;
+        var branchURI;
         var kernel;
         var commit;
         var treeNode;
@@ -61,11 +62,12 @@ require([
 
         job = results.job;
         branch = results.git_branch;
+        branchURI = URI.encode(branch);
         kernel = results.kernel;
         commit = results.git_commit;
 
         treeNode = html.tooltip();
-        treeNode.title = "All results for tree &#171;" + job + "&#187;"
+        treeNode.title = "All results for tree &#171;" + job + "&#187;";
         jobLink = document.createElement('a');
         jobLink.href = "/job/" + job + "/";
         jobLink.appendChild(html.tree());
@@ -76,7 +78,7 @@ require([
         branchNode = html.tooltip();
         branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
-        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.href = "/job/" + job + "/branch/" + branchURI + '/';
         branchLink.appendChild(html.tree());
         branchNode.appendChild(document.createTextNode(branch));
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -86,7 +88,8 @@ require([
         describeNode.title = "Build results for &#171;" + kernel + "&#187; - ";
         buildsLink = document.createElement('a');
         buildsLink.href =
-            "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/build/" + job + "/branch/" + branchURI +
+            "/kernel/" + kernel + '/';
         buildsLink.appendChild(html.build());
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -451,7 +454,7 @@ require([
         gJob = document.getElementById('job-name').value;
     }
     if (document.getElementById('branch-name') !== null) {
-        gBranch = document.getElementById('branch-name').value;
+        gBranch = URI.decode(document.getElementById('branch-name').value);
     }
     if (document.getElementById('kernel-name') !== null) {
         gKernel = document.getElementById('kernel-name').value;

@@ -27,8 +27,8 @@ require([
     'utils/const',
     'tables/job',
     'utils/format',
-    'utils/date'
-], function($, init, e, r, table, html, appconst, jobt, format) {
+    'URI',
+], function($, init, e, r, table, html, appconst, jobt, format, URI) {
     'use strict';
     var gBatchCountMissing;
     var gDateRange;
@@ -134,12 +134,11 @@ require([
             kernel = result.kernel;
             branch = result.git_branch;
 
-            qStr = 'job=';
-            qStr += job;
-            qStr += '&kernel=';
-            qStr += kernel;
-            qStr += '&git_branch=';
-            qStr += branch;
+            qStr = URI.buildQuery({
+                'job': job,
+                'kernel': kernel,
+                'git_branch': branch,
+            });
 
             opIdTail = job;
             opIdTail += '-';
@@ -302,11 +301,9 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderDetails(data, type, object) {
-            var href = '/job/';
-            href += data;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/';
+            var href =
+                '/job/' + data +
+                '/branch/' + URI.encode(object.git_branch) + '/';
             return jobt.renderDetails(href, type);
         }
 
@@ -314,20 +311,11 @@ require([
          * Wrapper to provide the href.
         **/
         function _renderTestCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/test/job/';
-            href += data;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += object.kernel;
-            href += '/';
-
-            nodeId = data;
-            nodeId += '-';
-            nodeId += object.git_branch;
+            var href =
+                '/test/job/' + data +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + object.kernel + '/';
+            var nodeId = data + '-' + object.git_branch;
             return jobt.renderTestCount({
                 data: nodeId,
                 type: type,
@@ -336,20 +324,11 @@ require([
         }
 
         function _renderBuildCount(data, type, object) {
-            var href;
-            var nodeId;
-
-            href = '/build/';
-            href += data;
-            href += '/branch/';
-            href += object.git_branch;
-            href += '/kernel/';
-            href += object.kernel;
-            href += '/';
-
-            nodeId = data;
-            nodeId += '-';
-            nodeId += object.git_branch;
+            var href =
+                '/build/' + data +
+                '/branch/' + URI.encode(object.git_branch) +
+                '/kernel/' + object.kernel + '/';
+            var nodeId = data + '-' + object.git_branch;
             return jobt.renderBuildCount({
                 data: nodeId,
                 type: type,
@@ -358,9 +337,7 @@ require([
         }
 
         function _renderTree(data, type) {
-            var href = '/job/';
-            href += data;
-            href += '/';
+            var href = '/job/' + data + '/';
             return jobt.renderTree(data, type, href);
         }
 
