@@ -88,13 +88,13 @@ def init():
     )
 
     add_rule(
-        "/build/<string:tree>/branch/<string:branch>/kernel/<string:kernel>/",
+        "/build/<string:tree>/branch/<path:branch>/kernel/<string:kernel>/",
         view_func=vbuild.BuildsJobBranchKernelView.as_view(
             "job-branch-kernel-builds"),
         methods=["GET"]
     )
     add_rule(
-        "/build/<string:tree>/branch/<string:branch>/kernel/latest/",
+        "/build/<string:tree>/branch/<path:branch>/kernel/latest/",
         view_func=vbuild.BuildsJobBranchKernelView.as_view(
             "job-branch-latest-builds"),
         methods=["GET"]
@@ -162,12 +162,12 @@ def init():
         methods=["GET"]
     )
     add_rule(
-        "/job/<string:job>/branch/<string:branch>/",
+        "/job/<string:job>/branch/<path:branch>/",
         view_func=vjob.JobsJobBranchView.as_view("job-branch"),
         methods=["GET"]
     )
     add_rule(
-        "/job/<string:job>/branch/<string:branch>/feed.xml",
+        "/job/<string:job>/branch/<path:branch>/feed.xml",
         "job-branch-feed",
         jobfeed.job_branch_feed,
         methods=["GET"]
@@ -242,7 +242,7 @@ def init():
 
     add_rule(
         (
-            "/test/job/<string:job>/branch/<string:branch>/"
+            "/test/job/<string:job>/branch/<path:branch>/"
             "kernel/<string:kernel>/"
         ),
         view_func=vtest.TestJobBranchKernelView.
@@ -252,7 +252,7 @@ def init():
 
     add_rule(
         (
-            "/test/job/<string:job>/branch/<string:branch>/"
+            "/test/job/<string:job>/branch/<path:branch>/"
             "kernel/<string:kernel>/plan/<string:plan>/"
         ),
         view_func=vtest.TestJobBranchKernelPlanView.
