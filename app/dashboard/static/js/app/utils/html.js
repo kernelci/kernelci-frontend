@@ -58,6 +58,24 @@ define([
         return htmlEntities[char];
     }
 
+    function _status(labelClass, symbolClass, extraClass) {
+        var frag;
+        var iNode;
+        var spanNode;
+
+        frag = document.createDocumentFragment();
+
+        spanNode = frag.appendChild(document.createElement('span'));
+        spanNode.className = 'label label-status ' + labelClass;
+        if (extraClass && extraClass.trim().length > 0) {
+            spanNode.className += ' ' + extraClass;
+        }
+        iNode = spanNode.appendChild(document.createElement('i'));
+        iNode.className = 'fa ' + symbolClass;
+
+        return frag;
+    }
+
     /**
      * Parse a string and HTML-escape its characters.
      *
@@ -127,10 +145,9 @@ define([
         return frag;
     };
 
-    html.test = function (extraClass) {
+    html.test = function () {
         var frag;
         var iNode;
-        var spanNode;
 
         frag = document.createDocumentFragment();
 
@@ -186,76 +203,20 @@ define([
         return frag;
     };
 
-    html.building = function(extraClass) {
-        var frag;
-        var iNode;
-        var spanNode;
-
-        frag = document.createDocumentFragment();
-
-        spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-info label-status';
-        if (extraClass && extraClass.trim().length > 0) {
-            spanNode.className += ' ' + extraClass;
-        }
-        iNode = spanNode.appendChild(document.createElement('i'));
-        iNode.className = 'fa fa-cogs';
-
-        return frag;
+    html.success = function(extraClass) {
+        return _status('label-success', 'fa-check', extraClass);
     };
 
     html.fail = function(extraClass) {
-        var frag;
-        var iNode;
-        var spanNode;
-
-        frag = document.createDocumentFragment();
-
-        spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-danger label-status';
-        if (extraClass && extraClass.trim().length > 0) {
-            spanNode.className += ' ' + extraClass;
-        }
-        iNode = spanNode.appendChild(document.createElement('i'));
-        iNode.className = 'fa fa-exclamation-triangle';
-
-        return frag;
-    };
-
-    html.success = function(extraClass) {
-        var frag;
-        var iNode;
-        var spanNode;
-
-        frag = document.createDocumentFragment();
-
-        spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-success label-status';
-        if (extraClass && extraClass.trim().length > 0) {
-            spanNode.className += ' ' + extraClass;
-        }
-        iNode = spanNode.appendChild(document.createElement('i'));
-        iNode.className = 'fa fa-check';
-
-        return frag;
+        return _status('label-danger', 'fa-exclamation-triangle', extraClass);
     };
 
     html.unknown = function(extraClass) {
-        var frag;
-        var iNode;
-        var spanNode;
+        return _status('label-warning', 'fa-question', extraClass);
+    };
 
-        frag = document.createDocumentFragment();
-
-        spanNode = frag.appendChild(document.createElement('span'));
-        spanNode.className = 'label label-warning label-status';
-        if (extraClass && extraClass.trim().length > 0) {
-            spanNode.className += ' ' + extraClass;
-        }
-        iNode = spanNode.appendChild(document.createElement('i'));
-        iNode.className = 'fa fa-question';
-
-        return frag;
+    html.building = function(extraClass) {
+        return _status('label-info', 'fa-cogs', extraClass);
     };
 
     html.tooltip = function() {
