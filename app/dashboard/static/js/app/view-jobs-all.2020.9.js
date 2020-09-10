@@ -142,21 +142,23 @@ require([
 
             opIdTail = job + '-' + branch;
 
-            // Get total build count.
-            opId = 'build-total-count-';
+            // Get successful build count.
+            opId = 'build-pass-count-';
             opId += opIdTail;
+            qHead = 'status=PASS&lt=warnings,1&';
+            qHead += qStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: qStr
+                query: qHead
             });
 
-            // Get successful build count.
-            opId = 'build-pass-count-';
+            // Get warnings build count.
+            opId = 'build-warning-count-';
             opId += opIdTail;
-            qHead = 'status=PASS&';
+            qHead = 'status=PASS&gte=warnings,1&';
             qHead += qStr;
             batchOps.push({
                 method: 'GET',
@@ -170,19 +172,6 @@ require([
             opId = 'build-fail-count-';
             opId += opIdTail;
             qHead = 'status=FAIL&';
-            qHead += qStr;
-            batchOps.push({
-                method: 'GET',
-                operation_id: opId,
-                resource: 'count',
-                document: 'build',
-                query: qHead
-            });
-
-            // Get unknown build count.
-            opId = 'build-warning-count-';
-            opId += opIdTail;
-            qHead = 'status=UNKNOWN&';
             qHead += qStr;
             batchOps.push({
                 method: 'GET',

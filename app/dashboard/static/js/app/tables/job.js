@@ -46,7 +46,7 @@ define([
         settings.extraClasses = ['extra-margin'];
         settings.idStart = 'build-';
         return tcommon.countAll(settings, [
-            'total', 'pass', 'fail', 'warning',
+            'pass', 'warning', 'fail',
         ]);
     };
 

@@ -180,21 +180,23 @@ require([
                 'git_branch': gBranchName,
             });
 
-            // Get total build count.
-            opId = 'build-total-count-';
+            // Get the successful build count.
+            opId = 'build-pass-count-';
             opId += kernel;
+            qHead = 'status=PASS&lt=warnings,1&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
                 document: 'build',
-                query: queryStr
+                query: qHead
             });
 
-            // Get the successful build count.
-            opId = 'build-pass-count-';
+            // Get warnings build count.
+            opId = 'build-warning-count-';
             opId += kernel;
-            qHead = 'status=PASS&';
+            qHead = 'status=PASS&gte=warnings,1&';
             qHead += queryStr;
             batchOps.push({
                 method: 'GET',
@@ -208,19 +210,6 @@ require([
             opId = 'build-fail-count-';
             opId += kernel;
             qHead = 'status=FAIL&';
-            qHead += queryStr;
-            batchOps.push({
-                method: 'GET',
-                operation_id: opId,
-                resource: 'count',
-                document: 'build',
-                query: qHead
-            });
-
-            // Get unknown build count.
-            opId = 'build-warning-count-';
-            opId += kernel;
-            qHead = 'status=UNKNOWN&';
             qHead += queryStr;
             batchOps.push({
                 method: 'GET',
