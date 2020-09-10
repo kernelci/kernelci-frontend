@@ -237,6 +237,7 @@ require([
 
             html.replaceContent(
                 document.getElementById('test-count-' + lab),
+                /* ToDo: pass/warning/fail */
                 createLabResultsCount(res['total'], res['success'],
                                       res['regressions'], res['unknown'])
             );

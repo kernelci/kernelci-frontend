@@ -251,15 +251,6 @@ require([
                 'plan': plan,
             });
 
-            /* Total number of test cases */
-            batchOps.push({
-                method: 'GET',
-                operation_id: 'test-total-count-' + plan,
-                resource: 'count',
-                document: 'test_case',
-                query: qStr,
-            });
-
             /* Number of passing test cases */
             batchOps.push({
                 method: 'GET',
@@ -269,6 +260,15 @@ require([
                 query: qStr + '&status=PASS',
             });
 
+            /* Number of warning test results */
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'test-warning-count-' + plan,
+                resource: 'count',
+                document: 'test_case',
+                query: qStr + '&status=FAIL&regression_id=null',
+            });
+
             /* Number of test case regressions */
             batchOps.push({
                 method: 'GET',
@@ -276,15 +276,6 @@ require([
                 resource: 'count',
                 document: 'test_regression',
                 query: qStr,
-            });
-
-            /* Number of unknown test results */
-            batchOps.push({
-                method: 'GET',
-                operation_id: 'test-warning-count-' + plan,
-                resource: 'count',
-                document: 'test_case',
-                query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
             });
         }
 
