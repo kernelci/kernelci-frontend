@@ -70,9 +70,7 @@ define([
     };
 
     gSocTables.countBadge = function(settings) {
-        return tcommon.countBadge(
-            settings.data,
-            settings.type, settings.extraClasses, settings.idStart).outerHTML;
+        return tcommon.countBadge(settings);
     };
 
     gSocTables.renderTestCount = function(data, type, href) {
@@ -82,7 +80,9 @@ define([
             href: href,
             extraClasses: ['extra-margin'],
             idStart: 'test-'
-        });
+        }, [
+            'total', 'pass', 'fail', 'warning',
+        ]);
     };
 
     gSocTables.renderDetails = function(href, type, title) {

@@ -4,7 +4,7 @@
  * Copyright (C) 2020 Collabora Limited
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
  * Author: Guillaume Tucker <guillaume.tucker@collabora.com>
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -182,7 +182,7 @@ require([
             });
 
             batchOps.push({
-                operation_id: 'test-success-count-' + kernel,
+                operation_id: 'test-pass-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
                 document: 'test_case',
@@ -198,7 +198,7 @@ require([
             });
 
             batchOps.push({
-                operation_id: 'test-unknown-count-' + kernel,
+                operation_id: 'test-warning-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
                 document: 'test_case',

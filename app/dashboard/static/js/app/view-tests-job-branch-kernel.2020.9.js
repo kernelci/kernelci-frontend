@@ -263,7 +263,7 @@ require([
             /* Number of passing test cases */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-success-count-' + plan,
+                operation_id: 'test-pass-count-' + plan,
                 resource: 'count',
                 document: 'test_case',
                 query: qStr + '&status=PASS',
@@ -281,7 +281,7 @@ require([
             /* Number of unknown test results */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-unknown-count-' + plan,
+                operation_id: 'test-warning-count-' + plan,
                 resource: 'count',
                 document: 'test_case',
                 query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
@@ -418,7 +418,7 @@ require([
         /* Number of passing test cases */
         batchOps.push({
             method: 'GET',
-            operation_id: 'test-success-count',
+            operation_id: 'test-pass-count',
             resource: 'count',
             document: 'test_case',
             query: qStr + '&status=PASS',
@@ -436,7 +436,7 @@ require([
         /* Number of unknown test results */
         batchOps.push({
             method: 'GET',
-            operation_id: 'test-unknown-count',
+            operation_id: 'test-warning-count',
             resource: 'count',
             document: 'test_case',
             query: qStr + '&status=FAIL&status=SKIP&regression_id=null',

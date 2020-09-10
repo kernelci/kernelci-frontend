@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -61,44 +61,36 @@ define([
      * Create the actual count badge.
      *
      * @return {Element} A DOM element.
-    **/
-    function _countBadge(data, type, extraClasses, idStart) {
+     **/
+    function _countBadge(settings, type) {
         var classes;
         var iNode;
         var nodeId;
         var spanNode;
 
-        if (idStart && idStart.length > 0) {
-            nodeId = idStart;
-        } else {
-            nodeId = '';
-        }
-
         switch (type) {
-            case 'success':
-                nodeId = nodeId + 'success-count-' + data;
+            case 'pass':
                 classes = ['badge', 'alert-success', 'count-badge'];
                 break;
             case 'fail':
-                nodeId = nodeId + 'fail-count-' + data;
                 classes = ['badge', 'alert-danger', 'count-badge'];
                 break;
-            case 'unknown':
-                nodeId = nodeId + 'unknown-count-' + data;
+            case 'warning':
                 classes = ['badge', 'alert-warning', 'count-badge'];
                 break;
             case 'total':
-                nodeId = nodeId + 'total-count-' + data;
-                classes = ['badge', 'count-badge'];
-                break;
             default:
-                nodeId = nodeId + 'count-' + data;
                 classes = ['badge', 'count-badge'];
                 break;
         }
 
-        if (extraClasses && extraClasses.length > 0) {
-            classes = classes.concat(extraClasses);
+        nodeId = settings.idStart || '';
+        if (type)
+            nodeId += type + '-';
+        nodeId += 'count-' + settings.data;
+
+        if (settings.extraClasses && settings.extraClasses.length > 0) {
+            classes = classes.concat(settings.extraClasses);
         }
 
         spanNode = document.createElement('span');
@@ -107,7 +99,6 @@ define([
 
         iNode = document.createElement('i');
         iNode.className = 'fa fa-circle-o-notch fa-spin fa-fw count-content';
-
         spanNode.appendChild(iNode);
 
         return spanNode;
@@ -153,8 +144,8 @@ define([
      * @param {String} idStart: Head string for the id of the badge.
      * @return {Element} The badge node as an HTMLElement.
     **/
-    gTablesUtils.countBadge = function(data, type, extraClasses, idStart) {
-        return _countBadge(data, type, extraClasses, idStart);
+    gTablesUtils.countBadge = function(settings, badgeType=null) {
+        return _countBadge(settings, badgeType).outerHTML;
     };
 
     /**
@@ -167,56 +158,41 @@ define([
      * - extraClasses: Extra CSS classes to add to the badge.
      * - idStart: Head element for the id of the badge.
     **/
-    gTablesUtils.countAll = function(settings) {
+    gTablesUtils.countAll = function(settings, badgeTypes) {
         var aNode;
         var divNode;
-        var failNode;
         var rendered;
-        var successNode;
-        var totalNode;
-        var unknownNode;
+        var badges = [];
 
         if (settings.type === 'display') {
             divNode = document.createElement('div');
 
-            totalNode = _countBadge(
-                settings.data,
-                'total', settings.extraClasses, settings.idStart);
-            successNode = _countBadge(
-                settings.data,
-                'success', settings.extraClasses, settings.idStart);
-            failNode = _countBadge(
-                settings.data,
-                'fail', settings.extraClasses, settings.idStart);
-            unknownNode = _countBadge(
-                settings.data,
-                'unknown', settings.extraClasses, settings.idStart);
+            badgeTypes.forEach(function(badgeType) {
+                badges.push(_countBadge(settings, badgeType));
+            });
 
             if (settings.href) {
                 aNode = document.createElement('a');
                 aNode.className = 'clean-link';
                 aNode.setAttribute('href', settings.href);
 
-                aNode.appendChild(totalNode);
-                aNode.appendChild(successNode);
-                aNode.appendChild(failNode);
-                aNode.appendChild(unknownNode);
+                badges.forEach(function(badge) {
+                    aNode.appendChild(badge);
+                });
 
                 divNode.appendChild(aNode);
             } else {
-                divNode.appendChild(totalNode);
-                divNode.appendChild(successNode);
-                divNode.appendChild(failNode);
-                divNode.appendChild(unknownNode);
+                badges.forEach(function(badge) {
+                    divNode.appendChild(badge);
+                });
             }
 
             rendered = divNode.outerHTML;
 
             // Remove the nodes.
-            totalNode.remove();
-            successNode.remove();
-            failNode.remove();
-            unknownNode.remove();
+            badges.forEach(function(badge) {
+                badge.remove();
+            });
             if (aNode) {
                 aNode.remove();
             }

@@ -384,7 +384,7 @@ define([
             /* Number of passing test cases */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-success-count-' + plan,
+                operation_id: 'test-pass-count-' + plan,
                 resource: 'count',
                 document: 'test_case',
                 query: qStr + '&status=PASS',
@@ -402,7 +402,7 @@ define([
             /* Number of unknown test results */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-unknown-count-' + plan,
+                operation_id: 'test-warning-count-' + plan,
                 resource: 'count',
                 document: 'test_case',
                 query: qStr + '&status=FAIL&status=SKIP&regression_id=null',

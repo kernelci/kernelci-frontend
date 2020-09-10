@@ -37,13 +37,17 @@ define([
     gJobUtils.renderTestCount = function(settings) {
         settings.extraClasses = ['extra-margin'];
         settings.idStart = 'test-';
-        return tcommon.countAll(settings);
+        return tcommon.countAll(settings, [
+            'total', 'pass', 'fail', 'warning',
+        ]);
     };
 
     gJobUtils.renderBuildCount = function(settings) {
         settings.extraClasses = ['extra-margin'];
         settings.idStart = 'build-';
-        return tcommon.countAll(settings);
+        return tcommon.countAll(settings, [
+            'total', 'pass', 'fail', 'warning',
+        ]);
     };
 
     /**

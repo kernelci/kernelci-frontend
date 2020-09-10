@@ -51,7 +51,9 @@ define([
     gTestTable.renderTestCount = function(settings) {
         settings.extraClasses = ['extra-margin'];
         settings.idStart = 'test-';
-        return tcommon.countAll(settings);
+        return tcommon.countAll(settings, [
+            'total', 'pass', 'fail', 'warning',
+        ]);
     };
 
     return gTestTable;
