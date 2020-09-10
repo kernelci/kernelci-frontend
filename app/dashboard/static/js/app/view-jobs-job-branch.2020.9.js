@@ -192,7 +192,7 @@ require([
             });
 
             // Get the successful build count.
-            opId = 'build-success-count-';
+            opId = 'build-pass-count-';
             opId += kernel;
             qHead = 'status=PASS&';
             qHead += queryStr;
@@ -218,7 +218,7 @@ require([
             });
 
             // Get unknown build count.
-            opId = 'build-unknown-count-';
+            opId = 'build-warning-count-';
             opId += kernel;
             qHead = 'status=UNKNOWN&';
             qHead += queryStr;
@@ -242,7 +242,7 @@ require([
             });
 
             // Get successful tests count.
-            opId = 'test-success-count-';
+            opId = 'test-pass-count-';
             opId += kernel;
             qHead = 'status=PASS&';
             qHead += queryStr;
@@ -266,7 +266,7 @@ require([
             });
 
             // Get unknown test reports count.
-            opId = 'test-unknown-count-';
+            opId = 'test-warning-count-';
             opId += kernel;
             qHead = 'status=FAIL&status=SKIP&regression_id=null&';
             qHead += queryStr;

@@ -299,7 +299,6 @@ require([
             if (type === 'display') {
                 rendered = tsoc.countBadge({
                     data: data,
-                    type: 'default',
                     idStart: 'boards-',
                     extraClasses: ['boards-count-badge']
                 });
@@ -322,7 +321,6 @@ require([
             if (type === 'display') {
                 rendered = tsoc.countBadge({
                     data: data,
-                    type: 'default',
                     idStart: 'test-',
                     extraClasses: ['test-count-badge']
                 });
@@ -345,7 +343,6 @@ require([
             if (type === 'display') {
                 rendered = tsoc.countBadge({
                     data: data,
-                    type: 'default',
                     idStart: 'labs-',
                     extraClasses: ['labs-count-badge']
                 });

@@ -183,7 +183,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-success-count-' + job,
+                operation_id: 'test-pass-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr + '&status=PASS' + filter
@@ -199,7 +199,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-unknown-count-' + job,
+                operation_id: 'test-warning-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr +

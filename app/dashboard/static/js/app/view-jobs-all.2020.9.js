@@ -140,9 +140,7 @@ require([
                 'git_branch': branch,
             });
 
-            opIdTail = job;
-            opIdTail += '-';
-            opIdTail += branch;
+            opIdTail = job + '-' + branch;
 
             // Get total build count.
             opId = 'build-total-count-';
@@ -156,7 +154,7 @@ require([
             });
 
             // Get successful build count.
-            opId = 'build-success-count-';
+            opId = 'build-pass-count-';
             opId += opIdTail;
             qHead = 'status=PASS&';
             qHead += qStr;
@@ -182,7 +180,7 @@ require([
             });
 
             // Get unknown build count.
-            opId = 'build-unknown-count-';
+            opId = 'build-warning-count-';
             opId += opIdTail;
             qHead = 'status=UNKNOWN&';
             qHead += qStr;
@@ -206,7 +204,7 @@ require([
             });
 
             // Get successful tests count.
-            opId = 'test-success-count-';
+            opId = 'test-pass-count-';
             opId += opIdTail;
             qHead = 'status=PASS&';
             qHead += qStr;
@@ -230,7 +228,7 @@ require([
             });
 
             // Get unknown test reports count.
-            opId = 'test-unknown-count-';
+            opId = 'test-warning-count-';
             opId += opIdTail;
             qHead = 'status=FAIL&status=SKIP&regression_id=null&';
             qHead += qStr;
