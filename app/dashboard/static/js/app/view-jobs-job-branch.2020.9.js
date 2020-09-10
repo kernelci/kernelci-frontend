@@ -219,21 +219,23 @@ require([
                 query: qHead
             });
 
-            // Get total tests count.
-            opId = 'test-total-count-';
+            // Get successful tests count.
+            opId = 'test-pass-count-';
             opId += kernel;
+            qHead = 'status=PASS&';
+            qHead += queryStr;
             batchOps.push({
                 method: 'GET',
                 operation_id: opId,
                 resource: 'count',
                 document: 'test_case',
-                query: queryStr
+                query: qHead
             });
 
-            // Get successful tests count.
-            opId = 'test-pass-count-';
+            // Get warning test reports count.
+            opId = 'test-warning-count-';
             opId += kernel;
-            qHead = 'status=PASS&';
+            qHead = 'status=FAIL&regression_id=null&';
             qHead += queryStr;
             batchOps.push({
                 method: 'GET',
@@ -252,19 +254,6 @@ require([
                 resource: 'count',
                 document: 'test_regression',
                 query: queryStr
-            });
-
-            // Get unknown test reports count.
-            opId = 'test-warning-count-';
-            opId += kernel;
-            qHead = 'status=FAIL&status=SKIP&regression_id=null&';
-            qHead += queryStr;
-            batchOps.push({
-                method: 'GET',
-                operation_id: opId,
-                resource: 'count',
-                document: 'test_case',
-                query: qHead
             });
         }
 
