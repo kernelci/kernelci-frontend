@@ -111,7 +111,7 @@ define([
         tooltipNode.title =
             "All results for branch &#171;" + gitBranch + "&#187;";
         aNode = document.createElement('a');
-        aNode.href = "/job/" + gJob + "/branch/" + gitBranch;
+        aNode.href = "/job/" + gJob + "/branch/" + URI.encode(gitBranch) + "/";
         aNode.appendChild(html.tree());
         tooltipNode.appendChild(document.createTextNode(gitBranch));
         tooltipNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -130,7 +130,9 @@ define([
             "Build reports for &#171;" + gJob + "&#187; - " + gKernel;
         aNode = document.createElement('a');
         aNode.href =
-            "/build/" + gJob + "/branch/" + gitBranch + "/kernel/" + gKernel;
+            "/build/" + gJob +
+            "/branch/" + URI.encode(gitBranch) +
+            "/kernel/" + gKernel;
         aNode.appendChild(html.build());
         tooltipNode.appendChild(aNode);
 
@@ -142,14 +144,11 @@ define([
             "Test reports for &#171;" + gJob + "&#187; - " + gKernel;
 
         aNode = tooltipNode.appendChild(document.createElement('a'));
-        var str = '/test/job/';
-        str += gJob;
-        str += '/branch/';
-        str += gitBranch;
-        str += '/kernel/';
-        str += gKernel;
-        str += '/';
-        aNode.setAttribute('href', str);
+        var href =
+            '/test/job/' + gJob +
+            '/branch/' + URI.encode(gitBranch) +
+            '/kernel/' + gKernel + '/';
+        aNode.setAttribute('href', href);
         aNode.appendChild(html.test());
 
         tooltipNode.appendChild(aNode);

@@ -80,7 +80,8 @@ require([
         branchNode = html.tooltip();
         branchNode.title = "All results for branch &#171;" + branch + "&#187;";
         branchLink = document.createElement('a');
-        branchLink.href = "/job/" + job + "/branch/" + branch;
+        branchLink.href =
+            "/job/" + job + "/branch/" + URI.encode(branch) + "/";
         branchLink.appendChild(html.tree());
         branchNode.appendChild(document.createTextNode(branch));
         branchNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
@@ -94,7 +95,9 @@ require([
             "Build reports for &#171;" + job + "&#187; - " + kernel;
         buildsLink = document.createElement('a');
         buildsLink.href =
-            "/build/" + job + "/branch/" + branch + "/kernel/" + kernel;
+            "/build/" + job +
+            "/branch/" + URI.encode(branch) +
+            "/kernel/" + kernel + "/";
         buildsLink.appendChild(html.build());
         describeNode.appendChild(document.createTextNode(kernel));
         describeNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
