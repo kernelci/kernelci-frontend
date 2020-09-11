@@ -130,10 +130,11 @@ require([
             var results = response.result;
             var total = results[0].result[0].count;
             var pass = results[1].result[0].count;
-            var regressions = results[2].result[0].count;
-            var unknown = results[3].result[0].count;
+            var fail = results[2].result[0].count;
+            var regressions = results[3].result[0].count;
+            var unknown = results[4].result[0].count;
 
-            return [total, [pass, regressions, unknown]];
+            return [total, [pass, fail, regressions, unknown]];
         }
 
         chart.testpie({
@@ -164,7 +165,7 @@ require([
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Regressions/Other test results');
+                'title', 'Successful/Regressions/Failures');
             tooltipNode.appendChild(
                 document.createTextNode('Test Results'));
 
@@ -290,9 +291,29 @@ require([
     }
 
     function getBatchStatusDone(response) {
+        var planMap = new Map();
+
         response.result.forEach(function(data) {
-            var node = document.getElementById(data.operation_id);
-            var status = (data.result[0].count == 0 ? "PASS" : "FAIL");
+            var planId = data.operation_id[0];
+            var key = data.operation_id[1];
+            var planData;
+
+            planData = planMap.get(planId) || {};
+            planData[key] = data.result[0].count;
+            planMap.set(planId, planData);
+        });
+
+        planMap.forEach(function(planData, planId) {
+            var node = document.getElementById(planId);
+            var status;
+
+            if (planData.regressions)
+                status = "FAIL";
+            else if (planData.warnings)
+                status = "WARNING";
+            else
+                status = "PASS";
+
             node.appendChild(ttest.statusNode(status));
         });
     }
@@ -310,6 +331,7 @@ require([
             var kernel = result.kernel;
             var branch = result.git_branch;
             var plan = result.name;
+            var idStr = 'status-' + plan;
             var qStr;
 
             qStr = URI.buildQuery({
@@ -322,10 +344,19 @@ require([
             /* Number of test case regressions */
             batchOps.push({
                 method: 'GET',
-                operation_id: 'status-' + plan,
+                operation_id: [idStr, 'regressions'],
                 resource: 'count',
                 document: 'test_regression',
                 query: qStr,
+            });
+
+            /* Number of failed test cases that aren't regressions */
+            batchOps.push({
+                method: 'GET',
+                operation_id: [idStr, 'warnings'],
+                resource: 'count',
+                document: 'test_case',
+                query: qStr + '&status=FAIL&regression_id=null',
             });
         }
 
@@ -415,6 +446,15 @@ require([
             query: qStr + '&status=PASS',
         });
 
+        /* Number of failures results */
+        batchOps.push({
+            method: 'GET',
+            operation_id: 'test-warning-count',
+            resource: 'count',
+            document: 'test_case',
+            query: qStr + '&status=FAIL&regression_id=null',
+        });
+
         /* Number of test case regressions */
         batchOps.push({
             method: 'GET',
@@ -427,10 +467,10 @@ require([
         /* Number of unknown test results */
         batchOps.push({
             method: 'GET',
-            operation_id: 'test-warning-count',
+            operation_id: 'test-unknowwwn-count',
             resource: 'count',
             document: 'test_case',
-            query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+            query: qStr + '&status=SKIP',
         });
 
         deferred = request.post(
