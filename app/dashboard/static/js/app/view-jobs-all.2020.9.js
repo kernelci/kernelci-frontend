@@ -341,6 +341,29 @@ require([
             return jobt.renderTree(data, type, href);
         }
 
+        function _renderBranch(data, type, object) {
+            var aNode;
+            var rendered;
+            var tooltipNode;
+
+            rendered = data;
+            if (type === 'display') {
+                tooltipNode = html.tooltip();
+                tooltipNode.setAttribute('title', object.git_branch);
+
+                aNode = document.createElement('a');
+                aNode.className = 'table-link';
+                aNode.href =
+                    '/job/' + object.job + '/branch/' + URI.encode(object.git_branch) + '/';
+                aNode.appendChild(document.createTextNode(object.git_branch));
+                tooltipNode.appendChild(aNode);
+
+                rendered = tooltipNode.outerHTML;
+            }
+
+            return rendered;
+        }
+
         results = response.result;
         if (results.length === 0) {
             html.removeElement(document.getElementById('table-loading'));
@@ -357,10 +380,11 @@ require([
                     render: _renderTree
                 },
                 {
-                    data: 'git_branch',
+                    data: 'job',
                     title: 'Branch',
                     type: 'string',
-                    className: 'branch-column'
+                    className: 'branch-column',
+                    render: _renderBranch
                 },
                 {
                     data: 'job',
