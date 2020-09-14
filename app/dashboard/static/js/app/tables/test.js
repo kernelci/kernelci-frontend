@@ -12,7 +12,6 @@ define([
     gStatusDefaults = {
         pass: 'Test executed successfully',
         fail: 'Test execution failed',
-        offline: 'Test offline',
         default: 'Test execution status unknown'
     };
 
