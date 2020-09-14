@@ -117,6 +117,7 @@ define([
                 if (!target.hasAttribute('disabled')) {
                     hideAllByClass('df-failed');
                     showAllByClass('df-success');
+                    hideAllByClass('df-warning');
                     showAllByClass('df-unknown');
 
                     [].forEach.call(
@@ -126,6 +127,7 @@ define([
             case 'success-btn':
                 hideAllByClass('df-failed');
                 showAllByClass('df-success');
+                hideAllByClass('df-warning');
                 hideAllByClass('df-unknown');
                 break;
             case 'fail-cell':
@@ -133,6 +135,7 @@ define([
                 if (!target.hasAttribute('disabled')) {
                     showAllByClass('df-failed');
                     hideAllByClass('df-success');
+                    hideAllByClass('df-warning');
                     hideAllByClass('df-unknown');
 
                     [].forEach.call(
@@ -142,6 +145,25 @@ define([
             case 'fail-btn':
                 showAllByClass('df-failed');
                 hideAllByClass('df-success');
+                hideAllByClass('df-warning');
+                hideAllByClass('df-unknown');
+                break;
+            case 'warning-cell':
+                target = document.getElementById('warning-btn');
+                if (!target.hasAttribute('disabled')) {
+                    hideAllByClass('df-failed');
+                    hideAllByClass('df-success');
+                    showAllByClass('df-warning');
+                    hideAllByClass('df-unknown');
+
+                    [].forEach.call(
+                        target.parentElement.children, _makeActiveInactive);
+                }
+                break;
+            case 'warning-btn':
+                hideAllByClass('df-failed');
+                hideAllByClass('df-success');
+                showAllByClass('df-warning');
                 hideAllByClass('df-unknown');
                 break;
             case 'unknown-cell':
@@ -149,6 +171,7 @@ define([
                 if (!target.hasAttribute('disabled')) {
                     hideAllByClass('df-failed');
                     hideAllByClass('df-success');
+                    hideAllByClass('df-warning');
                     showAllByClass('df-unknown');
 
                     [].forEach.call(
@@ -158,11 +181,13 @@ define([
             case 'unknown-btn':
                 hideAllByClass('df-failed');
                 hideAllByClass('df-success');
+                hideAllByClass('df-warning');
                 showAllByClass('df-unknown');
                 break;
             default:
                 showAllByClass('df-failed');
                 showAllByClass('df-success');
+                showAllByClass('df-warning');
                 showAllByClass('df-unknown');
 
                 target = document.getElementById('all-btn');

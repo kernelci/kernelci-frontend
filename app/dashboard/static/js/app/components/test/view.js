@@ -39,12 +39,14 @@ define([
         buttonAll: document.getElementById('all-btn'),
         buttonFail: document.getElementById('fail-btn'),
         buttonSuccess: document.getElementById('success-btn'),
+        buttonWarning: document.getElementById('warning-btn'),
         buttonUnknown: document.getElementById('unknown-btn'),
         element: null,
         fileServer: null,
         lastPressedButton: null,
         hasFail: false,
         hasSuccess: false,
+        hasWarning: false,
         hasUnknown: false,
         results: null,
     };
@@ -69,7 +71,7 @@ define([
             result.defconfig_full;
 
         return dataIndex;
-    }
+    };
 
     kciView.createLabSection = function(lab) {
         var buttonNode;
@@ -145,6 +147,10 @@ define([
                 this.hasSuccess = true;
                 statusNode = html.success();
                 break;
+            case 'WARNING':
+                this.hasWarning = true;
+                statusNode = html.warning();
+                break;
             default:
                 this.hasUnknown = true;
                 statusNode = html.unknown();
@@ -152,7 +158,7 @@ define([
         }
         html.addClass(statusNode.firstElementChild, 'pull-right');
         return statusNode;
-    }
+    };
 
     kciView.addFilterClass = function(panelNode, status) {
         var filterClass;
@@ -163,6 +169,9 @@ define([
                 break;
             case 'PASS':
                 filterClass = 'df-success';
+                break;
+            case 'WARNING':
+                filterClass = 'df-warning';
                 break;
             default:
                 filterClass = 'df-unknown';
@@ -190,8 +199,6 @@ define([
         var hNode;
         var headingNode;
         var htmlLog;
-        var job;
-        var kernel;
         var kernelImage;
         var kernelImageSize;
         var labName;
@@ -207,10 +214,7 @@ define([
         var tooltipNode;
         var translatedURI;
         var txtLog;
-        var warnings;
 
-        job = result.job;
-        kernel = result.kernel;
         docId = result._id.$oid;
         serverURL = result.file_server_url;
         defconfigFull = result.defconfig_full;
@@ -218,7 +222,6 @@ define([
         buildEnv = result.build_environment;
         labName = result.lab_name;
         deviceType = result.device_type;
-        warnings = result.warnings;
         txtLog = result.boot_log;
         htmlLog = result.boot_log_html;
         kernelImage = result.kernel_image;
@@ -484,6 +487,10 @@ define([
             this.buttonSuccess.removeAttribute('disabled');
         }
 
+        if (this.hasWarning) {
+            this.buttonWarning.removeAttribute('disabled');
+        }
+
         if (this.hasUnknown) {
             this.buttonUnknown.removeAttribute('disabled');
         }
@@ -493,6 +500,8 @@ define([
         this.buttonSuccess.addEventListener(
             'click', commonBtns.showHideElements, true);
         this.buttonFail.addEventListener(
+            'click', commonBtns.showHideElements, true);
+        this.buttonWarning.addEventListener(
             'click', commonBtns.showHideElements, true);
         this.buttonUnknown.addEventListener(
             'click', commonBtns.showHideElements, true);
