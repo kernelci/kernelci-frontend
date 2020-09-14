@@ -134,6 +134,8 @@ require([
             status = 'PASS';
         else if (results.regression_id)
             status = 'FAIL';
+        else if (results.status == 'FAIL')
+            status = 'WARNING';
         else
             status = 'UNKNOWN';
 
