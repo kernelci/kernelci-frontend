@@ -145,10 +145,11 @@ require([
             var results = response.result;
             var total = results[0].result[0].count;
             var pass = results[1].result[0].count;
-            var regressions = results[2].result[0].count;
-            var unknown = results[3].result[0].count;
+            var fail = results[2].result[0].count;
+            var regressions = results[3].result[0].count;
+            var unknown = results[4].result[0].count;
 
-            return [total, [pass, regressions, unknown]];
+            return [total, [pass, fail, regressions, unknown]];
         }
 
         pieChart.testpie({
@@ -245,15 +246,32 @@ require([
     }
 
     function updateRegressions(results) {
-        function parseBatchData(data) {
-            var panelId = data.operation_id + '-panel';
-            var statusId = data.operation_id + '-status';
+        var planMap = new Map();
+
+        results.forEach(function(data) {
+            var planId = data.operation_id[0];
+            var key = data.operation_id[1];
+            var planData;
+
+            planData = planMap.get(planId) || {};
+            planData[key] = data.result[0];
+            planMap.set(planId, planData);
+        });
+
+        function parseBatchData(planData, planId, map) {
+            var panelId = planId + '-panel';
+            var statusId = planId + '-status';
             var status;
             var panelNode;
             var statusNode;
             var statusParent;
 
-            status = (data.result[0].count == 0 ? "PASS" : "FAIL");
+            if (planData.regressions.count)
+                status = "FAIL";
+            else if (planData.warnings.count)
+                status = "WARNING";
+            else
+                status = "PASS";
             panelNode = document.getElementById(panelId);
             gPanel.addFilterClass(panelNode, status);
             statusNode = gPanel.createStatusNode(status);
@@ -275,7 +293,7 @@ require([
             }
 
             function addRegressionInfo(regr) {
-                var nodeId = data.operation_id + '-regression';
+                var nodeId = planId + '-regression';
                 var regrNode;
                 var regrInfo;
                 var regrCase;
@@ -321,10 +339,10 @@ require([
                 regrNode.appendChild(dlNode);
             }
 
-            data.result[0].result.forEach(addRegressionInfo);
+            planData.regressions.result.forEach(addRegressionInfo);
         }
 
-        results.forEach(parseBatchData);
+        planMap.forEach(parseBatchData);
     }
 
     function updateButtons(panel) {
@@ -341,6 +359,12 @@ require([
             );
             Array.prototype.forEach.call(
                 document.getElementsByClassName('df-success'),
+                function(element) {
+                    element.style.setProperty('display', 'none');
+                }
+            );
+            Array.prototype.forEach.call(
+                document.getElementsByClassName('df-warning'),
                 function(element) {
                     element.style.setProperty('display', 'none');
                 }
@@ -405,9 +429,17 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: idStr,
+                operation_id: [idStr, "regressions"],
                 resource: 'test_regression',
                 query: qStr,
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: [idStr, "warnings"],
+                resource: 'count',
+                document: 'test_case',
+                query: qStr + '&status=FAIL&regression_id=null',
             });
         }
 
@@ -562,6 +594,14 @@ require([
 
         batchOps.push({
             method: 'GET',
+            operation_id: 'test-warning-count',
+            resource: 'count',
+            document: 'test_case',
+            query: qStr + '&status=FAIL&regression_id=null',
+        });
+
+        batchOps.push({
+            method: 'GET',
             operation_id: 'test-fail-count',
             resource: 'count',
             document: 'test_regression',
@@ -573,7 +613,7 @@ require([
             operation_id: 'test-unknown-count',
             resource: 'count',
             document: 'test_case',
-            query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+            query: qStr + '&status=SKIP',
         });
 
         deferred = request.post(
