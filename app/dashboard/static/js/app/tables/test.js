@@ -11,7 +11,8 @@ define([
 
     gStatusDefaults = {
         pass: 'Test executed successfully',
-        fail: 'Test execution failed',
+        fail: 'Test execution regressed',
+        warning: 'Test execution failed',
         default: 'Test execution status unknown'
     };
 

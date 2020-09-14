@@ -211,8 +211,12 @@ define([
         return _status('label-danger', 'fa-exclamation-triangle', extraClass);
     };
 
+    html.warning = function(extraClass) {
+        return _status('label-warning', 'fa-close', extraClass);
+    };
+
     html.unknown = function(extraClass) {
-        return _status('label-warning', 'fa-question', extraClass);
+        return _status('label-default', 'fa-question', extraClass);
     };
 
     html.building = function(extraClass) {

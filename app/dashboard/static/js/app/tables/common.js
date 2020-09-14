@@ -121,6 +121,10 @@ define([
                 tooltipNode.setAttribute('title', defaults.fail);
                 tooltipNode.appendChild(html.fail());
                 break;
+            case 'WARNING':
+                tooltipNode.setAttribute('title', defaults.warning);
+                tooltipNode.appendChild(html.warning());
+                break;
             default:
                 tooltipNode.setAttribute('title', defaults.default);
                 tooltipNode.appendChild(html.unknown());
