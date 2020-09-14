@@ -121,10 +121,6 @@ define([
                 tooltipNode.setAttribute('title', defaults.fail);
                 tooltipNode.appendChild(html.fail());
                 break;
-            case 'OFFLINE':
-                tooltipNode.setAttribute('title', defaults.offline);
-                tooltipNode.appendChild(html.offline());
-                break;
             default:
                 tooltipNode.setAttribute('title', defaults.default);
                 tooltipNode.appendChild(html.unknown());
