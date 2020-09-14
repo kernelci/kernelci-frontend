@@ -214,7 +214,7 @@ require([
         function countTests(tc) {
             return [
                 tc['total'],
-                [tc['pass'], tc['regressions'], tc['unknown']]
+                [tc['pass'], tc['failures'], tc['regressions'], tc['unknown']]
             ];
         }
 
@@ -225,11 +225,13 @@ require([
             legend: true,
             legendIds: {
                 'pass': '#show-pass',
+                'warning': '#show-warning',
                 'fail': '#show-fail',
                 'unknown': '#show-unknown',
             },
             legendTitles: {
                 'pass': 'Successful',
+                'warning': 'Failures',
                 'fail': 'Regressions',
                 'unknown': 'Unknown',
             },
@@ -242,7 +244,7 @@ require([
     }
 
     function listenForTableEvents(testCount) {
-        var btnList = ['total', 'pass', 'regressions', 'unknown'];
+        var btnList = ['total', 'pass', 'regressions', 'failures', 'unknown'];
 
         function _tableFilter(event) {
             var activeId = event.target.id;
@@ -252,6 +254,8 @@ require([
                 status = '';
             } else if (status == 'regressions') {
                 status = 'fail';
+            } else if (status == 'failures') {
+                status = 'warning';
             }
 
             gTestsTable.table.column(2).search(status).draw();
@@ -322,6 +326,8 @@ require([
                 status = 'PASS';
             else if (item.regression_id)
                 status = 'FAIL';
+            else if (item.status == 'FAIL')
+                status = 'WARNING';
             else
                 status = 'UNKNOWN';
 
@@ -423,7 +429,8 @@ require([
             'total': results[0].result[0].count,
             'pass': results[1].result[0].count,
             'regressions': results[2].result[0].count,
-            'unknown': results[3].result[0].count,
+            'failures': results[3].result[0].count,
+            'unknown': results[4].result[0].count,
         };
         updateChart(testCount);
         listenForTableEvents(testCount);
@@ -474,10 +481,18 @@ require([
 
         batchOps.push({
             method: 'GET',
+            operation_id: 'test-warning-count',
+            resource: 'count',
+            document: 'test_case',
+            query: qStr + '&status=FAIL&regression_id=null',
+        });
+
+        batchOps.push({
+            method: 'GET',
             operation_id: 'test-unknown-count',
             resource: 'count',
             document: 'test_case',
-            query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+            query: qStr + '&status=SKIP',
         });
 
         deferred = request.post(
