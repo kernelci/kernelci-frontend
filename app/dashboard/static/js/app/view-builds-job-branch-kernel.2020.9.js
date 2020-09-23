@@ -95,6 +95,12 @@ require([
             }
         );
         Array.prototype.forEach.call(
+            document.getElementsByClassName('df-warning'),
+            function(element) {
+                element.style.setProperty('display', 'none');
+            }
+        );
+        Array.prototype.forEach.call(
             document.getElementsByClassName('df-unknown'),
             function(element) {
                 element.style.setProperty('display', 'none');
@@ -205,17 +211,15 @@ require([
         var hNode;
         var hasFailed;
         var hasSuccess;
+        var hasWarning;
         var hasUnknown;
         var headingNode;
         var infoNode;
-        var job;
-        var kernel;
         var panelNode;
         var results;
         var rowNode;
         var smallNode;
         var status;
-        var statusNode;
         var tooltipNode;
         var translatedURI;
         var warnErrCount;
@@ -227,6 +231,7 @@ require([
 
         hasFailed = false;
         hasSuccess = false;
+        hasWarning = false;
         hasUnknown = false;
         results = response.result;
 
@@ -273,8 +278,6 @@ require([
         function _parseResult(result, idx) {
             docId = result._id.$oid;
             defconfigFull = result.defconfig_full;
-            job = result.job;
-            kernel = result.kernel;
             arch = result.arch;
             compiler = result.build_environment;
             fileServerURL = result.file_server_url;
@@ -283,6 +286,9 @@ require([
             warningsCount = result.warnings;
             status = result.status;
             collapseId = 'collapse-defconf' + idx;
+
+            if ((status == "PASS") && warningsCount)
+                status = "WARNING";
 
             if (fileServerURL === null || fileServerURL === undefined) {
                 fileServerURL = gFileServer;
@@ -333,17 +339,22 @@ require([
             switch (status) {
                 case 'FAIL':
                     hasFailed = true;
-                    statusNode = hNode.appendChild(html.fail('pull-right'));
+                    hNode.appendChild(html.fail('pull-right'));
                     cls = 'df-failed';
                     break;
                 case 'PASS':
                     hasSuccess = true;
-                    statusNode = hNode.appendChild(html.success('pull-right'));
+                    hNode.appendChild(html.success('pull-right'));
                     cls = 'df-success';
+                    break;
+                case 'WARNING':
+                    hasWarning = true;
+                    hNode.appendChild(html.warning('pull-right'));
+                    cls = 'df-warning';
                     break;
                 default:
                     hasUnknown = true;
-                    statusNode = hNode.appendChild(html.unknown('pull-right'));
+                    hNode.appendChild(html.unknown('pull-right'));
                     cls = 'df-unknown';
                     break;
             }
@@ -679,6 +690,10 @@ require([
             if (hasSuccess) {
                 document
                     .getElementById('success-btn').removeAttribute('disabled');
+            }
+            if (hasWarning) {
+                document
+                    .getElementById('warning-btn').removeAttribute('disabled');
             }
             if (hasUnknown) {
                 document
@@ -1121,6 +1136,11 @@ require([
                 name: 'style',
                 value: html.attrBySelector('.df-failed', 'style')
             };
+            pageState['.df-warning'] = {
+                type: 'attr',
+                name: 'style',
+                value: html.attrBySelector('.df-warning', 'style')
+            };
             pageState['.df-unknown'] = {
                 type: 'attr',
                 name: 'style',
@@ -1140,6 +1160,11 @@ require([
                 type: 'class',
                 name: 'class',
                 value: html.attrById('fail-btn', 'class')
+            };
+            pageState['#warning-btn'] = {
+                type: 'class',
+                name: 'class',
+                value: html.attrById('warning-btn', 'class')
             };
             pageState['#unknown-btn'] = {
                 type: 'class',

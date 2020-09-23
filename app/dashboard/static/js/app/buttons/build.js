@@ -1,8 +1,8 @@
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -77,21 +77,26 @@ define([
     function checkButtonStatus() {
         var failBtn;
         var successBtn;
+        var warningBtn;
         var unknownBtn;
 
         successBtn = document.getElementById('success-btn');
         failBtn = document.getElementById('fail-btn');
+        warningBtn = document.getElementById('warning-btn');
         unknownBtn = document.getElementById('unknown-btn');
 
         if (html.classed(successBtn, 'active')) {
             common.showAllByClass('df-success');
         } else if (html.classed(failBtn, 'active')) {
             common.showAllByClass('df-failed');
+        } else if (html.classed(warningBtn, 'active')) {
+            common.showAllByClass('df-warning');
         } else if (html.classed(unknownBtn, 'active')) {
             common.showAllByClass('df-unknown');
         } else {
-            common.showAllByClass('df-failed');
             common.showAllByClass('df-success');
+            common.showAllByClass('df-failed');
+            common.showAllByClass('df-warning');
             common.showAllByClass('df-unknown');
         }
     }
