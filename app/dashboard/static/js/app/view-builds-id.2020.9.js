@@ -176,10 +176,9 @@ require([
 
     function testsTable(data) {
         var countClasses = [
-            ['total', ''],
             ['success', 'alert-success'],
-            ['fail', 'alert-danger'],
-            ['unknown', 'alert-warning']
+            ['regression', 'alert-danger'],
+            ['warning', 'alert-warning']
         ];
         var columns;
 
@@ -188,7 +187,7 @@ require([
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Regressions/Other test results');
+                'title', 'Successful/Regressions/Failures');
             tooltipNode.appendChild(
                 document.createTextNode('Test Results'));
 
@@ -273,10 +272,9 @@ require([
             .draw();
     }
 
-    function testDataDone(runResults, countResults, statusResults) {
+    function testDataDone(runResults, countResults) {
         var runs = runResults;
         var counts = countResults[0].result;
-        var status = statusResults[0].result;
         var dataMap = {};
 
         runs.forEach(function(run) {
@@ -300,45 +298,22 @@ require([
             dataMap[planId]['counts'][countId] = count.result[0].count;
         });
 
-        status.forEach(function(stat) {
-            var planId = stat.operation_id[0];
+        runs.forEach(function(run) {
+            var planId = run._id.$oid;
+            var counts = dataMap[planId]['counts'];
+            var status;
 
-            dataMap[planId]['status'] = stat.result[0].count ? "FAIL" : "PASS";
+            if (counts.regression)
+                status = "FAIL";
+            else if (counts.warning)
+                status = "WARNING";
+            else
+                status = "PASS";
+
+            dataMap[planId]['status'] = status;
         });
 
         testsTable(Object.values(dataMap));
-    }
-
-    function getBatchTestStatus(results) {
-        var batchOps;
-
-        function createBatchOp(result) {
-            var qStr;
-
-            qStr = URI.buildQuery({
-                'job': result.job,
-                'kernel': result.kernel,
-                'git_branch': result.git_branch,
-                'plan': result.name,
-                'device_type': result.device_type,
-                'lab_name': result.lab_name,
-                'build_environment': result.build_environment,
-                'defconfig_full': result.defconfig_full,
-            });
-
-            batchOps.push({
-                method: 'GET',
-                operation_id: [result._id.$oid, 'status'],
-                resource: 'count',
-                document: 'test_regression',
-                query: qStr,
-            });
-        }
-
-        batchOps = [];
-        results.forEach(createBatchOp);
-
-        return r.post('/_ajax/batch', JSON.stringify({batch: batchOps}));
     }
 
     function getBatchTestCount(results) {
@@ -360,14 +335,6 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [result._id.$oid, 'total'],
-                resource: 'count',
-                document: 'test_case',
-                query: qStr,
-            });
-
-            batchOps.push({
-                method: 'GET',
                 operation_id: [result._id.$oid, 'success'],
                 resource: 'count',
                 document: 'test_case',
@@ -376,7 +343,7 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [result._id.$oid, 'fail'],
+                operation_id: [result._id.$oid, 'regression'],
                 resource: 'count',
                 document: 'test_regression',
                 query: qStr,
@@ -384,10 +351,10 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [result._id.$oid, 'unknown'],
+                operation_id: [result._id.$oid, 'warning'],
                 resource: 'count',
                 document: 'test_case',
-                query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+                query: qStr + '&status=FAIL&regression_id=null',
             });
         }
 
@@ -418,8 +385,7 @@ require([
 
         $.when(
             results,
-            getBatchTestCount(results),
-            getBatchTestStatus(results)
+            getBatchTestCount(results)
         ).fail(e.error, getTestsFail).then(testDataDone);
     }
 
