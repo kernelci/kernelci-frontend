@@ -117,7 +117,7 @@ td.kernel-column-nf,
     cursor: default;
     user-select: none;
 }
-#success-cell, #fail-cell, #unknown-cell {
+#success-cell, #fail-cell, #warning-cell, #unknown-cell {
     cursor: pointer;
 }
 .pie-chart {

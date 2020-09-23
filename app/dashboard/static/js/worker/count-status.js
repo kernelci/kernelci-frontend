@@ -1,9 +1,9 @@
 /* globals onmessage: true, postMessage: true */
 /*!
  * kernelci dashboard.
- * 
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
@@ -30,38 +30,47 @@ onmessage = function(message) {
     'use strict';
     var counted,
         failed,
-        other,
+        unknown,
         passed,
-        results,
-        total;
+        warning,
+        results;
 
     function _count(result) {
-        switch (result.status) {
+        var status;
+
+        if ((result.status == "PASS") && result.warnings)
+            status = 'WARNING';
+        else
+            status = result.status;
+
+        switch (status) {
             case 'FAIL':
-                failed = failed + 1;
+                failed += 1;
                 break;
             case 'PASS':
-                passed = passed + 1;
+                passed += 1;
+                break;
+            case 'WARNING':
+                warning += 1;
                 break;
             default:
-                other = other + 1;
+                unknown += 1;
                 break;
         }
-        total = total + 1;
     }
 
     counted = null;
 
     if (message.data) {
         failed = 0;
-        other = 0;
+        warning = 0;
         passed = 0;
-        total = 0;
+        unknown = 0;
         results = message.data.result;
 
         if (results.length > 0) {
             results.forEach(_count);
-            counted = [total, [passed, failed, other]];
+            counted = [results.length, [passed, warning, failed, unknown]];
         }
     }
 
