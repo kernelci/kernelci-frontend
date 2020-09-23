@@ -38,34 +38,43 @@ define([
         var counted;
         var failed;
         var passed;
+        var warning;
         var results;
-        var total;
         var unknown;
 
-        total = 0;
         failed = 0;
         passed = 0;
+        warning = 0;
         unknown = 0;
         counted = null;
 
         results = response.result;
         if (results.length > 0) {
             results.forEach(function(result) {
-                switch (result.status) {
+                var status;
+
+                if ((result.status == "PASS") && result.warnings)
+                    status = 'WARNING';
+                else
+                    status = result.status;
+
+                switch (status) {
                     case 'FAIL':
-                        failed = failed + 1;
+                        failed += 1;
                         break;
                     case 'PASS':
-                        passed = passed + 1;
+                        passed += 1;
+                        break;
+                    case 'WARNING':
+                        warning += 1;
                         break;
                     default:
-                        unknown = unknown + 1;
+                        unknown += 1;
                         break;
                 }
             });
 
-            total = passed + failed + unknown;
-            counted = [total, [passed, failed, unknown]];
+            counted = [results.length, [passed, warning, failed, unknown]];
         }
 
         return counted;
@@ -83,7 +92,7 @@ define([
             setup = {
                 values: data[1],
                 total: data[0],
-                chart: chart
+                chart: chart,
             };
 
             html.removeChildren(document.getElementById(settings.element));

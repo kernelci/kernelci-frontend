@@ -45,8 +45,8 @@ define([
             text: 'total reports'
         };
 
-        // pass, fail, unknown
-        color = ['#5cb85c', '#d9534f', '#f0ad4e'];
+        // pass, warning, fail, unknown
+        color = ['#5cb85c', '#f0ad4e', '#d9534f', '#777777'];
 
         piechart = function(selection) {
             var gArc;
@@ -100,6 +100,7 @@ define([
                     if (!ids) {
                         ids = {
                             'pass': '#success-cell',
+                            'warning': '#warning-cell',
                             'fail': '#fail-cell',
                             'unknown': '#unknown-cell',
                         };
@@ -108,6 +109,7 @@ define([
                     if (!titles) {
                         titles = {
                             'pass': 'Successful',
+                            'warning': 'Warning',
                             'fail': 'Failed',
                             'unknown': 'Unknown',
                         };
@@ -119,18 +121,24 @@ define([
                             p.sprintf(
                                 sTooltipFmt, titles['pass'], data.values[0]))
                         .css('border-bottom-color', color[0]);
+                    $(ids['warning'])
+                        .empty()
+                        .append(
+                            p.sprintf(
+                                sTooltipFmt, titles['warning'], data.values[1]))
+                        .css('border-bottom-color', color[1]);
                     $(ids['fail'])
                         .empty()
                         .append(
                             p.sprintf(
-                                sTooltipFmt, titles['fail'], data.values[1]))
-                        .css('border-bottom-color', color[1]);
+                                sTooltipFmt, titles['fail'], data.values[2]))
+                        .css('border-bottom-color', color[2]);
                     $(ids['unknown'])
                         .empty()
                         .append(
                             p.sprintf(
-                                sTooltipFmt, titles['unknown'], data.values[2]))
-                        .css('border-bottom-color', color[2]);
+                                sTooltipFmt, titles['unknown'], data.values[3]))
+                        .css('border-bottom-color', color[3]);
                 }
             });
         };
