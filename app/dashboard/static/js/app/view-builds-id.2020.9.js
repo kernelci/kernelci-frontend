@@ -498,7 +498,7 @@ require([
         var spanNode;
         var systemMap;
         var systemMapSize;
-        var str;
+        var status;
         var textOffset;
         var tooltipNode;
         var translatedUri;
@@ -567,6 +567,11 @@ require([
             txtSize = results.vmlinux_text_size;
             systemMap = results.system_map;
             systemMapSize = results.system_map_size;
+
+            if ((results.status == "PASS") && results.warnings)
+                status = "WARNING";
+            else
+                status = results.status;
 
             // The body title.
             docFrag = document.createDocumentFragment();
@@ -787,7 +792,7 @@ require([
             // Status.
             docFrag = document.createDocumentFragment();
             tooltipNode = docFrag.appendChild(html.tooltip());
-            switch (results.status) {
+            switch (status) {
                 case 'PASS':
                     tooltipNode.setAttribute('title', 'Build completed');
                     tooltipNode.appendChild(html.success());
@@ -795,6 +800,10 @@ require([
                 case 'FAIL':
                     tooltipNode.setAttribute('title', 'Build failed');
                     tooltipNode.appendChild(html.fail());
+                    break;
+                case 'WARNING':
+                    tooltipNode.setAttribute('title', 'Build had warnings');
+                    tooltipNode.appendChild(html.warning());
                     break;
                 default:
                     tooltipNode.setAttribute('title', 'Unknown status');
