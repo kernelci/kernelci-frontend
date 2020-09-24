@@ -244,7 +244,7 @@ define([
                 aNode.appendChild(document.createTextNode(tree));
                 tooltipNode.appendChild(aNode);
             } else {
-                tooltipNode.appendChild(document.createTextNode(data));
+                tooltipNode.appendChild(document.createTextNode(tree));
             }
             rendered = tooltipNode.outerHTML;
         }
