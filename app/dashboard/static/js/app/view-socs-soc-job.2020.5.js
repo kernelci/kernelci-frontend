@@ -170,16 +170,8 @@ require([
         batchOps = [];
 
         function _prepareBatchOps(result) {
-            var kernel = result.kernel
+            var kernel = result.kernel;
             var filter = '&kernel=' + kernel;
-
-            batchOps.push({
-                operation_id: 'test-total-count-' + kernel,
-                method: 'GET',
-                resource: 'count',
-                document: 'test_case',
-                query: gQueryStr + filter
-            });
 
             batchOps.push({
                 operation_id: 'test-pass-count-' + kernel,
@@ -190,20 +182,20 @@ require([
             });
 
             batchOps.push({
-                operation_id: 'test-fail-count-' + kernel,
-                method: 'GET',
-                resource: 'count',
-                document: 'test_regression',
-                query: gQueryStr + filter
-            });
-
-            batchOps.push({
                 operation_id: 'test-warning-count-' + kernel,
                 method: 'GET',
                 resource: 'count',
                 document: 'test_case',
                 query: gQueryStr +
-                    '&status=FAIL&status=SKIP&regression_id=null' + filter
+                    '&status=FAIL&regression_id=null' + filter
+            });
+
+            batchOps.push({
+                operation_id: 'test-fail-count-' + kernel,
+                method: 'GET',
+                resource: 'count',
+                document: 'test_regression',
+                query: gQueryStr + filter
             });
         }
 

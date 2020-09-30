@@ -196,10 +196,11 @@ define([
             var results = response.result;
             var total = results[0].result[0].count;
             var pass = results[1].result[0].count;
-            var regressions = results[2].result[0].count;
-            var unknown = results[3].result[0].count;
+            var fail = results[2].result[0].count;
+            var regressions = results[3].result[0].count;
+            var unknown = results[4].result[0].count;
 
-            return [total, [pass, regressions, unknown]];
+            return [total, [pass, fail, regressions, unknown]];
         }
 
         chart.testpie({
@@ -223,7 +224,6 @@ define([
     }
 
     function updatePlansTable(results) {
-
         var columns;
 
         function _testColumnTitle() {
@@ -231,7 +231,7 @@ define([
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Regressions/Other test results');
+                'title', 'Pass/Fail/Regression test results');
             tooltipNode.appendChild(
                 document.createTextNode('Test Results'));
 
@@ -239,7 +239,7 @@ define([
         }
 
         function _renderTestCount(data, type) {
-            return ttest.renderTestCount({data: data, type: type})
+            return ttest.renderTestCount({data: data, type: type});
         }
 
         function _renderPlanStatus(data, type) {
@@ -275,7 +275,8 @@ define([
                 className: 'pull-center',
                 render: _renderPlanStatus,
             },
-        ]
+        ];
+
         gPlansTable
             .data(results)
             .columns(columns)
@@ -298,7 +299,7 @@ define([
             node.appendChild(ttest.statusNode(status));
         }
 
-        response.result.forEach(parseBatchData)
+        response.result.forEach(parseBatchData);
     }
 
     function getBatchStatusFailed() {
@@ -312,7 +313,7 @@ define([
                 document.createTextNode(data.result[0].count));
         }
 
-        response.result.forEach(parseBatchData)
+        response.result.forEach(parseBatchData);
     }
 
     function getBatchStatus(results) {
@@ -342,13 +343,13 @@ define([
         }
 
         batchOps = [];
-        results.forEach(createBatchOp)
+        results.forEach(createBatchOp);
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
             .fail(error.error, getBatchStatusFailed)
-            .done(getBatchStatusDone)
+            .done(getBatchStatusDone);
     }
 
     function getBatchCountFailed() {
@@ -410,13 +411,13 @@ define([
         }
 
         batchOps = [];
-        results.forEach(createBatchOp)
+        results.forEach(createBatchOp);
         deferred = request.post(
             '/_ajax/batch', JSON.stringify({batch: batchOps}));
 
         $.when(deferred)
             .fail(error.error, getBatchCountFailed)
-            .done(getBatchCountDone)
+            .done(getBatchCountDone);
     }
 
     function detailsFailed() {
@@ -431,7 +432,7 @@ define([
     function getPlansDone(response) {
         if (response.result.length === 0) {
             getPlansFailed();
-            return
+            return;
         }
 
         updateDetails(response.result[0]);
@@ -465,7 +466,7 @@ define([
             ],
         };
 
-        deferred = request.get('/_ajax/test/group', data)
+        deferred = request.get('/_ajax/test/group', data);
         $.when(deferred)
             .fail(error.error, getPlansFailed)
             .done(getPlansDone);
@@ -482,7 +483,7 @@ define([
             'mach': gSoc
         });
 
-        batchOps = []
+        batchOps = [];
 
         /* Total number of test cases */
         batchOps.push({
@@ -502,6 +503,15 @@ define([
             query: qStr + '&status=PASS',
         });
 
+        /* Number of unknown test results */
+        batchOps.push({
+            method: 'GET',
+            operation_id: 'test-warning-count',
+            resource: 'count',
+            document: 'test_case',
+            query: qStr + '&status=FAIL&regression_id=null',
+        });
+
         /* Number of test case regressions */
         batchOps.push({
             method: 'GET',
@@ -517,7 +527,7 @@ define([
             operation_id: 'test-unknown-count',
             resource: 'count',
             document: 'test_case',
-            query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+            query: qStr + '&status=SKIP',
         });
 
         deferred = request.post(
@@ -525,7 +535,7 @@ define([
 
         $.when(deferred)
             .fail(error.error, chartCountFailed)
-            .done(updateChart)
+            .done(updateChart);
     }
 
     if (document.getElementById('job-name') !== null) {

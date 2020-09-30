@@ -81,7 +81,7 @@ define([
             extraClasses: ['extra-margin'],
             idStart: 'test-'
         }, [
-            'total', 'pass', 'fail', 'warning',
+            'pass', 'warning', 'fail',
         ]);
     };
 

@@ -175,14 +175,6 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-total-count-' + job,
-                resource: 'count',
-                document: 'test_case',
-                query: queryStr + filter
-            });
-
-            batchOps.push({
-                method: 'GET',
                 operation_id: 'test-pass-count-' + job,
                 resource: 'count',
                 document: 'test_case',
@@ -191,19 +183,19 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: 'test-fail-count-' + job,
-                resource: 'count',
-                document: 'test_regression',
-                query: queryStr + filter
-            });
-
-            batchOps.push({
-                method: 'GET',
                 operation_id: 'test-warning-count-' + job,
                 resource: 'count',
                 document: 'test_case',
                 query: queryStr +
-                    '&status=FAIL&status=SKIP&regression_id=null' + filter
+                    '&status=FAIL&regression_id=null' + filter
+            });
+
+            batchOps.push({
+                method: 'GET',
+                operation_id: 'test-fail-count-' + job,
+                resource: 'count',
+                document: 'test_regression',
+                query: queryStr + filter
             });
         }
 
@@ -282,7 +274,7 @@ require([
 
             tooltipNode = html.tooltip();
             tooltipNode.setAttribute(
-                'title', 'Total/Successful/Regressions/Other results');
+                'title', 'Pass/Fail/Regression results');
             tooltipNode.appendChild(
                 document.createTextNode('Latest Test Results'));
 
@@ -290,8 +282,6 @@ require([
         }
 
         results = response.result;
-        console.log("results:")
-        console.log(results)
         if (results.length > 0) {
             columns = [
                 {
