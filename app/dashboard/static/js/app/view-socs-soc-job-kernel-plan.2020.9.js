@@ -146,7 +146,7 @@ require([
         gPanel.draw();
     }
 
-    function createLabResultsCount(total, pass, fail, unknown) {
+    function createLabResultsCount(pass, fail, regression) {
         var docFrag;
         var smallNode;
         var spanNode;
@@ -156,29 +156,30 @@ require([
         tooltipNode = docFrag.appendChild(html.tooltip());
         html.addClass(tooltipNode, 'default-cursor');
         tooltipNode.title =
-            "Total, passed, regressions and unknown test results for this lab";
+            "Success, failure and regression results for this lab";
 
         smallNode = tooltipNode.appendChild(document.createElement('small'));
-        smallNode.appendChild(document.createTextNode(
-            '(' + format.number(total)));
+        smallNode.appendChild(document.createTextNode('('));
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
 
         spanNode = smallNode.appendChild(document.createElement('span'));
         spanNode.className = 'green-font';
-        spanNode.appendChild(document.createTextNode(format.number(pass)));
-
-        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
-
-        spanNode = smallNode.appendChild(document.createElement('span'));
-        spanNode.className = 'red-font';
-        spanNode.appendChild(document.createTextNode(format.number(fail)));
+        spanNode.appendChild(
+            document.createTextNode(format.number(pass)));
 
         smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
 
         spanNode = smallNode.appendChild(document.createElement('span'));
         spanNode.className = 'yellow-font';
         spanNode.appendChild(
-            document.createTextNode(format.number(unknown)));
+            document.createTextNode(format.number(fail)));
+
+        smallNode.insertAdjacentHTML('beforeend', '&nbsp;/&nbsp;');
+
+        spanNode = smallNode.appendChild(document.createElement('span'));
+        spanNode.className = 'red-font';
+        spanNode.appendChild(document.createTextNode(
+            format.number(regression)));
 
         smallNode.appendChild(document.createTextNode(')'));
 
@@ -204,8 +205,8 @@ require([
 
             html.replaceContent(
                 document.getElementById('test-count-' + lab),
-                createLabResultsCount(res['total'], res['success'],
-                                      res['regressions'], res['unknown'])
+                createLabResultsCount(res['success'], res['failure'],
+                                      res['regression'])
             );
         });
     }
@@ -377,14 +378,6 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [lab, 'total'],
-                resource: 'count',
-                document: 'test_case',
-                query: qStr,
-            });
-
-            batchOps.push({
-                method: 'GET',
                 operation_id: [lab, 'success'],
                 resource: 'count',
                 document: 'test_case',
@@ -393,18 +386,18 @@ require([
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [lab, 'regressions'],
+                operation_id: [lab, 'failure'],
                 resource: 'count',
-                document: 'test_regression',
-                query: qStr,
+                document: 'test_case',
+                query: qStr + '&status=FAIL&regression_id=null',
             });
 
             batchOps.push({
                 method: 'GET',
-                operation_id: [lab, 'unknown'],
+                operation_id: [lab, 'regression'],
                 resource: 'count',
-                document: 'test_case',
-                query: qStr + '&status=FAIL&status=SKIP&regression_id=null',
+                document: 'test_regression',
+                query: qStr,
             });
         }
 
