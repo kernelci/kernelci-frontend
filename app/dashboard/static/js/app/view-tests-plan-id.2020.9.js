@@ -136,7 +136,7 @@ require([
         defconfigLink.appendChild(html.external());
         defconfigNode.appendChild(defconfigLink);
         buildLink = document.createElement('a');
-        buildLink.href = "/build/id/" + results._id.$oid;
+        buildLink.href = "/build/id/" + results.build_id.$oid;
         buildLink.appendChild(html.build());
         buildLink.title = "Build details";
         defconfigNode.insertAdjacentHTML('beforeend', '&nbsp;&mdash;&nbsp;');
