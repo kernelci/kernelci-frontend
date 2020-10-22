@@ -1014,7 +1014,7 @@ require([
         $.when(
             r.get('/_ajax/build', {id: gBuildId, nfield: ['dtb_dir_data']}))
                 .fail(e.error, getBuildsFail)
-                .done(getBuildsDone, getTests, getBisect);
+                .done(getBuildsDone, getTests);
     }
 
     if (document.getElementById('file-server') !== null) {
