@@ -16,7 +16,7 @@ since=$(git tag -l | grep -v staging | tail -1)
 echo "Changes since $since:"
 
 git diff --stat $since "$JS_PATH"app/view-*.js \
-    | grep -v "files changed" \
+    | grep -v "changed," \
     | cut -d\  -f2 \
     | while read view
 do
