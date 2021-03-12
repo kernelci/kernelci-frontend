@@ -560,7 +560,7 @@ require([
 
             if (result.build_log !== null) {
                 dtNode = dlNode.appendChild(document.createElement('dt'));
-                dtNode.appendChild(document.createTextNode('Build log'));
+                dtNode.appendChild(document.createTextNode('Build logs'));
 
                 ddNode = dlNode.appendChild(document.createElement('dd'));
                 aNode = ddNode.appendChild(document.createElement('a'));
