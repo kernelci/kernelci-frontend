@@ -27,7 +27,6 @@
 
 from flask import current_app as app
 
-import dashboard.views.boot as vboot
 import dashboard.views.build as vbuild
 import dashboard.views.generic as vgeneric
 import dashboard.views.index as vindex
@@ -170,13 +169,6 @@ def init():
         "/job/<string:job>/branch/<path:branch>/feed.xml",
         "job-branch-feed",
         jobfeed.job_branch_feed,
-        methods=["GET"]
-    )
-
-    # Boots related URLs.
-    add_rule(
-        "/boot/",
-        view_func=vboot.BootAllView.as_view("boots"),
         methods=["GET"]
     )
 
