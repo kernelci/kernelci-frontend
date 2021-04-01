@@ -104,18 +104,26 @@
                 <div class="col-xs-3 col-sm-4 col-md-4 col-lg-4">
                     <ul class="list-unstyled">
                         <li>
-                            <a title="Statistics" href="https://kcidb.kernelci.org/d/home/home?orgId=1&var-origin=kernelci&var-git_repository_url=All&var-dataset=kernelci04&fullscreen&panelId=4&from=now-14d&to=now">Statistics</a>
+                            <a title="KernelCI main page" href="https://kernelci.org">
+                              kernelci.org
+                            </a>
                         </li>
-                    </ul>
-                </div>
-                <div class="col-xs-3 col-sm-4 col-md-4 col-lg-4">
-                    <ul class="list-unstyled">
                         <li>
-                            Version:&nbsp;
+                            <a title="KernelCI General Documentation" href="https://kernelci.org/docs">
+                              Documentation
+                            </a>
+                        </li>
+                        <li>
+                            <a title="KernelCI API documentation" href="https://api.kernelci.org">
+                                API documentation
+                            </a>
+                        </li>
+                        <li>
+                          Frontend Version:&nbsp;
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI Dashboard version">
                                 <a href="https://github.com/kernelci/kernelci-frontend/tree/{{ front_version }}">{{ front_version }}</a>
                             </span>
-                            &nbsp;|&nbsp;
+                            &nbsp;|&nbsp;Backend Version:
                             <span class="rel-tooltip" data-toggle="tooltip" title="Kernel CI API version" id="api-version">
                             {%- if back_version %}
                                 <a href="https://github.com/kernelci/kernelci-backend/tree/{{ back_version }}">{{ back_version }}</a>
@@ -123,11 +131,6 @@
                                 ?
                             {%- endif %}
                             </span>
-                        </li>
-                        <li>
-                            <a title="API documentation" href="https://api.kernelci.org">
-                                API documentation
-                            </a>
                         </li>
                     </ul>
                 </div>
