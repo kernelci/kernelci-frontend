@@ -23,7 +23,6 @@ require([
     'utils/format',
     'utils/error',
     'utils/request',
-    'charts/statsbar',
     'utils/html',
     'utils/date'
 ], function($, init, format, e, r, chart, html) {
