@@ -31,11 +31,3 @@ class AboutView(GenericView):
     def dispatch_request(self):
         ABOUT_TITLE = "%s &mdash; %s" % (self.PAGE_TITLE, "Info")
         return render_template("info.html", page_title=ABOUT_TITLE)
-
-
-class StatisticsView(GenericView):
-
-    def dispatch_request(self):
-        page_title = "%s &mdash; %s" % (self.PAGE_TITLE, "Statistics")
-        return render_template("stats.html", page_title=page_title)
-
