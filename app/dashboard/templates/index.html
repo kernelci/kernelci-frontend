@@ -41,18 +41,25 @@
 {%- endblock %}
 {%- block content %}
 <div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
         <div class="pull-center" style="margin-top: 1em;">
-            <h3>Automated Linux Kernel Testing</h3>
-            <h4>&#8230;made easy!</h4>
+            <h3>KernelCI Dashboard</h3>
         </div>
         <div class="welcome-text">
-            <p>
-                <a href="https://www.kernelci.org/" title="kernelci.org home page">Kernelci.org main page.</a>
-            </p>
-            <p>
-                It is our mission to detect, bisect, report and fix regressions on upstream Kernel trees before they even reach &#171;mainline&#187;.
-            </p>
+          <p>
+            Welcome to the KernelCI web dashboard for the upstream Linux
+            kernel.
+          </p>
+          <p>
+            You'll find here all the results for kernel builds and tests run
+            natively by KernelCI on mainline, linux-next, stable and a variety
+            of maintainer branches.
+          </p>
+          <p>
+            To find out more about the project, see
+            the main <a href="https://kernelci.org/" title="kernelci.org home
+            page">kernelci.org</a> website.
+          </p>
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -64,7 +71,7 @@
                     </a>
                     &nbsp;
                     <span class="selection-label">
-                        View trees being built and their latest results
+                        View kernel branches and their latest build and test results
                     </span>
                 </li>
                 <li>
@@ -73,7 +80,7 @@
                     </a>
                     &nbsp;
                     <span class="selection-label">
-                        View latest builds being performed
+                        View latest kernel build results
                     </span>
                 </li>
                 <li>
@@ -82,7 +89,7 @@
                     </a>
                     &nbsp;
                     <span class="selection-label">
-                        View latest test reports
+                        View latest test results
                     </span>
                 </li>
                 <li>
@@ -91,16 +98,7 @@
                     </a>
                     &nbsp;
                     <span class="selection-label">
-                        View SoCs being tested
-                    </span>
-                </li>
-                <li>
-                    <a class="btn btn-default" href="https://staging.kernelci.org:3000" target="_blank" role="button">
-                        <i class="fa fa-stethoscope fa-lg"></i>
-                    </a>
-                    &nbsp;
-                    <span class="selection-label">
-                        View KCIDB results
+                        View results per SoC or hardware family
                     </span>
                 </li>
             </ul>
