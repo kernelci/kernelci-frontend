@@ -51,13 +51,13 @@ define([
     }
 
     function setHotKeys() {
-        var goToBoot,
-            goToBuild,
+        var goToBuild,
             goToCompare,
             goToHome,
             goToInfo,
             goToJob,
             goToSoc,
+            goToTest,
             selectSearch,
             selectTableLength,
             showHelp;
@@ -78,8 +78,8 @@ define([
             window.location = document.getElementById('build-l').href;
         };
 
-        goToBoot = function() {
-            window.location = document.getElementById('boot-l').href;
+        goToTest = function() {
+            window.location = document.getElementById('tests-l').href;
         };
 
         goToSoc = function() {
@@ -114,7 +114,7 @@ define([
                 $.mapHotKeys.createSequence('g', 'o', $(document), goToHome),
                 $.mapHotKeys.createSequence('g', 'j', $(document), goToJob),
                 $.mapHotKeys.createSequence('g', 'b', $(document), goToBuild),
-                $.mapHotKeys.createSequence('g', 't', $(document), goToBoot),
+                $.mapHotKeys.createSequence('g', 't', $(document), goToTest),
                 $.mapHotKeys.createSequence('g', 's', $(document), goToSoc),
                 $.mapHotKeys.createSequence('g', 'c', $(document), goToCompare),
                 $.mapHotKeys.createSequence('g', 'i', $(document), goToInfo)
