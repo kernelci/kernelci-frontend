@@ -72,7 +72,6 @@ require.config({
             'app/view-socs-soc-job': 'app/view-socs-soc-job.2020.10',
             'app/view-socs-soc-job-kernel': 'app/view-socs-soc-job-kernel.2020.10',
             'app/view-socs-soc-job-kernel-plan': 'app/view-socs-soc-job-kernel-plan.2020.10',
-            'app/view-stats': 'app/view-stats.2017.3.3',
             'app/view-tests-all': 'app/view-tests-all.2020.9',
             'app/view-tests-plan-id': 'app/view-tests-plan-id.2020.10',
             'app/view-tests-case-id': 'app/view-tests-case-id.2020.10',
