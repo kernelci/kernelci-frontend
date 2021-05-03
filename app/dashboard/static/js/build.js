@@ -62,7 +62,7 @@
         '*': {
             'app/view-builds-all': 'app/view-builds-all.2017.5',
             'app/view-builds-id': 'app/view-builds-id.2020.10.1',
-            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2020.10',
+            'app/view-builds-job-branch-kernel': 'app/view-builds-job-branch-kernel.2021.05',
             'app/view-builds-job-kernel': 'app/view-builds-job-kernel.2020.6',
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2017.3.3',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.2020.6',
@@ -97,7 +97,7 @@
     modules: [
         {name: 'app/view-builds-all.2017.5'},
         {name: 'app/view-builds-id.2020.10.1'},
-        {name: 'app/view-builds-job-branch-kernel.2020.10'},
+        {name: 'app/view-builds-job-branch-kernel.2021.05'},
         {name: 'app/view-builds-job-kernel.2020.6'},
         {name: 'app/view-builds-job-kernel-defconfig-logs.2020.6'},
         {name: 'app/view-builds-job-kernel-defconfig.2017.3.3'},
