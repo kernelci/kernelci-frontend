@@ -64,7 +64,6 @@ require.config({
             'app/view-builds-job-kernel-defconfig': 'app/view-builds-job-kernel-defconfig.2017.3.3',
             'app/view-builds-job-kernel-defconfig-logs': 'app/view-builds-job-kernel-defconfig-logs.2020.6',
             'app/view-index': 'app/view-index.2017.3.3',
-            'app/view-info': 'app/view-info.2021.03',
             'app/view-jobs-all': 'app/view-jobs-all.2020.10',
             'app/view-jobs-job': 'app/view-jobs-job.2020.10',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2020.10',
