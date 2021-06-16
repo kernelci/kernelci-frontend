@@ -128,7 +128,7 @@ require([
         defconfigLink = document.createElement('a');
         defconfigLink.appendChild(
             document.createTextNode(results.defconfig_full));
-        defconfigPath = translatedURI[1] + "/config/kernel.config";
+        defconfigPath = translatedURI[1] + "/kernel.config";
         defconfigLink.href =
             translatedURI[0].path(defconfigPath).normalizePath().href();
         defconfigLink.title = "Defconfig URL";
