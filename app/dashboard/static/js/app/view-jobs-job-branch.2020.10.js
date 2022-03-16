@@ -28,7 +28,7 @@ require([
     'utils/html',
     'tables/job',
     'URI',
-], function($, init, format, r, e, table, u, chart, html, jobt, URI) {
+], function($, init, format, r, e, table, u, html, jobt, URI) {
     'use strict';
     var gBranchName;
     var gBuildsTable;
