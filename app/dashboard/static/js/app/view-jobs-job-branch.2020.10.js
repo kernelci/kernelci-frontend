@@ -25,11 +25,10 @@ require([
     'utils/error',
     'utils/table',
     'utils/urls',
-    'charts/passrate',
     'utils/html',
     'tables/job',
     'URI',
-], function($, init, format, r, e, table, u, chart, html, jobt, URI) {
+], function($, init, format, r, e, table, u, html, jobt, URI) {
     'use strict';
     var gBranchName;
     var gBuildsTable;
@@ -43,101 +42,6 @@ require([
     }, 15);
 
     gNumberRange = 20;
-
-    function getTestStatsFail() {
-        html.replaceContent(
-            document.getElementById('test-pass-rate'),
-            html.errorDiv('Error loading test data.'));
-    }
-
-    function getTestStatsDone(response) {
-        chart.testpassrate('test-pass-rate', response);
-    }
-
-    function getTestStats(startDate, dateRange) {
-        var data;
-        var deferred;
-
-        data = {
-            job: gJobName,
-            git_branch: gBranchName,
-            sort: 'created_on',
-            sort_order: 1,
-            created_on: startDate,
-            date_range: dateRange,
-            field: ['status', 'kernel', 'created_on', 'job']
-        };
-
-        deferred = r.get('/_ajax/test/case', data);
-        $.when(deferred)
-            .fail(e.error, getTestStatsFail)
-            .done(getTestStatsDone);
-    }
-
-    function getBuildsStatsFail() {
-        html.replaceContent(
-            document.getElementById('build-pass-rate'),
-            html.errorDiv('Error loading build data.'));
-    }
-
-    function getBuildsStatsDone(response) {
-        chart.buildpassrate('build-pass-rate', response);
-    }
-
-    function getBuildsStats(startDate, dateRange) {
-        var data;
-        var deferred;
-
-        data = {
-            job: gJobName,
-            git_branch: gBranchName,
-            sort: 'created_on',
-            sort_order: 1,
-            created_on: startDate,
-            date_range: dateRange,
-            field: ['status', 'kernel', 'created_on', 'job']
-        };
-
-        deferred = r.get('/_ajax/build', data);
-        $.when(deferred)
-            .fail(e.error, getBuildsStatsFail)
-            .done(getBuildsStatsDone);
-    }
-
-    function getTrendsData(response) {
-        var firstDate;
-        var lDateRange;
-        var lastDate;
-        var resLen;
-        var results;
-
-        results = response.result;
-        resLen = results.length;
-        lDateRange = 0;
-
-        if (resLen > 0) {
-            firstDate = new Date(results[0].created_on.$date);
-            if (resLen > 1) {
-                lastDate = new Date(results[resLen - 1].created_on.$date);
-                lDateRange = Math.round((firstDate - lastDate) / 86400000);
-            }
-
-            setTimeout(function() {
-                getBuildsStats(firstDate.toCustomISODate(), lDateRange);
-            }, 25);
-            setTimeout(function() {
-                getTestStats(firstDate.toCustomISODate(), lDateRange);
-            }, 25);
-        } else {
-            html.replaceContent(
-                document.getElementById('build-pass-rate'),
-                html.errorDiv('No build data available.'));
-
-            html.replaceContent(
-                document.getElementById('test-pass-rate'),
-                html.errorDiv('No test data available.'));
-        }
-    }
 
     function getBuildTestsCountFail() {
         html.replaceByClass('count-badge', '&infin;');
@@ -460,8 +364,8 @@ require([
         $.when(deferred)
             .fail(
                 e.error,
-                getBuildsFailed, getBuildsStatsFail, getTestStatsFail)
-            .done(getTrendsData, getBuildsDone, getBuildTestsCount);
+                getBuildsFailed)
+            .done(getBuildsDone, getBuildTestsCount);
     }
 
     function getDetailsDone(response) {
