@@ -239,3 +239,10 @@ def init():
         view_func=vnewapi.APIJobsAllView.as_view("new-api-jobs"),
         methods=["GET"]
     )
+
+    add_rule(
+        "/new-api-job/<string:job>/branch/<path:branch>/kernel/<string:kernel>/",
+        view_func=vnewapi.APIJobBranchKernelView.as_view("new-api-job-branch-kernel"),
+        methods=["GET"]
+    )
+

@@ -28,7 +28,8 @@ require([
     'utils/html',
     'utils/const',
     'tables/job',
-], function($, init, e, r, table, html, appconst, jobt) {
+    'URI',
+], function($, init, e, r, table, html, appconst, jobt, URI) {
     'use strict';
     var gDateRange;
     var gJobsTable;
@@ -52,6 +53,14 @@ require([
     function getJobsDone(response){
         var columns;
         var results;
+
+        function _renderDetails(data, type, object) {
+            var href =
+                '/new-api-job/' + data +
+                '/branch/' + URI.encode(object.branch) +
+                '/kernel/' + URI.encode(object.describe);
+            return jobt.renderDetails(href, type);
+        }
 
         function filterByDate(created){
             var dateNow = new Date();
@@ -112,7 +121,8 @@ require([
                     type: 'string',
                     searchable: false,
                     orderable: false,
-                    className: 'select-column pull-center'
+                    className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
 
