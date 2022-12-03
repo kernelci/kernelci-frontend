@@ -125,6 +125,10 @@ define([
                 tooltipNode.setAttribute('title', defaults.warning);
                 tooltipNode.appendChild(html.warning());
                 break;
+            case 'DONE':
+                tooltipNode.setAttribute('title', defaults.done);
+                tooltipNode.appendChild(html.success());
+                break;
             default:
                 tooltipNode.setAttribute('title', defaults.default);
                 tooltipNode.appendChild(html.unknown());
@@ -255,7 +259,11 @@ define([
                 node = _dateNode(date).firstElementChild;
                 rendered = node.outerHTML;
             } else {
-                created = new Date(date.$date);
+                if (date.$date) {
+                    created = new Date(date.$date);
+                } else {
+                    created = new Date(date);
+                }
                 rendered = created.toCustomISODate();
             }
         } else {
