@@ -229,6 +229,18 @@ require([
             return ttest.renderTestCount({data: data.id, type: type});
         }
 
+        /**
+         * Wrapper to provide the href.
+        **/
+        function _renderDetails(data, type, object) {
+            var href =
+                '/new-api-job/' + gJob +
+                '/branch/' + URI.encode(gBranch) +
+                '/kernel/' + gKernel +
+                '/plan/' + object.group + '/';
+            return ttest.renderDetails(href, type);
+        }
+
         if (results.length === 0) {
             html.replaceContent(
                 document.getElementById('table-div'),
@@ -266,6 +278,7 @@ require([
                     searchable: false,
                     orderable: false,
                     className: 'select-column pull-center',
+                    render: _renderDetails
                 }
             ];
             gPlansTable
