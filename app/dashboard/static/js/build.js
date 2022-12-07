@@ -73,6 +73,7 @@
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2020.10',
             'app/view-new-api-jobs-all': 'app/view-new-api-jobs-all.2022.11',
             'app/view-new-api-job-branch-kernel': 'app/view-new-api-job-branch-kernel.2022.11',
+            'app/view-new-api-job-branch-kernel-plan': 'app/view-new-api-job-branch-kernel-plan.2022.11',
             'app/view-socs-all': 'app/view-socs-all.2020.10',
             'app/view-socs-soc': 'app/view-socs-soc.2020.10',
             'app/view-socs-soc-job': 'app/view-socs-soc-job.2020.10',
@@ -141,5 +142,6 @@
         {name: 'kci-tests-case-id'},
         {name: 'kci-new-api-jobs-all'},
         {name: 'kci-new-api-job-branch-kernel'},
+        {name: 'kci-new-api-job-branch-kernel-plan.js'}
     ]
 })

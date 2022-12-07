@@ -69,3 +69,24 @@ class APIJobBranchKernelView(GeneralNewAPIView):
             kernel=kernel
         )
 
+
+class APIJobBranchKernelPlanView(GeneralNewAPIView):
+
+    def dispatch_request(self, **kwargs):
+        job, branch, kernel, plan = (kwargs[k] for k in ['job', 'branch', 'kernel', 'plan'])
+        page_title = "{} &mdash; {}/{} {}".format(
+            self.JOB_PAGES_TITLE, job, branch, kernel)
+        body_title = (
+            "Test Results: &#171;{}&#187 <small>({} / {})</small>".format(
+                kernel, job, branch)
+        )
+
+        return render_template(
+            "new-api-job-branch-kernel-plan.html",
+            page_title=page_title,
+            body_title=body_title,
+            job=job,
+            branch=branch,
+            kernel=kernel,
+            plan=plan
+        )

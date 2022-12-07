@@ -246,3 +246,8 @@ def init():
         methods=["GET"]
     )
 
+    add_rule(
+        "/new-api-job/<string:job>/branch/<path:branch>/kernel/<string:kernel>/plan/<string:plan>/",
+        view_func=vnewapi.APIJobBranchKernelPlanView.as_view("new-api-job-branch-kernel-plan"),
+        methods=["GET"]
+    )
