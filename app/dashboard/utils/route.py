@@ -33,6 +33,7 @@ import dashboard.views.index as vindex
 import dashboard.views.job as vjob
 import dashboard.views.soc as vsoc
 import dashboard.views.test as vtest
+import dashboard.views.newapi as vnewapi
 
 import dashboard.utils.feed.job as jobfeed
 import dashboard.utils.feed.soc as socfeed
@@ -229,5 +230,24 @@ def init():
         ),
         view_func=vtest.TestJobBranchKernelPlanView.
         as_view("test-job-branch-kernel-plan"),
+        methods=["GET"]
+    )
+
+    #New API views
+    add_rule(
+        "/new-api-job/",
+        view_func=vnewapi.APIJobsAllView.as_view("new-api-jobs"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/new-api-job/<string:job>/branch/<path:branch>/kernel/<string:kernel>/",
+        view_func=vnewapi.APIJobBranchKernelView.as_view("new-api-job-branch-kernel"),
+        methods=["GET"]
+    )
+
+    add_rule(
+        "/new-api-job/<string:job>/branch/<path:branch>/kernel/<string:kernel>/plan/<string:plan>/",
+        view_func=vnewapi.APIJobBranchKernelPlanView.as_view("new-api-job-branch-kernel-plan"),
         methods=["GET"]
     )

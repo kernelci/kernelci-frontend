@@ -1,6 +1,8 @@
 /*!
  * kernelci dashboard.
  *
+ * Copyright (C) 2022 Collabora Ltd.
+ *
  * Copyright (C) 2014, 2015, 2016, 2017  Linaro Ltd.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -513,7 +515,11 @@ define([
 
         frag = document.createDocumentFragment();
 
-        created = new Date(date.$date);
+        if (date.$date) {
+            created = new Date(date.$date);
+        } else {
+            created = new Date(date);
+        }
         timeNode = frag.appendChild(document.createElement('time'));
         timeNode.setAttribute('datetime', created.toISOString());
         timeNode.appendChild(
