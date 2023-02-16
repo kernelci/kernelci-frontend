@@ -31,6 +31,7 @@ define([
         pass: 'Build completed',
         build: 'Building',
         fail: 'Build failed',
+        done: 'Job done',
         default: 'Unknown status'
     };
 
