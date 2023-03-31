@@ -2,6 +2,6 @@ werkzeug==0.16
 Flask-Cache
 Flask-WTF==0.11
 Flask==1.0
-redis==2.10.5
+redis==4.4.4
 requests
 pymongo==3.9.0
