@@ -22,8 +22,8 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-LOGGER_NAME = "kernelci-frontend"
-SESSION_COOKIE_NAME = "kernelci.org"
+LOGGER_NAME = "chromeos-kernelci-frontend"
+SESSION_COOKIE_NAME = "chromeos.staging.kernelci.org"
 
 # Following keys should be defined in an external file and passed as an
 # environment variable called FLASK_SETTINGS, or in /etc/kernelci in a file
