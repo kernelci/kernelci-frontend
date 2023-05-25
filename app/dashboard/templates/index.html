@@ -43,22 +43,38 @@
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
         <div class="pull-center" style="margin-top: 1em;">
-            <h3>KernelCI Dashboard</h3>
+            <h3>Staging Chrome OS KernelCI Dashboard</h3>
         </div>
         <div class="welcome-text">
           <p>
-            Welcome to the KernelCI web dashboard for the upstream Linux
-            kernel.
+            Welcome to the staging Chrome OS KernelCI web dashboard.  This is the
+            development instance of <a href="https://chromeos.kernelci.org"
+            target="_blank">linux.kernelci.org</a> where changes are being
+            integrated together and verified.
           </p>
           <p>
-            You'll find here all the results for kernel builds and tests run
-            natively by KernelCI on mainline, linux-next, stable and a variety
-            of maintainer branches.
+            Kernel revisions on this instance are for the most part created
+            artificially in order to generate jobs in a controlled fashion.
+            All the open pull requests from the following GitHub projects are
+            merged together on staging branches (chromeos.staging.kernelci.org)and deployed here automatically
+            every 8 hours:
+            <ul>
+              <li><a href="https://github.com/kernelci/kernelci-core" target="_blank"><span style="font-family: mono">kernelci-core</span></a></li>
+              <li><a href="https://github.com/kernelci/kernelci-frontend" target="_blank"><span style="font-family: mono">kernelci-frontend</span></a></li>
+              <li><a href="https://github.com/kernelci/kernelci-backend" target="_blank"><span style="font-family: mono">kernelci-backend</span></a></li>
+              <li><a href="https://github.com/kernelci/kernelci-jenkins" target="_blank"><span style="font-family: mono">kernelci-jenkins</span></a></li>
+              <li><a href="https://github.com/kernelci/test-definitions" target="_blank"><span style="font-family: mono">test-definitions</span></a></li>
+            </ul>
           </p>
           <p>
-            To find out more about the project, see
-            the main <a href="https://kernelci.org/" title="kernelci.org home
-            page">kernelci.org</a> website.
+            A staging instance of
+            the <a href="https://chromeos.kernelci.org">chromeos.kernelci.org</a>
+          </p>
+          <p>
+            See
+            the <a href="https://kernelci.org/docs/workflow/staging/">staging
+            documentation</a> to learn more about how this works and how to
+            take part in KernelCI development.
           </p>
         </div>
     </div>
