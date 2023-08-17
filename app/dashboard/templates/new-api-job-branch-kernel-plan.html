@@ -1,0 +1,122 @@
+{%- extends "base.html" %}
+{%- block meta -%}
+    <meta name="csrf-token" content="{{ csrf_token_r() }}">
+{%- endblock %}
+{%- block title %}{{ page_title|safe }}{%- endblock %}
+{%- block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="/static/css/dataTables.bootstrap-1.10.11.css">
+{%- endblock %}
+{%- block content %}
+<div class="row">
+    <div class="page-header">
+      <h3 id="body-title">
+        Results for <span id="plan-title">&hellip;</span>:
+        «<span id="kernel-title">&hellip;</span>»
+        <small>
+          (<span id="tree-title">&hellip;</span> /
+          <span id="branch-title">&hellip;</span>)
+        </small>
+      </h3>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <dl class="dl-horizontal">
+            <dt>Tree</dt>
+            <dd class="loading-content" id="tree">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Test Plan</dt>
+            <dd class="loading-content" id="plan">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git branch</dt>
+            <dd class="loading-content" id="git-branch">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git describe</dt>
+            <dd class="loading-content" id="git-describe">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Git URL</dt>
+            <dd class="loading-content" id="git-url">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+            <dt>Date</dt>
+            <dd class="loading-content" id="job-date">
+                <small>
+                    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>&nbsp;loading&hellip;
+                </small>
+            </dd>
+        </dl>
+    </div>
+    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+        <div id="pie-chart" class="chart-div pull-center">
+          <div id="pie-chart-heading">
+              <table id="pie-chart-legend" class="pie-chart">
+                  <tbody>
+                      <tr>
+                          <td id="show-pass" class="click-btn">0</td>
+                          <td>&nbsp;/&nbsp;</td>
+                          <td id="show-warning" class="click-btn">0</td>
+                          <td>&nbsp;/&nbsp;</td>
+                          <td id="show-fail" class="click-btn">0</td>
+                          <td>&nbsp;/&nbsp;</td>
+                          <td id="show-unknown" class="click-btn">0</td>
+                      </tr>
+                  </tbody>
+              </table>
+            </div>
+            <div id="test-chart"></div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div class="page-header">
+            <h4>Test Results</h4>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                <div class="btn-group btn-group-sm">
+                    <button id="btn-total" type="button" class="btn btn-default" disabled>All</button>
+                    <button id="btn-pass" type="button" class="btn btn-default" disabled>Successful</button>
+                    <button id="btn-regressions" type="button" class="btn btn-default" disabled>Regressions</button>
+                    <button id="btn-failures" type="button" class="btn btn-default" disabled>Failures</button>
+                    <button id="btn-unknown" type="button" class="btn btn-default" disabled>Unknown</button>
+                </div>
+            </div>
+        </div>
+        <div id="table-loading" class="pull-center">
+            <small>
+                <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+                &nbsp;retrieving test data&hellip;
+            </small>
+        </div>
+    {%- if is_mobile %}
+        <div class="table-responsive" id="table-div">
+    {%- else %}
+        <div class="table" id="table-div">
+    {%- endif %}
+            <table class="table table-hover table-striped table-condensed clickable-table big-table" id="tests-table">
+            </table>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="plan-name" value="{{ plan }}">
+<input type="hidden" id="job-name" value="{{ job }}">
+<input type="hidden" id="branch-name" value="{{ branch }}">
+<input type="hidden" id="kernel-name" value="{{ kernel }}">
+{%- endblock %}
+{%- block scripts %}
+<script data-main="/static/js/kci-new-api-job-branch-kernel-plan" src="/static/js/lib/require.js"></script>
+{%- endblock %}

@@ -1,5 +1,5 @@
 /*!
- * Copyright (C) Collabora Limited 2020
+ * Copyright (C) Collabora Limited 2020, 2022
  * Author: Alexandra Pereira <alexandra.pereira@collabora.com>
  *
  * Copyright (C) Linaro Limited 2015,2016,2017,2019
@@ -71,6 +71,9 @@
             'app/view-jobs-all': 'app/view-jobs-all.2020.10',
             'app/view-jobs-job': 'app/view-jobs-job.2020.10',
             'app/view-jobs-job-branch': 'app/view-jobs-job-branch.2020.10',
+            'app/view-new-api-jobs-all': 'app/view-new-api-jobs-all.2022.11',
+            'app/view-new-api-job-branch-kernel': 'app/view-new-api-job-branch-kernel.2022.11',
+            'app/view-new-api-job-branch-kernel-plan': 'app/view-new-api-job-branch-kernel-plan.2022.11',
             'app/view-socs-all': 'app/view-socs-all.2020.10',
             'app/view-socs-soc': 'app/view-socs-soc.2020.10',
             'app/view-socs-soc-job': 'app/view-socs-soc-job.2020.10',
@@ -117,6 +120,7 @@
         {name: 'app/view-tests-case-id.2021.06'},
         {name: 'app/view-tests-job-branch-kernel.2020.10'},
         {name: 'app/view-tests-job-branch-kernel-plan.2020.10'},
+        {name: 'app/view-new-api-jobs-all.2022.11'},
         {name: 'kci-builds-all'},
         {name: 'kci-builds-id'},
         {name: 'kci-builds-job-kernel'},
@@ -136,5 +140,8 @@
         {name: 'kci-tests-job-branch-kernel'},
         {name: 'kci-tests-plan-id'},
         {name: 'kci-tests-case-id'},
+        {name: 'kci-new-api-jobs-all'},
+        {name: 'kci-new-api-job-branch-kernel'},
+        {name: 'kci-new-api-job-branch-kernel-plan'}
     ]
 })
